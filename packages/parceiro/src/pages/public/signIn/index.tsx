@@ -167,7 +167,7 @@ export const SignIn: React.FC = () => {
                   fontWeight="bold"
                   type="submit"
                 >
-                  ENTRAR
+                  Entrar
                 </Button>
                 <S.Link to="/recuperar-senha">Esqueci minha senha</S.Link>
               </S.Footer>
