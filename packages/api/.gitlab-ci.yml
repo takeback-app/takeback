@@ -1,0 +1,20 @@
+stages:
+  - deploy
+
+staging:
+  stage: deploy
+  script:
+    - gem install dpl
+    - dpl --provider=heroku --app=takeback-staging --api_key=$HEROKU_PRODUCTION_KEY
+  only:
+    - develop
+  environment: staging
+
+production:
+  stage: deploy
+  script:
+    - gem install dpl
+    - dpl --provider=heroku --app=takebackapi --api_key=$HEROKU_PRODUCTION_KEY
+  only:
+    - main
+  environment: production

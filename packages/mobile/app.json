@@ -1,0 +1,56 @@
+{
+  "expo": {
+    "name": "TakeBack",
+    "slug": "takeback",
+    "version": "2.3.3",
+    "orientation": "portrait",
+    "privacy": "unlisted",
+    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "ios": {
+      "jsEngine": "jsc",
+      "buildNumber": "2.3.3",
+      "userInterfaceStyle": "automatic",
+      "supportsTablet": false,
+      "bundleIdentifier": "com.takeback"
+    },
+    "android": {
+      "jsEngine": "hermes",
+      "versionCode": 23,
+      "userInterfaceStyle": "light",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "googleServicesFile": "./google-services.json",
+      "package": "com.takeback"
+    },
+    "splash": {
+      "image": "./assets/splashScreen.png",
+      "backgroundColor": "#449FE7",
+      "resizeMode": "cover"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "112b4e0a-5f65-4f54-ad44-5ca9b3f573fa"
+      }
+    },
+    "owner": "takeback"
+  },
+  "packagerOpts": {
+    "config": "metro.config.js",
+    "sourceExts": [
+      "expo.ts",
+      "expo.tsx",
+      "expo.js",
+      "expo.jsx",
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "wasm",
+      "svg"
+    ]
+  }
+}

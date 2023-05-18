@@ -1,0 +1,24 @@
+.idea/
+.vscode/
+node_modules/
+dist/
+tmp/
+temp/
+uploads/**/*
+
+newrelic*
+
+
+# Environment Variables
+.env
+.env.local
+
+# Static files
+uploads/tickets/*
+uploads/reports/*
+
+!uploads/tickets/.gitkeep
+!uploads/reports/.gitkeep
+
+coverage
+.nyc*

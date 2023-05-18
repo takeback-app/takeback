@@ -1,0 +1,107 @@
+import React from 'react'
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Divider,
+  Flex,
+  Heading,
+  IconButton,
+  Image,
+  Stack,
+  Text,
+  useDisclosure
+} from '@chakra-ui/react'
+import { IoAdd, IoTrash } from 'react-icons/io5'
+import { AddItemModal, RaffleCreateItemData } from './AddItemModal'
+
+export interface Item {
+  image: File
+  description: string
+  order: number
+}
+
+interface ItemsCardProps {
+  items: Item[]
+  setItems: React.Dispatch<React.SetStateAction<Item[]>>
+}
+
+export function CreateItemsCard({ items, setItems }: ItemsCardProps) {
+  const { isOpen, onClose, onOpen } = useDisclosure()
+
+  function deleteItem(order: number) {
+    setItems(state => state.filter(i => i.order !== order))
+  }
+
+  function onSubmitNewItem({ description, file }: RaffleCreateItemData) {
+    setItems(state => [
+      ...state,
+      { description, image: file[0], order: state.length + 1 }
+    ])
+
+    onClose()
+  }
+
+  return (
+    <>
+      <Card>
+        <CardHeader
+          as={Flex}
+          alignItems="center"
+          justifyContent="space-between"
+          flexDirection="row"
+        >
+          <Heading fontSize="md">Prêmios</Heading>
+          <Button
+            colorScheme="green"
+            variant="ghost"
+            aria-label="add-item"
+            size="sm"
+            rounded="full"
+            leftIcon={<IoAdd size={20} />}
+            onClick={onOpen}
+          >
+            Inserir Prêmio
+          </Button>
+        </CardHeader>
+        <Divider borderColor="gray.300" />
+        <CardBody as={Stack} overflowX="auto" maxH="sm">
+          {items.map(({ order, description, image }) => (
+            <Flex justifyContent="space-between" align="center" key={order}>
+              <Flex gap={4} align="center">
+                <Image
+                  borderRadius="lg"
+                  w={12}
+                  h={12}
+                  mb={0}
+                  objectFit="cover"
+                  src={URL.createObjectURL(image)}
+                />
+                <Flex flexDir="column">
+                  <Text fontWeight="bold">{description}</Text>
+                </Flex>
+              </Flex>
+
+              <IconButton
+                aria-label="delete"
+                icon={<IoTrash />}
+                size="sm"
+                variant="ghost"
+                colorScheme="red"
+                rounded="full"
+                onClick={() => deleteItem(order)}
+              />
+            </Flex>
+          ))}
+        </CardBody>
+      </Card>
+
+      <AddItemModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onSubmitNewItem={onSubmitNewItem}
+      />
+    </>
+  )
+}

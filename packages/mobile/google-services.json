@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "960289201075",
+    "project_id": "takeback-345817",
+    "storage_bucket": "takeback-345817.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:960289201075:android:0848a9e3584d036218c9c6",
+        "android_client_info": {
+          "package_name": "com.takeback"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "960289201075-t02s2smu4to8h5f6dam1l2agetri3ae5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoXXfTJzwuvNsaUb8dTTBlvIW6zbRnCWU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "960289201075-t02s2smu4to8h5f6dam1l2agetri3ae5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

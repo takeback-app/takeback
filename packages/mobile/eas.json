@@ -1,0 +1,38 @@
+{
+  "cli": {
+    "version": ">= 0.48.0"
+  },
+  "build": {
+    "development": {
+      "distribution": "internal",
+      "android": {
+        "gradleCommand": ":app:assembleDebug"
+      },
+      "ios": {
+        "buildConfiguration": "Debug",
+        "resourceClass": "m-medium"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "ios": {
+        "resourceClass": "m-medium"
+      },
+      "env": {
+        "API_URL": "https://takeback-staging.herokuapp.com/"
+      }
+    },
+    "production": {
+      "releaseChannel": "production",
+      "env": {
+        "API_URL": "https://takebackapi.herokuapp.com/"
+      },
+      "ios": {
+        "resourceClass": "m-medium"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

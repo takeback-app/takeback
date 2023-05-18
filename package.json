@@ -1,0 +1,16 @@
+{
+  "name": "takeback",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start:api": "yarn workspace @takeback/api dev",
+    "start:admin": "yarn workspace @takeback/admin start",
+    "start:parceiro": "yarn workspace @takeback/parceiro start",
+    "start:mobile": "cd packages/mobile && npx expo start -c"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  }
+}

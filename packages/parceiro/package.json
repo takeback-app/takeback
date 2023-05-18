@@ -1,0 +1,105 @@
+{
+  "name": "@takeback/parceiro",
+  "version": "1.3.1",
+  "description": "Takeback application intended for management by companies",
+  "author": "Desencoder",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TakebackGit/company-app"
+  },
+  "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^2.4.9",
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@hookform/resolvers": "^2.9.11",
+    "@material-ui/core": "^4.12.3",
+    "@material-ui/icons": "^4.11.2",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "@types/jest": "^29.4.0",
+    "@types/node": "^18.11.18",
+    "@unform/core": "^2.1.6",
+    "@unform/web": "^2.1.6",
+    "axios": "^0.24.0",
+    "brazilian-values": "^0.12.0",
+    "chakra-react-select": "^4.6.0",
+    "chart.js": "^3.6.2",
+    "downshift": "^7.4.1",
+    "framer-motion": "^9.0.1",
+    "moment": "^2.29.3",
+    "react": "^18.2.0",
+    "react-chakra-pagination": "^2.0.7",
+    "react-chartjs-2": "^4.0.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.43.5",
+    "react-hot-toast": "^2.3.0",
+    "react-icons": "^4.3.1",
+    "react-input-mask": "^2.0.4",
+    "react-lottie": "^1.2.3",
+    "react-modal": "^3.14.4",
+    "react-qr-code": "^2.0.7",
+    "react-router-dom": "^6.0.2",
+    "react-scripts": "5.0.1",
+    "react-spinners": "^0.11.0",
+    "styled-components": "^5.3.3",
+    "swr": "^2.1.0",
+    "typescript": "^4.1.2",
+    "web-vitals": "^1.0.1",
+    "yup": "^0.31.0",
+    "zod": "^3.21.4",
+    "zustand": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "@types/react-input-mask": "^3.0.1",
+    "@types/react-lottie": "^1.2.6",
+    "@types/react-modal": "^3.13.1",
+    "@types/react-router": "^5.1.20",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/styled-components": "^5.1.26",
+    "@types/yup": "^0.29.13",
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-promise": "^5.1.1",
+    "eslint-plugin-react": "^7.27.1",
+    "prettier": "^2.4.1",
+    "simple-zustand-devtools": "^1.1.0"
+  },
+  "resolutions": {
+    "@types/react": "^18.0.18"
+  }
+}

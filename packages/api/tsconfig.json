@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "es5",
+      "es6"
+    ],
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "removeComments": true
+  },
+  "ts-node": {
+    "transpileOnly": true
+  }
+}

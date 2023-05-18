@@ -1,0 +1,788 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["filteredRelationCount"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model City {
+  id                Int               @id(map: "PK_b222f51ce26f7e5ca86944a6739") @default(autoincrement())
+  name              String            @db.VarChar
+  ibgeCode          String            @db.VarChar
+  stateId           Int?
+  state             State?            @relation(fields: [stateId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_e99de556ee56afe72154f3ed04a")
+  companyAddresses  CompanyAddress[]
+  consumerAddresses ConsumerAddress[]
+  zipCodes          ZipCode[]
+
+  @@map("city")
+}
+
+model Company {
+  id                             String                         @id(map: "PK_d4bc3e82a314fa9e29f652c2c22") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  corporateName                  String                         @db.VarChar
+  fantasyName                    String                         @db.VarChar
+  logoUrl                        String?
+  registeredNumber               String                         @db.VarChar
+  email                          String                         @db.VarChar
+  phone                          String                         @db.VarChar
+  contactPhone                   String?                        @db.VarChar
+  customIndustryFee              Decimal                        @default(0) @db.Decimal(10, 4)
+  customIndustryFeeActive        Boolean                        @default(false)
+  positiveBalance                Decimal                        @default(0) @db.Decimal(10, 4)
+  negativeBalance                Decimal                        @default(0) @db.Decimal(10, 4)
+  monthlyPayment                 Decimal                        @default(0) @db.Decimal(10, 4)
+  customMonthlyPayment           Boolean                        @default(false)
+  currentMonthlyPaymentPaid      Boolean                        @default(false)
+  firstAccessAllowedAt           DateTime?                      @db.Date
+  provisionalAccessAllowedAt     DateTime?                      @db.Date
+  createdAt                      DateTime                       @default(now()) @db.Timestamp(6)
+  updatedAt                      DateTime                       @default(now()) @db.Timestamp(6)
+  addressId                      Int?                           @unique(map: "REL_2bb6583d4cf35554e19694c8a9")
+  industryId                     Int?
+  statusId                       Int?
+  paymentPlanId                  Int?
+  periodFree                     Boolean                        @default(true)
+  permissionToSupportAccess      Boolean                        @default(true)
+  representativeId               String?                        @db.Uuid
+  useCashbackAsBack              Boolean                        @default(false)
+  paymentPlan                    PaymentPlan?                   @relation(fields: [paymentPlanId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_0d4ef1a2673e3fc3b1934baaea5")
+  companyAddress                 CompanyAddress?                @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_2bb6583d4cf35554e19694c8a9b")
+  companyStatus                  CompanyStatus?                 @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_78f70c4376dbfc35f8ba9257295")
+  representative                 Representative?                @relation(fields: [representativeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_bc70297a96701f77de9ef2cc796")
+  industry                       Industry?                      @relation(fields: [industryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_d10b3310c1016d05c123fdd08e1")
+  companyMonthlyPayments         CompanyMonthlyPayment[]
+  companyPaymentMethods          CompanyPaymentMethod[]
+  companyUsers                   CompanyUser[]
+  PaymentOrders                  PaymentOrder[]
+  representativeBillingCompanies RepresentativeBillingCompany[]
+  transactions                   Transaction[]
+  withdrawOrders                 WithdrawOrder[]
+  raffles                        Raffle[]
+  transactionSolicitations       TransactionSolicitation[]
+  notificationSolicitations      NotificationSolicitation[]
+  birthdayNotifications          BirthdayNotification[]
+
+  @@map("companies")
+}
+
+model CompanyAddress {
+  id         Int      @id(map: "PK_ad150e1e829fc0c9013267f3e4c") @default(autoincrement())
+  street     String?  @db.VarChar
+  district   String?  @db.VarChar
+  number     String?  @db.VarChar
+  complement String?  @db.VarChar
+  cityId     Int?
+  zipCode    String?  @db.VarChar
+  company    Company?
+  city       City?    @relation(fields: [cityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_f5e207e2b37aaeff6d68a11fe1d")
+
+  @@map("companies_address")
+}
+
+model CompanyMonthlyPayment {
+  id          Int          @id(map: "PK_af89d91c5401f744b667ce3b544") @default(autoincrement())
+  amountPaid  Decimal?     @default(0) @db.Decimal(10, 4)
+  isPaid      Boolean      @default(false)
+  paidDate    DateTime?    @db.Date
+  createdAt   DateTime     @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime     @default(now()) @db.Timestamp(6)
+  companyId   String?      @db.Uuid
+  planId      Int?
+  dueDate     DateTime?    @db.Date
+  isForgiven  Boolean      @default(false)
+  paymentMade Boolean      @default(false)
+  company     Company?     @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_053a462e85ddac7b965e9d33654")
+  paymentPlan PaymentPlan? @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_10f7b5e72a6752103ade1acf85a")
+
+  @@map("company_monthly_payment")
+}
+
+model CompanyPaymentMethod {
+  id                        Int                        @id(map: "PK_7f9233e77d51ef422b9c7430f6a") @default(autoincrement())
+  companyId                 String                     @db.Uuid
+  paymentMethodId           Int
+  cashbackPercentage        Decimal                    @default(0) @db.Decimal(10, 4)
+  isActive                  Boolean                    @default(false)
+  createdAt                 DateTime                   @default(now()) @db.Timestamp(6)
+  updatedAt                 DateTime                   @default(now()) @db.Timestamp(6)
+  paymentMethod             PaymentMethod              @relation(fields: [paymentMethodId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_50140b197f6a47698d463b4b3aa")
+  company                   Company                    @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_d167c7a5fa7e321ac698cbbc67d")
+  transactionPaymentMethods TransactionPaymentMethod[]
+  TransactionSolicitation   TransactionSolicitation[]
+
+  @@map("company_payment_methods")
+}
+
+model CompanyStatus {
+  id               Int       @id(map: "PK_0004a562592abd6cb0828df61eb") @default(autoincrement())
+  description      String    @db.VarChar
+  blocked          Boolean
+  generateCashback Boolean
+  companies        Company[]
+
+  @@map("company_status")
+}
+
+model CompanyUserType {
+  id           Int           @id(map: "PK_a41da118d3354bf30d1a2fa5c57") @default(autoincrement())
+  description  String        @db.VarChar
+  isManager    Boolean       @default(false)
+  companyUsers CompanyUser[]
+
+  @@map("company_user_types")
+}
+
+model CompanyUser {
+  id                            String                    @id(map: "PK_fcd31773e604355d8a473de888c") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                          String                    @db.VarChar
+  isRootUser                    Boolean                   @default(false)
+  password                      String?                   @db.VarChar
+  isActive                      Boolean                   @default(true)
+  createdAt                     DateTime                  @default(now()) @db.Timestamp(6)
+  updatedAt                     DateTime                  @default(now()) @db.Timestamp(6)
+  companyId                     String?                   @db.Uuid
+  companyUserTypesId            Int?
+  email                         String?                   @db.VarChar
+  resetPasswordToken            String?                   @db.VarChar
+  resetPasswordTokenExpiresDate DateTime?                 @db.Date
+  cpf                           String?                   @unique() @db.VarChar
+  companyUserType               CompanyUserType?          @relation(fields: [companyUserTypesId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_f1c651dcc59347cb084e1ab4163")
+  company                       Company?                  @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_f48efdd06dd9b999ae40c3c96a6")
+  transactions                  Transaction[]
+  raffleItemDeliveries          RaffleItemDelivery[]
+  TransactionSolicitation       TransactionSolicitation[]
+  notifications                 Notification[]
+
+  @@map("company_users")
+}
+
+model ConsumerAddress {
+  id         Int       @id(map: "PK_c0e86059b3acb674fa2496704d3") @default(autoincrement())
+  street     String?   @db.VarChar
+  district   String?   @db.VarChar
+  number     String?   @db.VarChar
+  complement String?   @db.VarChar
+  cityId     Int?
+  zipCode    String?   @db.VarChar
+  city       City?     @relation(fields: [cityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_8a5879957ffa4ceab700ee332a3")
+  consumer   Consumer?
+
+  @@map("consumer_address")
+}
+
+model Consumer {
+  id                            String                    @id(map: "PK_9355367764efa60a8c2c27856d0") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  fullName                      String                    @db.VarChar
+  birthDate                     DateTime?                 @db.Timestamp(6)
+  sex                           Sex?
+  maritalStatus                 MaritalStatus?
+  schooling                     Schooling?
+  monthlyIncomeId               Int?
+  hasChildren                   Boolean?                  @default(false)
+  phone                         String?                   @db.VarChar
+  email                         String                    @db.VarChar
+  cpf                           String                    @unique @db.VarChar
+  password                      String                    @db.VarChar
+  signature                     String?                   @db.VarChar
+  signatureRegistered           Boolean                   @default(false)
+  balance                       Decimal                   @default(0) @db.Decimal(10, 4)
+  blockedBalance                Decimal                   @default(0) @db.Decimal(10, 4)
+  emailConfirmated              Boolean                   @default(false)
+  phoneConfirmated              Boolean                   @default(false)
+  codeToConfirmEmail            String?                   @db.VarChar
+  deactivatedAccount            Boolean                   @default(false) @map("deactivedAccount")
+  isPlaceholderConsumer         Boolean                   @default(false)
+  createdAt                     DateTime                  @default(now()) @db.Timestamp(6)
+  updatedAt                     DateTime                  @default(now()) @db.Timestamp(6)
+  expireBalanceDate             DateTime?                 @db.Timestamp(6)
+  addressId                     Int?                      @unique(map: "REL_3ffc911cff52ac729e01188ea1")
+  resetPasswordToken            String?                   @db.VarChar
+  resetPasswordTokenExpiresDate DateTime?                 @db.Date
+  expoNotificationToken         String?
+  consumerAddress               ConsumerAddress?          @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_3ffc911cff52ac729e01188ea1c")
+  refreshToken                  RefreshToken?
+  transactions                  Transaction[]
+  sentTransfers                 Transfer[]                @relation("transfers_consumerSentIdToconsumers")
+  receivedTransfers             Transfer[]                @relation("transfers_consumerReceivedIdToconsumers")
+  raffleTickets                 RaffleTicket[]
+  Bonus                         Bonus[]
+  TransactionSolicitation       TransactionSolicitation[]
+  notifications                 Notification[]
+  monthlyIncome                 MonthlyIncome?            @relation(fields: [monthlyIncomeId], references: [id])
+
+  @@map("consumers")
+}
+
+enum Sex {
+  MALE
+  FEMALE
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+}
+
+enum Schooling {
+  GRADUATED
+  COMPLETE_HIGH_SCHOOL
+  COMPLETE_PRIMARY_EDUCATION
+  ILLITERATE
+}
+
+model MonthlyIncome {
+  id          Int        @id @default(autoincrement())
+  description String
+  Consumer    Consumer[]
+
+  @@map("monthly_incomes")
+}
+
+model Industry {
+  id          Int       @id(map: "PK_f1626dcb2d58142d7dfcca7b8d1") @default(autoincrement())
+  description String    @db.VarChar
+  industryFee Decimal   @default(0) @db.Decimal(10, 4)
+  createdAt   DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime  @default(now()) @db.Timestamp(6)
+  company     Company[]
+
+  @@map("industries")
+}
+
+model PaymentMethod {
+  id                    Int                    @id(map: "PK_34f9b8c6dfb4ac3559f7e2820d1") @default(autoincrement())
+  description           String                 @db.VarChar
+  isTakebackMethod      Boolean                @default(false)
+  createdAt             DateTime               @default(now()) @db.Timestamp(6)
+  updatedAt             DateTime               @default(now()) @db.Timestamp(6)
+  companyPaymentMethods CompanyPaymentMethod[]
+
+  @@map("payment_methods")
+}
+
+model PaymentOrder {
+  id                 Int                 @id(map: "PK_f5221735ace059250daac9d9803") @default(autoincrement())
+  value              Decimal             @default(0) @db.Decimal(10, 4)
+  ticketName         String?             @db.VarChar
+  ticketPath         String?             @db.VarChar
+  pixKey             String?             @db.VarChar
+  approvedAt         DateTime?           @db.Timestamp(6)
+  createdAt          DateTime            @default(now()) @db.Timestamp(6)
+  updatedAt          DateTime            @default(now()) @db.Timestamp(6)
+  statusId           Int?
+  companyId          String?             @db.Uuid
+  paymentMethodId    Int?
+  paymentOrderMethod PaymentOrderMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_8ca8abb331dc065d7100126aa0f")
+  company            Company?            @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_a1a1ef3a6ed218fac0bf633a6ae")
+  paymentOrderStatus PaymentOrderStatus? @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_a811f3c6bb72979493ec8958865")
+  transactions       Transaction[]
+
+  @@map("payment_order")
+}
+
+model PaymentOrderMethod {
+  id            Int            @id(map: "PK_3c92b201828721875e5fca5c6fc") @default(autoincrement())
+  description   String         @db.VarChar
+  createdAt     DateTime       @default(now()) @db.Timestamp(6)
+  updatedAt     DateTime       @default(now()) @db.Timestamp(6)
+  isActive      Boolean?       @default(true)
+  paymentOrders PaymentOrder[]
+
+  @@map("payment_order_methods")
+}
+
+model PaymentOrderStatus {
+  id            Int            @id(map: "PK_7e518a8c66fd35e7cb7b97ffb21") @default(autoincrement())
+  description   String         @db.VarChar
+  paymentOrders PaymentOrder[]
+
+  @@map("payment_order_status")
+}
+
+model PaymentPlan {
+  id                                       Int                     @id(map: "PK_8f05aee900e96c2e0c24df48262") @default(autoincrement())
+  description                              String                  @db.VarChar
+  value                                    Decimal                 @default(0) @db.Decimal(10, 4)
+  takebackBonus                            Decimal                 @default(0) @db.Decimal(10, 4)
+  newUserBonus                             Decimal                 @default(0) @db.Decimal(10, 4)
+  numberOfMonthlyRaffles                   Int                     @default(0)
+  numberOfMonthlyNotificationSolicitations Int                     @default(0)
+  canSendBirthdayNotification              Boolean                 @default(false)
+  createdAt                                DateTime                @default(now()) @db.Timestamp(6)
+  updatedAt                                DateTime                @default(now()) @db.Timestamp(6)
+  companies                                Company[]
+  companyMonthlyPayments                   CompanyMonthlyPayment[]
+
+  @@map("payment_plans")
+}
+
+model RefreshToken {
+  id         String    @id(map: "PK_7d8bee0204106019488c4c50ffa") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  expiresIn  Int
+  consumerId String?   @unique(map: "REL_90e1b79ffd3a5c9e752d86756a") @db.Uuid
+  consumer   Consumer? @relation(fields: [consumerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_90e1b79ffd3a5c9e752d86756a6")
+
+  @@map("refresh_tokens")
+}
+
+model Representative {
+  id                         String                      @id(map: "PK_2abe568eacaba9eba605bb231bc") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                       String                      @db.VarChar
+  cpf                        String                      @db.VarChar
+  phone                      String?                     @db.VarChar
+  email                      String?                     @db.VarChar
+  whatsapp                   String?                     @db.VarChar
+  isActive                   Boolean                     @default(true)
+  gainPercentage             Decimal                     @default(0) @db.Decimal(10, 4)
+  password                   String?                     @db.VarChar
+  createdAt                  DateTime                    @default(now()) @db.Timestamp(6)
+  updatedAt                  DateTime                    @default(now()) @db.Timestamp(6)
+  balance                    Decimal                     @default(0) @db.Decimal(10, 4)
+  companies                  Company[]
+  representativeBillings     RepresentativeBilling[]
+  representativeRefreshToken RepresentativeRefreshToken?
+
+  @@map("representative")
+}
+
+model RepresentativeBilling {
+  id                             Int                            @id(map: "PK_3cd53441fab137fcfe0f7205f2c") @default(autoincrement())
+  billingValue                   Decimal                        @default(0) @db.Decimal(10, 4)
+  totalCompaniesBilling          Decimal                        @default(0) @db.Decimal(10, 4)
+  representativeFee              Decimal                        @default(0) @db.Decimal(10, 4)
+  isPaid                         Boolean                        @default(false)
+  paidDate                       DateTime?                      @db.Date
+  createdAt                      DateTime                       @default(now()) @db.Timestamp(6)
+  updatedAt                      DateTime                       @default(now()) @db.Timestamp(6)
+  representativeId               String?                        @db.Uuid
+  representative                 Representative?                @relation(fields: [representativeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_bb17f4d4ec99f0ecf21fd30b43d")
+  representativeBillingCompanies RepresentativeBillingCompany[]
+
+  @@map("representative_billing")
+}
+
+model RepresentativeBillingCompany {
+  id                      Int                    @id(map: "PK_4207fb14ded7e2ede45b8e1e504") @default(autoincrement())
+  companyBilling          Decimal                @default(0) @db.Decimal(10, 4)
+  createdAt               DateTime               @default(now()) @db.Timestamp(6)
+  updatedAt               DateTime               @default(now()) @db.Timestamp(6)
+  representativeBillingId Int?
+  companyId               String?                @db.Uuid
+  representativeBilling   RepresentativeBilling? @relation(fields: [representativeBillingId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_01c37a913fa1c0e5e37f937dffc")
+  company                 Company?               @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_bdcb7841105f7a02d0dfcef5d68")
+
+  @@map("representative_billing_company")
+}
+
+model RepresentativeRefreshToken {
+  id               String          @id(map: "PK_a575bc1c9d1d1bc490618296f74") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  expiresIn        Int
+  representativeId String?         @unique(map: "REL_92dd2fbe754c9c44972a73357a") @db.Uuid
+  representative   Representative? @relation(fields: [representativeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_92dd2fbe754c9c44972a73357af")
+
+  @@map("representative_refresh_tokens")
+}
+
+model Setting {
+  id                    Int      @id(map: "PK_0669fe20e252eb692bf4d344975") @default(autoincrement())
+  createdAt             DateTime @default(now()) @db.Timestamp(6)
+  updatedAt             DateTime @default(now()) @db.Timestamp(6)
+  payDate               Int
+  provisionalAccessDays Int?
+  takebackPixKey        String?  @db.VarChar
+  takebackQRCode        String?  @db.VarChar
+
+  @@map("settings")
+}
+
+model State {
+  id       Int    @id(map: "PK_549ffd046ebab1336c3a8030a12") @default(autoincrement())
+  name     String @db.VarChar
+  initials String @db.VarChar
+  city     City[]
+
+  @@map("state")
+}
+
+model SupportUser {
+  id        String   @id(map: "PK_d4261c24987eb5f9e12891a18b9") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name      String   @db.VarChar
+  mail      String   @db.VarChar
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @db.Timestamp(6)
+  cpf       String?  @db.VarChar
+  password  String?  @db.VarChar
+
+  @@map("support_users")
+}
+
+model TakebackUserType {
+  id            Int            @id(map: "PK_0d6de4433e9fdb82f55d7d9a68a") @default(autoincrement())
+  description   String         @db.VarChar
+  isRoot        Boolean        @default(false)
+  takebackUsers TakebackUser[]
+
+  @@map("take_back_user_types")
+}
+
+model TakebackUser {
+  id                            String            @id(map: "PK_764061e99182bd434106e00c341") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                          String            @db.VarChar
+  cpf                           String            @db.VarChar
+  password                      String?           @db.VarChar
+  isActive                      Boolean           @default(true)
+  email                         String            @db.VarChar
+  phone                         String            @db.VarChar
+  createdAt                     DateTime          @default(now()) @db.Timestamp(6)
+  updatedAt                     DateTime          @default(now()) @db.Timestamp(6)
+  userTypeId                    Int?
+  resetPasswordToken            String?           @db.VarChar
+  resetPasswordTokenExpiresDate DateTime?         @db.Date
+  takebackUserType              TakebackUserType? @relation(fields: [userTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_a5f51751e237d232f4e9f44ffda")
+
+  @@map("take_back_users")
+}
+
+model TransactionPaymentMethod {
+  id                   Int                   @id(map: "PK_3d6d4cfd25b7a2628411bd0ebf0") @default(autoincrement())
+  cashbackPercentage   Decimal               @default(0) @db.Decimal(10, 4)
+  cashbackValue        Decimal               @default(0) @db.Decimal(10, 4)
+  transactionsId       Int?
+  paymentMethodId      Int?
+  transaction          Transaction?          @relation(fields: [transactionsId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_03ae65f4f819fed4d1837622348")
+  companyPaymentMethod CompanyPaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_74a9dfc67b14713e3fb750a1dbb")
+
+  @@map("transaction_payment_methods")
+}
+
+model TransactionStatus {
+  id           Int           @id(map: "PK_05fbbdf6bc1db819f47975c8c0b") @default(autoincrement())
+  description  String        @db.VarChar
+  blocked      Boolean       @default(false)
+  transactions Transaction[]
+
+  @@map("transaction_status")
+}
+
+model Transaction {
+  id                           Int                        @id(map: "PK_a219afd8dd77ed80f5a862f1db9") @default(autoincrement())
+  totalAmount                  Decimal?                   @default(0) @db.Decimal(10, 4)
+  amountPayWithOthersMethods   Decimal?                   @default(0) @db.Decimal(10, 4)
+  amountPayWithTakebackBalance Decimal?                   @default(0) @db.Decimal(10, 4)
+  takebackFeePercent           Decimal?                   @default(0) @db.Decimal(10, 4)
+  takebackFeeAmount            Decimal?                   @default(0) @db.Decimal(10, 4)
+  cashbackPercent              Decimal?                   @default(0) @db.Decimal(10, 4)
+  cashbackAmount               Decimal?                   @default(0) @db.Decimal(10, 4)
+  keyTransaction               Int?
+  cancellationDescription      String?                    @db.VarChar(180)
+  dateAt                       DateTime?                  @db.Date
+  approvedAt                   DateTime?                  @map("aprovedAt") @db.Date
+  createdAt                    DateTime                   @default(now()) @db.Timestamp(6)
+  updatedAt                    DateTime                   @default(now()) @db.Timestamp(6)
+  transactionStatusId          Int?
+  consumersId                  String?                    @db.Uuid
+  companiesId                  String?                    @db.Uuid
+  paymentOrderId               Int?
+  fatherTransactionId          Int?
+  companyUsersId               String?                    @db.Uuid
+  backAmount                   Decimal?                   @default(0) @db.Decimal(10, 4)
+  transactionPaymentMethods    TransactionPaymentMethod[]
+  companyUser                  CompanyUser?               @relation(fields: [companyUsersId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_349047f9afb490b3e4f5f0ee761")
+  paymentOrder                 PaymentOrder?              @relation(fields: [paymentOrderId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_3eeb502d7c7f5b94e88d02bfb55")
+  consumer                     Consumer?                  @relation(fields: [consumersId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_41a5467545419633ec789204e91")
+  company                      Company?                   @relation(fields: [companiesId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_6353b5ceb4106452422b5dc0d33")
+  transactionStatus            TransactionStatus?         @relation(fields: [transactionStatusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_7d6803adce40f000540e7d5fdb9")
+  fatherTransaction            Transaction?               @relation(name: "FatherTransaction", fields: [fatherTransactionId], references: [id])
+  childrenTransactions         Transaction[]              @relation("FatherTransaction")
+  Bonus                        Bonus[]
+  raffleTickets                RaffleTicket[]
+
+  @@map("transactions")
+}
+
+model Transfer {
+  id                 Int       @id(map: "PK_f712e908b465e0085b4408cabc3") @default(autoincrement())
+  value              Decimal?  @default(0) @db.Decimal(10, 4)
+  createdAt          DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt          DateTime  @default(now()) @db.Timestamp(6)
+  consumerSentId     String?   @db.Uuid
+  consumerReceivedId String?   @db.Uuid
+  senderConsumer     Consumer? @relation("transfers_consumerSentIdToconsumers", fields: [consumerSentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_5851405b43ff491630a25ccede6")
+  receiverConsumer   Consumer? @relation("transfers_consumerReceivedIdToconsumers", fields: [consumerReceivedId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ae8fb79e0f4f1ce081e6dde6ed1")
+
+  @@map("transfers")
+}
+
+model ZipCode {
+  id       Int    @id(map: "PK_cbf74d68cd9045c650ed5f9f224") @default(autoincrement())
+  zipCode  String @db.VarChar
+  citiesId Int?
+  city     City?  @relation(fields: [citiesId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_bf8ea20ab6fa9761aa69759c349")
+
+  @@map("zip_codes")
+}
+
+model WithdrawOrderStatus {
+  id          Int    @id @default(autoincrement())
+  description String
+
+  withdrawOrder WithdrawOrder[]
+
+  @@map("withdraw_order_status")
+}
+
+model WithdrawOrder {
+  id    String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  value Decimal @default(0) @db.Decimal(10, 4)
+
+  pixKey String
+
+  companyId String @db.Uuid
+  statusId  Int
+
+  approvedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now()) @updatedAt
+
+  company Company             @relation(fields: [companyId], references: [id])
+  status  WithdrawOrderStatus @relation(fields: [statusId], references: [id])
+
+  @@map("withdraw_orders")
+}
+
+model ConsumerExpireBalances {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  consumerId String   @db.Uuid
+  balance    Decimal  @default(0) @db.Decimal(10, 4)
+  expireAt   DateTime @default(now())
+
+  @@map("consumer_expired_balances")
+}
+
+model Bonus {
+  id            String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  type          BonusType
+  value         Float
+  consumerId    String    @db.Uuid
+  transactionId Int?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+
+  transaction Transaction? @relation(fields: [transactionId], references: [id])
+  consumer    Consumer     @relation(fields: [consumerId], references: [id])
+
+  @@map("bonus")
+}
+
+enum BonusType {
+  SELL
+  NEW_USER
+}
+
+model RaffleStatus {
+  id          Int      @id @default(autoincrement())
+  description String
+  raffles     Raffle[]
+
+  @@map("raffle_status")
+}
+
+model Raffle {
+  id                     String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title                  String   @db.VarChar(500)
+  imageUrl               String
+  ticketValue            Decimal  @db.Decimal(10, 2)
+  drawDate               DateTime
+  isOpenToOtherCompanies Boolean  @default(false)
+  isOpenToEmployees      Boolean  @default(false)
+  pickUpLocation         String   @default("")
+  companyId              String   @db.Uuid
+  statusId               Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  company Company        @relation(fields: [companyId], references: [id])
+  status  RaffleStatus   @relation(fields: [statusId], references: [id])
+  tickets RaffleTicket[]
+  items   RaffleItem[]
+
+  @@map("raffles")
+}
+
+model RaffleItem {
+  id             String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  order          Int
+  description    String
+  imageUrl       String  @default("")
+  raffleId       String  @db.Uuid
+  winnerTicketId String? @db.Uuid
+
+  winnerTicket RaffleTicket? @relation(fields: [winnerTicketId], references: [id])
+  raffle       Raffle        @relation(fields: [raffleId], references: [id])
+
+  raffleItemDelivery RaffleItemDelivery?
+
+  @@map("raffle_items")
+}
+
+model RaffleItemDelivery {
+  id            String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userCode      String  @db.VarChar()
+  raffleItemId  String  @unique @db.Uuid
+  companyUserId String? @db.Uuid
+
+  item        RaffleItem   @relation(fields: [raffleItemId], references: [id])
+  companyUser CompanyUser? @relation(fields: [companyUserId], references: [id])
+
+  createdAt   DateTime  @default(now())
+  deliveredAt DateTime?
+
+  @@map("raffle_item_deliveries")
+}
+
+model RaffleTicket {
+  id            String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  number        Int
+  raffleId      String             @db.Uuid
+  consumerId    String             @db.Uuid
+  status        RaffleTicketStatus @default(PENDING)
+  transactionId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  consumer    Consumer     @relation(fields: [consumerId], references: [id])
+  raffle      Raffle       @relation(fields: [raffleId], references: [id])
+  raffleItems RaffleItem[]
+  transaction Transaction? @relation(fields: [transactionId], references: [id])
+
+  @@unique([number, raffleId])
+  @@map("raffle_tickets")
+}
+
+enum RaffleTicketStatus {
+  PENDING
+  ACTIVE
+  FINISHED
+  CANCELED
+}
+
+model TransactionSolicitation {
+  id                     String             @id @default(uuid()) @db.Uuid
+  valueInCents           Int
+  type                   SolicitationType
+  status                 SolicitationStatus @default(WAITING)
+  consumerId             String             @db.Uuid
+  companyId              String             @db.Uuid
+  companyPaymentMethodId Int
+  companyUserId          String?            @db.Uuid
+  text                   String?
+
+  updatedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  consumer             Consumer             @relation(fields: [consumerId], references: [id])
+  company              Company              @relation(fields: [companyId], references: [id])
+  companyUser          CompanyUser?         @relation(fields: [companyUserId], references: [id])
+  companyPaymentMethod CompanyPaymentMethod @relation(fields: [companyPaymentMethodId], references: [id])
+
+  @@map("transaction_solicitations")
+}
+
+enum SolicitationType {
+  CASHBACK
+  PAYMENT
+}
+
+enum SolicitationStatus {
+  WAITING
+  CANCELED
+  APPROVED
+}
+
+model Notification {
+  id            String           @id @default(uuid()) @db.Uuid
+  type          NotificationType
+  title         String
+  body          String
+  consumerId    String?          @db.Uuid
+  companyUserId String?          @db.Uuid
+  data          Json             @default("{}")
+
+  consumer    Consumer?    @relation(fields: [consumerId], references: [id])
+  companyUser CompanyUser? @relation(fields: [companyUserId], references: [id])
+
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  NEW_CASHBACK
+  CASHBACK_APPROVED
+  PAYMENT_APPROVED
+  NEW_RAFFLE
+  RAFFLE_WINNER
+  CUSTOM
+}
+
+model NotificationSolicitation {
+  id String @id @default(uuid()) @db.Uuid
+
+  title   String
+  message String
+
+  companyId String @db.Uuid
+
+  status NotificationSolicitationStatus @default(CREATED)
+
+  audienceSex     NotificationSolicitationSex @default(ALL)
+  minAudienceAge  Int?
+  maxAudienceAge  Int?
+  audienceBalance Decimal?
+  storeVisitType  StoreVisitType              @default(ALL)
+  dateOfPurchase  DateTime?
+  hasChildren     Boolean?
+
+  createdAt DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@map("notification_solicitations")
+}
+
+model BirthdayNotification {
+  id        String   @id @default(uuid()) @db.Uuid
+  companyId String   @db.Uuid
+  createdAt DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@map("birthday_notifications")
+}
+
+enum NotificationSolicitationStatus {
+  CREATED
+  APPROVED
+  REPROVED
+}
+
+enum NotificationSolicitationSex {
+  MALE
+  FEMALE
+  ALL
+}
+
+enum StoreVisitType {
+  NEVER
+  FROM_THE_DATE_OF_PURCHASE
+  ALL
+}
