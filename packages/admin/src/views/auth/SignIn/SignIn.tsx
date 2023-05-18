@@ -126,7 +126,7 @@ const SignIn: React.FC<React.PropsWithChildren<unknown>> = () => {
               />
 
               <S.Space />
-              <PrimaryButton textColor="#fff" label="Login" loading={loading} />
+              <PrimaryButton textColor="#fff" label="LOGIN" loading={loading} />
               <S.Link to="/recuperar-senha">Esqueci minha senha</S.Link>
             </S.InputsWrapper>
           </Form>
