@@ -10,21 +10,13 @@ interface Props {
   numberOfMonthlyRaffles: number;
   numberOfMonthlyNotificationSolicitations: number;
   canSendBirthdayNotification: boolean;
+  canAccessClientReport: boolean;
   newUserBonus: number;
 }
 
 class UpdatePaymentPlanUseCase {
-  async execute({
-    description,
-    planId,
-    value,
-    takebackBonus,
-    numberOfMonthlyRaffles,
-    numberOfMonthlyNotificationSolicitations,
-    canSendBirthdayNotification,
-    newUserBonus,
-  }: Props) {
-    if (!description) {
+  async execute({ planId, ...dto }: Props) {
+    if (!dto.description) {
       throw new InternalError("Dados incompletos", 401);
     }
 
@@ -40,15 +32,7 @@ class UpdatePaymentPlanUseCase {
 
     await prisma.paymentPlan.update({
       where: { id: planId },
-      data: {
-        description,
-        value,
-        takebackBonus,
-        numberOfMonthlyRaffles,
-        numberOfMonthlyNotificationSolicitations,
-        canSendBirthdayNotification,
-        newUserBonus,
-      },
+      data: dto,
     });
 
     return "Plano de pagamento atualizado";
