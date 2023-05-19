@@ -252,7 +252,7 @@ export function CashbackReport() {
               <Text>{currencyFormat(totalizer.totalBackAmount)}</Text>
             </Box>
             <Box>
-              <Text fontWeight="bold">V. a pagar:</Text>
+              <Text fontWeight="bold">V. pago:</Text>
               <Text>{currencyFormat(totalizer.totalToPay)}</Text>
             </Box>
           </SimpleGrid>
