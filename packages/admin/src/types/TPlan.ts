@@ -6,6 +6,7 @@ export type TPlan = {
   numberOfMonthlyRaffles: number
   numberOfMonthlyNotificationSolicitations: number
   canSendBirthdayNotification: boolean
+  canAccessClientReport: boolean
   newUserBonus: number
   createdAt: string
   updatedAt: string

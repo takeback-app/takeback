@@ -27,7 +27,6 @@ export function BirthdayInput({ control }: BirthdayInputProps) {
         <>
           <CustomInput
             label="Data de Nascimento"
-            keyboardAppearance="light"
             keyboardType="numeric"
             maxLength={10}
             onBlur={onBlur}

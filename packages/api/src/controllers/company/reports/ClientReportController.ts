@@ -10,6 +10,15 @@ export class ClientReportController {
   async index(request: Request, response: Response) {
     const { companyId } = request["tokenPayload"];
 
+    const paymentPlan = await prisma.paymentPlan.findFirst({
+      where: { companies: { some: { id: companyId } } },
+      select: { canAccessClientReport: true },
+    });
+
+    if (!paymentPlan.canAccessClientReport) {
+      throw new InternalError("Você não tem acesso a este relatório", 403);
+    }
+
     const form = CompanyClientReportRequest.safeParse(request.query);
 
     if (!form.success) {

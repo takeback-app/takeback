@@ -62,7 +62,9 @@ export function FieldsPage({ navigation, route }) {
   // const { bottom: bottomHeight, top: topHeight } = useSafeAreaInsets()
 
   async function onSubmit(data: UpdateAccountData) {
-    data.phone = unMask(data.phone)
+    if (data.phone) {
+      data.phone = unMask(data.phone)
+    }
 
     const [isOk, response] = await updateAccount(data)
 

@@ -9,25 +9,18 @@ interface Props {
   numberOfMonthlyRaffles: number;
   numberOfMonthlyNotificationSolicitations: number;
   canSendBirthdayNotification: boolean;
+  canAccessClientReport: boolean;
   newUserBonus: number;
 }
 
 class RegisterPaymentPlanUseCase {
-  async execute({
-    description,
-    value,
-    takebackBonus,
-    numberOfMonthlyRaffles,
-    numberOfMonthlyNotificationSolicitations,
-    canSendBirthdayNotification,
-    newUserBonus,
-  }: Props) {
-    if (!description) {
+  async execute(dto: Props) {
+    if (!dto.description) {
       throw new InternalError("Dados incompletos", 401);
     }
 
     const plan = await prisma.paymentPlan.findFirst({
-      where: { description },
+      where: { description: dto.description },
     });
 
     if (plan) {
@@ -35,15 +28,7 @@ class RegisterPaymentPlanUseCase {
     }
 
     await prisma.paymentPlan.create({
-      data: {
-        description,
-        value,
-        takebackBonus,
-        numberOfMonthlyRaffles,
-        numberOfMonthlyNotificationSolicitations,
-        canSendBirthdayNotification,
-        newUserBonus,
-      },
+      data: dto,
     });
 
     return "Plano de pagamento cadastrado";

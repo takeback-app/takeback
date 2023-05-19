@@ -2,21 +2,21 @@
   "expo": {
     "name": "TakeBack",
     "slug": "takeback",
-    "version": "2.3.3",
+    "version": "2.3.4",
     "orientation": "portrait",
     "privacy": "unlisted",
     "userInterfaceStyle": "light",
     "icon": "./assets/icon.png",
     "ios": {
       "jsEngine": "jsc",
-      "buildNumber": "2.3.3",
+      "buildNumber": "2.3.4",
       "userInterfaceStyle": "automatic",
       "supportsTablet": false,
       "bundleIdentifier": "com.takeback"
     },
     "android": {
       "jsEngine": "hermes",
-      "versionCode": 23,
+      "versionCode": 24,
       "userInterfaceStyle": "light",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -35,7 +35,13 @@
         "projectId": "112b4e0a-5f65-4f54-ad44-5ca9b3f573fa"
       }
     },
-    "owner": "takeback"
+    "owner": "takeback",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/112b4e0a-5f65-4f54-ad44-5ca9b3f573fa"
+    }
   },
   "packagerOpts": {
     "config": "metro.config.js",

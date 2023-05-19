@@ -241,14 +241,16 @@ export function CashbacksHistoric() {
                 minLength={3}
                 {...register('consumer')}
               />
-              <ChakraSelect
-                label="Status do cashback"
-                options={[...defaultSelect, ...status].map(i => ({
-                  text: i.description,
-                  value: i.id
-                }))}
-                {...register('status')}
-              />
+              {!!status && (
+                <ChakraSelect
+                  label="Status do cashback"
+                  options={[...defaultSelect, ...status].map(i => ({
+                    text: i.description,
+                    value: i.id
+                  }))}
+                  {...register('status')}
+                />
+              )}
 
               <ChakraInput
                 label="Período inicio"

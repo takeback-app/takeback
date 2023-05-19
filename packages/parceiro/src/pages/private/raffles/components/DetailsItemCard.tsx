@@ -72,7 +72,9 @@ function RaffleItem({
               ? `${winnerTicket.consumer.fullName} - ${maskCPF(
                   winnerTicket.consumer.cpf
                 )} - ${
-                  maskPhone(winnerTicket.consumer.phone) || 'Sem telefone'
+                  winnerTicket.consumer.phone
+                    ? maskPhone(winnerTicket.consumer.phone)
+                    : 'Sem telefone'
                 }`
               : '-'}
           </Text>

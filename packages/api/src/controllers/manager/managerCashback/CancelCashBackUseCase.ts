@@ -58,13 +58,6 @@ class CancelCashBackUseCase {
       )
       .getRawMany();
 
-    // Verificando se há transações em atraso
-    transactions.map((item) => {
-      if (item.status_description === "Em atraso") {
-        throw new InternalError("Há cashbacks em atraso selecionados", 400);
-      }
-    });
-
     // Agrupando as transações por usuário
     const transactionsReduced = transactions.reduce(
       (previousValue, currentValue) => {

@@ -313,6 +313,7 @@ model PaymentPlan {
   numberOfMonthlyRaffles                   Int                     @default(0)
   numberOfMonthlyNotificationSolicitations Int                     @default(0)
   canSendBirthdayNotification              Boolean                 @default(false)
+  canAccessClientReport                    Boolean                 @default(false)
   createdAt                                DateTime                @default(now()) @db.Timestamp(6)
   updatedAt                                DateTime                @default(now()) @db.Timestamp(6)
   companies                                Company[]

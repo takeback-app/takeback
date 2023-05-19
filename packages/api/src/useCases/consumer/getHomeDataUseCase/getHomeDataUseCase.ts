@@ -1,6 +1,5 @@
 import { Consumers } from "../../../database/models/Consumer";
 import { TransactionStatus } from "../../../database/models/TransactionStatus";
-import { companyRepository } from "../../../database/repositories/companyRepository";
 import { consumerRepository } from "../../../database/repositories/consumerRepository";
 import { transactionsRepository } from "../../../database/repositories/transactionsRepository";
 import { prisma } from "../../../prisma";
@@ -14,38 +13,22 @@ export class GetHomeDataUseCase {
       },
     });
 
-    // const companies = await prisma.company.findMany({
-    //   where: {
-    //     companyStatus: {
-    //       generateCashback: true,
-    //     },
-    //   },
-    //   select: {
-    //     id: true,
-    //     fantasyName: true,
-    //     logoUrl: true,
-    //     email: true,
-    //     phone: true,
-    //     createdAt: true,
-    //     industry: { select: { description: true } },
-    //     companyAddress: { include: { city: { select: { name: true } } } },
-    //     companyPaymentMethods: true,
-    //   },
-    // });
-
-    const companies = await companyRepository().find({
-      select: ["id", "fantasyName", "email", "phone", "createdAt"],
-      relations: [
-        "status",
-        "industry",
-        "address",
-        "address.city",
-        "companyPaymentMethod",
-      ],
+    const companies = await prisma.company.findMany({
       where: {
-        status: {
+        companyStatus: {
           generateCashback: true,
         },
+      },
+      select: {
+        id: true,
+        fantasyName: true,
+        logoUrl: true,
+        email: true,
+        phone: true,
+        createdAt: true,
+        industry: { select: { description: true } },
+        companyAddress: { include: { city: { select: { name: true } } } },
+        companyPaymentMethods: true,
       },
     });
 
