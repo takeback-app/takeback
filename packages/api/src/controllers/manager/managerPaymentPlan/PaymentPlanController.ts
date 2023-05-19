@@ -12,6 +12,7 @@ class PaymentPlanController {
       numberOfMonthlyRaffles,
       numberOfMonthlyNotificationSolicitations,
       canSendBirthdayNotification,
+      canAccessClientReport,
       newUserBonus,
     } = request.body;
 
@@ -27,6 +28,7 @@ class PaymentPlanController {
         numberOfMonthlyNotificationSolicitations
       ),
       canSendBirthdayNotification,
+      canAccessClientReport,
       newUserBonus: Number(newUserBonus),
     });
     const plans = await find.execute();
@@ -52,6 +54,7 @@ class PaymentPlanController {
       numberOfMonthlyRaffles,
       numberOfMonthlyNotificationSolicitations,
       canSendBirthdayNotification,
+      canAccessClientReport,
       newUserBonus,
     } = request.body;
 
@@ -66,6 +69,7 @@ class PaymentPlanController {
       numberOfMonthlyRaffles,
       numberOfMonthlyNotificationSolicitations,
       canSendBirthdayNotification,
+      canAccessClientReport,
       newUserBonus: Number(newUserBonus),
     });
     const plans = await find.execute();
