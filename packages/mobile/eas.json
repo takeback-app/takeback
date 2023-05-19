@@ -23,7 +23,7 @@
       }
     },
     "production": {
-      "releaseChannel": "production",
+      "channel": "production",
       "env": {
         "API_URL": "https://takebackapi.herokuapp.com/"
       },
