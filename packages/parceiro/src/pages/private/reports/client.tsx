@@ -64,15 +64,29 @@ export function ClientReport() {
     [firstDate, secondDate, order, orderBy, page]
   )
 
-  const { data: customers, isLoading } = useSWR<Paginated<ClientData>>([
-    'company/report/clients',
-    filter
-  ])
+  const {
+    data: customers,
+    isLoading,
+    error
+  } = useSWR<Paginated<ClientData>>(['company/report/clients', filter])
 
-  const { data: totalizer } = useSWR<TotalizerData>([
+  const { data: totalizer, error: errorTotalizer } = useSWR<TotalizerData>([
     'company/report/clients/totalizer',
     filter
   ])
+
+  if (error || errorTotalizer) {
+    return (
+      <Layout title="Clientes">
+        <BlockModal
+          isOpen={true}
+          hasBlur
+          title="Você não tem acesso a este relatório"
+          subtitle="Entre em contato com o administrador da sua empresa para solicitar acesso a esse relatório."
+        />
+      </Layout>
+    )
+  }
 
   if (!customers || isLoading) {
     return (
@@ -240,12 +254,6 @@ export function ClientReport() {
         ) : null}
       </Box>
       <FilterDrawer isOpen={isOpen} onClose={onClose} />
-      <BlockModal
-        isOpen={false}
-        hasBlur
-        title="Você não tem acesso a esse  relatório ainda"
-        subtitle="Entre em contato com o administrador da sua empresa para solicitar acesso a esse relatório."
-      />
     </Layout>
   )
 }

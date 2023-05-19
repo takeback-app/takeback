@@ -32,6 +32,7 @@ interface DataProps {
   numberOfMonthlyNotificationSolicitations: number
   canSendBirthdayNotification: string | boolean
   newUserBonus: number
+  canAccessClientReport: string | boolean
 }
 
 const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
@@ -53,6 +54,7 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
       numberOfMonthlyNotificationSolicitations:
         item.numberOfMonthlyNotificationSolicitations,
       canSendBirthdayNotification: item.canSendBirthdayNotification ? '1' : '0',
+      canAccessClientReport: item.canAccessClientReport ? '1' : '0',
       newUserBonus: item.newUserBonus
     })
 
@@ -78,6 +80,7 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
           .min(0)
           .required('Campo obrigatório'),
         canSendBirthdayNotification: Yup.string().required('Campo obrigatório'),
+        canAccessClientReport: Yup.string().required('Campo obrigatório'),
         takebackBonus: Yup.number()
           .positive()
           .min(0)
@@ -87,6 +90,8 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
 
       data.canSendBirthdayNotification =
         data.canSendBirthdayNotification === '1'
+
+      data.canAccessClientReport = data.canAccessClientReport === '1'
 
       await schema.validate(data, {
         abortEarly: false
@@ -150,6 +155,7 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
           data.numberOfMonthlyNotificationSolicitations
         ),
         canSendBirthdayNotification: data.canSendBirthdayNotification === '1',
+        canAccessClientReport: data.canAccessClientReport === '1',
         newUserBonus: Number(data.newUserBonus)
       })
         .then(response => {
@@ -225,6 +231,7 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
                 <S.Th>Gratificação por venda</S.Th>
                 <S.Th>Gratificação por novo usuário</S.Th>
                 <S.Th>Notificação de aniversário</S.Th>
+                <S.Th>Relatório de clientes</S.Th>
                 <S.Th>&nbsp;</S.Th>
               </S.Tr>
             </S.THead>
@@ -252,6 +259,9 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
                   </S.Td>
                   <S.Td>
                     {item.canSendBirthdayNotification ? 'Ativo' : 'Inativo'}
+                  </S.Td>
+                  <S.Td>
+                    {item.canAccessClientReport ? 'Ativo' : 'Inativo'}
                   </S.Td>
                   <S.Td>
                     <IoCreateOutline
@@ -311,6 +321,14 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
                   { id: 0, description: 'Inativo' }
                 ]}
               />
+              <SelectInput
+                label="Relatório de clientes"
+                name="canAccessClientReport"
+                options={[
+                  { id: 1, description: 'Ativo' },
+                  { id: 0, description: 'Inativo' }
+                ]}
+              />
             </S.InputsWrapper>
 
             <S.Footer>
@@ -362,6 +380,14 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
               <SelectInput
                 label="Notificação de aniversário"
                 name="canSendBirthdayNotification"
+                options={[
+                  { id: 1, description: 'Ativo' },
+                  { id: 0, description: 'Inativo' }
+                ]}
+              />
+              <SelectInput
+                label="Relatório de cliente"
+                name="canAccessClientReport"
                 options={[
                   { id: 1, description: 'Ativo' },
                   { id: 0, description: 'Inativo' }
