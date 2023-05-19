@@ -241,7 +241,7 @@ export function ClientReport() {
       </Box>
       <FilterDrawer isOpen={isOpen} onClose={onClose} />
       <BlockModal
-        isOpen={true}
+        isOpen={false}
         hasBlur
         title="Você não tem acesso a esse  relatório ainda"
         subtitle="Entre em contato com o administrador da sua empresa para solicitar acesso a esse relatório."
