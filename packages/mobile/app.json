@@ -35,7 +35,13 @@
         "projectId": "112b4e0a-5f65-4f54-ad44-5ca9b3f573fa"
       }
     },
-    "owner": "takeback"
+    "owner": "takeback",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/112b4e0a-5f65-4f54-ad44-5ca9b3f573fa"
+    }
   },
   "packagerOpts": {
     "config": "metro.config.js",
