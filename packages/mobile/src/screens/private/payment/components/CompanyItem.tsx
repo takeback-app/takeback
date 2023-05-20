@@ -16,13 +16,11 @@ export function CompanyItem({ company, onPress }: CompanyItemProps) {
   function handleSelection() {
     setCompany(company)
 
-    const takebackCompanyPaymentMethodId = company.companyPaymentMethod.find(
+    const takebackCompanyPaymentMethodId = company.companyPaymentMethods.find(
       ({ paymentMethodId }) => paymentMethodId === 1
     )
 
-    if (!takebackCompanyPaymentMethodId) {
-      return
-    }
+    if (!takebackCompanyPaymentMethodId) return
 
     setPaymentMethodId(takebackCompanyPaymentMethodId.id)
 
@@ -59,7 +57,7 @@ export function CompanyItem({ company, onPress }: CompanyItemProps) {
             color="gray.600"
             numberOfLines={1}
           >
-            {company.industry.description} • {company.address.city.name}
+            {company.industry.description} • {company.companyAddress.city.name}
           </Text>
         </VStack>
       </HStack>

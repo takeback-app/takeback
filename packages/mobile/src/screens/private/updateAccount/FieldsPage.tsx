@@ -13,10 +13,7 @@ import {
 import { KeyboardAvoidingView, Platform } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 // import { MaterialCommunityIcons } from '@expo/vector-icons'
-import {
-  SafeAreaView
-  // useSafeAreaInsets
-} from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useForm } from 'react-hook-form'
 
 import { SexInput } from './components/SexInput'
@@ -28,6 +25,8 @@ import { MonthlyIncomeInput } from './components/MonthlyIncomeInput'
 import { updateAccount } from '../../../services'
 import { PhoneInput } from './components/PhoneInput'
 import { unMask } from 'react-native-mask-text'
+import moment from 'moment'
+import { isValidBirthDate } from '../../../utils/birthdayValidator'
 
 enum Field {
   SEX = 'sex',
@@ -59,9 +58,13 @@ export function FieldsPage({ navigation, route }) {
     formState: { isSubmitting }
   } = useForm<UpdateAccountData>()
 
-  // const { bottom: bottomHeight, top: topHeight } = useSafeAreaInsets()
+  const { bottom: bottomHeight } = useSafeAreaInsets()
 
   async function onSubmit(data: UpdateAccountData) {
+    if (data.birthday && !isValidBirthDate(data.birthday)) {
+      return setError('birthday', { message: 'Data inválida' })
+    }
+
     if (data.phone) {
       data.phone = unMask(data.phone)
     }
@@ -79,10 +82,10 @@ export function FieldsPage({ navigation, route }) {
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <KeyboardAvoidingView
         style={{ flex: 1, backgroundColor: 'white' }}
-        // keyboardVerticalOffset={bottomHeight + 8}
+        keyboardVerticalOffset={bottomHeight}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <StatusBar style="auto" />
+        <StatusBar style="dark" />
         <HStack
           p={4}
           // style={{ marginTop: Platform.OS === 'ios' ? 0 : topHeight }}

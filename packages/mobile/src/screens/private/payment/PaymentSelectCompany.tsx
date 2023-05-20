@@ -35,7 +35,7 @@ export function PaymentSelectCompany({ navigation }) {
       companies
         .filter(c => c.fantasyName.toLowerCase().includes(search.toLowerCase()))
         .sort(a =>
-          a.address.city.name === userData.address.city.name ? -1 : 1
+          a.companyAddress.city.name === userData.address.city.name ? -1 : 1
         ),
     [companies, userData, search]
   )

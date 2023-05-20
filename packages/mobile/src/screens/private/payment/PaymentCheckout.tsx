@@ -24,9 +24,9 @@ export function PaymentCheckout({ navigation }) {
   const { bottom: bottomHeight, top: topHeight } = useSafeAreaInsets()
 
   const address = useMemo(() => {
-    if (!company?.address) return
+    if (!company?.companyAddress) return
 
-    const { district, number, street } = company.address
+    const { district, number, street } = company.companyAddress
 
     return [street, number, district].filter(i => i).join(', ')
   }, [company])

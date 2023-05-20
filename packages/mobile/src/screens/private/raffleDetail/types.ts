@@ -40,6 +40,11 @@ export interface RaffleItemDelivery {
 export interface WinnerTicket {
   number: number
   consumer: Consumer
+  transaction: {
+    company: {
+      fantasyName: string
+    }
+  }
 }
 
 export interface Consumer {

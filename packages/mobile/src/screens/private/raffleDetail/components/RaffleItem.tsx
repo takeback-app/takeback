@@ -6,6 +6,7 @@ import { dateFormat, hideCPF } from '../../../../utils'
 interface RaffleItemProps {
   item: Item
   userCpf: string
+  isOpenToOtherCompanies: boolean
   onPress: (id: string) => void
 }
 
@@ -13,7 +14,12 @@ function formatConsumerName(name: string) {
   return name.split(' ').slice(0, 2).join(' ')
 }
 
-export function RaffleItem({ item, userCpf, onPress }: RaffleItemProps) {
+export function RaffleItem({
+  item,
+  userCpf,
+  isOpenToOtherCompanies,
+  onPress
+}: RaffleItemProps) {
   const { winnerTicket, description, imageUrl, raffleItemDelivery } = item
 
   const isWinner = winnerTicket?.consumer.cpf === userCpf
@@ -59,6 +65,12 @@ export function RaffleItem({ item, userCpf, onPress }: RaffleItemProps) {
         <Text fontSize="md" fontWeight="semibold" numberOfLines={1}>
           {description}
         </Text>
+        {isOpenToOtherCompanies && isWinner ? (
+          <Text fontSize="xs" fontWeight="medium">
+            Cupom ganhado em:{' '}
+            {item.winnerTicket?.transaction.company.fantasyName.toUpperCase()}
+          </Text>
+        ) : null}
         <Text fontSize="xs" fontWeight="medium">
           Ganhador:{' '}
           {winnerTicket

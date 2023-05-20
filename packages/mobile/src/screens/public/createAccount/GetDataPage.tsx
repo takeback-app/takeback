@@ -2,7 +2,6 @@ import React from 'react'
 import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native'
 import { Controller, useForm } from 'react-hook-form'
 import { mask, unMask } from 'react-native-mask-text'
-import DateTimePickerModal from 'react-native-modal-datetime-picker'
 
 import {
   Button,
@@ -11,8 +10,7 @@ import {
   Progress,
   Radio,
   Stack,
-  WarningOutlineIcon,
-  useDisclose
+  WarningOutlineIcon
 } from 'native-base'
 
 import { z } from 'zod'
@@ -21,9 +19,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Header } from '../../../components/header'
 import { CustomInput } from '../../../components/input'
 import { Layout } from '../../../components/layout'
-import moment from 'moment'
 import { Sex, useSignUp } from './state'
 import { validateCEP } from '../../../services'
+import { isValidBirthDate } from '../../../utils/birthdayValidator'
 
 const schema = z.object({
   name: z
@@ -44,8 +42,6 @@ const schema = z.object({
 export type Data = z.infer<typeof schema>
 
 export function GetDataPage({ navigation }) {
-  const { isOpen, onClose, onOpen } = useDisclose()
-
   const {
     control,
     handleSubmit,
@@ -54,6 +50,10 @@ export function GetDataPage({ navigation }) {
   } = useForm<Data>({ resolver: zodResolver(schema) })
 
   async function onSubmit({ birthday, name, sex, zipCode }: Data) {
+    if (!isValidBirthDate(birthday)) {
+      return setError('birthday', { message: 'Data inválida' })
+    }
+
     const unmaskedZipCode = unMask(zipCode)
 
     const [isOk, response] = await validateCEP(unmaskedZipCode)
@@ -163,6 +163,7 @@ export function GetDataPage({ navigation }) {
 
               <Controller
                 control={control}
+                rules={{ required: 'O campo é obrigatório' }}
                 name="birthday"
                 render={({
                   field: { onChange, onBlur, value },
@@ -175,22 +176,10 @@ export function GetDataPage({ navigation }) {
                       keyboardType="numeric"
                       maxLength={10}
                       onBlur={onBlur}
-                      onFocus={onOpen}
+                      onChangeText={text => onChange(mask(text, '99/99/9999'))}
                       isInvalid={!!error?.message}
                       error={error?.message}
                       value={value}
-                    />
-                    <DateTimePickerModal
-                      isVisible={isOpen}
-                      mode="date"
-                      date={
-                        value ? moment(value, 'DD/MM/YYYY').toDate() : undefined
-                      }
-                      onConfirm={date => {
-                        onChange(moment(date).format('DD/MM/YYYY'))
-                        onClose()
-                      }}
-                      onCancel={onClose}
                     />
                   </>
                 )}

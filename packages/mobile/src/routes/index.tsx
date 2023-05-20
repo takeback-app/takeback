@@ -14,8 +14,12 @@ import { LoadingScreen } from '../screens/public/loadingScreen'
 import { NotConnectedScreen } from '../screens/public/notConnectedScreen'
 import { saveNotificationToken } from '../services'
 import { useNotification } from '../stores/useNotification'
+import { UpdateModal } from '../components/UpdateModal'
+import { useExpoUpdate } from '../hooks/useExpoUpdate'
 
 export function RootNavigation() {
+  const { hasUpdate, handleUpdate } = useExpoUpdate()
+
   const { isSignedIn, setIsSignedIn, setIsBalanceVisible } =
     useContext(AuthContext)
 
@@ -79,6 +83,10 @@ export function RootNavigation() {
 
   if (!connected) {
     return <NotConnectedScreen />
+  }
+
+  if (hasUpdate) {
+    return <UpdateModal isOpen={hasUpdate} onPress={handleUpdate} />
   }
 
   return (
