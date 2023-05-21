@@ -2,12 +2,12 @@ import React from 'react'
 
 import { Control, Controller } from 'react-hook-form'
 
-import { UpdateAccountData } from '../FieldsPage'
-import { CustomInput } from '../../../../components/input'
+import { CustomInput } from '../../components/input'
 import { mask } from 'react-native-mask-text'
 
 interface BirthdayInputProps {
-  control: Control<UpdateAccountData>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<any>
 }
 
 export function BirthdayInput({ control }: BirthdayInputProps) {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosError } from 'axios'
 import { API } from './API'
 import { CreateAccountFormData } from '../screens/public/createAccount/state'
@@ -154,7 +155,7 @@ export async function createAccount(
 }
 
 export async function updateAccount(
-  form: Record<string, string | number>
+  form: Record<string, any>
 ): Promise<ReturnApi> {
   try {
     const { data } = await API.put('costumer/update-account', form)
@@ -197,4 +198,27 @@ export async function saveNotificationToken(token?: string) {
   try {
     await API.post(`costumer/notification-token`, { token })
   } catch {}
+}
+
+interface GenerateCashbackData {
+  totalAmount: number
+  paymentMethodId: number
+  companyId: string
+}
+
+export async function generateCashback(
+  data: GenerateCashbackData
+): Promise<ReturnApi> {
+  try {
+    await API.post('costumer/cashback', data)
+
+    return [true, { message: '' }]
+  } catch (err) {
+    const error = err as AxiosError
+
+    return [
+      false,
+      { message: error.response?.data.message || 'Conte um administrador' }
+    ]
+  }
 }

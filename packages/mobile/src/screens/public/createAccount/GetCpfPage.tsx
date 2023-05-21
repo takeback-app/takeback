@@ -1,19 +1,19 @@
 import React from 'react'
 import { KeyboardAvoidingView, Platform } from 'react-native'
-import { mask, unMask } from 'react-native-mask-text'
+import { unMask } from 'react-native-mask-text'
 
 import { Button, Heading, Progress, Stack, Text } from 'native-base'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
 import { Header } from '../../../components/header'
-import { CustomInput } from '../../../components/input'
 import { Layout } from '../../../components/layout'
 
 import { CPFValidate } from '../../../utils/CPFValidate'
 import { checkCpf } from '../../../services'
 import { useSignUp } from './state'
+import { CpfInput } from '../../../components/form/CpfInput'
 
 const schema = z.object({
   cpf: z
@@ -73,27 +73,7 @@ export function GetCpfPage({ navigation }) {
               O seu CPF é utilizado apenas para garantir que é você mesmo.
             </Text>
 
-            <Controller
-              control={control}
-              name="cpf"
-              render={({
-                field: { onChange, onBlur, value },
-                fieldState: { error }
-              }) => (
-                <CustomInput
-                  label="CPF"
-                  keyboardType="numeric"
-                  keyboardAppearance="light"
-                  maxLength={14}
-                  autoFocus={true}
-                  onBlur={onBlur}
-                  isInvalid={!!error?.message}
-                  error={error?.message}
-                  onChangeText={e => onChange(mask(e, '999.999.999-99'))}
-                  value={value}
-                />
-              )}
-            />
+            <CpfInput control={control} />
           </Stack>
 
           <Button

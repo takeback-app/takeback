@@ -1,27 +1,22 @@
 import React from 'react'
 import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native'
-import { Controller, useForm } from 'react-hook-form'
-import { mask, unMask } from 'react-native-mask-text'
+import { useForm } from 'react-hook-form'
+import { unMask } from 'react-native-mask-text'
 
-import {
-  Button,
-  FormControl,
-  Heading,
-  Progress,
-  Radio,
-  Stack,
-  WarningOutlineIcon
-} from 'native-base'
+import { Button, Heading, Progress, Stack } from 'native-base'
 
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { Header } from '../../../components/header'
-import { CustomInput } from '../../../components/input'
 import { Layout } from '../../../components/layout'
 import { Sex, useSignUp } from './state'
 import { validateCEP } from '../../../services'
 import { isValidBirthDate } from '../../../utils/birthdayValidator'
+import { NameInput } from '../../../components/form/NameInput'
+import { SexInput } from '../../../components/form/SexInput'
+import { BirthdayInput } from '../../../components/form/BirthdayInput'
+import { ZipCodeInput } from '../../../components/form/ZipCodeInput'
 
 const schema = z.object({
   name: z
@@ -86,104 +81,10 @@ export function GetDataPage({ navigation }) {
               Nos conte um pouco mais sobre você.
             </Heading>
             <Stack flex="1" space="8" mt="4">
-              <Controller
-                control={control}
-                name="name"
-                render={({
-                  field: { onChange, onBlur, value },
-                  fieldState: { error }
-                }) => (
-                  <CustomInput
-                    label="Nome completo"
-                    keyboardType="default"
-                    autoCapitalize="words"
-                    keyboardAppearance="light"
-                    maxLength={40}
-                    autoFocus={true}
-                    onBlur={onBlur}
-                    isInvalid={!!error?.message}
-                    error={error?.message}
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                )}
-              />
-
-              <Controller
-                control={control}
-                name="sex"
-                render={({
-                  field: { onChange, value, name },
-                  fieldState: { error }
-                }) => (
-                  <FormControl isInvalid={!!error?.message}>
-                    <FormControl.Label fontWeight="medium">
-                      Sexo
-                    </FormControl.Label>
-                    <Radio.Group
-                      name={name}
-                      accessibilityLabel="Sexo"
-                      value={value}
-                      onChange={value => onChange(value as Sex)}
-                    >
-                      <Stack direction="row" space={2}>
-                        <Radio value="MALE">Masculino</Radio>
-                        <Radio value="FEMALE">Feminino</Radio>
-                      </Stack>
-                    </Radio.Group>
-                    <FormControl.ErrorMessage
-                      leftIcon={<WarningOutlineIcon size="xs" />}
-                    >
-                      {error?.message}
-                    </FormControl.ErrorMessage>
-                  </FormControl>
-                )}
-              />
-
-              <Controller
-                control={control}
-                name="zipCode"
-                render={({
-                  field: { onChange, onBlur, value },
-                  fieldState: { error }
-                }) => (
-                  <CustomInput
-                    label="CEP da sua cidade"
-                    keyboardAppearance="light"
-                    keyboardType="numeric"
-                    maxLength={9}
-                    onBlur={onBlur}
-                    isInvalid={!!error?.message}
-                    error={error?.message}
-                    onChangeText={text => onChange(mask(text, '99999-999'))}
-                    value={value}
-                  />
-                )}
-              />
-
-              <Controller
-                control={control}
-                rules={{ required: 'O campo é obrigatório' }}
-                name="birthday"
-                render={({
-                  field: { onChange, onBlur, value },
-                  fieldState: { error }
-                }) => (
-                  <>
-                    <CustomInput
-                      label="Data de Nascimento"
-                      keyboardAppearance="light"
-                      keyboardType="numeric"
-                      maxLength={10}
-                      onBlur={onBlur}
-                      onChangeText={text => onChange(mask(text, '99/99/9999'))}
-                      isInvalid={!!error?.message}
-                      error={error?.message}
-                      value={value}
-                    />
-                  </>
-                )}
-              />
+              <NameInput control={control} />
+              <SexInput control={control} />
+              <ZipCodeInput control={control} />
+              <BirthdayInput control={control} />
             </Stack>
           </ScrollView>
           <Button

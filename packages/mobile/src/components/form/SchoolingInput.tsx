@@ -1,11 +1,11 @@
 import React from 'react'
 
 import { Control, Controller } from 'react-hook-form'
-import { Radio } from '../../../../components/input/Radio'
-import { UpdateAccountData } from '../FieldsPage'
+import { Radio } from '../../components/input/Radio'
 
 interface SchoolingInputProps {
-  control: Control<UpdateAccountData>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<any>
 }
 
 const options = [

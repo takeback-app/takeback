@@ -1,17 +1,17 @@
 import React from 'react'
 import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native'
-import { mask } from 'react-native-mask-text'
 
 import { Button, Heading, Progress, Stack } from 'native-base'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { Header } from '../../../components/header'
-import { CustomInput } from '../../../components/input'
 import { Layout } from '../../../components/layout'
 import { useSignUp } from './state'
+import { PhoneInput } from '../../../components/form/PhoneInput'
+import { EmailInput } from '../../../components/form/EmailInput'
 
 const schema = z.object({
   email: z.string().email().nonempty({ message: 'E-mail é obrigatório' }),
@@ -50,53 +50,8 @@ export function GetContactPage({ navigation }) {
               <Heading fontSize="3xl" color="blue.600" fontWeight="bold" mb="4">
                 Informe seu e-mail e telefone.
               </Heading>
-
-              <Controller
-                control={control}
-                name="email"
-                render={({
-                  field: { onChange, onBlur, value },
-                  fieldState: { error }
-                }) => (
-                  <CustomInput
-                    label="E-mail"
-                    keyboardAppearance="light"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    keyboardType="email-address"
-                    maxLength={40}
-                    autoFocus={true}
-                    onBlur={onBlur}
-                    isInvalid={!!error?.message}
-                    error={error?.message}
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                )}
-              />
-
-              <Controller
-                control={control}
-                name="phone"
-                render={({
-                  field: { onChange, onBlur, value },
-                  fieldState: { error }
-                }) => (
-                  <CustomInput
-                    label="Telefone (Com DDD)"
-                    keyboardAppearance="light"
-                    keyboardType="numeric"
-                    maxLength={20}
-                    onBlur={onBlur}
-                    isInvalid={!!error?.message}
-                    error={error?.message}
-                    onChangeText={text =>
-                      onChange(mask(text, '(99) 9 9999-9999'))
-                    }
-                    value={value}
-                  />
-                )}
-              />
+              <EmailInput control={control} />
+              <PhoneInput control={control} />
             </Stack>
           </ScrollView>
 

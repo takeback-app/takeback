@@ -184,7 +184,10 @@ export function RaffleDetail({ route, navigation }) {
           </Flex>
 
           {raffle.isOpenToOtherCompanies && (
-            <Text>Sorteio aberto para todas empresas da cidade</Text>
+            <Text>
+              Sorteio aberto: comprando em qualquer empresa da cidade você ganha
+              cupom
+            </Text>
           )}
 
           <Flex flexDirection="row" align="center" justify="space-between">

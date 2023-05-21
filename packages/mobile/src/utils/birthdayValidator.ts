@@ -3,7 +3,7 @@ import moment from 'moment'
 export function isValidBirthDate(birthday: string) {
   const date = moment(birthday, 'DD/MM/YYYY')
 
-  return (
+  return !(
     !date.isValid() ||
     moment().diff(date, 'years') < 14 ||
     date.isAfter(moment()) ||

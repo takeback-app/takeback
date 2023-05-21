@@ -1,49 +1,83 @@
-import React, { useState, useContext } from 'react'
-import { Platform, TextInputProps, KeyboardAvoidingView } from 'react-native'
-import { View, Text, Input, ScrollView, Button } from 'native-base'
-import { useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { mask } from 'react-native-mask-text'
-import { Formik } from 'formik'
+import React from 'react'
+import { Platform, KeyboardAvoidingView, ActivityIndicator } from 'react-native'
 
-import { API } from '../../../services/API'
-import { UserDataContext } from '../../../contexts/UserDataContext'
+import { ScrollView, Button, Stack, Center, Heading, Box } from 'native-base'
+import { unMask } from 'react-native-mask-text'
+import { useForm, useFormState } from 'react-hook-form'
 
 import { Layout } from '../../../components/layout'
 import { Header } from '../../../components/header'
 
-import { PrivateRouteParam } from '../../../@types/routes'
+import { axiosFetcher } from '../../../services/API'
 
-interface InputComponentProps extends TextInputProps {
+import { NameInput } from '../../../components/form/NameInput'
+import { CpfInput } from '../../../components/form/CpfInput'
+import { PhoneInput } from '../../../components/form/PhoneInput'
+import { SexInput } from '../../../components/form/SexInput'
+import { BirthdayInput } from '../../../components/form/BirthdayInput'
+import { MaritalStatusInput } from '../../../components/form/MaritalStatusInput'
+import { SchoolingInput } from '../../../components/form/SchoolingInput'
+import { MonthlyIncomeInput } from '../../../components/form/MonthlyIncomeInput'
+import { HasChildrenInput } from '../../../components/form/HasChildrenInput'
+import { ZipCodeInput } from '../../../components/form/ZipCodeInput'
+import { GenericInput } from '../../../components/form/GenericInput'
+
+import { isValidBirthDate } from '../../../utils/birthdayValidator'
+import { updateAccount } from '../../../services'
+
+export type UpdateProfileData = {
   name: string
-  label: string
-  isDisabled?: boolean
+  cpf?: string
+  sex: string
+  birthday: string
+  hasChildren: string
+  maritalStatus: string
+  monthlyIncomeId: string
+  schooling: string
+  phone: string
+  address: {
+    street: string
+    district: string
+    number: string
+    city?: string
+    zipCode: string
+    complement: string
+  }
 }
 
-export function ProfileData() {
-  const { userData, setUserData } = useContext(UserDataContext)
-  const [isDisabled, setIsDisabled] = useState(true)
-  const [isLoading, setIsLoading] = useState(false)
+export function ProfileData({ navigation }) {
+  const { control, handleSubmit, setError, setFocus } =
+    useForm<UpdateProfileData>({
+      defaultValues: async () => axiosFetcher('costumer/me')
+    })
+  const { isSubmitting, isLoading } = useFormState({ control })
 
-  const navigation =
-    useNavigation<NativeStackNavigationProp<PrivateRouteParam>>()
+  async function onSubmit(data: UpdateProfileData) {
+    if (!isValidBirthDate(data.birthday)) {
+      setFocus('birthday')
+      return setError('birthday', { message: 'Data inválida' })
+    }
 
-  function goBack() {
-    navigation.goBack()
+    delete data.address.city
+    delete data.cpf
+
+    data.phone = unMask(data.phone)
+    data.address.zipCode = unMask(data.address.zipCode)
+    data.address.number = unMask(data.address.number)
+
+    const [isOk, response] = await updateAccount(data)
+
+    if (!isOk) {
+      return setError('name', { message: response.message })
+    }
   }
 
-  function handleSubmit(values: any) {
-    setIsLoading(true)
-    API.put('costumer/update/data/v2', {
-      values
-    })
-      .then(response => {
-        setUserData(response.data)
-      })
-      .finally(() => {
-        setIsLoading(false)
-        setIsDisabled(true)
-      })
+  if (isLoading) {
+    return (
+      <Center flex={1} bg="white">
+        <ActivityIndicator size="large" color="#449FE7" />
+      </Center>
+    )
   }
 
   return (
@@ -51,164 +85,77 @@ export function ProfileData() {
       <Header
         title="Dados pessoais"
         variant="arrow"
-        goBack={goBack}
-        onEdit={() => setIsDisabled(false)}
+        goBack={navigation.goBack}
       />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
-        <Formik
-          initialValues={{
-            fullName: userData.fullName,
-            cpf: userData.cpf,
-            birthDate: userData.birthDate,
-            address: {
-              street: userData.address.street,
-              district: userData.address.district,
-              number: userData.address.number,
-              city: userData.address.city.name,
-              zipCode: userData.address.zipCode,
-              complement: userData.address.complement
-            }
-          }}
-          onSubmit={handleSubmit}
-          enableReinitialize
-        >
-          {({ handleChange, handleSubmit, values }) => (
-            <ScrollView px="4">
-              <View pt="4">
-                <Text fontSize="md" fontWeight="medium" color="blue.600">
-                  Dados pessoais
-                </Text>
-                <View>
-                  <InputComponent
-                    name="fullName"
-                    label="Nome completo"
-                    onChangeText={handleChange('fullName')}
-                    value={values.fullName}
-                    keyboardType="default"
-                    isDisabled={isDisabled || isLoading}
-                  />
-                  <InputComponent
-                    name="cpf"
-                    label="CPF"
-                    onChangeText={handleChange('cpf')}
-                    value={mask(values.cpf, '999.999.999-99')}
-                    keyboardType="numeric"
-                    isDisabled
-                  />
-                </View>
-              </View>
+        <ScrollView p={4}>
+          <Heading size="md" mb={2}>
+            Dados Pessoais
+          </Heading>
+          <Stack space={4}>
+            <NameInput control={control} />
+            <CpfInput isDisabled control={control} />
+            <PhoneInput control={control} />
+            <SexInput control={control} />
+            <BirthdayInput control={control} />
+            <MaritalStatusInput control={control} />
+            <SchoolingInput control={control} />
+            <MonthlyIncomeInput control={control} />
+            <HasChildrenInput control={control} />
+          </Stack>
 
-              <View pt="4">
-                <Text fontSize="md" fontWeight="medium" color="blue.600">
-                  Meu endereço
-                </Text>
-                <View>
-                  <InputComponent
-                    name="street"
-                    label="Rua"
-                    onChangeText={handleChange('address.street')}
-                    value={values.address.street}
-                    keyboardType="default"
-                    isDisabled={isDisabled || isLoading}
-                  />
-                  <InputComponent
-                    name="district"
-                    label="Bairro"
-                    onChangeText={handleChange('address.district')}
-                    value={values.address.district}
-                    keyboardType="default"
-                    isDisabled={isDisabled || isLoading}
-                  />
-                  <InputComponent
-                    name="number"
-                    label="Número"
-                    onChangeText={handleChange('address.number')}
-                    value={values.address.number}
-                    keyboardType="default"
-                    isDisabled={isDisabled || isLoading}
-                  />
-                  <InputComponent
-                    name="complement"
-                    label="Complemento"
-                    onChangeText={handleChange('address.complement')}
-                    value={values.address.complement}
-                    keyboardType="default"
-                    isDisabled={isDisabled || isLoading}
-                  />
-                  <InputComponent
-                    name="zipCode"
-                    label="Cep"
-                    onChangeText={handleChange('address.zipCode')}
-                    value={mask(values.address.zipCode, '99999-999')}
-                    keyboardType="numeric"
-                    isDisabled={isDisabled || isLoading}
-                  />
-                  <InputComponent
-                    name="city"
-                    label="Cidade"
-                    onChangeText={handleChange('address.city')}
-                    value={values.address.city}
-                    keyboardType="default"
-                    isDisabled
-                  />
-                </View>
-              </View>
-
-              {!isDisabled && (
-                <Button
-                  h="12"
-                  my="4"
-                  rounded="full"
-                  bgColor="blue.600"
-                  onPress={() => handleSubmit()}
-                  isLoading={isLoading}
-                  _pressed={{
-                    bgColor: 'blue.400'
-                  }}
-                  _text={{
-                    fontSize: 'md',
-                    fontWeight: 'medium'
-                  }}
-                >
-                  Atualizar dados
-                </Button>
-              )}
-            </ScrollView>
-          )}
-        </Formik>
+          <Heading size="md" mb={2} mt={6}>
+            Endereço
+          </Heading>
+          <Stack space={4}>
+            <GenericInput label="Rua" name="address.street" control={control} />
+            <GenericInput
+              label="Bairro"
+              name="address.district"
+              control={control}
+            />
+            <GenericInput
+              label="Número"
+              name="address.number"
+              control={control}
+            />
+            <GenericInput
+              label="Complemento"
+              name="address.complement"
+              control={control}
+            />
+            <ZipCodeInput name="address.zipCode" control={control} />
+            <GenericInput
+              label="Cidade"
+              name="address.city"
+              control={control}
+              isDisabled
+            />
+          </Stack>
+          <Box p={4} />
+        </ScrollView>
+        <Box p={4}>
+          <Button
+            h="12"
+            rounded="full"
+            bgColor="blue.600"
+            _pressed={{
+              bgColor: 'blue.400'
+            }}
+            _text={{
+              fontSize: 'md',
+              fontWeight: 'medium'
+            }}
+            onPress={handleSubmit(onSubmit)}
+            isLoading={isSubmitting}
+          >
+            Atualizar
+          </Button>
+        </Box>
       </KeyboardAvoidingView>
     </Layout>
-  )
-}
-
-function InputComponent(props: InputComponentProps) {
-  return (
-    <View py="2">
-      <Text fontSize="sm" fontWeight="semibold" color="gray.800" mb="1">
-        {props.label}
-      </Text>
-      <Input
-        h="12"
-        variant="filled"
-        fontSize="sm"
-        fontWeight="medium"
-        color="gray.800"
-        isDisabled={props.isDisabled}
-        onChangeText={props.onChangeText}
-        value={props.value}
-        _disabled={{
-          color: 'gray.800',
-          bgColor: 'muted.200'
-        }}
-        _focus={{
-          bgColor: 'blue.50',
-          borderColor: 'blue.600'
-        }}
-        {...props}
-      />
-    </View>
   )
 }
