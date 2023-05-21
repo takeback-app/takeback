@@ -34,6 +34,12 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "devops@takeback.app.br",
+        "ascAppId": "1617475702",
+        "appleTeamId": "787LSF89G4"
+      }
+    }
   }
 }
