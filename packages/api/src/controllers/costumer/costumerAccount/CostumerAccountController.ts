@@ -28,9 +28,12 @@ class CostumerAccountController {
       monthlyIncomeId,
       schooling,
       phone,
+      name,
+      address,
     } = request.body;
 
     const consumerData = {
+      fullName: name ? name.trim() : undefined,
       sex: sex as Sex,
       birthDate: birthday
         ? DateTime.fromFormat(birthday, "dd/MM/yyyy")
@@ -47,6 +50,19 @@ class CostumerAccountController {
     await prisma.consumer.update({
       where: { id },
       data: consumerData,
+    });
+
+    if (!address) return response.status(204).json();
+
+    await prisma.consumerAddress.updateMany({
+      where: { consumer: { id } },
+      data: {
+        complement: address.complement,
+        district: address.district,
+        number: address.number,
+        street: address.street,
+        zipCode: address.zipCode,
+      },
     });
 
     return response.status(204).json();

@@ -183,6 +183,13 @@ export function RaffleDetail({ route, navigation }) {
             </Text>
           </Flex>
 
+          {raffle.isOpenToOtherCompanies && (
+            <Text>
+              Sorteio aberto: comprando em qualquer empresa da cidade você ganha
+              cupom
+            </Text>
+          )}
+
           <Flex flexDirection="row" align="center" justify="space-between">
             {isAlreadyDraw ? (
               <Text
@@ -240,6 +247,7 @@ export function RaffleDetail({ route, navigation }) {
               <RaffleItem
                 key={item.id}
                 item={item}
+                isOpenToOtherCompanies={raffle.isOpenToOtherCompanies}
                 userCpf={userData.cpf}
                 onPress={onPressItem}
               />

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
@@ -8,6 +8,7 @@ import { FieldsPage } from './FieldsPage'
 import { UpdateSuccessPage } from './UpdateSuccessPage'
 import { Center } from 'native-base'
 import { ActivityIndicator } from 'react-native'
+import { useStorage } from '../../../hooks/useStorage'
 
 const Stack = createNativeStackNavigator()
 
@@ -16,9 +17,17 @@ interface Data {
 }
 
 export function UpdateAccountStack() {
+  const { setAccountUpdate } = useStorage()
+
   const { data, isLoading } = useSWR<Data>('costumer/missing-fields', {
     revalidateOnMount: true
   })
+
+  useEffect(() => {
+    if (data?.fields.length === 0) {
+      setAccountUpdate(true)
+    }
+  }, [data, setAccountUpdate])
 
   if (isLoading || !data) {
     return (

@@ -121,6 +121,7 @@ routes.get("/extract/transactions/:id", extractController.showTransaction);
 routes.get("/extract/transfers/:id", extractController.showTransfer);
 
 routes.post("/profile/deactivate", profileController.deactivate);
+routes.get("/me", profileController.me);
 routes.post("/balance/validate", balanceController.validate);
 routes.get("/balance/payment-free", balanceController.freeBalance);
 

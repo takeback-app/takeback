@@ -34,6 +34,11 @@ export class RaffleController {
   async finished(request: Request, response: Response) {
     const consumerId = request["tokenPayload"].id;
 
+    const consumerAddress = await prisma.consumerAddress.findFirst({
+      where: { consumer: { id: consumerId } },
+      select: { cityId: true },
+    });
+
     const raffles = await prisma.raffle.findMany({
       where: {
         status: {
@@ -46,9 +51,7 @@ export class RaffleController {
             ],
           },
         },
-        tickets: {
-          some: { consumerId, status: { notIn: ["CANCELED", "PENDING"] } },
-        },
+        company: { companyAddress: { cityId: consumerAddress.cityId } },
       },
       orderBy: { createdAt: "desc" },
       include: {
@@ -114,6 +117,9 @@ export class RaffleController {
               select: {
                 number: true,
                 consumer: { select: { fullName: true, cpf: true } },
+                transaction: {
+                  select: { company: { select: { fantasyName: true } } },
+                },
               },
             },
           },

@@ -2,21 +2,21 @@
   "expo": {
     "name": "TakeBack",
     "slug": "takeback",
-    "version": "2.3.4",
+    "version": "2.3.5",
     "orientation": "portrait",
     "privacy": "unlisted",
     "userInterfaceStyle": "light",
     "icon": "./assets/icon.png",
     "ios": {
       "jsEngine": "jsc",
-      "buildNumber": "2.3.4",
+      "buildNumber": "2.3.5",
       "userInterfaceStyle": "automatic",
       "supportsTablet": false,
       "bundleIdentifier": "com.takeback"
     },
     "android": {
       "jsEngine": "hermes",
-      "versionCode": 24,
+      "versionCode": 25,
       "userInterfaceStyle": "light",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

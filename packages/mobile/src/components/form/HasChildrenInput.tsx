@@ -1,28 +1,31 @@
 import React from 'react'
 
 import { Control, Controller } from 'react-hook-form'
-import { Radio } from '../../../../components/input/Radio'
-import { UpdateAccountData } from '../FieldsPage'
+import { Radio } from '../../components/input/Radio'
 
-interface MartialStatusInputProps {
-  control: Control<UpdateAccountData>
+interface HasChildrenInputProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<any>
 }
 
 const options = [
-  { text: 'Solteiro', value: 'SINGLE' },
-  { text: 'Casado', value: 'MARRIED' },
-  { text: 'Divorciado', value: 'DIVORCED' }
+  { text: 'Sim', value: 'sim' },
+  {
+    text: 'Não',
+    value: 'não'
+  }
 ]
 
-export function MaritalStatusInput({ control }: MartialStatusInputProps) {
+export function HasChildrenInput({ control }: HasChildrenInputProps) {
   return (
     <Controller
       control={control}
       rules={{ required: 'O campo é obrigatório' }}
-      name="maritalStatus"
+      name="hasChildren"
       render={({ field: { onChange, value, name }, fieldState: { error } }) => (
         <Radio
-          label="Estado Civil"
+          label="Tem filhos?"
+          direction="row"
           error={error?.message}
           name={name}
           value={value}

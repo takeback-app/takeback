@@ -4,11 +4,11 @@ import { ActivityIndicator } from 'react-native'
 import { Control, Controller } from 'react-hook-form'
 import useSWR from 'swr'
 
-import { Radio } from '../../../../components/input/Radio'
-import { UpdateAccountData } from '../FieldsPage'
+import { Radio } from '../../components/input/Radio'
 
 interface MonthlyIncomeInputProps {
-  control: Control<UpdateAccountData>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<any>
 }
 
 interface MonthlyIncome {

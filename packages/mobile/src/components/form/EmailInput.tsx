@@ -1,32 +1,35 @@
 import React from 'react'
-import { Control, Controller } from 'react-hook-form'
-import { CustomInput } from '../../../../components/input'
-import { UpdateAccountData } from '../FieldsPage'
-import { mask } from 'react-native-mask-text'
 
-interface PhoneInputProps {
-  control: Control<UpdateAccountData>
+import { Control, Controller } from 'react-hook-form'
+
+import { CustomInput } from '../../components/input'
+
+interface EmailInputProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<any>
 }
 
-export function PhoneInput({ control }: PhoneInputProps) {
+export function EmailInput({ control }: EmailInputProps) {
   return (
     <Controller
       control={control}
       rules={{ required: 'O campo é obrigatório' }}
-      name="phone"
+      name="email"
       render={({
         field: { onChange, onBlur, value },
         fieldState: { error }
       }) => (
         <CustomInput
-          label="Telefone (Com DDD)"
+          label="E-mail"
           keyboardAppearance="light"
-          keyboardType="numeric"
-          maxLength={20}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="email-address"
+          maxLength={40}
           onBlur={onBlur}
           isInvalid={!!error?.message}
           error={error?.message}
-          onChangeText={text => onChange(mask(text, '(99) 9 9999-9999'))}
+          onChangeText={onChange}
           value={value}
         />
       )}

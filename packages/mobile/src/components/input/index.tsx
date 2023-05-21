@@ -12,7 +12,7 @@ import {
   WarningOutlineIcon
 } from 'native-base'
 
-interface CustomInputProps extends IInputProps {
+export interface CustomInputProps extends IInputProps {
   isPassword?: boolean
   error?: string
   label: string
@@ -26,16 +26,17 @@ export function CustomInput(props: CustomInputProps) {
       isRequired={props.isRequired}
       isDisabled={props.isDisabled}
       isInvalid={props.isInvalid}
-      isReadOnly={props.isReadOnly}
+      isReadOnly={props.isDisabled || props.isReadOnly}
     >
       <Stack>
         <FormControl.Label fontWeight="medium">{props.label}</FormControl.Label>
         <Input
           variant="underlined"
-          placeholder=" "
+          placeholder=""
           fontSize="md"
           fontWeight="medium"
           borderColor="gray.600"
+          isDisabled={props.isDisabled}
           isInvalid={props.isInvalid}
           pl="2"
           secureTextEntry={props.isPassword && secure}
