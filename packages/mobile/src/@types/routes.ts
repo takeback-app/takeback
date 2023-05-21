@@ -7,24 +7,6 @@ export type PublicRouteParam = {
     cpf: string
   }
   createAccount: undefined
-  // signUpStart: undefined
-  // signUpGetCpf: undefined
-  // signUpGetData: {
-  //   cpf: string
-  // }
-  // signUpGetContacts: {
-  //   cpf: string
-  //   fullName: string
-  //   zipCode: string
-  // }
-  // signUpSetPassword: {
-  //   cpf: string
-  //   fullName: string
-  //   zipCode: string
-  //   mail: string
-  //   phone: string
-  // }
-  // signUpSuccess: undefined
   forgotPasswordStart: undefined
   forgotPasswordGetCpf: undefined
   forgotPasswordSuccess: undefined
