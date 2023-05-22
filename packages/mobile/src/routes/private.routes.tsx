@@ -36,6 +36,7 @@ import { TakebackPaymentStack } from '../screens/private/payment'
 import { AskPassword } from '../screens/private/askPassword'
 import { UpdateAccountStack } from '../screens/private/updateAccount'
 import { useStorage } from '../hooks/useStorage'
+import { RaffleRules } from '../screens/private/raffles/RaffleRules'
 
 export function PrivateRoutes() {
   const { isAccountUpdated } = useStorage()
@@ -85,6 +86,9 @@ export function PrivateRoutes() {
       <Screen name="recommendationStart" component={RecommendationStart} />
       <Screen name="raffles" component={RaffleTabs} />
       <Screen name="raffleTickets" component={RaffleTickets} />
+      <Group screenOptions={{ presentation: 'modal' }}>
+        <Screen name="raffleRules" component={RaffleRules} />
+      </Group>
       <Screen name="balanceSaved" component={BalanceSaved} />
 
       <Group screenOptions={{ presentation: 'modal' }}>
