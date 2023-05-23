@@ -8,7 +8,11 @@ import {
 import { currency } from "../utils/Masks";
 
 export class CashbackApproved extends Notification {
-  constructor(protected transaction: Transaction, protected ticketsCount = 0) {
+  constructor(
+    protected transaction: Transaction,
+    protected companyName: string,
+    protected ticketsCount = 0
+  ) {
     super();
   }
 
@@ -20,14 +24,16 @@ export class CashbackApproved extends Notification {
 
       return {
         title: "Cashback e cupons aprovados 💰🎟️",
-        body: `Seu cashback de ${money} foi aprovado e você ganhou ${this.ticketsCount} ${ticketWord}.`,
+        body: `Seu cashback de ${money} foi aprovado em ${this.companyName.toUpperCase()} e você ganhou ${
+          this.ticketsCount
+        } ${ticketWord}.`,
         data: { id: this.transaction.id, ticketsCount: this.ticketsCount },
       };
     }
 
     return {
       title: "Cashback aprovado 💰",
-      body: `Seu cashback de ${money} aprovado e seu saldo foi atualizado.`,
+      body: `Seu cashback de ${money} aprovado em ${this.companyName.toUpperCase()} e seu saldo foi atualizado.`,
       data: { id: this.transaction.id },
     };
   }
