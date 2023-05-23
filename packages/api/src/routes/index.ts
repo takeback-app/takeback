@@ -6,7 +6,7 @@ import CostumerRoutes from "./CostumerRoutes";
 import CompanyRoutes from "./CompanyRoutes";
 import ManagerRoutes from "./ManagerRoutes";
 import SystemRoutes from "./SystemRoutes";
-import representativeRoutes from "./representativeRoutes";
+import representativeRoutes from "./RepresentativeRoutes";
 import sharedRoutes from "./sharedRoutes";
 
 const routes = express();
