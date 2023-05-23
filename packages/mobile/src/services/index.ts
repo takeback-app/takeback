@@ -145,6 +145,7 @@ export async function createAccount(
 
     return [true, data]
   } catch (err) {
+    console.log(err)
     const error = err as AxiosError
 
     return [
@@ -162,8 +163,6 @@ export async function updateAccount(
 
     return [true, data]
   } catch (err) {
-    console.log(err)
-
     const error = err as AxiosError
 
     return [
