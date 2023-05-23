@@ -4,12 +4,13 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 
 import useSWR from 'swr'
 
-import { Flex } from 'native-base'
+import { Flex, Center, Text, Pressable } from 'native-base'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { Header } from '../../../components/header'
 import { Raffles } from './index'
 import { RaffleTicketButton } from './components/RaffleTicketButton'
+import { TouchableOpacity } from 'react-native'
 
 const Tab = createMaterialTopTabNavigator()
 
@@ -55,6 +56,22 @@ export function RaffleTabs({ navigation }) {
           initialParams={{ filter: RaffleFilter.FINISHED }}
         />
       </Tab.Navigator>
+
+      <Center pt={2} bg="#f2f2f2">
+        <TouchableOpacity
+          onPress={() => navigation.navigate('raffleRules')}
+          style={{ width: '100%' }}
+        >
+          <Text
+            textAlign="center"
+            fontWeight="bold"
+            fontSize="md"
+            color="blue.600"
+          >
+            Regras dos Sorteios
+          </Text>
+        </TouchableOpacity>
+      </Center>
     </Flex>
   )
 }

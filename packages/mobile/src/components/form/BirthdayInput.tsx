@@ -22,7 +22,7 @@ export function BirthdayInput({ control }: BirthdayInputProps) {
       }) => (
         <>
           <CustomInput
-            label="Data de Nascimento"
+            label="Data de Nascimento (dd/mm/aaaa)"
             keyboardAppearance="light"
             keyboardType="numeric"
             maxLength={10}

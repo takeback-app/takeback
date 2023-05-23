@@ -54,6 +54,7 @@ export type PrivateRouteParam = {
   recommendationStart: undefined
   raffles: undefined
   raffleTickets: undefined
+  raffleRules: undefined
   raffleDetail: {
     id: string
   }

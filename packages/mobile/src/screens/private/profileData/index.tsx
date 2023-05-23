@@ -63,7 +63,6 @@ export function ProfileData({ navigation }) {
 
     data.phone = unMask(data.phone)
     data.address.zipCode = unMask(data.address.zipCode)
-    data.address.number = unMask(data.address.number)
 
     const [isOk, response] = await updateAccount(data)
 
@@ -111,7 +110,7 @@ export function ProfileData({ navigation }) {
             Endereço
           </Heading>
           <Stack space={4}>
-            <GenericInput label="Rua" name="address.street" control={control} />
+            {/* <GenericInput label="Rua" name="address.street" control={control} />
             <GenericInput
               label="Bairro"
               name="address.district"
@@ -126,7 +125,7 @@ export function ProfileData({ navigation }) {
               label="Complemento"
               name="address.complement"
               control={control}
-            />
+            /> */}
             <ZipCodeInput name="address.zipCode" control={control} />
             <GenericInput
               label="Cidade"

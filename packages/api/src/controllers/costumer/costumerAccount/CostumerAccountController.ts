@@ -57,10 +57,10 @@ class CostumerAccountController {
     await prisma.consumerAddress.updateMany({
       where: { consumer: { id } },
       data: {
-        complement: address.complement,
-        district: address.district,
-        number: address.number,
-        street: address.street,
+        complement: address.complement || undefined,
+        district: address.district || undefined,
+        number: address.number || undefined,
+        street: address.street || undefined,
         zipCode: address.zipCode,
       },
     });
