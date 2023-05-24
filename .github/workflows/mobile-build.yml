@@ -1,6 +1,5 @@
 name: EAS Build
 on:
-  workflow_dispatch:
   push:
     paths:
       - "packages/mobile/**"

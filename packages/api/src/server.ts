@@ -9,7 +9,9 @@ dotenv.config();
 
 import { app } from "./app";
 
-import "./database";
+import { connectTypeorm } from "./database";
+
+connectTypeorm();
 
 const httpServer = createServer(app);
 

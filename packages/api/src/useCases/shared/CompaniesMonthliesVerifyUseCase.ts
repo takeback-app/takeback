@@ -1,9 +1,9 @@
 import { getRepository, Between, ILike } from "typeorm";
-import { Companies } from "../../../database/models/Company";
-import { CompanyMonthlyPayment } from "../../../database/models/CompanyMonthlyPayment";
-import { CompanyStatus } from "../../../database/models/CompanyStatus";
-import { PaymentPlans } from "../../../database/models/PaymentPlans";
-import { Settings } from "../../../database/models/Settings";
+import { Settings } from "../../database/models/Settings";
+import { Companies } from "../../database/models/Company";
+import { CompanyStatus } from "../../database/models/CompanyStatus";
+import { PaymentPlans } from "../../database/models/PaymentPlans";
+import { CompanyMonthlyPayment } from "../../database/models/CompanyMonthlyPayment";
 
 class CompaniesMonthliesVerifyUseCase {
   async execute() {
