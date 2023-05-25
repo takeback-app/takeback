@@ -97,6 +97,7 @@ model CompanyMonthlyPayment {
   paymentMade Boolean      @default(false)
   company     Company?     @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_053a462e85ddac7b965e9d33654")
   paymentPlan PaymentPlan? @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_10f7b5e72a6752103ade1acf85a")
+  Commission  Commission[]
 
   @@map("company_monthly_payment")
 }
@@ -445,6 +446,7 @@ model Transaction {
   childrenTransactions         Transaction[]              @relation("FatherTransaction")
   Bonus                        Bonus[]
   raffleTickets                RaffleTicket[]
+  Commission                   Commission[]
 
   @@map("transactions")
 }
@@ -486,15 +488,17 @@ model WithdrawOrder {
 
   pixKey String
 
-  companyId String @db.Uuid
-  statusId  Int
+  companyId        String? @db.Uuid
+  representativeId String? @db.Uuid
+  statusId         Int
 
   approvedAt DateTime?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @default(now()) @updatedAt
 
-  company Company             @relation(fields: [companyId], references: [id])
-  status  WithdrawOrderStatus @relation(fields: [statusId], references: [id])
+  company        Company?            @relation(fields: [companyId], references: [id])
+  representative Representative?     @relation(fields: [representativeId], references: [id])
+  status         WithdrawOrderStatus @relation(fields: [statusId], references: [id])
 
   @@map("withdraw_orders")
 }
@@ -526,6 +530,29 @@ model Bonus {
 enum BonusType {
   SELL
   NEW_USER
+}
+
+model Commission {
+  id                      String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  type                    CommissionType @default(CASHBACK)
+  value                   Float
+  representativeId        String         @db.Uuid
+  transactionId           Int?
+  companyMonthlyPaymentId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  transaction    Transaction?           @relation(fields: [transactionId], references: [id])
+  monthPayment   CompanyMonthlyPayment? @relation(fields: [companyMonthlyPaymentId], references: [id])
+  representative Representative         @relation(fields: [representativeId], references: [id])
+
+  @@map("commissions")
+}
+
+enum CommissionType {
+  CASHBACK
+  MONTHLY_PAYMENT
 }
 
 model RaffleStatus {
@@ -746,6 +773,8 @@ model Representative {
 
   companies           Company[]
   representativeUsers RepresentativeUser[]
+  WithdrawOrder       WithdrawOrder[]
+  Commission          Commission[]
 
   @@map("representatives")
 }

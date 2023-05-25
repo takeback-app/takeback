@@ -16,7 +16,9 @@ export class SignInRepresentativeUseCase {
 
     const user = await prisma.representativeUser.findUnique({
       where: { cpf },
-      include: { representative: { select: { isActive: true } } },
+      include: {
+        representative: { select: { isActive: true, fantasyName: true } },
+      },
     });
 
     if (!user) {
@@ -36,6 +38,8 @@ export class SignInRepresentativeUseCase {
     const token = generateToken(
       {
         id: user.id,
+        representativeId: user.representativeId,
+        representativeName: user.representative.fantasyName,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -46,6 +50,9 @@ export class SignInRepresentativeUseCase {
 
     return {
       token,
+      id: user.id,
+      representativeId: user.representativeId,
+      representativeName: user.representative.fantasyName,
       name: user.name,
       email: user.email,
       role: user.role,

@@ -11,28 +11,17 @@ import { AllowCompanyFirstAccessUseCase } from "../manager/managerCompanies/Allo
 import { ForgotPasswordToRootUserUseCase } from "../manager/managerCompanies/ForgotPasswordToRootUserUseCase";
 import { FindCompanyUsersUseCase } from "../manager/managerCompanies/FindCompanyUsersUseCase";
 import { UpdateCompanyUseCase } from "../manager/managerCompanies/UpdateCompanyUseCase";
+import { GetRepresentative } from "../../useCases/representative/GetRepresentativeUseCase";
 
 export class CompanyController {
   async index(request: Request, response: Response) {
     const { id } = request["tokenPayload"];
 
-    const user = await prisma.representativeUser.findUniqueOrThrow({
-      where: { id },
+    const { whereCondominiumFilter } = await GetRepresentative.handle(id);
+
+    const companies = await prisma.company.findMany({
+      where: whereCondominiumFilter,
     });
-
-    const isAdmin = user.role === "ADMIN";
-
-    const where: Prisma.CompanyWhereInput = isAdmin
-      ? {
-          representativeId: user.representativeId,
-        }
-      : {
-          representativeUserCompanies: {
-            some: { representativeUserId: user.id },
-          },
-        };
-
-    const companies = await prisma.company.findMany({ where });
 
     return response.json(companies);
   }
