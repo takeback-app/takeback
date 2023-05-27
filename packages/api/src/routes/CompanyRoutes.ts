@@ -29,6 +29,7 @@ import { BirthdayNotificationController } from "../controllers/company/BirthdayN
 import { TransactionStatusController } from "../controllers/company/TransactionStatusController";
 import { CompanyUserTypeController } from "../controllers/company/CompanyUserTypeController";
 import { CompanyPaymentMethodController } from "../controllers/company/CompanyPaymentMethodController";
+import { LogoChangeRequestController } from "../controllers/company/logoChangeRequest/LogoChangeRequestController";
 
 const auth = new AuthCompanyController();
 const reports = new ReportsController();
@@ -56,6 +57,7 @@ const cashbackReportController = new CashbackReportController();
 const transactionStatusController = new TransactionStatusController();
 const companyUserTypeController = new CompanyUserTypeController();
 const companyPaymentMethodController = new CompanyPaymentMethodController();
+const logoChangeRequestController = new LogoChangeRequestController();
 
 const birthdayNotificationController = new BirthdayNotificationController();
 
@@ -218,5 +220,9 @@ routes.get("/company-payment-methods", companyPaymentMethodController.index);
 
 routes.get("/birthday-notifications", birthdayNotificationController.index);
 routes.post("/birthday-notifications", birthdayNotificationController.store);
+
+routes.get("/logo-change-requests", logoChangeRequestController.index);
+routes.post("/logo-change-requests", logoChangeRequestController.store);
+routes.delete("/logo-change-requests/:id", logoChangeRequestController.delete);
 
 export default routes;
