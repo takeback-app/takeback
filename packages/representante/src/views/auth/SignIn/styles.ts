@@ -9,7 +9,7 @@ export const Container = styled.div`
   align-items: center;
   display: flex;
   flex-direction: column;
-  background-color: ${PALLET.COLOR_03};
+  background-color: ${PALLET.COLOR_19};
 
   @media (max-width: 768px) {
     justify-content: flex-start;

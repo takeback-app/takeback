@@ -11,8 +11,16 @@ import LoadingPage from '../components/loaders/primaryLoader'
 
 const Root: React.FC<React.PropsWithChildren<unknown>> = () => {
   const navigateTo = useNavigate()
-  const { setIsSignedIn, setUserEmail, setUserType, setIsRoot, setUserName } =
-    useContext(AuthContext)
+
+  const {
+    setIsSignedIn,
+    setUserEmail,
+    setUserName,
+    setUserId,
+    setRole,
+    setRepresentativeName,
+    setRepresentativeId
+  } = useContext(AuthContext)
   const { setIsOpen } = useContext(DrawerContext)
   const [loading, setLoading] = useState(true)
 
@@ -32,10 +40,12 @@ const Root: React.FC<React.PropsWithChildren<unknown>> = () => {
 
         API.get('/manager/verify-token')
           .then(response => {
+            setRepresentativeName(response.data.representativeName)
+            setRepresentativeId(response.data.representativeId)
             setUserEmail(response.data.email)
             setUserName(response.data.name)
-            setUserType(response.data.userType)
-            setIsRoot(response.data.isRoot)
+            setUserId(response.data.id)
+            setRole(response.data.role)
 
             setIsSignedIn(true)
             navigateTo('/dashboard')

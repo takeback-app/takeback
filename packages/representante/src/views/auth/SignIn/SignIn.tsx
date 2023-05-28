@@ -94,7 +94,7 @@ const SignIn: React.FC<React.PropsWithChildren<unknown>> = () => {
 
         sessionStorage.setItem('token', response.data.token)
 
-        setRepresentativeName(response.data.representative.fantasyName)
+        setRepresentativeName(response.data.representativeName)
         setRepresentativeId(response.data.representativeId)
         setUserEmail(response.data.email)
         setUserName(response.data.name)

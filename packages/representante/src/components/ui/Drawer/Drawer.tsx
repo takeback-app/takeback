@@ -13,7 +13,7 @@ import * as S from './styles'
 const Drawer: React.FC<React.PropsWithChildren<unknown>> = () => {
   const history = useNavigate()
   const { isOpen, setIsOpen } = useContext(DrawerContext)
-  const { userType } = useContext(AuthContext)
+  // const { userType } = useContext(AuthContext)
 
   const [renderingAux, setRenderingAux] = useState(false)
 
@@ -107,24 +107,22 @@ const Drawer: React.FC<React.PropsWithChildren<unknown>> = () => {
           )
         } else {
           return (
-            userType !== nav.userBlocked && (
-              <S.NavWrapper
-                key={nav.id}
-                isActive={nav.isActive}
-                onClick={() => handleDrawerNavigation(nav.id, nav.to)}
-              >
-                {nav.isActive ? (
-                  <nav.activeIcon color={PALLET.COLOR_06} />
-                ) : (
-                  <nav.inactiveIcon color={PALLET.BACKGROUND} />
-                )}
-                {isOpen && (
-                  <S.Label to={nav.to} isActive={nav.isActive}>
-                    {nav.label}
-                  </S.Label>
-                )}
-              </S.NavWrapper>
-            )
+            <S.NavWrapper
+              key={nav.id}
+              isActive={nav.isActive}
+              onClick={() => handleDrawerNavigation(nav.id, nav.to)}
+            >
+              {nav.isActive ? (
+                <nav.activeIcon color={PALLET.COLOR_06} />
+              ) : (
+                <nav.inactiveIcon color={PALLET.BACKGROUND} />
+              )}
+              {isOpen && (
+                <S.Label to={nav.to} isActive={nav.isActive}>
+                  {nav.label}
+                </S.Label>
+              )}
+            </S.NavWrapper>
           )
         }
       })}

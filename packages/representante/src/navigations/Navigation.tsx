@@ -26,6 +26,8 @@ import MontlhyPayments from '../views/partners/monthlyPayments'
 import Settings from '../views/settings/settings'
 import Industries from '../views/settings/industries'
 import Users from '../views/settings/users/users'
+import { Profile } from '../views/settings/profiles'
+
 import PaymentMethods from '../views/settings/paymentMethods'
 import SupportUsers from '../views/settings/supportUsers/supportUsers'
 import Plans from '../views/settings/plans'
@@ -240,6 +242,14 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <Users />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/configuracoes/perfil"
+        element={
+          <PrivateRoute>
+            <Profile />
           </PrivateRoute>
         }
       />
