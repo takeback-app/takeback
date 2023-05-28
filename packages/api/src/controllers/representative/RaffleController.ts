@@ -3,9 +3,14 @@ import { prisma } from "../../prisma";
 import { InternalError } from "../../config/GenerateErros";
 import { GetRepresentative } from "../../useCases/representative/GetRepresentativeUseCase";
 
+const PER_PAGE = 25;
+
 export class RaffleController {
   async index(request: Request, response: Response) {
+    const pageQuery = request.query.page;
     const { id } = request["tokenPayload"];
+
+    const page = Number(pageQuery) || 1;
 
     const { whereCondominiumFilter } = await GetRepresentative.handle(id);
 
@@ -16,17 +21,25 @@ export class RaffleController {
         _count: { select: { items: true, tickets: true } },
       },
       orderBy: { createdAt: "desc" },
+      take: PER_PAGE,
+      skip: (page - 1) * PER_PAGE,
     });
 
-    return response.status(200).json(raffles);
+    const count = await prisma.raffle.count({
+      where: { company: whereCondominiumFilter },
+    });
+
+    return response.status(200).json({
+      data: raffles,
+      meta: { lastPage: Math.ceil(count / PER_PAGE) },
+    });
   }
 
   async show(request: Request, response: Response) {
-    const { companyId } = request["tokenPayload"];
     const { id } = request.params;
 
     const raffle = await prisma.raffle.findFirst({
-      where: { id, companyId },
+      where: { id },
       include: {
         items: {
           orderBy: { order: "asc" },
