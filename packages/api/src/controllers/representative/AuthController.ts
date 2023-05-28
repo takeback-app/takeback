@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 import { SignInRepresentativeUseCase } from "../../useCases/representative/SignInRepresentativeUseCase";
 import { InternalError } from "../../config/GenerateErros";
+import { prisma } from "../../prisma";
 
 export class AuthController {
   async signIn(request: Request, response: Response) {
@@ -50,5 +52,34 @@ export class AuthController {
     );
 
     return response.status(200).json(payload);
+  }
+
+  async updatePassword(request: Request, response: Response) {
+    const { id } = request["tokenPayload"];
+    const { password, newPassword } = request.body;
+
+    if (!password || !newPassword) {
+      throw new InternalError("Dados incompletos", 400);
+    }
+
+    const user = await prisma.representativeUser.findFirst({
+      where: { id },
+      select: { id: true, password: true },
+    });
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+      throw new InternalError("Senha incorreta", 400);
+    }
+
+    const newPasswordEncrypted = bcrypt.hashSync(newPassword, 10);
+
+    await prisma.representativeUser.update({
+      where: { id },
+      data: { password: newPasswordEncrypted },
+    });
+
+    return response.status(200).json({ message: "Senha atualizada!" });
   }
 }

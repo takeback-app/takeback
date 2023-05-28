@@ -8,11 +8,13 @@ import { CompanyController } from "../controllers/representative/CompanyControll
 import { WithdrawController } from "../controllers/representative/WithdrawController";
 import { RaffleController } from "../controllers/representative/RaffleController";
 import { CashbackHistoricController } from "../controllers/representative/CashbackHistoricController";
+import { DataController } from "../controllers/manager/managerData/DataController";
 
 const authController = new AuthController();
 const dashboardController = new DashboardController();
 const companyController = new CompanyController();
 const withdrawController = new WithdrawController();
+const managerData = new DataController();
 const raffleController = new RaffleController();
 const cashbackHistoricController = new CashbackHistoricController();
 
@@ -22,6 +24,8 @@ routes.post("/sign-in", authController.signIn);
 routes.get("/verify-token", authController.verifyToken);
 
 routes.use(DecodeTokenMiddleware, AuthRepresentativeMiddleware);
+
+routes.get("/data/find", managerData.findDataToUseInApp);
 
 routes.get("/dashboard", dashboardController.index);
 
@@ -40,5 +44,7 @@ routes.get("/raffles/:id", raffleController.show);
 
 routes.get("/cashback/find", cashbackHistoricController.findCashbacks);
 routes.get("/cashback/find/status", cashbackHistoricController.findStatus);
+
+routes.put("/user/password", authController.updatePassword);
 
 export default routes;

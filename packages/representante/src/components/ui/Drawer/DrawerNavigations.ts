@@ -1,45 +1,34 @@
 import {
-  IoPerson,
-  IoPersonOutline,
   IoGrid,
   IoGridOutline,
-  IoSettings,
-  IoSettingsOutline,
-  IoStorefront,
-  IoStorefrontOutline,
-  IoReader,
-  IoReaderOutline,
-  IoCalendarOutline,
-  IoCalendar,
-  IoCardOutline,
-  IoCard,
-  IoIdCard,
-  IoIdCardOutline,
-  IoBusiness,
-  IoBusinessOutline,
-  IoWallet,
-  IoWalletOutline,
-  // IoBagRemoveOutline,
-  // IoBagRemove,
-  IoBagAddOutline,
-  IoBagAdd,
-  IoRocketOutline,
-  IoRocket,
-  IoBagRemove,
-  IoBagRemoveOutline,
   IoGift,
   IoGiftOutline,
-  IoSend,
-  IoSendOutline
+  IoStorefront,
+  IoStorefrontOutline,
+  IoBagRemove,
+  IoBagRemoveOutline,
+  IoIdCardOutline,
+  IoIdCard,
+  IoPerson,
+  IoPersonOutline
 } from 'react-icons/io5'
-import {
-  RiCustomerService2Line,
-  RiCustomerService2Fill,
-  RiTimeFill,
-  RiTimeLine
-} from 'react-icons/ri'
+import { IconType } from 'react-icons/lib'
 
-export const drawerNav = [
+import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
+
+export interface DrawerNavigationItem {
+  id: number
+  label: string
+  activeIcon: IconType
+  inactiveIcon: IconType
+  isActive: boolean
+  to: string
+  isOpened?: boolean
+  userBlocked: number
+  pages?: DrawerNavigationItem[]
+}
+
+export const drawerNav: DrawerNavigationItem[] = [
   {
     id: 0,
     label: 'Dashboard',
@@ -49,185 +38,49 @@ export const drawerNav = [
     to: '/dashboard',
     userBlocked: 0
   },
-
   {
-    id: 1,
-    label: 'Clientes',
-    activeIcon: IoPerson,
-    inactiveIcon: IoPersonOutline,
+    id: 2,
+    label: 'Empresas',
+    activeIcon: IoStorefront,
+    inactiveIcon: IoStorefrontOutline,
     isActive: false,
-    to: '/clientes',
+    to: '/empresas',
     userBlocked: 0
   },
   {
-    id: 2,
-    label: 'Parceiros',
-    activeIcon: IoRocket,
-    inactiveIcon: IoRocketOutline,
-    isActive: false,
-    isOpened: false,
-    to: '/parceiros',
-    userBlocked: 0,
-    pages: [
-      {
-        id: 0,
-        label: 'Empresas',
-        activeIcon: IoStorefront,
-        inactiveIcon: IoStorefrontOutline,
-        isActive: false,
-        to: '/parceiros/empresa',
-        userBlocked: 0
-      },
-      {
-        id: 1,
-        label: 'Mensalidades',
-        activeIcon: IoCalendar,
-        inactiveIcon: IoCalendarOutline,
-        isActive: false,
-        to: '/parceiros/mensalidades',
-        userBlocked: 0
-      },
-      {
-        id: 2,
-        label: 'Representantes',
-        activeIcon: IoIdCard,
-        inactiveIcon: IoIdCardOutline,
-        isActive: false,
-        to: '/parceiros/representantes',
-        userBlocked: 0
-      },
-      {
-        id: 3,
-        label: 'Sorteios',
-        activeIcon: IoGift,
-        inactiveIcon: IoGiftOutline,
-        isActive: false,
-        to: '/parceiros/sorteios',
-        userBlocked: 0
-      },
-      {
-        id: 4,
-        label: 'Envio Notificações',
-        activeIcon: IoSend,
-        inactiveIcon: IoSendOutline,
-        isActive: false,
-        to: '/parceiros/notification-solicitations',
-        userBlocked: 0
-      }
-    ]
-  },
-  {
     id: 3,
-    label: 'Cashbacks',
-    activeIcon: IoCard,
-    inactiveIcon: IoCardOutline,
+    label: 'Solicitar Repasse',
+    activeIcon: IoBagRemove,
+    inactiveIcon: IoBagRemoveOutline,
     isActive: false,
-    isOpened: false,
-    to: '/cashbacks',
-    userBlocked: 0,
-    pages: [
-      {
-        id: 0,
-        label: 'Saque',
-        activeIcon: IoBagRemove,
-        inactiveIcon: IoBagRemoveOutline,
-        isActive: false,
-        to: '/cashbacks/saque',
-        userBlocked: 0
-      },
-      {
-        id: 1,
-        label: 'Receber',
-        activeIcon: IoBagAdd,
-        inactiveIcon: IoBagAddOutline,
-        isActive: false,
-        to: '/cashbacks/pagamentos',
-        userBlocked: 0
-      },
-      {
-        id: 2,
-        label: 'Histórico',
-        activeIcon: RiTimeFill,
-        inactiveIcon: RiTimeLine,
-        isActive: false,
-        to: '/cashbacks/historico',
-        userBlocked: 0
-      }
-    ]
+    to: '/repasse',
+    userBlocked: 0
   },
   {
     id: 4,
-    label: 'Gratificações',
+    label: 'Sorteios',
     activeIcon: IoGift,
     inactiveIcon: IoGiftOutline,
     isActive: false,
-    to: '/bonus',
+    to: '/sorteios',
     userBlocked: 0
   },
   {
     id: 5,
-    label: 'Relatórios',
-    activeIcon: IoReader,
-    inactiveIcon: IoReaderOutline,
+    label: 'Histórico',
+    activeIcon: RiTimeFill,
+    inactiveIcon: RiTimeLine,
     isActive: false,
-    to: '/relatorios',
+    to: '/historico',
     userBlocked: 0
   },
   {
     id: 6,
-    label: 'Configurações',
-    activeIcon: IoSettings,
-    inactiveIcon: IoSettingsOutline,
+    label: 'Consultores',
+    activeIcon: IoPerson,
+    inactiveIcon: IoPersonOutline,
     isActive: false,
-    isOpened: false,
-    to: '/configuracoes',
-    userBlocked: 0,
-    pages: [
-      {
-        id: 0,
-        label: 'Usuários',
-        activeIcon: IoIdCard,
-        inactiveIcon: IoIdCardOutline,
-        isActive: false,
-        to: '/configuracoes/usuarios',
-        userBlocked: 0
-      },
-      {
-        id: 1,
-        label: 'Pagamentos',
-        activeIcon: IoCard,
-        inactiveIcon: IoCardOutline,
-        isActive: false,
-        to: '/configuracoes/metodos-de-pagamento',
-        userBlocked: 0
-      },
-      {
-        id: 2,
-        label: 'Segmentos',
-        activeIcon: IoBusiness,
-        inactiveIcon: IoBusinessOutline,
-        isActive: false,
-        to: '/configuracoes/ramos-de-atividade',
-        userBlocked: 0
-      },
-      {
-        id: 3,
-        label: 'Planos',
-        activeIcon: IoWallet,
-        inactiveIcon: IoWalletOutline,
-        isActive: false,
-        to: '/configuracoes/planos-e-mensalidade',
-        userBlocked: 0
-      },
-      {
-        id: 4,
-        label: 'Suportes',
-        activeIcon: RiCustomerService2Fill,
-        inactiveIcon: RiCustomerService2Line,
-        isActive: false,
-        to: '/configuracoes/suporte',
-        userBlocked: 0
-      }
-    ]
+    to: '/consultores',
+    userBlocked: 0
   }
 ]

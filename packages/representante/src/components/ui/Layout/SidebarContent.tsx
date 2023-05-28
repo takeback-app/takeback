@@ -7,7 +7,7 @@ import {
   Image,
   BoxProps
 } from '@chakra-ui/react'
-import Drawer from '../Drawer'
+import { Drawer } from '../Drawer'
 
 import LogoHorizontal from '../../../assets/branding/logo-horizontal-svg.svg'
 import PALLET from '../../../styles/ColorPallet'

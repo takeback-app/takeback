@@ -25,15 +25,15 @@ import PALLET from '../../../../styles/ColorPallet'
 import * as S from './styles'
 
 interface PropsCompany {
-  company_id: string
-  company_fantasyName: string
-  company_registeredNumber: string
-  company_createdAt: string
-  company_currentMonthlyPaymentPaid: boolean
+  id: string
+  fantasyName: string
+  registeredNumber: string
+  createdAt: string
+  currentMonthlyPaymentPaid: boolean
   industry_description: string
   status_description: string
-  company_firstAccessAllowedAt: Date
-  company_periodFree: boolean
+  firstAccessAllowedAt: Date
+  periodFree: boolean
 }
 
 interface FilterProps {
@@ -80,7 +80,7 @@ const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
   // Buscando dados para filtros
   useEffect(() => {
     function findFiltersData() {
-      API.get('/manager/data/find')
+      API.get('/representative/data/find')
         .then(response => {
           setIndustry(response.data.industries)
           setCompanyStatus(response.data.status)
@@ -99,9 +99,17 @@ const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   // Buscando as empresas cadastradas
   const findCompanies = () => {
-    API.get(
-      `/manager/companies/find?offset=${offset}&limit=${limit}&company=${filters.company}&industryId=${filters.industry}&statusId=${filters.status}&cityId=${filters.city}&monthlyPayment=${filters.monthlyPayment}`
-    )
+    API.get(`/representative/companies`, {
+      params: {
+        offset,
+        limit,
+        company: filters.company,
+        industryId: filters.industry,
+        statusId: filters.status,
+        cityId: filters.city,
+        monthlyPayment: filters.monthlyPayment
+      }
+    })
       .then(response => {
         setOffset(offset + 1)
         setCompany([...company, ...response.data])
@@ -185,18 +193,16 @@ const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
 
               <S.TBody>
                 {company?.map(item => (
-                  <S.Tr key={item.company_id}>
-                    <S.Td>{maskCNPJ(item.company_registeredNumber || '')}</S.Td>
-                    <S.Td>{item.company_fantasyName}</S.Td>
+                  <S.Tr key={item.id}>
+                    <S.Td>{maskCNPJ(item.registeredNumber || '')}</S.Td>
+                    <S.Td>{item.fantasyName}</S.Td>
                     <S.Td>{item.industry_description}</S.Td>
                     <S.Td>{item.status_description}</S.Td>
+                    <S.Td>{new Date(item.createdAt).toLocaleDateString()}</S.Td>
                     <S.Td>
-                      {new Date(item.company_createdAt).toLocaleDateString()}
-                    </S.Td>
-                    <S.Td>
-                      {item.company_periodFree
+                      {item.periodFree
                         ? 'Período gratuito'
-                        : item.company_currentMonthlyPaymentPaid
+                        : item.currentMonthlyPaymentPaid
                         ? 'Paga'
                         : 'Não paga'}
                     </S.Td>
@@ -205,7 +211,7 @@ const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
                         color={PALLET.COLOR_08}
                         icon={IoSettingsOutline}
                         onClick={() => {
-                          navigate(`/parceiros/empresa/${item.company_id}`)
+                          navigate(`/empresa/${item.id}`)
                         }}
                       />
                     </S.Td>
@@ -305,8 +311,6 @@ const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
           </S.FooterFilter>
         </Form>
       </FilterModal>
-
-      <Toastify />
     </Layout>
   )
 }
