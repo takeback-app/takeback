@@ -45,8 +45,8 @@ class FindCashbacksUseCase {
         : undefined,
       company: company
         ? {
+            ...whereCondominiumFilter,
             OR: [
-              whereCondominiumFilter,
               { fantasyName: { contains: company } },
               { registeredNumber: { contains: company } },
             ],

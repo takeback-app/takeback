@@ -9,6 +9,7 @@ import { WithdrawController } from "../controllers/representative/WithdrawContro
 import { RaffleController } from "../controllers/representative/RaffleController";
 import { CashbackHistoricController } from "../controllers/representative/CashbackHistoricController";
 import { DataController } from "../controllers/manager/managerData/DataController";
+import { DataController as RepresentativeDataController } from "../controllers/representative/DataController";
 
 const authController = new AuthController();
 const dashboardController = new DashboardController();
@@ -17,6 +18,7 @@ const withdrawController = new WithdrawController();
 const managerData = new DataController();
 const raffleController = new RaffleController();
 const cashbackHistoricController = new CashbackHistoricController();
+const dataController = new RepresentativeDataController();
 
 const routes = Router();
 
@@ -29,9 +31,16 @@ routes.get("/data/find", managerData.findDataToUseInApp);
 
 routes.get("/dashboard", dashboardController.index);
 
+routes.get("/companies/:id/root-user", companyController.rootUser);
+routes.get("/companies/:id", companyController.show);
 routes.get("/companies", companyController.index);
 routes.post("/companies", companyController.store);
+routes.post(
+  "/companies/:id/reset-root-user",
+  companyController.forgotPasswordToRootUser
+);
 routes.put("/companies/:id", companyController.update);
+routes.put("/companies/:id/consultant", companyController.updateConsultant);
 
 routes.get("/forget-password/:id", companyController.forgotPasswordToRootUser);
 
@@ -46,5 +55,10 @@ routes.get("/cashback/find", cashbackHistoricController.findCashbacks);
 routes.get("/cashback/find/status", cashbackHistoricController.findStatus);
 
 routes.put("/user/password", authController.updatePassword);
+
+routes.get("/cities", dataController.cities);
+routes.get("/industries", dataController.industries);
+routes.get("/consultants", dataController.consultants);
+routes.get("/payment-plans", dataController.paymentPlans);
 
 export default routes;

@@ -47,6 +47,8 @@ import { BonusDetail } from '../views/bonus/BonusDetail'
 import { NotificationSolicitationShow } from '../views/partners/notificationSolicitations/show'
 import { NotificationSolicitationIndex } from '../views/partners/notificationSolicitations'
 import { CashbacksHistoric } from '../views/cashbacks/casbacksHistoric/CasbacksHistoric'
+import { CompanyDetails } from '../views/CompanyDetails'
+import { CreateCompany } from '../views/CreateCompany'
 
 interface Props {
   children: JSX.Element
@@ -81,6 +83,24 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <Company />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/empresas/criar"
+        element={
+          <PrivateRoute>
+            <CreateCompany />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/empresas/:id"
+        element={
+          <PrivateRoute>
+            <CompanyDetails />
           </PrivateRoute>
         }
       />

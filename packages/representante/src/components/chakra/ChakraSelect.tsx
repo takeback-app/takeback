@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import {
   FormControl,
@@ -11,7 +11,7 @@ import {
   Spinner
 } from '@chakra-ui/react'
 
-interface Option {
+export interface Option {
   value: string | number
   text: string
 }
@@ -22,6 +22,7 @@ interface ChakraSelectProps extends SelectProps {
   label: string
   error?: string
   children?: React.ReactNode
+  placeholderOption?: string
   options: Option[]
 }
 
@@ -36,10 +37,17 @@ const ChakraSelect = React.forwardRef<HTMLSelectElement, ChakraSelectProps>(
       error,
       isRequired = false,
       isLoading = false,
+      placeholderOption,
       ...rest
     },
     ref
   ) => {
+    const allOptions = useMemo<Option[]>(() => {
+      if (!placeholderOption) return options
+
+      return [{ value: '', text: placeholderOption }, ...options]
+    }, [placeholderOption, options])
+
     return (
       <FormControl
         gridColumnStart={gridColumnStart}
@@ -59,7 +67,7 @@ const ChakraSelect = React.forwardRef<HTMLSelectElement, ChakraSelectProps>(
             ref={ref}
             {...rest}
           >
-            {options.map(({ text, value }) => (
+            {allOptions.map(({ text, value }) => (
               <option key={value} value={value}>
                 {text}
               </option>
