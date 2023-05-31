@@ -25,7 +25,21 @@ export class RaffleController {
         // ],
       },
       orderBy: { drawDate: "asc" },
-      include: { company: { select: { fantasyName: true } } },
+      include: {
+        company: { select: { fantasyName: true } },
+        _count: {
+          select: {
+            tickets: {
+              where: { consumerId, status: { notIn: ["CANCELED", "PENDING"] } },
+            },
+            items: {
+              where: {
+                winnerTicket: { consumerId },
+              },
+            },
+          },
+        },
+      },
     });
 
     return response.json(raffles);

@@ -33,6 +33,7 @@ import { CashbackReport } from '../pages/private/reports/cashback'
 import { Notifications } from '../pages/private/createNotifications'
 import { NotificationCreate } from '../pages/private/createNotifications/createNotification'
 import { BirthdayNotificationCreate } from '../pages/private/birthdayNotification'
+import { LogoChangeRequest } from '../pages/private/logoChangeRequest'
 
 interface Props {
   children: JSX.Element
@@ -226,6 +227,14 @@ const Navigation: React.FC = () => {
         element={
           <PrivateRoute>
             <Company />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/configuracoes/trocar-logo"
+        element={
+          <PrivateRoute>
+            <LogoChangeRequest />
           </PrivateRoute>
         }
       />

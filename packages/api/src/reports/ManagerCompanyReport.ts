@@ -258,9 +258,12 @@ export class ManagerCompanyReport extends BaseReport<ReportResponse, Filter> {
     }
 
     if (dto.company) {
-      query.where("companies.fantasyName", "like", `%${dto.company}%`);
-      query.where("companies.corporateName", "like", `%${dto.company}%`);
-      query.orWhere("companies.registeredNumber", "like", `%${dto.company}%`);
+      query.whereLike("companies.fantasyName", `%${dto.company}%`);
+      query.orWhereLike("companies.corporateName", `%${dto.company}%`);
+      query.orWhereLike(
+        "companies.registeredNumber",
+        `%${dto.company.replace(/[^\d]/g, "")}%`
+      );
     }
 
     return query;

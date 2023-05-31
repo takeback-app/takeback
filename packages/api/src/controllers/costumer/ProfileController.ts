@@ -59,7 +59,9 @@ export class ProfileController {
       name: consumer.fullName,
       cpf: maskCPF(consumer.cpf),
       sex: consumer.sex,
-      birthday: DateTime.fromJSDate(consumer.birthDate).toFormat("dd/MM/yyyy"),
+      birthday: consumer.birthDate
+        ? DateTime.fromJSDate(consumer.birthDate).toFormat("dd/MM/yyyy")
+        : "",
       hasChildren: consumer.hasChildren ? "sim" : "não",
       maritalStatus: consumer.maritalStatus,
       monthlyIncomeId: String(consumer.monthlyIncomeId),

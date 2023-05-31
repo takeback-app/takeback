@@ -30,7 +30,9 @@ import {
   IoSend,
   IoSendOutline,
   IoGift,
-  IoGiftOutline
+  IoGiftOutline,
+  IoImage,
+  IoImageOutline
 } from 'react-icons/io5'
 import {
   RiCustomerService2Line,
@@ -209,6 +211,15 @@ export const drawerNav = [
       },
       {
         id: 1,
+        label: 'Troca de Logo',
+        activeIcon: IoImage,
+        inactiveIcon: IoImageOutline,
+        isActive: false,
+        to: '/configuracoes/trocar-logo',
+        userBlocked: 0
+      },
+      {
+        id: 2,
         label: 'Usuários',
         activeIcon: IoIdCard,
         inactiveIcon: IoIdCardOutline,
@@ -217,7 +228,7 @@ export const drawerNav = [
         userBlocked: 0
       },
       {
-        id: 2,
+        id: 3,
         label: 'Pagamentos',
         activeIcon: IoCard,
         inactiveIcon: IoCardOutline,
@@ -226,7 +237,7 @@ export const drawerNav = [
         userBlocked: 0
       },
       {
-        id: 3,
+        id: 4,
         label: 'Suporte',
         activeIcon: RiCustomerService2Fill,
         inactiveIcon: RiCustomerService2Line,

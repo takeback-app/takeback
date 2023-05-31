@@ -1,6 +1,5 @@
 name: EAS Build
 on:
-  workflow_dispatch:
   push:
     paths:
       - "packages/mobile/**"
@@ -30,4 +29,4 @@ jobs:
 
       - name: Build on EAS
         working-directory: packages/mobile
-        run: eas build --profile production --platform all --auto-submit --non-interactive --not-wait
+        run: eas build --profile production --platform all --auto-submit --non-interactive --no-wait
