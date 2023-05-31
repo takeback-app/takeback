@@ -27,6 +27,7 @@ import { RaffleController } from "../controllers/manager/raffle/RaffleController
 import { BonusController } from "../controllers/manager/bonus/BonusController";
 import { DashboardController } from "../controllers/manager/dashboard/DashboardController";
 import { NotificationSolicitationController } from "../controllers/manager/NotificationSolicitationController";
+import { CompaniesReportController } from "../controllers/manager/managerReports/CompaniesReportController";
 
 const paymentMethod = new PaymentMethodController();
 const managerAuth = new ManagerAuthController();
@@ -46,6 +47,7 @@ const managerCompanyMontlhy = new ManagerCompanyPaymentMontlhyController();
 const managerRepresentatives = new RepresentativeController();
 const managerCompaniesUsers = new UserCompaniesController();
 const withDrawController = new WithDrawController();
+const companiesReport = new CompaniesReportController();
 
 const notificationSolicitationController =
   new NotificationSolicitationController();
@@ -164,8 +166,12 @@ routes.get("/support/find/all", managerSupport.findAllSupportUsers);
 routes.get("/report/find/filters", managerReports.findFilterOptions);
 routes.get("/report/payment-order", managerReports.paymentOrderReport);
 routes.get("/report/monthly-payment", managerReports.monthlyReport);
-routes.get("/report/companies", managerReports.CompaniesReport);
 routes.get("/report/cashbacks", managerReports.CashbacksReport);
+
+routes.get("/report/companies", companiesReport.index);
+routes.get("/report/companies/pdf", companiesReport.getPdf);
+routes.get("/report/companies/excel", companiesReport.getExcel);
+routes.get("/report/companies/totalizer", companiesReport.totalizer);
 
 routes.post("/representative/register", managerRepresentatives.register);
 routes.get("/representative/find", managerRepresentatives.find);
