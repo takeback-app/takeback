@@ -247,7 +247,8 @@ const CompaniesReport: React.FC<React.PropsWithChildren<unknown>> = () => {
     valueOfTotalAmount: null
   })
 
-  const { companyStatus, setCompanyStatus, industry } = useContext(CCompany)
+  const { companyStatus, setCompanyStatus, industry, setIndustry } =
+    useContext(CCompany)
 
   const [filePathPDF, setFilePathPDF] = useState('')
   const [filePathExcel, setFilePathExcel] = useState('')
@@ -306,6 +307,8 @@ const CompaniesReport: React.FC<React.PropsWithChildren<unknown>> = () => {
             }
           })
         )
+
+        setIndustry(data.industries)
         setStates(statesOfCities)
         setAllCities(cities)
       })
