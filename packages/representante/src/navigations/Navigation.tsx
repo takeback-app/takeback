@@ -47,6 +47,9 @@ import { BonusDetail } from '../views/bonus/BonusDetail'
 import { NotificationSolicitationShow } from '../views/partners/notificationSolicitations/show'
 import { NotificationSolicitationIndex } from '../views/partners/notificationSolicitations'
 import { CashbacksHistoric } from '../views/cashbacks/casbacksHistoric/CasbacksHistoric'
+import { CompanyDetails } from '../views/CompanyDetails'
+import { CreateCompany } from '../views/CreateCompany'
+import { WithDrawPage } from '../views/Withdraw'
 
 interface Props {
   children: JSX.Element
@@ -95,10 +98,28 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
       />
 
       <Route
+        path="/empresas/criar"
+        element={
+          <PrivateRoute>
+            <CreateCompany />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
         path="/sorteios"
         element={
           <PrivateRoute>
             <Raffles />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/empresas/:id"
+        element={
+          <PrivateRoute>
+            <CompanyDetails />
           </PrivateRoute>
         }
       />
@@ -126,6 +147,15 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <Users />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/repasse"
+        element={
+          <PrivateRoute>
+            <WithDrawPage />
           </PrivateRoute>
         }
       />

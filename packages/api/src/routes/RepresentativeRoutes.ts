@@ -10,6 +10,7 @@ import { RaffleController } from "../controllers/representative/RaffleController
 import { CashbackHistoricController } from "../controllers/representative/CashbackHistoricController";
 import { DataController } from "../controllers/manager/managerData/DataController";
 import { RepresentativeUserController } from "../controllers/representative/RepresentativeUserController";
+import { DataController as RepresentativeDataController } from "../controllers/representative/DataController";
 
 const authController = new AuthController();
 const dashboardController = new DashboardController();
@@ -19,6 +20,7 @@ const managerData = new DataController();
 const raffleController = new RaffleController();
 const cashbackHistoricController = new CashbackHistoricController();
 const representativeUserController = new RepresentativeUserController();
+const dataController = new RepresentativeDataController();
 
 const routes = Router();
 
@@ -30,10 +32,18 @@ routes.use(DecodeTokenMiddleware, AuthRepresentativeMiddleware);
 routes.get("/data/find", managerData.findDataToUseInApp);
 
 routes.get("/dashboard", dashboardController.index);
+routes.get("/dashboard/commission-graph", dashboardController.commissionGraph);
 
+routes.get("/companies/:id/root-user", companyController.rootUser);
+routes.get("/companies/:id", companyController.show);
 routes.get("/companies", companyController.index);
 routes.post("/companies", companyController.store);
+routes.post(
+  "/companies/:id/reset-root-user",
+  companyController.forgotPasswordToRootUser
+);
 routes.put("/companies/:id", companyController.update);
+routes.put("/companies/:id/consultant", companyController.updateConsultant);
 
 routes.get("/forget-password/:id", companyController.forgotPasswordToRootUser);
 
@@ -50,5 +60,10 @@ routes.get("/cashback/find/status", cashbackHistoricController.findStatus);
 routes.put("/user/password", authController.updatePassword);
 
 routes.get("/users", representativeUserController.index);
+
+routes.get("/cities", dataController.cities);
+routes.get("/industries", dataController.industries);
+routes.get("/consultants", dataController.consultants);
+routes.get("/payment-plans", dataController.paymentPlans);
 
 export default routes;

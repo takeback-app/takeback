@@ -86,9 +86,8 @@ export class DashboardUseCase {
       billingAmount,
       commissionsAmount: +commissions._sum.value,
       commissionAmountPending:
-        cashbackToPayAmount +
-        monthlyPaymentToPayAmount *
-          +representativeUser.representative.commissionPercentage,
+        (cashbackToPayAmount + monthlyPaymentToPayAmount) *
+        +representativeUser.representative.commissionPercentage,
       cashbackAmount,
       companiesBalance: +companiesBalance._sum.positiveBalance,
       balance: +representative.balance,

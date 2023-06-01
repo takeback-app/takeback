@@ -12,26 +12,117 @@ import { ForgotPasswordToRootUserUseCase } from "../manager/managerCompanies/For
 import { FindCompanyUsersUseCase } from "../manager/managerCompanies/FindCompanyUsersUseCase";
 import { UpdateCompanyUseCase } from "../manager/managerCompanies/UpdateCompanyUseCase";
 import { GetRepresentative } from "../../useCases/representative/GetRepresentativeUseCase";
+import { maskCNPJ, maskPhone } from "../../utils/Masks";
+
+const PER_PAGE = 25;
 
 export class CompanyController {
   async index(request: Request, response: Response) {
     const { id } = request["tokenPayload"];
 
+    const pageQuery = request.query.page;
+    const { company, industryId, statusId, cityId, monthlyPayment } =
+      request.query as Record<string, string>;
+
+    const page = Number(pageQuery) || 1;
+
     const { whereCondominiumFilter } = await GetRepresentative.handle(id);
 
+    const where: Prisma.CompanyWhereInput = {
+      ...whereCondominiumFilter,
+      AND: {
+        OR: [
+          {
+            fantasyName: { contains: company },
+          },
+          {
+            corporateName: { contains: company },
+          },
+          {
+            registeredNumber: { contains: company },
+          },
+        ],
+        industryId: industryId ? Number(industryId) : undefined,
+        statusId: statusId ? Number(statusId) : undefined,
+        companyAddress: {
+          cityId: cityId ? Number(cityId) : undefined,
+        },
+        currentMonthlyPaymentPaid: monthlyPayment
+          ? monthlyPayment == "true"
+          : undefined,
+      },
+    };
+
     const companies = await prisma.company.findMany({
-      where: whereCondominiumFilter,
+      where,
+      include: {
+        industry: { select: { description: true } },
+        companyStatus: { select: { description: true } },
+      },
+      take: PER_PAGE,
+      skip: (page - 1) * PER_PAGE,
     });
 
-    return response.json(companies);
+    const count = await prisma.company.count({ where });
+
+    return response.json({
+      data: companies,
+      meta: { lastPage: Math.ceil(count / PER_PAGE) },
+    });
+  }
+
+  async rootUser(request: Request, response: Response) {
+    const { id } = request.params;
+
+    const user = await prisma.companyUser.findFirstOrThrow({
+      where: { companyId: id, isRootUser: true },
+    });
+
+    return response.json({
+      email: user.email,
+      name: user.name,
+      isDifferentEmail: false,
+      isDifferentName: false,
+    });
+  }
+
+  async show(request: Request, response: Response) {
+    const { id } = request.params;
+
+    const company = await prisma.company.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        fantasyName: true,
+        corporateName: true,
+        registeredNumber: true,
+        email: true,
+        phone: true,
+        statusId: true,
+        industryId: true,
+        contactPhone: true,
+        companyAddress: true,
+        companyStatus: { select: { description: true } },
+        paymentPlan: { select: { description: true, value: true } },
+      },
+    });
+
+    const consultant = await prisma.representativeUserCompany.findFirst({
+      where: { companyId: id },
+    });
+
+    company.registeredNumber = maskCNPJ(company.registeredNumber);
+    company.phone = maskPhone(company.phone);
+    company.contactPhone = maskPhone(company.contactPhone);
+
+    return response.json({
+      ...company,
+      consultantId: consultant?.representativeUserId ?? "",
+    });
   }
 
   async store(request: Request, response: Response) {
-    const { id } = request["tokenPayload"];
-
-    const user = await prisma.representativeUser.findUniqueOrThrow({
-      where: { id },
-    });
+    const { representativeId } = request["tokenPayload"];
 
     const {
       industryId,
@@ -57,7 +148,7 @@ export class CompanyController {
       registeredNumber,
       zipCode,
       paymentPlanId,
-      representativeId: user.representativeId,
+      representativeId,
     });
 
     if (consultantId) {
@@ -66,8 +157,6 @@ export class CompanyController {
       });
     }
 
-    const findUseCase = new FindOneCompanyUseCase();
-    const findUser = new FindCompanyUsersUseCase();
     const registerTakebackMethod =
       new RegisterCompanyTakebackPaymentMethodsUseCase();
     const allowCompanyAccess = new AllowCompanyFirstAccessUseCase();
@@ -79,10 +168,6 @@ export class CompanyController {
 
     await registerTakebackMethod.execute({ companyId: company.id });
 
-    await findUseCase.execute({ companyId: company.id });
-
-    await findUser.execute({ companyId: company.id });
-
     return response.status(201).json(company);
   }
 
@@ -91,8 +176,9 @@ export class CompanyController {
     const { id } = request["tokenPayload"];
     const companyId = request.params.id;
 
+    const { cityId, district, number, street } = props.companyAddress;
+
     const update = new UpdateCompanyUseCase();
-    const find = new FindOneCompanyUseCase();
 
     const message = await update.execute({
       id,
@@ -103,24 +189,31 @@ export class CompanyController {
       phone: props.phone,
       registeredNumber: props.registeredNumber,
       industryId: props.industryId,
-      cityId: props.cityId,
-      district: props.district,
-      number: props.number,
-      street: props.street,
+      cityId: cityId,
+      district: district,
+      number: number,
+      street: street,
       contactPhone: props.contactPhone,
     });
 
-    const companies = await find.execute({ companyId });
+    return response.status(200).json({ message });
+  }
+
+  async updateConsultant(request: Request, response: Response) {
+    const companyId = request.params.id;
+    const { consultantId } = request.body;
 
     await prisma.representativeUserCompany.deleteMany({
       where: { companyId },
     });
 
-    await prisma.representativeUserCompany.create({
-      data: { companyId, representativeUserId: props.consultantId },
-    });
+    if (consultantId) {
+      await prisma.representativeUserCompany.create({
+        data: { companyId, representativeUserId: consultantId },
+      });
+    }
 
-    return response.status(200).json({ message, companies });
+    return response.status(200).json({ message: "Consultor atualizado" });
   }
 
   async forgotPasswordToRootUser(request: Request, response: Response) {

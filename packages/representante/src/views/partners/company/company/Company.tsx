@@ -4,7 +4,7 @@ import React, { useState, useContext, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
 import { FormHandles } from '@unform/core'
 import { Form } from '@unform/web'
-import { IoFilter, IoSettingsOutline } from 'react-icons/io5'
+import { IoAdd, IoFilter, IoSettingsOutline } from 'react-icons/io5'
 
 import Loader from 'react-spinners/PulseLoader'
 
@@ -17,12 +17,24 @@ import Layout from '../../../../components/ui/Layout'
 import QuartenaryButton from '../../../../components/buttons/QuartenaryButton'
 import SelectInput from '../../../../components/inputs/SelectInput'
 import PageLoader from '../../../../components/loaders/primaryLoader'
-import FilterModal from '../../../../components/modals/FilterModal'
 import PrimaryInput from '../../../../components/inputs/PrimaryInput'
-import Toastify, { notifyError } from '../../../../components/ui/Toastify'
+import { notifyError } from '../../../../components/ui/Toastify'
 
 import PALLET from '../../../../styles/ColorPallet'
 import * as S from './styles'
+import {
+  Button,
+  ButtonGroup,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  IconButton,
+  useDisclosure
+} from '@chakra-ui/react'
 
 interface PropsCompany {
   id: string
@@ -30,8 +42,12 @@ interface PropsCompany {
   registeredNumber: string
   createdAt: string
   currentMonthlyPaymentPaid: boolean
-  industry_description: string
-  status_description: string
+  industry: {
+    description: string
+  }
+  companyStatus: {
+    description: string
+  }
   firstAccessAllowedAt: Date
   periodFree: boolean
 }
@@ -52,6 +68,8 @@ const currentMonthlyPayment = [
 ]
 
 const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
+  const { isOpen, onClose, onOpen } = useDisclosure()
+
   const { industry, setIndustry, companyStatus, setCompanyStatus } =
     useContext(CCompany)
 
@@ -64,8 +82,7 @@ const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [company, setCompany] = useState(([] as Array<PropsCompany>) || null)
   const [moreLoading, setMoreLoading] = useState(false)
   const [pageLoading, setPageLoading] = useState(true)
-  const [filterVisible, setFilterVisible] = useState(false)
-  const [offset, setOffset] = useState(0)
+  const [page, setPage] = useState(1)
   const [endList, setEndList] = useState(false)
   const [filters, setFilters] = useState<FilterProps>({
     city: '',
@@ -74,8 +91,6 @@ const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
     monthlyPayment: '',
     status: ''
   })
-
-  const limit = 30
 
   // Buscando dados para filtros
   useEffect(() => {
@@ -101,8 +116,7 @@ const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
   const findCompanies = () => {
     API.get(`/representative/companies`, {
       params: {
-        offset,
-        limit,
+        page,
         company: filters.company,
         industryId: filters.industry,
         statusId: filters.status,
@@ -111,12 +125,12 @@ const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
       }
     })
       .then(response => {
-        setOffset(offset + 1)
-        setCompany([...company, ...response.data])
-
-        if (response.data.length < limit) {
-          setEndList(true)
-        }
+        setEndList(
+          page === response.data.meta.lastPage ||
+            response.data.data.length === 0
+        )
+        setPage(state => state + 1)
+        setCompany([...company, ...response.data.data])
       })
       .catch(error => {
         if (error.isAxiosError) {
@@ -131,10 +145,10 @@ const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   // Ação do botão de filtro da busca
   const findWithFilters = (data?: FilterProps) => {
-    setFilterVisible(false)
+    onClose()
     setEndList(false)
     setPageLoading(true)
-    setOffset(0)
+    setPage(1)
     setCompany([])
 
     setFilters({
@@ -169,13 +183,23 @@ const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
       ) : (
         <S.Container>
           <S.SubHeader>
-            <QuartenaryButton
-              label="Filtrar"
-              icon={IoFilter}
-              color={PALLET.COLOR_06}
-              onClick={() => setFilterVisible(true)}
-              noFullWidth
-            />
+            <ButtonGroup>
+              <Button
+                colorScheme="green"
+                onClick={() => {
+                  navigate(`/empresas/criar`)
+                }}
+                leftIcon={<IoAdd />}
+              >
+                Criar
+              </Button>
+              <IconButton
+                aria-label="Filtrar empresas"
+                colorScheme="gray"
+                onClick={onOpen}
+                icon={<IoFilter />}
+              ></IconButton>
+            </ButtonGroup>
           </S.SubHeader>
           <S.Content>
             <S.Table>
@@ -196,8 +220,8 @@ const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
                   <S.Tr key={item.id}>
                     <S.Td>{maskCNPJ(item.registeredNumber || '')}</S.Td>
                     <S.Td>{item.fantasyName}</S.Td>
-                    <S.Td>{item.industry_description}</S.Td>
-                    <S.Td>{item.status_description}</S.Td>
+                    <S.Td>{item.industry.description}</S.Td>
+                    <S.Td>{item.companyStatus.description}</S.Td>
                     <S.Td>{new Date(item.createdAt).toLocaleDateString()}</S.Td>
                     <S.Td>
                       {item.periodFree
@@ -211,7 +235,7 @@ const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
                         color={PALLET.COLOR_08}
                         icon={IoSettingsOutline}
                         onClick={() => {
-                          navigate(`/empresa/${item.id}`)
+                          navigate(`/empresas/${item.id}`)
                         }}
                       />
                     </S.Td>
@@ -237,80 +261,77 @@ const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
         </S.Container>
       )}
 
-      {/* Modal com os filtros */}
-      <FilterModal
-        title="Filtros"
-        visible={filterVisible}
-        onClose={() => setFilterVisible(false)}
-      >
-        <S.Divider />
-        <Form ref={formRef} onSubmit={findWithFilters}>
-          <S.InputsFilterWrapper>
-            <S.InputFilterTitle>Empresa</S.InputFilterTitle>
-            <PrimaryInput
-              label="Nome fantasia, razão social ou CNPJ da empresa"
-              name="company"
-              maxLength={40}
-              minLength={3}
-            />
-          </S.InputsFilterWrapper>
+      <Drawer isOpen={isOpen} onClose={onClose}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerHeader>Filtros</DrawerHeader>
+          <DrawerCloseButton />
+          <Form ref={formRef} onSubmit={findWithFilters}>
+            <DrawerBody p={0}>
+              <S.InputsFilterWrapper>
+                <S.InputFilterTitle>Empresa</S.InputFilterTitle>
+                <PrimaryInput
+                  label="Nome fantasia, razão social ou CNPJ da empresa"
+                  name="company"
+                  maxLength={40}
+                  minLength={3}
+                />
+              </S.InputsFilterWrapper>
 
-          <S.Divider />
+              <S.Divider />
 
-          <S.InputsFilterWrapper>
-            <S.InputFilterTitle>Status da empresa</S.InputFilterTitle>
-            <SelectInput
-              name="status"
-              label="Selecione"
-              options={[...defaultSelect, ...companyStatus]}
-            />
-          </S.InputsFilterWrapper>
+              <S.InputsFilterWrapper>
+                <S.InputFilterTitle>Status da empresa</S.InputFilterTitle>
+                <SelectInput
+                  name="status"
+                  label="Selecione"
+                  options={[...defaultSelect, ...companyStatus]}
+                />
+              </S.InputsFilterWrapper>
 
-          <S.Divider />
+              <S.Divider />
 
-          <S.InputsFilterWrapper>
-            <S.InputFilterTitle>Cidade da empresa</S.InputFilterTitle>
-            <SelectInput
-              name="city"
-              label="Selecione"
-              options={[...defaultSelect, ...cities]}
-            />
-          </S.InputsFilterWrapper>
+              <S.InputsFilterWrapper>
+                <S.InputFilterTitle>Cidade da empresa</S.InputFilterTitle>
+                <SelectInput
+                  name="city"
+                  label="Selecione"
+                  options={[...defaultSelect, ...cities]}
+                />
+              </S.InputsFilterWrapper>
 
-          <S.Divider />
+              <S.Divider />
 
-          <S.InputsFilterWrapper>
-            <S.InputFilterTitle>Ramo de atividade</S.InputFilterTitle>
-            <SelectInput
-              name="industry"
-              label="Selecione"
-              options={[...defaultSelect, ...industry]}
-            />
-          </S.InputsFilterWrapper>
+              <S.InputsFilterWrapper>
+                <S.InputFilterTitle>Ramo de atividade</S.InputFilterTitle>
+                <SelectInput
+                  name="industry"
+                  label="Selecione"
+                  options={[...defaultSelect, ...industry]}
+                />
+              </S.InputsFilterWrapper>
 
-          <S.InputsFilterWrapper>
-            <S.InputFilterTitle>Status da mensalidade</S.InputFilterTitle>
-            <SelectInput
-              name="monthlyPayment"
-              label="Selecione"
-              options={[...defaultSelect, ...currentMonthlyPayment]}
-            />
-          </S.InputsFilterWrapper>
+              <S.InputsFilterWrapper>
+                <S.InputFilterTitle>Status da mensalidade</S.InputFilterTitle>
+                <SelectInput
+                  name="monthlyPayment"
+                  label="Selecione"
+                  options={[...defaultSelect, ...currentMonthlyPayment]}
+                />
+              </S.InputsFilterWrapper>
+            </DrawerBody>
 
-          <S.FooterFilter>
-            <QuartenaryButton
-              type="reset"
-              label="Limpar filtros"
-              color={PALLET.COLOR_10}
-            />
-            <QuartenaryButton
-              type="submit"
-              label="Aplicar filtros"
-              color={PALLET.COLOR_02}
-            />
-          </S.FooterFilter>
-        </Form>
-      </FilterModal>
+            <DrawerFooter>
+              <ButtonGroup>
+                <Button type="reset">Limpar filtros</Button>
+                <Button type="submit" colorScheme="blue">
+                  Aplicar filtros
+                </Button>
+              </ButtonGroup>
+            </DrawerFooter>
+          </Form>
+        </DrawerContent>
+      </Drawer>
     </Layout>
   )
 }
