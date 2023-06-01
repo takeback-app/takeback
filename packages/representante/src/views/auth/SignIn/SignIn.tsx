@@ -15,7 +15,6 @@ import PasswordInput from '../../../components/inputs/PasswordInput'
 import PrimaryButton from '../../../components/buttons/PrimaryButton'
 import Toastify, { notifyError } from '../../../components/ui/Toastify'
 
-import animationData from '../../../assets/money-plant.json'
 import Logo from '../../../assets/branding/logo-vertical.svg'
 
 import * as S from './styles'
@@ -43,15 +42,6 @@ const SignIn: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   const toggle = () => {
     setIsVisible(!isVisible)
-  }
-
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-    rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice'
-    }
   }
 
   async function validateData(data: LoginProps) {
@@ -142,16 +132,6 @@ const SignIn: React.FC<React.PropsWithChildren<unknown>> = () => {
         </S.Card>
       </S.Container>
 
-      <S.ContentAnimation>
-        <Lottie
-          options={defaultOptions}
-          height={400}
-          width={400}
-          isStopped={false}
-          isPaused={false}
-          isClickToPauseDisabled
-        />
-      </S.ContentAnimation>
       <Toastify />
     </Layout>
   )

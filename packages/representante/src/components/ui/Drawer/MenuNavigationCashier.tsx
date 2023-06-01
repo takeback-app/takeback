@@ -47,7 +47,7 @@ export const drawerNav = [
     activeIcon: RiTimeFill,
     inactiveIcon: RiTimeLine,
     isActive: false,
-    to: '/historico',
+    to: '/cashbacks/historico',
     userBlocked: 0
   }
 ]

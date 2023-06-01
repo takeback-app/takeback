@@ -111,12 +111,12 @@ export function CashbacksHistoric() {
   const [filters, setFilters] = useState<FilterProps>(formInitialData)
 
   const { data: status, isLoading: isLoadingStatus } = useSWR(
-    'manager/cashback/find/status'
+    'representative/cashback/find/status'
   )
 
   const { isLoading } = useSWR<Paginated<Transaction>>(
     [
-      'manager/cashback/find',
+      'representative/cashback/find',
       {
         page,
         ...filters,

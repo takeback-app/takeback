@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext } from 'react'
 
 import {
   Button,
@@ -10,22 +10,33 @@ import {
   ModalHeader,
   ModalOverlay,
   Stack,
-  Toast
+  useToast
 } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { ChakraPasswordInput } from '../../../../components/chakra/ChakraPasswordInput'
+import { API } from '../../../../services/API'
+import { updateUserPassword } from '../../../../services/requests'
+import { chakraToastConfig } from '../../../../styles/chakraToastConfig'
+import { AuthContext } from '../../../../contexts/AuthContext'
 
-const schema = z.object({
-  password: z.string().nonempty({ message: 'Campo não pode estar em branco' }),
-  newPassword: z
-    .string()
-    .nonempty({ message: 'Campo não pode estar em branco' }),
-  confirmNewPassword: z
-    .string()
-    .nonempty({ message: 'Campo não pode estar em branco' })
-})
+const schema = z
+  .object({
+    password: z
+      .string()
+      .nonempty({ message: 'Campo não pode estar em branco' }),
+    newPassword: z
+      .string()
+      .nonempty({ message: 'Campo não pode estar em branco' }),
+    confirmNewPassword: z
+      .string()
+      .nonempty({ message: 'Campo não pode estar em branco' })
+  })
+  .refine(data => data.newPassword === data.confirmNewPassword, {
+    message: 'Senhas não conferem',
+    path: ['confirmNewPassword']
+  })
 
 export type EditPasswordData = z.infer<typeof schema>
 
@@ -35,56 +46,45 @@ interface AddItemModalProps {
 }
 
 export function EditPasswordModal({ isOpen, onClose }: AddItemModalProps) {
+  const toast = useToast(chakraToastConfig)
   const initialRef = React.useRef<HTMLInputElement | null>(null)
 
-  const { control, ...form } = useForm<EditPasswordData>({
-    mode: 'onSubmit',
-    resolver: zodResolver(schema)
-  })
+  const { setIsSignedIn } = useContext(AuthContext)
 
-  // const password = useWatch({ control, name: 'password' })
-  // const newPassword = useWatch({ control, name: 'newPassword' })
-  // const confirmNewPassword = useWatch({ control, name: 'confirmNewPassword' })
-  // console.log(password)
-  // const {
-  //   onSubmit,
-  //   // formState: { errors, isSubmitting },
-  //   reset
-  //   // register
-  // } = useForm<EditPasswordData>({
-  //   resolver: zodResolver(schema)
-  // })
+  const { formState, register, handleSubmit, reset } =
+    useForm<EditPasswordData>({
+      resolver: zodResolver(schema)
+    })
 
-  function onSubmit(data: EditPasswordData) {
-    // validateData(data)
-    console.log(data)
-
-    // reset()
+  function handleLogout() {
+    setIsSignedIn(false)
+    localStorage.clear()
+    sessionStorage.clear()
   }
 
-  async function validateConfirmNewPassword() {
-    const newPassword = form.getValues('newPassword')
-    const confirmNewPassword = form.getValues('confirmNewPassword')
-    // const [isLoading, setIsLoading] = useState(false)
+  async function onSubmit({ password, newPassword }: EditPasswordData) {
+    const [isOk, response] = await updateUserPassword(password, newPassword)
 
-    if (newPassword !== confirmNewPassword) {
-      return form.setError('confirmNewPassword', {
-        message: 'Nova senha divergente'
+    if (!isOk) {
+      return toast({
+        title: 'Atenção',
+        description: response.message,
+        status: 'error'
       })
     }
 
-    form.clearErrors('newPassword')
-    form.clearErrors('confirmNewPassword')
+    toast({
+      title: 'Sucesso',
+      description: response.message,
+      status: 'success'
+    })
 
-    // if (newPassword !== confirmNewPassword) {
-    //   console.log('a')
+    handleLogout()
+  }
 
-    //   return form.setError('confirmNewPassword', {
-    //     message: 'Nova senha divergente'
-    //   })
-    // }
-
-    // console.log(password, 's')
+  function handleCloseModal() {
+    reset()
+    onClose()
   }
 
   return (
@@ -92,56 +92,43 @@ export function EditPasswordModal({ isOpen, onClose }: AddItemModalProps) {
       size="2xl"
       initialFocusRef={initialRef}
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleCloseModal}
     >
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Editar senha</ModalHeader>
         <ModalCloseButton />
-        <form
-          style={{ marginBottom: 0 }}
-          onSubmit={form.handleSubmit(onSubmit)}
-        >
+        <form style={{ marginBottom: 0 }} onSubmit={handleSubmit(onSubmit)}>
           <ModalBody pb={6}>
             <Stack>
               <ChakraPasswordInput
                 label="Senha atual"
                 size="sm"
                 isRequired
-                {...form.register('password')}
-                // error={errors.description?.message}
+                {...register('password')}
+                error={formState.errors.password?.message}
               />
               <ChakraPasswordInput
                 label="Nova senha"
                 size="sm"
                 isRequired
-                {...form.register('newPassword')}
-                // error={errors.description?.message}
+                {...register('newPassword')}
+                error={formState.errors.newPassword?.message}
               />
               <ChakraPasswordInput
                 label="Confirmar senha"
                 size="sm"
                 isRequired
-                onFocus={async () => {
-                  // setIsLoading(true)
-                  await validateConfirmNewPassword()
-                  // setIsLoading(false)
-                }}
-                {...form.register('confirmNewPassword')}
-                // error={errors.description?.message}
+                {...register('confirmNewPassword')}
+                error={formState.errors.confirmNewPassword?.message}
               />
             </Stack>
           </ModalBody>
           <ModalFooter>
-            <Button
-              colorScheme="blue"
-              type="submit"
-              // isLoading={isSubmitting}
-              mr={3}
-            >
+            <Button colorScheme="blue" type="submit" mr={3}>
               Editar
             </Button>
-            <Button onClick={onClose}>Cancelar</Button>
+            <Button onClick={handleCloseModal}>Cancelar</Button>
           </ModalFooter>
         </form>
       </ModalContent>

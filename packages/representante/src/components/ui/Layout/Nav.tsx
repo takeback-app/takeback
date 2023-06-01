@@ -103,10 +103,7 @@ export function Nav({ onOpen, children, ...rest }: MobileProps) {
               bg={useColorModeValue('white', 'gray.900')}
               borderColor={useColorModeValue('gray.200', 'gray.700')}
             >
-              <MenuItem
-                icon={<FiUser />}
-                onClick={() => navigateTo('/configuracoes/perfil')}
-              >
+              <MenuItem icon={<FiUser />} onClick={() => navigateTo('/perfil')}>
                 Meu Usuário
               </MenuItem>
               <MenuDivider />

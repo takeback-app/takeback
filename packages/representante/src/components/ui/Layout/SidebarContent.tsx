@@ -20,7 +20,7 @@ export function SidebarContent({ onClose, ...rest }: SidebarProps) {
   return (
     <Box
       transition="3s ease"
-      bg={PALLET.COLOR_19}
+      bg={PALLET.COLOR_08}
       borderRight="1px"
       fontSize="14px"
       overflowY="auto"

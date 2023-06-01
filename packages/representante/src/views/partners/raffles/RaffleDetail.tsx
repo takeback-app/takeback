@@ -2,7 +2,6 @@ import React from 'react'
 
 import {
   Button,
-  ButtonGroup,
   Card,
   CardBody,
   CardHeader,
@@ -27,13 +26,9 @@ import Layout from '../../../components/ui/Layout'
 import PageLoader from '../../../components/loaders/primaryLoader'
 import { ChakraInput } from '../../../components/chakra/ChakraInput'
 import { currencyFormat } from '../../../utils/currencytFormat'
-import { IoCheckmarkSharp } from 'react-icons/io5'
-import { RaffleStatus } from './index'
 import { updateRaffle } from './services/api'
 import { chakraToastConfig } from '../../../styles/chakraToastConfig'
-import { ReproveRaffleButton } from './components/ReproveRaffleButton'
 import moment from 'moment'
-import { CancelRaffleButton } from './components/CancelRaffleButton'
 
 interface RaffleDetails {
   id: string
@@ -100,7 +95,7 @@ export function RaffleDetail() {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const { data: raffle, isLoading } = useSWR<RaffleDetails>(
-    `manager/raffles/${id}`
+    `representative/raffles/${id}`
   )
 
   async function handleUpdateRaffle(data: { statusId: RaffleStatusId }) {
@@ -259,52 +254,7 @@ export function RaffleDetail() {
               ) ?? 0}
             </Heading>
           </CardHeader>
-          <Divider borderColor="gray.300" />
-          <CardBody as={Stack} overflowX="auto" maxH="48">
-            {raffle.consumers.map(consumer => (
-              <Flex key={consumer.id}>
-                <Text>
-                  {consumer.fullName} - {consumer.cpf} -{' '}
-                  {consumer._count.raffleTickets} cupons
-                </Text>
-              </Flex>
-            ))}
-          </CardBody>
         </Card>
-        <Flex justify="flex-end" align="center">
-          <ButtonGroup mt={2}>
-            {raffle.status.description === RaffleStatus.WAITING && (
-              <>
-                <Button
-                  leftIcon={<IoCheckmarkSharp size={20} />}
-                  onClick={() =>
-                    handleUpdateRaffle({ statusId: RaffleStatusId.APPROVED })
-                  }
-                  colorScheme="green"
-                >
-                  Aprovar
-                </Button>
-                <ReproveRaffleButton
-                  onReprove={() =>
-                    handleUpdateRaffle({ statusId: RaffleStatusId.REPROVED })
-                  }
-                />
-              </>
-            )}
-
-            {[RaffleStatus.APPROVED, RaffleStatus.DELIVERING].includes(
-              raffle.status.description as RaffleStatus
-            ) && (
-              <CancelRaffleButton
-                onCancel={() =>
-                  handleUpdateRaffle({
-                    statusId: RaffleStatusId.CANCELED_FOR_NON_COMPLIANCE
-                  })
-                }
-              />
-            )}
-          </ButtonGroup>
-        </Flex>
       </Stack>
       <Modal size="xl" isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />

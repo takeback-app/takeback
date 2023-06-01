@@ -17,6 +17,7 @@ export class RaffleController {
     const raffles = await prisma.raffle.findMany({
       where: { company: whereCondominiumFilter },
       include: {
+        company: { select: { fantasyName: true } },
         status: true,
         _count: { select: { items: true, tickets: true } },
       },
@@ -41,6 +42,8 @@ export class RaffleController {
     const raffle = await prisma.raffle.findFirst({
       where: { id },
       include: {
+        status: true,
+        company: { select: { fantasyName: true } },
         items: {
           orderBy: { order: "asc" },
           include: {
@@ -56,7 +59,6 @@ export class RaffleController {
             },
           },
         },
-        status: true,
       },
     });
 
@@ -77,7 +79,10 @@ export class RaffleController {
         _count: {
           select: {
             raffleTickets: {
-              where: { raffleId: raffle.id, status: { not: "CANCELED" } },
+              where: {
+                raffleId: raffle.id,
+                status: { not: "CANCELED" },
+              },
             },
           },
         },

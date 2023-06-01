@@ -13,10 +13,8 @@ interface Props {
 class ReportCashbackByPaymentMethodUseCase {
   async execute({ companyId }: Props) {
     const date = new Date();
-    let today = date.toLocaleDateString();
-    let sevenDaysAgo = new Date(
-      date.setDate(date.getDate() - 7)
-    ).toLocaleDateString();
+    let today = date;
+    let sevenDaysAgo = new Date(date.setDate(date.getDate() - 7));
 
     // Buscando os status de transações válidos
     const transactionStatus = await getRepository(TransactionStatus).find({

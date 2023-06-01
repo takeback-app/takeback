@@ -25,7 +25,7 @@ import MontlhyPayments from '../views/partners/monthlyPayments'
 
 import Settings from '../views/settings/settings'
 import Industries from '../views/settings/industries'
-import Users from '../views/settings/users/users'
+import { Users } from '../views/users'
 import { Profile } from '../views/settings/profiles'
 
 import PaymentMethods from '../views/settings/paymentMethods'
@@ -81,6 +81,51 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <Company />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/perfil"
+        element={
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/sorteios"
+        element={
+          <PrivateRoute>
+            <Raffles />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/sorteios/:id"
+        element={
+          <PrivateRoute>
+            <RaffleDetail />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/cashbacks/historico"
+        element={
+          <PrivateRoute>
+            <CashbacksHistoric />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/consultores"
+        element={
+          <PrivateRoute>
+            <Users />
           </PrivateRoute>
         }
       />

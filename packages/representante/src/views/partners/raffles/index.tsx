@@ -69,7 +69,9 @@ export function Raffles() {
 
   const [page, setPage] = useState(1)
 
-  const { data } = useSWR<Paginated<Raffle>>(`manager/raffles?page=${page}`)
+  const { data } = useSWR<Paginated<Raffle>>(
+    `representative/raffles?page=${page}`
+  )
 
   if (!data) {
     return (
@@ -134,9 +136,7 @@ export function Raffles() {
                     size="sm"
                     aria-label="cancel"
                     icon={<IoEye />}
-                    onClick={() =>
-                      navigateTo(`/parceiros/sorteios/${raffle.id}`)
-                    }
+                    onClick={() => navigateTo(`/sorteios/${raffle.id}`)}
                   />
                 </Tooltip>
               </Td>

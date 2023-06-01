@@ -19,7 +19,7 @@ export const Container = styled.aside<ContainerProps>`
   width: ${props => (props.isOpen ? '260px' : '65px')};
   height: 100%;
   transition: cubic-bezier(0.165, 0.84, 0.44, 1) 200ms;
-  background-color: ${PALLET.COLOR_19};
+  background-color: ${PALLET.COLOR_08};
   position: relative;
 
   @media (max-width: 1024px) {
@@ -61,7 +61,7 @@ export const NavWrapper = styled.button<NavProps>`
   border-radius: 8px 0 0 8px;
   text-decoration: none;
   background-color: ${props =>
-    props.isActive ? PALLET.BACKGROUND : PALLET.COLOR_19};
+    props.isActive ? PALLET.BACKGROUND : PALLET.COLOR_08};
   transition: 100ms all;
 
   :hover {
@@ -74,7 +74,7 @@ export const NavWrapperVariant = styled(NavWrapper)<NavVariantProps>`
     ${props => (props.isOpened ? '2.4rem' : '0.9rem')};
   transition: cubic-bezier(0.165, 0.84, 0.44, 1) 200ms;
   background-color: ${props =>
-    props.isActive ? PALLET.BACKGROUND : PALLET.COLOR_19};
+    props.isActive ? PALLET.BACKGROUND : PALLET.COLOR_08};
 `
 export const NavWrapperMultiPages = styled.div`
   width: 100%;
@@ -83,7 +83,7 @@ export const NavWrapperMultiPages = styled.div`
   flex-direction: column;
   align-items: center;
   text-decoration: none;
-  background-color: ${PALLET.COLOR_19};
+  background-color: ${PALLET.COLOR_08};
 `
 export const Label = styled(Link)<NavProps>`
   font-family: 'Inter';
@@ -91,7 +91,7 @@ export const Label = styled(Link)<NavProps>`
   font-weight: 500;
   margin-left: 0.6rem;
   text-decoration: none;
-  color: ${props => (props.isActive ? PALLET.COLOR_19 : PALLET.BACKGROUND)};
+  color: ${props => (props.isActive ? PALLET.COLOR_08 : PALLET.BACKGROUND)};
 `
 export const LabelMultiPages = styled.h5`
   display: flex;

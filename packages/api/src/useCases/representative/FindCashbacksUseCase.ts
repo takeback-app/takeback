@@ -32,8 +32,12 @@ class FindCashbacksUseCase {
     const where: Prisma.TransactionWhereInput = {
       transactionStatusId: status ? Number(status) : undefined,
       createdAt: {
-        gte: startDate ? DateTime.fromISO(startDate).toJSDate() : undefined,
-        lte: endDate ? DateTime.fromISO(endDate).toJSDate() : undefined,
+        gte: startDate
+          ? DateTime.fromISO(startDate).startOf("day").toJSDate()
+          : undefined,
+        lte: endDate
+          ? DateTime.fromISO(endDate).endOf("day").toJSDate()
+          : undefined,
       },
       consumer: consumer
         ? {
@@ -45,8 +49,8 @@ class FindCashbacksUseCase {
         : undefined,
       company: company
         ? {
+            ...whereCondominiumFilter,
             OR: [
-              whereCondominiumFilter,
               { fantasyName: { contains: company } },
               { registeredNumber: { contains: company } },
             ],

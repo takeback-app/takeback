@@ -17,8 +17,7 @@ const PALLET = {
   COLOR_15: '#00BF78',
   COLOR_16: '#333333',
   COLOR_17: '#ff0000',
-  COLOR_18: '#e68a00',
-  COLOR_19: '#eb7734'
+  COLOR_18: '#e68a00'
 }
 
 export default PALLET

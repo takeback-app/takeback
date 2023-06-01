@@ -71,7 +71,7 @@ export const drawerNav: DrawerNavigationItem[] = [
     activeIcon: RiTimeFill,
     inactiveIcon: RiTimeLine,
     isActive: false,
-    to: '/historico',
+    to: '/cashbacks/historico',
     userBlocked: 0
   },
   {

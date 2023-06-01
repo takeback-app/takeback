@@ -10,10 +10,8 @@ interface Props {
 class ReportCashbackByPeriodUseCase {
   async execute({ companyId, userId }: Props) {
     const date = new Date();
-    const today = date.toLocaleDateString();
-    const sevenDaysAgo = new Date(
-      date.setDate(date.getDate() - 7)
-    ).toLocaleDateString();
+    const today = date;
+    const sevenDaysAgo = new Date(date.setDate(date.getDate() - 7));
 
     /* RELATÓRIO DE CASHBACK's DOS ÚLTIMOS 7 DIAS */
 

@@ -9,6 +9,7 @@ import { WithdrawController } from "../controllers/representative/WithdrawContro
 import { RaffleController } from "../controllers/representative/RaffleController";
 import { CashbackHistoricController } from "../controllers/representative/CashbackHistoricController";
 import { DataController } from "../controllers/manager/managerData/DataController";
+import { RepresentativeUserController } from "../controllers/representative/RepresentativeUserController";
 
 const authController = new AuthController();
 const dashboardController = new DashboardController();
@@ -17,6 +18,7 @@ const withdrawController = new WithdrawController();
 const managerData = new DataController();
 const raffleController = new RaffleController();
 const cashbackHistoricController = new CashbackHistoricController();
+const representativeUserController = new RepresentativeUserController();
 
 const routes = Router();
 
@@ -46,5 +48,7 @@ routes.get("/cashback/find", cashbackHistoricController.findCashbacks);
 routes.get("/cashback/find/status", cashbackHistoricController.findStatus);
 
 routes.put("/user/password", authController.updatePassword);
+
+routes.get("/users", representativeUserController.index);
 
 export default routes;
