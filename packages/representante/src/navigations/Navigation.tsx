@@ -49,6 +49,7 @@ import { NotificationSolicitationIndex } from '../views/partners/notificationSol
 import { CashbacksHistoric } from '../views/cashbacks/casbacksHistoric/CasbacksHistoric'
 import { CompanyDetails } from '../views/CompanyDetails'
 import { CreateCompany } from '../views/CreateCompany'
+import { WithDrawPage } from '../views/Withdraw'
 
 interface Props {
   children: JSX.Element
@@ -101,6 +102,15 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <CompanyDetails />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/repasse"
+        element={
+          <PrivateRoute>
+            <WithDrawPage />
           </PrivateRoute>
         }
       />

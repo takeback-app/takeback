@@ -30,6 +30,7 @@ routes.use(DecodeTokenMiddleware, AuthRepresentativeMiddleware);
 routes.get("/data/find", managerData.findDataToUseInApp);
 
 routes.get("/dashboard", dashboardController.index);
+routes.get("/dashboard/commission-graph", dashboardController.commissionGraph);
 
 routes.get("/companies/:id/root-user", companyController.rootUser);
 routes.get("/companies/:id", companyController.show);
