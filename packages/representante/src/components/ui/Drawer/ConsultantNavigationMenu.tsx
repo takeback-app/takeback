@@ -52,7 +52,7 @@ export const drawerNav = [
   }
 ]
 
-export function MenuNavigationCashier() {
+export function ConsultantNavigationMenu() {
   const history = useNavigate()
 
   function handleDrawerNavigation(id: number, to: string) {

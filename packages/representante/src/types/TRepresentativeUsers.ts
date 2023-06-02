@@ -4,7 +4,7 @@ export type RepresentativeUsers = {
   cpf: string
   email: string
   isActive: boolean
-  role: string
+  role: 'ADMIN' | 'CONSULTANT'
   birthDay: number
   birthMonth: number
   birthYear: number

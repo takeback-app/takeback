@@ -31,6 +31,11 @@ const statusOptions = [
   { id: 1, description: 'Inativo' }
 ]
 
+const roleText = {
+  ADMIN: 'Administrador',
+  CONSULTANT: 'Consultor'
+}
+
 export function Users() {
   const formRefRegisterUser = useRef<FormHandles>(null)
   const formRefUpdateUser = useRef<FormHandles>(null)
@@ -376,8 +381,8 @@ export function Users() {
             <S.Tr>
               <S.Th>Nome</S.Th>
               <S.Th>CPF</S.Th>
-              <S.Th>Permissão</S.Th>
-              <S.Th>&nbsp;</S.Th>
+              <S.Th>Perfil</S.Th>
+              {/* <S.Th>&nbsp;</S.Th> */}
             </S.Tr>
           </S.THead>
           <S.TBody>
@@ -385,7 +390,7 @@ export function Users() {
               <S.Tr key={index}>
                 <S.Td>{item.name}</S.Td>
                 <S.Td>{item.cpf}</S.Td>
-                <S.Td>{item.role}</S.Td>
+                <S.Td>{roleText[item.role]}</S.Td>
                 {/* <S.Td>
                   <S.ButtonWrapper>
                     <Button>
