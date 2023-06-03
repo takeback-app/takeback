@@ -20,13 +20,13 @@ import { ReportsController } from "../controllers/manager/managerReports/Reports
 import { ManagerCashbacksController } from "../controllers/manager/managerCashback/ManagerCashbacksController";
 import { ManagerSupportController } from "../controllers/manager/managerSupport/ManagerSupportController";
 import { ManagerCompanyPaymentMontlhyController } from "../controllers/manager/managerCompanyPaymentMontlhy/ManagerCompanyPaymentMontlhyController";
-import { RepresentativeController } from "../controllers/manager/managerRepresentatives/RepresentativesController";
 import { UserCompaniesController } from "../controllers/manager/managerCompanies/UserCompaniesController";
 import { WithDrawController } from "../controllers/manager/withdraw/WithDrawController";
 import { RaffleController } from "../controllers/manager/raffle/RaffleController";
 import { BonusController } from "../controllers/manager/bonus/BonusController";
 import { DashboardController } from "../controllers/manager/dashboard/DashboardController";
 import { NotificationSolicitationController } from "../controllers/manager/NotificationSolicitationController";
+import { RepresentativeController } from "../controllers/manager/RepresentativeController";
 
 const paymentMethod = new PaymentMethodController();
 const managerAuth = new ManagerAuthController();
@@ -43,7 +43,7 @@ const managerReports = new ReportsController();
 const managerCashback = new ManagerCashbacksController();
 const managerSupport = new ManagerSupportController();
 const managerCompanyMontlhy = new ManagerCompanyPaymentMontlhyController();
-const managerRepresentatives = new RepresentativeController();
+const representativeController = new RepresentativeController();
 const managerCompaniesUsers = new UserCompaniesController();
 const withDrawController = new WithDrawController();
 
@@ -104,8 +104,13 @@ routes.post(
   "/company/provisional-access/generate/:id",
   managerCompanyStatus.generateProvisionalAccess
 );
+// routes.put(
+//   "/company/representative",
+//   managerCompanies.relationWithRepresentative
+// );
+
 routes.put(
-  "/company/representative",
+  "/company/:id/representative",
   managerCompanies.relationWithRepresentative
 );
 
@@ -120,6 +125,7 @@ routes.put(
   managerConsumers.forgotCostumerPassword
 );
 
+routes.get("/cities", managerData.cities);
 routes.get("/cities/findAll", managerConsumers.listCities);
 routes.get("/cities/find/all", managerCities.findAllCities);
 
@@ -167,9 +173,19 @@ routes.get("/report/monthly-payment", managerReports.monthlyReport);
 routes.get("/report/companies", managerReports.CompaniesReport);
 routes.get("/report/cashbacks", managerReports.CashbacksReport);
 
-routes.post("/representative/register", managerRepresentatives.register);
-routes.get("/representative/find", managerRepresentatives.find);
-routes.put("/representative/update", managerRepresentatives.update);
+// routes.post("/representative/register", managerRepresentatives.register);
+// routes.get("/representative/find", managerRepresentatives.find);
+// routes.put("/representative/update", managerRepresentatives.update);
+
+routes.get("/representatives", representativeController.index);
+routes.post("/representatives", representativeController.store);
+routes.get("/representatives/:id", representativeController.show);
+routes.put("/representatives/:id", representativeController.update);
+routes.post(
+  "/representatives/:id/deactivate",
+  representativeController.deactivate
+);
+routes.post("/representatives/:id/activate", representativeController.activate);
 
 routes.get("/withdraws", withDrawController.index);
 routes.get("/withdraws/:id", withDrawController.show);

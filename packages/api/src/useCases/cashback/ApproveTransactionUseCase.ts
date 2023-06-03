@@ -2,6 +2,7 @@ import { TransactionStatusEnum } from "../../enum/TransactionStatusEnum";
 import { CashbackApproved, Notify } from "../../notifications";
 import { prisma } from "../../prisma";
 import { GenerateSellBonus } from "../consumer/bonus/GenerateSellBonus";
+import { GenerateCashbackCommission } from "../representative/commission/GenerateCashbackCommission";
 
 interface ExecuteDTO {
   transactionId: number;
@@ -12,15 +13,18 @@ interface ExecuteDTO {
 
 export class ApproveTransactionUseCase {
   private sellBonus: GenerateSellBonus;
+  private cashbackCommission: GenerateCashbackCommission;
 
   constructor(private paymentOrderId: number) {
     this.sellBonus = new GenerateSellBonus();
+    this.cashbackCommission = new GenerateCashbackCommission();
   }
 
   execute({ transactionId, ...rest }: ExecuteDTO) {
     return Promise.all([
       this.approve(transactionId),
       this.sellBonus.create(transactionId),
+      this.cashbackCommission.create(transactionId),
     ]);
   }
 

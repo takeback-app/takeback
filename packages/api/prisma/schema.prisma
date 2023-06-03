@@ -9,14 +9,15 @@ datasource db {
 }
 
 model City {
-  id                Int               @id(map: "PK_b222f51ce26f7e5ca86944a6739") @default(autoincrement())
-  name              String            @db.VarChar
-  ibgeCode          String            @db.VarChar
-  stateId           Int?
-  state             State?            @relation(fields: [stateId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_e99de556ee56afe72154f3ed04a")
-  companyAddresses  CompanyAddress[]
-  consumerAddresses ConsumerAddress[]
-  zipCodes          ZipCode[]
+  id                    Int                     @id(map: "PK_b222f51ce26f7e5ca86944a6739") @default(autoincrement())
+  name                  String                  @db.VarChar
+  ibgeCode              String                  @db.VarChar
+  stateId               Int?
+  state                 State?                  @relation(fields: [stateId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_e99de556ee56afe72154f3ed04a")
+  companyAddresses      CompanyAddress[]
+  consumerAddresses     ConsumerAddress[]
+  zipCodes              ZipCode[]
+  RepresentativeAddress RepresentativeAddress[]
 
   @@map("city")
 }
@@ -529,6 +530,7 @@ model Bonus {
 
 enum BonusType {
   SELL
+  CONSULTANT
   NEW_USER
 }
 
@@ -760,13 +762,15 @@ enum StoreVisitType {
 model Representative {
   id                        String  @id(map: "PK_2abe568eacaba9eba605bb231bc") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   fantasyName               String  @db.VarChar
-  cnpj                      String  @db.VarChar
+  cnpj                      String  @unique() @db.VarChar
   phone                     String? @db.VarChar
   email                     String? @db.VarChar
   isActive                  Boolean @default(true)
   balance                   Decimal @default(0) @db.Decimal(10, 4)
   commissionPercentage      Decimal @default(0) @db.Decimal(10, 4)
   consultantBonusPercentage Decimal @default(0) @db.Decimal(10, 4)
+
+  representativeAddressId String @unique() @db.Uuid
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @default(now()) @db.Timestamp(6)
@@ -775,6 +779,7 @@ model Representative {
   representativeUsers RepresentativeUser[]
   WithdrawOrder       WithdrawOrder[]
   Commission          Commission[]
+  address             RepresentativeAddress @relation(fields: [representativeAddressId], references: [id])
 
   @@map("representatives")
 }
@@ -818,4 +823,20 @@ model RepresentativeUserCompany {
   representativeUser RepresentativeUser @relation(fields: [representativeUserId], references: [id])
 
   @@map("representative_user_companies")
+}
+
+model RepresentativeAddress {
+  id     String @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  cityId Int
+
+  street     String? @db.VarChar
+  district   String? @db.VarChar
+  number     String? @db.VarChar
+  complement String? @db.VarChar
+  zipCode    String? @db.VarChar
+
+  city           City            @relation(fields: [cityId], references: [id])
+  representative Representative?
+
+  @@map("representative_addresses")
 }

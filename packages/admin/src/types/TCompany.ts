@@ -10,6 +10,7 @@ export type TCompany = {
   company_positiveBalance: number
   company_negativeBalance: number
   company_monthlyPayment: number
+  company_representativeId: string
   industry_description: string
   industry_industryFee: number
   status_description: string
@@ -21,6 +22,4 @@ export type TCompany = {
   plan_id: number
   plan_description: string
   plan_value: number
-  representative_id: string
-  representative_name: string
 }
