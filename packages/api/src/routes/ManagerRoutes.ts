@@ -27,6 +27,7 @@ import { BonusController } from "../controllers/manager/bonus/BonusController";
 import { DashboardController } from "../controllers/manager/dashboard/DashboardController";
 import { NotificationSolicitationController } from "../controllers/manager/NotificationSolicitationController";
 import { RepresentativeController } from "../controllers/manager/RepresentativeController";
+import { LogoChangeRequestController } from "../controllers/manager/LogoChangeRequestController";
 
 const paymentMethod = new PaymentMethodController();
 const managerAuth = new ManagerAuthController();
@@ -46,6 +47,7 @@ const managerCompanyMontlhy = new ManagerCompanyPaymentMontlhyController();
 const representativeController = new RepresentativeController();
 const managerCompaniesUsers = new UserCompaniesController();
 const withDrawController = new WithDrawController();
+const logoChangeRequestController = new LogoChangeRequestController();
 
 const notificationSolicitationController =
   new NotificationSolicitationController();
@@ -230,6 +232,16 @@ routes.put(
 routes.put(
   "/notification-solicitations/:id/reprove",
   notificationSolicitationController.reprove
+);
+
+routes.get("/logo-change-requests", logoChangeRequestController.index);
+routes.put(
+  "/logo-change-requests/:id/approve",
+  logoChangeRequestController.approve
+);
+routes.put(
+  "/logo-change-requests/:id/reprove",
+  logoChangeRequestController.reprove
 );
 
 export default routes;

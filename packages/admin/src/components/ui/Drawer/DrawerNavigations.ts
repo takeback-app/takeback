@@ -30,7 +30,9 @@ import {
   IoGift,
   IoGiftOutline,
   IoSend,
-  IoSendOutline
+  IoSendOutline,
+  IoImage,
+  IoImageOutline
 } from 'react-icons/io5'
 import {
   RiCustomerService2Line,
@@ -112,6 +114,15 @@ export const drawerNav = [
         inactiveIcon: IoSendOutline,
         isActive: false,
         to: '/parceiros/notification-solicitations',
+        userBlocked: 0
+      },
+      {
+        id: 5,
+        label: 'Troca de Logo',
+        activeIcon: IoImage,
+        inactiveIcon: IoImageOutline,
+        isActive: false,
+        to: '/parceiros/troca-logo',
         userBlocked: 0
       }
     ]

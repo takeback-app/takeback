@@ -9,7 +9,7 @@ interface ExecuteDTO {
   transactionId: number;
   totalAmount: number;
   consumersId: string;
-  companiesId: string;
+  companyName: string;
 }
 
 export class ApproveTransactionUseCase {
@@ -23,16 +23,16 @@ export class ApproveTransactionUseCase {
     this.cashbackCommission = new GenerateCashbackCommission();
   }
 
-  execute({ transactionId, ...rest }: ExecuteDTO) {
+  execute({ transactionId, companyName }: ExecuteDTO) {
     return Promise.all([
-      this.approve(transactionId),
+      this.approve(transactionId, companyName),
       this.sellBonus.create(transactionId),
       this.consultantBonus.create(transactionId),
       this.cashbackCommission.create(transactionId),
     ]);
   }
 
-  private async approve(transactionId: number) {
+  private async approve(transactionId: number, companyName: string) {
     const status = await prisma.transactionStatus.findFirst({
       where: { description: TransactionStatusEnum.APPROVED },
     });
@@ -53,7 +53,7 @@ export class ApproveTransactionUseCase {
 
     Notify.send(
       transaction.consumersId,
-      new CashbackApproved(transaction, tickets.count)
+      new CashbackApproved(transaction, companyName, tickets.count)
     );
   }
 }

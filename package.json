@@ -7,7 +7,7 @@
     "start:admin": "yarn workspace @takeback/admin start",
     "start:representante": "yarn workspace @takeback/representante start",
     "start:parceiro": "yarn workspace @takeback/parceiro start",
-    "start:mobile": "cd packages/mobile && npx expo start -c"
+    "start:mobile": "yarn workspace @takeback/mobile start"
   },
   "workspaces": {
     "packages": [

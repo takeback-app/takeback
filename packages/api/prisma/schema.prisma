@@ -66,6 +66,7 @@ model Company {
   notificationSolicitations   NotificationSolicitation[]
   birthdayNotifications       BirthdayNotification[]
   representativeUserCompanies RepresentativeUserCompany[]
+  logoChangeRequests          LogoChangeRequest[]
 
   @@map("companies")
 }
@@ -839,4 +840,24 @@ model RepresentativeAddress {
   representative Representative?
 
   @@map("representative_addresses")
+}
+
+model LogoChangeRequest {
+  id          String                  @id @default(uuid()) @db.Uuid
+  companyId   String                  @db.Uuid
+  logoUrl     String
+  status      LogoChangeRequestStatus @default(CREATED)
+  description String?
+
+  createdAt DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@map("logo_change_requests")
+}
+
+enum LogoChangeRequestStatus {
+  CREATED
+  APPROVED
+  REPROVED
 }

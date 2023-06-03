@@ -46,6 +46,7 @@ import { CashbacksHistoric } from '../views/cashbacks/casbacksHistoric/CasbacksH
 import { Representatives } from '../views/partners/representatives'
 import { EditRepresentative } from '../views/partners/representatives/edit'
 import { CreateRepresentative } from '../views/partners/representatives/create'
+import { LogoChangeRequest } from '../views/partners/logoChangeRequest'
 
 interface Props {
   children: JSX.Element
@@ -160,6 +161,14 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <ManagerCompany />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/parceiros/troca-logo"
+        element={
+          <PrivateRoute>
+            <LogoChangeRequest />
           </PrivateRoute>
         }
       />

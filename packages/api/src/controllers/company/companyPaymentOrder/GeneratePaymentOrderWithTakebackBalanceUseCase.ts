@@ -159,7 +159,7 @@ class GeneratePaymentOrderWithTakebackBalanceUseCase {
 
     for (const item of transactions) {
       await useCase.execute({
-        companiesId: paymentOrder.company.id,
+        companyName: paymentOrder.company.fantasyName,
         consumersId: item.consumer_id,
         totalAmount: item.transaction_totalAmount,
         transactionId: item.transaction_id,
