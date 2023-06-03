@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { IoFilter } from 'react-icons/io5'
 
 import { currencyFormat } from '../../../utils/currencytFormat'
@@ -36,6 +36,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ChakraInput } from '../../../components/chakra/ChakraInput'
 import { ChakraSelect } from '../../../components/chakra/ChakraSelect'
+import { AuthContext } from '../../../contexts/AuthContext'
 
 interface Transaction {
   id: number
@@ -94,6 +95,8 @@ const schema = z.object({
 export type FilterData = z.infer<typeof schema>
 
 export function CashbacksHistoric() {
+  const { isAdmin } = useContext(AuthContext)
+
   const { register, handleSubmit, setValue } = useForm<FilterData>({
     resolver: zodResolver(schema),
     defaultValues: formInitialData
@@ -190,7 +193,7 @@ export function CashbacksHistoric() {
               <Td>{cashback.id}</Td>
               <Td>{cashback.transactionStatus.description}</Td>
               <Td>{cashback.company.fantasyName}</Td>
-              <Td>{cashback.consumer.fullName}</Td>
+              <Td>{isAdmin ? cashback.consumer.fullName : '-'}</Td>
               <Td>{currencyFormat(parseFloat(cashback.totalAmount))}</Td>
               <Td>
                 {cashback.transactionPaymentMethods.length > 1
