@@ -12,8 +12,6 @@ import ManagerConsumer from '../views/consumer/managerConsumer'
 // EMPRESA
 import Company from '../views/partners/company/company'
 import ManagerCompany from '../views/partners/company/managerCompany'
-import Representatives from '../views/partners/representatives/representatives'
-import RepresentativesDetails from '../views/partners/representatives/details'
 
 // CASHBACKS E ORDENS DE PAGAMENTO
 import PaymentOrders from '../views/cashbacks/cashbacksPaymentOrders/paymentOrders'
@@ -45,6 +43,9 @@ import { BonusDetail } from '../views/bonus/BonusDetail'
 import { NotificationSolicitationShow } from '../views/partners/notificationSolicitations/show'
 import { NotificationSolicitationIndex } from '../views/partners/notificationSolicitations'
 import { CashbacksHistoric } from '../views/cashbacks/casbacksHistoric/CasbacksHistoric'
+import { Representatives } from '../views/partners/representatives'
+import { EditRepresentative } from '../views/partners/representatives/edit'
+import { CreateRepresentative } from '../views/partners/representatives/create'
 import { LogoChangeRequest } from '../views/partners/logoChangeRequest'
 
 interface Props {
@@ -221,10 +222,18 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         }
       />
       <Route
+        path="/parceiros/representantes/criar"
+        element={
+          <PrivateRoute>
+            <CreateRepresentative />
+          </PrivateRoute>
+        }
+      />
+      <Route
         path="/parceiros/representantes/:id"
         element={
           <PrivateRoute>
-            <RepresentativesDetails />
+            <EditRepresentative />
           </PrivateRoute>
         }
       />

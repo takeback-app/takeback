@@ -12,8 +12,6 @@ import transporter from "../../../config/SMTP";
 import path from "path";
 import fs from "fs";
 import hbs from "handlebars";
-import { representativeRepository } from "../../../database/repositories/representativeRepository";
-import { GenericError } from "../../../config/errors";
 import { logger } from "../../../services/logger";
 import { ApproveTransactionUseCase } from "../../../useCases/cashback/ApproveTransactionUseCase";
 
@@ -175,7 +173,6 @@ class ApproveOrderAndReleaseCashbacksUseCase {
     // ATUALIZANDO O SALDO DA EMPRESA
     // Buscando a empresa da ordem de pagamento
     const company = await getRepository(Companies).findOne({
-      relations: ["representative"],
       where: { id: paymentOrder.company.id },
     });
 
@@ -192,35 +189,6 @@ class ApproveOrderAndReleaseCashbacksUseCase {
         "Houve um erro ao atualizar o saldo da empresa",
         400
       );
-    }
-
-    // ATUALIZAÇÃO DO SALDO DO REPRESENTANTE
-    if (company.representative) {
-      // Buscando o representante da empresa
-      const representative = await representativeRepository().findOne({
-        where: {
-          id: company.representative.id,
-        },
-      });
-
-      // Calculando o valor ganho pelo representante
-      const representativeBilling =
-        takebackFeeAmount * representative.gainPercentage;
-
-      // Atualizando o saldo do representante da empresa
-      const representativeUpdated = await representativeRepository().update(
-        representative.id,
-        {
-          balance: representative.balance + representativeBilling,
-        }
-      );
-
-      if (representativeUpdated.affected === 0) {
-        throw new GenericError(
-          "Erro ao atualizar o saldo do representante",
-          400
-        );
-      }
     }
 
     // ATUALIZANDO A ORDEM DE PAGAMENTO

@@ -29,10 +29,15 @@ interface Withdraw {
   id: string
   value: string
   pixKey: string
-  company: {
+  company?: {
     id: string
     fantasyName: string
     positiveBalance: string
+  }
+  representative?: {
+    id: string
+    fantasyName: string
+    balance: string
   }
   status: {
     id: number
@@ -50,7 +55,9 @@ export function WithdrawOrderDetails() {
   const { data, isLoading } = useSWR<Withdraw>(`manager/withdraws/${id}`)
 
   const hasInvalidValue = useMemo(
-    () => Number(data?.value) > Number(data?.company.positiveBalance),
+    () =>
+      Number(data?.value) >
+      Number(data?.company?.positiveBalance ?? data?.representative?.balance),
     [data]
   )
 
@@ -111,12 +118,24 @@ export function WithdrawOrderDetails() {
       <Box p={4}>
         <Card bg="white" p={4}>
           <SimpleGrid columns={3} gap={8}>
-            <PrimaryInputNotForm
-              label="Nome da Empresa"
-              name=""
-              value={data?.company.fantasyName}
-              readOnly
-            />
+            {data?.company ? (
+              <PrimaryInputNotForm
+                label="Nome da Empresa"
+                name=""
+                value={data?.company.fantasyName}
+                readOnly
+              />
+            ) : null}
+
+            {data?.representative ? (
+              <PrimaryInputNotForm
+                label="Nome do Representante"
+                name=""
+                value={data?.representative.fantasyName}
+                readOnly
+              />
+            ) : null}
+
             <PrimaryInputNotForm
               label="Status"
               name=""
@@ -129,12 +148,24 @@ export function WithdrawOrderDetails() {
               value={new Date(data!.createdAt).toLocaleDateString()}
               readOnly
             />
-            <PrimaryInputNotForm
-              label="Saldo atual Takeback"
-              name=""
-              value={maskCurrency(+data!.company.positiveBalance)}
-              readOnly
-            />
+
+            {data?.company ? (
+              <PrimaryInputNotForm
+                label="Saldo atual Takeback"
+                name=""
+                value={maskCurrency(+data!.company.positiveBalance)}
+                readOnly
+              />
+            ) : null}
+
+            {data?.representative ? (
+              <PrimaryInputNotForm
+                label="Saldo atual Takeback"
+                name=""
+                value={maskCurrency(+data!.representative.balance)}
+                readOnly
+              />
+            ) : null}
 
             <PrimaryInputNotForm
               label="Valor do Saque"

@@ -9,63 +9,64 @@ datasource db {
 }
 
 model City {
-  id                Int               @id(map: "PK_b222f51ce26f7e5ca86944a6739") @default(autoincrement())
-  name              String            @db.VarChar
-  ibgeCode          String            @db.VarChar
-  stateId           Int?
-  state             State?            @relation(fields: [stateId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_e99de556ee56afe72154f3ed04a")
-  companyAddresses  CompanyAddress[]
-  consumerAddresses ConsumerAddress[]
-  zipCodes          ZipCode[]
+  id                    Int                     @id(map: "PK_b222f51ce26f7e5ca86944a6739") @default(autoincrement())
+  name                  String                  @db.VarChar
+  ibgeCode              String                  @db.VarChar
+  stateId               Int?
+  state                 State?                  @relation(fields: [stateId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_e99de556ee56afe72154f3ed04a")
+  companyAddresses      CompanyAddress[]
+  consumerAddresses     ConsumerAddress[]
+  zipCodes              ZipCode[]
+  RepresentativeAddress RepresentativeAddress[]
 
   @@map("city")
 }
 
 model Company {
-  id                             String                         @id(map: "PK_d4bc3e82a314fa9e29f652c2c22") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  corporateName                  String                         @db.VarChar
-  fantasyName                    String                         @db.VarChar
-  logoUrl                        String?
-  registeredNumber               String                         @db.VarChar
-  email                          String                         @db.VarChar
-  phone                          String                         @db.VarChar
-  contactPhone                   String?                        @db.VarChar
-  customIndustryFee              Decimal                        @default(0) @db.Decimal(10, 4)
-  customIndustryFeeActive        Boolean                        @default(false)
-  positiveBalance                Decimal                        @default(0) @db.Decimal(10, 4)
-  negativeBalance                Decimal                        @default(0) @db.Decimal(10, 4)
-  monthlyPayment                 Decimal                        @default(0) @db.Decimal(10, 4)
-  customMonthlyPayment           Boolean                        @default(false)
-  currentMonthlyPaymentPaid      Boolean                        @default(false)
-  firstAccessAllowedAt           DateTime?                      @db.Date
-  provisionalAccessAllowedAt     DateTime?                      @db.Date
-  createdAt                      DateTime                       @default(now()) @db.Timestamp(6)
-  updatedAt                      DateTime                       @default(now()) @db.Timestamp(6)
-  addressId                      Int?                           @unique(map: "REL_2bb6583d4cf35554e19694c8a9")
-  industryId                     Int?
-  statusId                       Int?
-  paymentPlanId                  Int?
-  periodFree                     Boolean                        @default(true)
-  permissionToSupportAccess      Boolean                        @default(true)
-  representativeId               String?                        @db.Uuid
-  useCashbackAsBack              Boolean                        @default(false)
-  paymentPlan                    PaymentPlan?                   @relation(fields: [paymentPlanId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_0d4ef1a2673e3fc3b1934baaea5")
-  companyAddress                 CompanyAddress?                @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_2bb6583d4cf35554e19694c8a9b")
-  companyStatus                  CompanyStatus?                 @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_78f70c4376dbfc35f8ba9257295")
-  representative                 Representative?                @relation(fields: [representativeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_bc70297a96701f77de9ef2cc796")
-  industry                       Industry?                      @relation(fields: [industryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_d10b3310c1016d05c123fdd08e1")
-  companyMonthlyPayments         CompanyMonthlyPayment[]
-  companyPaymentMethods          CompanyPaymentMethod[]
-  companyUsers                   CompanyUser[]
-  PaymentOrders                  PaymentOrder[]
-  representativeBillingCompanies RepresentativeBillingCompany[]
-  transactions                   Transaction[]
-  withdrawOrders                 WithdrawOrder[]
-  raffles                        Raffle[]
-  transactionSolicitations       TransactionSolicitation[]
-  notificationSolicitations      NotificationSolicitation[]
-  birthdayNotifications          BirthdayNotification[]
-  LogoChangeRequest              LogoChangeRequest[]
+  id                          String                      @id(map: "PK_d4bc3e82a314fa9e29f652c2c22") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  corporateName               String                      @db.VarChar
+  fantasyName                 String                      @db.VarChar
+  logoUrl                     String?
+  registeredNumber            String                      @db.VarChar
+  email                       String                      @db.VarChar
+  phone                       String                      @db.VarChar
+  contactPhone                String?                     @db.VarChar
+  customIndustryFee           Decimal                     @default(0) @db.Decimal(10, 4)
+  customIndustryFeeActive     Boolean                     @default(false)
+  positiveBalance             Decimal                     @default(0) @db.Decimal(10, 4)
+  negativeBalance             Decimal                     @default(0) @db.Decimal(10, 4)
+  monthlyPayment              Decimal                     @default(0) @db.Decimal(10, 4)
+  customMonthlyPayment        Boolean                     @default(false)
+  currentMonthlyPaymentPaid   Boolean                     @default(false)
+  firstAccessAllowedAt        DateTime?                   @db.Date
+  provisionalAccessAllowedAt  DateTime?                   @db.Date
+  createdAt                   DateTime                    @default(now()) @db.Timestamp(6)
+  updatedAt                   DateTime                    @default(now()) @db.Timestamp(6)
+  addressId                   Int?                        @unique(map: "REL_2bb6583d4cf35554e19694c8a9")
+  industryId                  Int?
+  statusId                    Int?
+  paymentPlanId               Int?
+  periodFree                  Boolean                     @default(true)
+  permissionToSupportAccess   Boolean                     @default(true)
+  representativeId            String?                     @db.Uuid
+  useCashbackAsBack           Boolean                     @default(false)
+  paymentPlan                 PaymentPlan?                @relation(fields: [paymentPlanId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_0d4ef1a2673e3fc3b1934baaea5")
+  companyAddress              CompanyAddress?             @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_2bb6583d4cf35554e19694c8a9b")
+  companyStatus               CompanyStatus?              @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_78f70c4376dbfc35f8ba9257295")
+  representative              Representative?             @relation(fields: [representativeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_bc70297a96701f77de9ef2cc796")
+  industry                    Industry?                   @relation(fields: [industryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_d10b3310c1016d05c123fdd08e1")
+  companyMonthlyPayments      CompanyMonthlyPayment[]
+  companyPaymentMethods       CompanyPaymentMethod[]
+  companyUsers                CompanyUser[]
+  PaymentOrders               PaymentOrder[]
+  transactions                Transaction[]
+  withdrawOrders              WithdrawOrder[]
+  raffles                     Raffle[]
+  transactionSolicitations    TransactionSolicitation[]
+  notificationSolicitations   NotificationSolicitation[]
+  birthdayNotifications       BirthdayNotification[]
+  representativeUserCompanies RepresentativeUserCompany[]
+  logoChangeRequests          LogoChangeRequest[]
 
   @@map("companies")
 }
@@ -98,6 +99,7 @@ model CompanyMonthlyPayment {
   paymentMade Boolean      @default(false)
   company     Company?     @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_053a462e85ddac7b965e9d33654")
   paymentPlan PaymentPlan? @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_10f7b5e72a6752103ade1acf85a")
+  Commission  Commission[]
 
   @@map("company_monthly_payment")
 }
@@ -332,64 +334,6 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
-model Representative {
-  id                         String                      @id(map: "PK_2abe568eacaba9eba605bb231bc") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name                       String                      @db.VarChar
-  cpf                        String                      @db.VarChar
-  phone                      String?                     @db.VarChar
-  email                      String?                     @db.VarChar
-  whatsapp                   String?                     @db.VarChar
-  isActive                   Boolean                     @default(true)
-  gainPercentage             Decimal                     @default(0) @db.Decimal(10, 4)
-  password                   String?                     @db.VarChar
-  createdAt                  DateTime                    @default(now()) @db.Timestamp(6)
-  updatedAt                  DateTime                    @default(now()) @db.Timestamp(6)
-  balance                    Decimal                     @default(0) @db.Decimal(10, 4)
-  companies                  Company[]
-  representativeBillings     RepresentativeBilling[]
-  representativeRefreshToken RepresentativeRefreshToken?
-
-  @@map("representative")
-}
-
-model RepresentativeBilling {
-  id                             Int                            @id(map: "PK_3cd53441fab137fcfe0f7205f2c") @default(autoincrement())
-  billingValue                   Decimal                        @default(0) @db.Decimal(10, 4)
-  totalCompaniesBilling          Decimal                        @default(0) @db.Decimal(10, 4)
-  representativeFee              Decimal                        @default(0) @db.Decimal(10, 4)
-  isPaid                         Boolean                        @default(false)
-  paidDate                       DateTime?                      @db.Date
-  createdAt                      DateTime                       @default(now()) @db.Timestamp(6)
-  updatedAt                      DateTime                       @default(now()) @db.Timestamp(6)
-  representativeId               String?                        @db.Uuid
-  representative                 Representative?                @relation(fields: [representativeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_bb17f4d4ec99f0ecf21fd30b43d")
-  representativeBillingCompanies RepresentativeBillingCompany[]
-
-  @@map("representative_billing")
-}
-
-model RepresentativeBillingCompany {
-  id                      Int                    @id(map: "PK_4207fb14ded7e2ede45b8e1e504") @default(autoincrement())
-  companyBilling          Decimal                @default(0) @db.Decimal(10, 4)
-  createdAt               DateTime               @default(now()) @db.Timestamp(6)
-  updatedAt               DateTime               @default(now()) @db.Timestamp(6)
-  representativeBillingId Int?
-  companyId               String?                @db.Uuid
-  representativeBilling   RepresentativeBilling? @relation(fields: [representativeBillingId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_01c37a913fa1c0e5e37f937dffc")
-  company                 Company?               @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_bdcb7841105f7a02d0dfcef5d68")
-
-  @@map("representative_billing_company")
-}
-
-model RepresentativeRefreshToken {
-  id               String          @id(map: "PK_a575bc1c9d1d1bc490618296f74") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  expiresIn        Int
-  representativeId String?         @unique(map: "REL_92dd2fbe754c9c44972a73357a") @db.Uuid
-  representative   Representative? @relation(fields: [representativeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_92dd2fbe754c9c44972a73357af")
-
-  @@map("representative_refresh_tokens")
-}
-
 model Setting {
   id                    Int      @id(map: "PK_0669fe20e252eb692bf4d344975") @default(autoincrement())
   createdAt             DateTime @default(now()) @db.Timestamp(6)
@@ -504,6 +448,7 @@ model Transaction {
   childrenTransactions         Transaction[]              @relation("FatherTransaction")
   Bonus                        Bonus[]
   raffleTickets                RaffleTicket[]
+  Commission                   Commission[]
 
   @@map("transactions")
 }
@@ -545,15 +490,17 @@ model WithdrawOrder {
 
   pixKey String
 
-  companyId String @db.Uuid
-  statusId  Int
+  companyId        String? @db.Uuid
+  representativeId String? @db.Uuid
+  statusId         Int
 
   approvedAt DateTime?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @default(now()) @updatedAt
 
-  company Company             @relation(fields: [companyId], references: [id])
-  status  WithdrawOrderStatus @relation(fields: [statusId], references: [id])
+  company        Company?            @relation(fields: [companyId], references: [id])
+  representative Representative?     @relation(fields: [representativeId], references: [id])
+  status         WithdrawOrderStatus @relation(fields: [statusId], references: [id])
 
   @@map("withdraw_orders")
 }
@@ -584,7 +531,31 @@ model Bonus {
 
 enum BonusType {
   SELL
+  CONSULTANT
   NEW_USER
+}
+
+model Commission {
+  id                      String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  type                    CommissionType @default(CASHBACK)
+  value                   Float
+  representativeId        String         @db.Uuid
+  transactionId           Int?
+  companyMonthlyPaymentId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  transaction    Transaction?           @relation(fields: [transactionId], references: [id])
+  monthPayment   CompanyMonthlyPayment? @relation(fields: [companyMonthlyPaymentId], references: [id])
+  representative Representative         @relation(fields: [representativeId], references: [id])
+
+  @@map("commissions")
+}
+
+enum CommissionType {
+  CASHBACK
+  MONTHLY_PAYMENT
 }
 
 model RaffleStatus {
@@ -787,6 +758,88 @@ enum StoreVisitType {
   NEVER
   FROM_THE_DATE_OF_PURCHASE
   ALL
+}
+
+model Representative {
+  id                        String  @id(map: "PK_2abe568eacaba9eba605bb231bc") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  fantasyName               String  @db.VarChar
+  cnpj                      String  @unique() @db.VarChar
+  phone                     String? @db.VarChar
+  email                     String? @db.VarChar
+  isActive                  Boolean @default(true)
+  balance                   Decimal @default(0) @db.Decimal(10, 4)
+  commissionPercentage      Decimal @default(0) @db.Decimal(10, 4)
+  consultantBonusPercentage Decimal @default(0) @db.Decimal(10, 4)
+
+  representativeAddressId String @unique() @db.Uuid
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @db.Timestamp(6)
+
+  companies           Company[]
+  representativeUsers RepresentativeUser[]
+  WithdrawOrder       WithdrawOrder[]
+  Commission          Commission[]
+  address             RepresentativeAddress @relation(fields: [representativeAddressId], references: [id])
+
+  @@map("representatives")
+}
+
+model RepresentativeUser {
+  id         String                 @id @default(uuid()) @db.Uuid()
+  name       String                 @db.VarChar
+  cpf        String                 @unique() @db.VarChar
+  password   String                 @db.VarChar
+  email      String?                @db.VarChar
+  phone      String?                @db.VarChar
+  isActive   Boolean                @default(true)
+  role       RepresentativeUserRole @default(CONSULTANT)
+  birthDay   Int?
+  birthMonth Int?
+  birthYear  Int?
+
+  representativeId String @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  representative              Representative              @relation(fields: [representativeId], references: [id])
+  representativeUserCompanies RepresentativeUserCompany[]
+
+  @@map("representative_users")
+}
+
+enum RepresentativeUserRole {
+  ADMIN
+  CONSULTANT
+}
+
+model RepresentativeUserCompany {
+  id Int @id @default(autoincrement())
+
+  companyId            String @db.Uuid
+  representativeUserId String @db.Uuid()
+
+  company            Company            @relation(fields: [companyId], references: [id])
+  representativeUser RepresentativeUser @relation(fields: [representativeUserId], references: [id])
+
+  @@map("representative_user_companies")
+}
+
+model RepresentativeAddress {
+  id     String @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  cityId Int
+
+  street     String? @db.VarChar
+  district   String? @db.VarChar
+  number     String? @db.VarChar
+  complement String? @db.VarChar
+  zipCode    String? @db.VarChar
+
+  city           City            @relation(fields: [cityId], references: [id])
+  representative Representative?
+
+  @@map("representative_addresses")
 }
 
 model LogoChangeRequest {

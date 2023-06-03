@@ -1,7 +1,7 @@
 import { DateTime, Interval } from "luxon";
 
 export abstract class BaseGraphUseCase {
-  async execute(numOfMonths = 12) {
+  async execute(numOfMonths = 12, ...args: any[]) {
     const interval =
       numOfMonths >= 0
         ? Interval.fromDateTimes(
@@ -25,7 +25,8 @@ export abstract class BaseGraphUseCase {
     for (const [monthStart, monthEnd] of months) {
       const value = await this.getMonthlyValue(
         monthStart.toJSDate(),
-        monthEnd.toJSDate()
+        monthEnd.toJSDate(),
+        ...args
       );
 
       labels.push(
@@ -37,5 +38,9 @@ export abstract class BaseGraphUseCase {
     return { values, labels };
   }
 
-  abstract getMonthlyValue(monthStart: Date, monthEnd: Date): Promise<number>;
+  abstract getMonthlyValue(
+    monthStart: Date,
+    monthEnd: Date,
+    ...args: any[]
+  ): Promise<number>;
 }

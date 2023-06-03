@@ -18,7 +18,7 @@ export async function deleteNotificationSolicitation(
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }
@@ -48,7 +48,7 @@ export async function getAudienceCount(
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }
@@ -71,7 +71,7 @@ export async function createNotificationSolicitation(
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }

@@ -11,9 +11,7 @@ class ReportCashbackByPeriodUseCase {
   async execute({ companyId, userId }: Props) {
     const date = new Date();
     const today = date;
-    const sevenDaysAgo = new Date(
-      date.setDate(date.getDate() - 7)
-    );
+    const sevenDaysAgo = new Date(date.setDate(date.getDate() - 7));
 
     /* RELATÓRIO DE CASHBACK's DOS ÚLTIMOS 7 DIAS */
 
