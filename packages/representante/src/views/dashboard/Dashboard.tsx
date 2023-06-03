@@ -1,8 +1,7 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import {
   IoWalletOutline,
   IoReceiptOutline,
-  IoPeopleOutline,
   IoStorefrontOutline
 } from 'react-icons/io5'
 
@@ -11,12 +10,11 @@ import useSWR from 'swr'
 import Layout from '../../components/ui/Layout'
 import SmallCard from '../../components/cards/SmallCard'
 import LargeCard from '../../components/cards/LargeCard'
-import DoughnutChart from '../../components/charts/DoughnutChart'
-import LineChart from '../../components/charts/LineChart'
 import BarChart from '../../components/charts/BarChart'
 
 import * as S from './styles'
 import { Flex } from '@chakra-ui/react'
+import { AuthContext } from '../../contexts/AuthContext'
 
 interface GraphResponse {
   labels: [string]
@@ -36,6 +34,8 @@ interface DashboardResponse {
 }
 
 export function Dashboard() {
+  const { isAdmin } = useContext(AuthContext)
+
   const { data, isLoading } = useSWR<DashboardResponse>(
     'representative/dashboard'
   )
@@ -59,18 +59,22 @@ export function Dashboard() {
             color="#00BF78"
             loading={isLoading}
           />
-          <SmallCard
-            title="Comissões Totais"
-            label="Total de comissões recebidas"
-            description={Intl.NumberFormat('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-              minimumFractionDigits: 2
-            }).format(data?.commissionsAmount || 0)}
-            icon={IoReceiptOutline}
-            color="#00BF78"
-            loading={isLoading}
-          />
+
+          {isAdmin && (
+            <SmallCard
+              title="Comissões Totais"
+              label="Total de comissões recebidas"
+              description={Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2
+              }).format(data?.commissionsAmount || 0)}
+              icon={IoReceiptOutline}
+              color="#00BF78"
+              loading={isLoading}
+            />
+          )}
+
           <SmallCard
             title="Saldo em empresas"
             label="Saldo takeback das empresas"
@@ -83,18 +87,21 @@ export function Dashboard() {
             color="#00BF78"
             loading={isLoading}
           />
-          <SmallCard
-            title="Meu saldo"
-            label="Saldo disponível para saque"
-            description={Intl.NumberFormat('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-              minimumFractionDigits: 2
-            }).format(data?.balance || 0)}
-            icon={IoWalletOutline}
-            color="#00BF78"
-            loading={isLoading}
-          />
+          {isAdmin && (
+            <SmallCard
+              title="Meu saldo"
+              label="Saldo disponível para saque"
+              description={Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2
+              }).format(data?.balance || 0)}
+              icon={IoWalletOutline}
+              color="#00BF78"
+              loading={isLoading}
+            />
+          )}
+
           <SmallCard
             title="Cashbacks Pendentes"
             label="Total de cashbacks pendentes"
@@ -134,20 +141,22 @@ export function Dashboard() {
             loading={isLoading}
           />
 
-          <SmallCard
-            title="Comissão Pendente"
-            label="Total de comissões pendentes"
-            description={Intl.NumberFormat('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-              minimumFractionDigits: 2
-            }).format(data?.commissionAmountPending || 0)}
-            icon={IoReceiptOutline}
-            color="#ff9f40"
-            loading={isLoading}
-          />
+          {isAdmin && (
+            <SmallCard
+              title="Comissão Pendente"
+              label="Total de comissões pendentes"
+              description={Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2
+              }).format(data?.commissionAmountPending || 0)}
+              icon={IoReceiptOutline}
+              color="#ff9f40"
+              loading={isLoading}
+            />
+          )}
         </S.SmallCardsWrapper>
-        <Flex h="40vh" mt={2}>
+        <Flex display={isAdmin ? 'flex' : 'none'} h="40vh" mt={2}>
           <LargeCard
             title="Comissões"
             subtitle="Comissões por mês"

@@ -3,6 +3,7 @@ import React, { useState, createContext, SetStateAction } from 'react'
 interface IAuth {
   isSignedIn: boolean
   setIsSignedIn: React.Dispatch<SetStateAction<boolean>>
+  isAdmin: boolean
 
   userName: string
   setUserName: React.Dispatch<SetStateAction<string>>
@@ -25,6 +26,7 @@ interface IAuth {
 
 export const AuthContext = createContext<IAuth>({
   isSignedIn: false,
+  isAdmin: false,
   setIsSignedIn: () => null,
 
   userName: '',
@@ -62,6 +64,7 @@ const AuthProvider: React.FC<React.PropsWithChildren<unknown>> = ({
       value={{
         isSignedIn,
         setIsSignedIn,
+        isAdmin: role === 'ADMIN',
         userName,
         setUserName,
         userEmail,

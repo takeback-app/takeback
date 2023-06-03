@@ -35,6 +35,7 @@ import {
   IconButton,
   useDisclosure
 } from '@chakra-ui/react'
+import { AuthContext } from '../../../../contexts/AuthContext'
 
 interface PropsCompany {
   id: string
@@ -68,6 +69,8 @@ const currentMonthlyPayment = [
 ]
 
 const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
+  const { isAdmin } = useContext(AuthContext)
+
   const { isOpen, onClose, onOpen } = useDisclosure()
 
   const { industry, setIndustry, companyStatus, setCompanyStatus } =
@@ -184,15 +187,18 @@ const Company: React.FC<React.PropsWithChildren<unknown>> = () => {
         <S.Container>
           <S.SubHeader>
             <ButtonGroup>
-              <Button
-                colorScheme="green"
-                onClick={() => {
-                  navigate(`/empresas/criar`)
-                }}
-                leftIcon={<IoAdd />}
-              >
-                Criar
-              </Button>
+              {isAdmin && (
+                <Button
+                  colorScheme="green"
+                  onClick={() => {
+                    navigate(`/empresas/criar`)
+                  }}
+                  leftIcon={<IoAdd />}
+                >
+                  Criar
+                </Button>
+              )}
+
               <IconButton
                 aria-label="Filtrar empresas"
                 colorScheme="gray"

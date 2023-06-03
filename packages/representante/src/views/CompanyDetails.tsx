@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 
 import {
   Button,
@@ -27,6 +27,7 @@ import { maskCNPJ, maskPhone } from '../utils/masks'
 import { ChakraSelect, Option } from '../components/chakra/ChakraSelect'
 import { RecoverPasswordModalButton } from '../components/modals/RecoverPasswordModalButton'
 import { ChangeConsultantModalButton } from '../components/modals/ChangeConsultantModalButton'
+import { AuthContext } from '../contexts/AuthContext'
 
 interface CompanyDetail {
   id?: string
@@ -58,6 +59,8 @@ interface CompanyDetail {
 }
 
 export function CompanyDetails() {
+  const { isAdmin } = useContext(AuthContext)
+
   const { data: industries } = useSWR<Option[]>('representative/industries')
   const { data: cities } = useSWR<Option[]>('representative/cities')
 
@@ -109,7 +112,7 @@ export function CompanyDetails() {
         {formState.isLoading ? (
           <Spinner size="sm" colorScheme="green" />
         ) : (
-          <ButtonGroup>
+          <ButtonGroup display={isAdmin ? 'flex' : 'none'}>
             {!!id && <RecoverPasswordModalButton companyId={id} />}
 
             {!!id && (
@@ -131,18 +134,21 @@ export function CompanyDetails() {
               <ChakraInput
                 label="Nome Fantasia"
                 size="sm"
+                isReadOnly={!isAdmin}
                 isRequired
                 {...register('fantasyName')}
               />
               <ChakraInput
                 label="Razão Social"
                 size="sm"
+                isReadOnly={!isAdmin}
                 isRequired
                 {...register('corporateName')}
               />
               <ChakraInput
                 label="CNPJ"
                 size="sm"
+                isReadOnly={!isAdmin}
                 isRequired
                 {...register('registeredNumber', {
                   onChange: e => {
@@ -154,11 +160,13 @@ export function CompanyDetails() {
                 label="E-mail"
                 isRequired
                 size="sm"
+                isReadOnly={!isAdmin}
                 {...register('email')}
               />
               <ChakraInput
                 label="Telefone de Suporte"
                 size="sm"
+                isReadOnly={!isAdmin}
                 isRequired
                 {...register('phone', {
                   onChange: e => {
@@ -169,6 +177,7 @@ export function CompanyDetails() {
               <ChakraInput
                 label="Telefone de Contato"
                 size="sm"
+                isReadOnly={!isAdmin}
                 isRequired
                 {...register('contactPhone', {
                   onChange: e => {
@@ -179,6 +188,7 @@ export function CompanyDetails() {
               <ChakraSelect
                 label="Ramo de atividade"
                 size="sm"
+                isReadOnly={!isAdmin}
                 options={industries ?? []}
                 isRequired
                 {...register('industryId')}
@@ -186,7 +196,7 @@ export function CompanyDetails() {
               <ChakraInput
                 label="Status"
                 size="sm"
-                isReadOnly
+                isReadOnly={!isAdmin}
                 {...register('companyStatus.description')}
               />
             </SimpleGrid>
@@ -203,21 +213,25 @@ export function CompanyDetails() {
               <ChakraInput
                 label="Rua"
                 size="sm"
+                isReadOnly={!isAdmin}
                 {...register('companyAddress.street')}
               />
               <ChakraInput
                 label="Número"
                 size="sm"
+                isReadOnly={!isAdmin}
                 {...register('companyAddress.number')}
               />
               <ChakraInput
                 label="Bairro"
                 size="sm"
+                isReadOnly={!isAdmin}
                 {...register('companyAddress.district')}
               />
               <ChakraSelect
                 label="Cidade"
                 size="sm"
+                isReadOnly={!isAdmin}
                 options={cities ?? []}
                 isRequired
                 {...register('companyAddress.cityId')}
@@ -236,19 +250,23 @@ export function CompanyDetails() {
               <ChakraInput
                 label="Taxa"
                 size="sm"
-                isReadOnly
+                isReadOnly={!isAdmin}
                 {...register('paymentPlan.description')}
               />
               <ChakraInput
                 label="Valor da Taxa"
                 size="sm"
-                isReadOnly
+                isReadOnly={!isAdmin}
                 {...register('paymentPlan.value')}
               />
             </SimpleGrid>
           </CardBody>
         </Card>
-        <ButtonGroup justifyContent="flex-end">
+
+        <ButtonGroup
+          display={isAdmin ? 'flex' : 'none'}
+          justifyContent="flex-end"
+        >
           <Button
             colorScheme="green"
             leftIcon={<IoCheckmarkSharp />}
