@@ -83,10 +83,7 @@ class GeneratePaymentOrderUseCase {
     // para uma ordem de pagamento já está
     // em outra ordem de pagamento
     if (transactionsInProcess.length !== 0) {
-      return {
-        message: "Há cashbacks em processamento",
-        cashbacks: transactionsInProcess,
-      };
+      return "Há cashbacks em processamento";
     }
 
     const awaitingStatus = await getRepository(PaymentOrderStatus).findOne({

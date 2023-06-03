@@ -1,24 +1,29 @@
-import { Bonus, CompanyUser, Consumer, PaymentPlan } from "@prisma/client";
+import { Bonus, CompanyUser, Consumer } from "@prisma/client";
 import { prisma } from "../../../prisma";
 
 export abstract class GenerateBonus {
-  protected abstract getValidBonusCalculator(
-    paymentPlan: PaymentPlan
-  ): number | null;
-
   abstract create(...args): Promise<Bonus>;
 
   protected getTransaction(transactionId: number) {
     return prisma.transaction.findUniqueOrThrow({
       where: { id: transactionId },
       include: {
-        company: { include: { paymentPlan: true } },
-        companyUser: true,
+        company: { select: { paymentPlanId: true, representativeId: true } },
+        companyUser: { select: { cpf: true } },
       },
     });
   }
 
-  protected getConsumerFromCompanyUser(companyUser: CompanyUser) {
+  protected getMonthlyPayment(monthlyPaymentId: number) {
+    return prisma.companyMonthlyPayment.findUniqueOrThrow({
+      where: { id: monthlyPaymentId },
+      include: {
+        company: { include: { representative: true } },
+      },
+    });
+  }
+
+  protected getConsumerFromCompanyUser(companyUser?: { cpf: string }) {
     if (!companyUser?.cpf) return null;
 
     return prisma.consumer.findFirst({

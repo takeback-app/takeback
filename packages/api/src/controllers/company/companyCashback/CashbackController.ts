@@ -11,6 +11,7 @@ import { VerifyCashbacksExpired } from "./VerifyCashbacksExpired";
 import { GetConsumerAutocompleteUseCase } from "./GetConsumerAutocompleteUseCase";
 import { prisma } from "../../../prisma";
 import { CashRegisterUseCase } from "../../../useCases/cashback/CashRegisterUseCase";
+import { partition } from "../../../utils";
 
 interface CancelProps {
   transactionIDs: number[];
@@ -94,8 +95,13 @@ class CashbackController {
   async cancelCashBack(request: Request, response: Response) {
     const { companyId } = request["tokenPayload"];
 
-    const { cancellationDescription, transactionIDs }: CancelProps =
+    let { cancellationDescription, transactionIDs: ids }: CancelProps =
       request.body;
+
+    let [transactionIDs, monthlyPayment] = partition(
+      ids,
+      (t) => typeof t === "number"
+    );
 
     const cancel = new CancelCashBackUseCase();
 
