@@ -1,16 +1,16 @@
+import bcrypt from "bcrypt";
+
 import { Request, Response } from "express";
 import { prisma } from "../../prisma";
 import { InternalError } from "../../config/GenerateErros";
-import { GetRepresentative } from "../../useCases/representative/GetRepresentativeUseCase";
+import { DateTime } from "luxon";
 
-const PER_PAGE = 25;
-
-export class RepresentativeUserController {
+export class ConsultantController {
   async index(request: Request, response: Response) {
     const { representativeId } = request["tokenPayload"];
 
     const users = await prisma.representativeUser.findMany({
-      where: { representativeId },
+      where: { representativeId, role: "CONSULTANT" },
     });
 
     return response.status(200).json({
@@ -18,59 +18,100 @@ export class RepresentativeUserController {
     });
   }
 
-  // async show(request: Request, response: Response) {
-  //   const { id } = request.params;
+  async store(request: Request, response: Response) {
+    const { representativeId } = request["tokenPayload"];
 
-  //   const raffle = await prisma.raffle.findFirst({
-  //     where: { id },
-  //     include: {
-  //       status: true,
-  //       company: { select: { fantasyName: true } },
-  //       items: {
-  //         orderBy: { order: "asc" },
-  //         include: {
-  //           raffleItemDelivery: {
-  //             include: { companyUser: { select: { name: true } } },
-  //           },
-  //           winnerTicket: {
-  //             select: {
-  //               consumer: {
-  //                 select: { fullName: true, cpf: true, phone: true },
-  //               },
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-  //   });
+    const user = request.body;
 
-  //   if (!raffle) {
-  //     throw new InternalError("Sorteio não encontrado", 400);
-  //   }
+    const userExists = await prisma.representativeUser.findFirst({
+      where: { cpf: user.cpf },
+    });
 
-  //   const consumers = await prisma.consumer.findMany({
-  //     where: {
-  //       raffleTickets: {
-  //         some: { raffleId: raffle.id, status: { not: "CANCELED" } },
-  //       },
-  //     },
-  //     select: {
-  //       id: true,
-  //       fullName: true,
-  //       cpf: true,
-  //       _count: {
-  //         select: {
-  //           raffleTickets: {
-  //             where: {
-  //               raffleId: raffle.id,
-  //               status: { not: "CANCELED" },
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-  //   });
+    if (userExists) {
+      throw new InternalError("Representante (CPF) já cadastrado", 400);
+    }
 
-  //   return response.json({ ...raffle, consumers });
-  // }
+    const userBirthday = DateTime.fromISO(user.birthday);
+    const userPassword = await bcrypt.hash(user.password, 8);
+
+    await prisma.representativeUser.create({
+      data: {
+        representativeId,
+        cpf: user.cpf,
+        name: user.name,
+        email: user.email,
+        password: userPassword,
+        phone: user.phone,
+        role: "CONSULTANT",
+        birthDay: userBirthday.day,
+        birthMonth: userBirthday.month,
+        birthYear: userBirthday.year,
+      },
+    });
+
+    return response
+      .status(201)
+      .json({ message: "Consultor cadastrado com sucesso" });
+  }
+
+  async update(request: Request, response: Response) {
+    const { representativeId } = request["tokenPayload"];
+
+    const { id } = request.params;
+
+    const user = request.body;
+
+    const userBirthday = DateTime.fromISO(user.birthday);
+
+    const userPassword = user.password
+      ? await bcrypt.hash(user.password, 8)
+      : undefined;
+
+    await prisma.representativeUser.updateMany({
+      where: { representativeId: id, role: "ADMIN" },
+      data: {
+        representativeId,
+        cpf: user.cpf,
+        name: user.name,
+        email: user.email,
+        password: userPassword,
+        phone: user.phone,
+        role: "CONSULTANT",
+        birthDay: userBirthday.day,
+        birthMonth: userBirthday.month,
+        birthYear: userBirthday.year,
+      },
+    });
+
+    return response.json({ message: "Consultor atualizado com sucesso" });
+  }
+
+  async delete(request: Request, response: Response) {
+    const { id } = request.params;
+
+    await prisma.representativeUserCompany.deleteMany({
+      where: { representativeUserId: id },
+    });
+
+    await prisma.representativeUser.delete({
+      where: { id },
+    });
+
+    return response.json({ message: "Consultor deletado" });
+  }
+
+  async deactivate(request: Request, response: Response) {
+    const { id } = request.params;
+
+    await prisma.representativeUser.updateMany({
+      where: { id },
+      data: { isActive: false },
+    });
+
+    await prisma.representativeUserCompany.deleteMany({
+      where: { representativeUserId: id },
+    });
+
+    return response.json({ message: "Consultor desativado" });
+  }
 }

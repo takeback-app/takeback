@@ -9,7 +9,7 @@ import { WithdrawController } from "../controllers/representative/WithdrawContro
 import { RaffleController } from "../controllers/representative/RaffleController";
 import { CashbackHistoricController } from "../controllers/representative/CashbackHistoricController";
 import { DataController } from "../controllers/manager/managerData/DataController";
-import { RepresentativeUserController } from "../controllers/representative/RepresentativeUserController";
+import { ConsultantController } from "../controllers/representative/RepresentativeUserController";
 import { DataController as RepresentativeDataController } from "../controllers/representative/DataController";
 
 const authController = new AuthController();
@@ -19,7 +19,7 @@ const withdrawController = new WithdrawController();
 const managerData = new DataController();
 const raffleController = new RaffleController();
 const cashbackHistoricController = new CashbackHistoricController();
-const representativeUserController = new RepresentativeUserController();
+const consultantController = new ConsultantController();
 const dataController = new RepresentativeDataController();
 
 const routes = Router();
@@ -59,8 +59,11 @@ routes.get("/cashback/find/status", cashbackHistoricController.findStatus);
 
 routes.put("/user/password", authController.updatePassword);
 
-routes.get("/users", representativeUserController.index);
-routes.post("/users", representativeUserController.store);
+routes.get("/consultants", consultantController.index);
+routes.post("/consultants", consultantController.store);
+routes.put("/consultants/:id", consultantController.update);
+routes.delete("/consultants/:id", consultantController.delete);
+routes.post("/consultants/:id/deactivate", consultantController.deactivate);
 
 routes.get("/cities", dataController.cities);
 routes.get("/industries", dataController.industries);
