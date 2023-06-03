@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import {
   Button,
   ButtonGroup,
+  IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -16,29 +17,52 @@ import {
 } from '@chakra-ui/react'
 import { useForm } from 'react-hook-form'
 import { chakraToastConfig } from '../../../styles/chakraToastConfig'
-import { IoCreateOutline, IoKeyOutline } from 'react-icons/io5'
+import { IoCreateOutline } from 'react-icons/io5'
 
 import { ChakraInput } from '../../../components/chakra/ChakraInput'
-import { createRepresentativeUser } from '../services/api'
+import { editRepresentativeUser } from '../services/api'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { validCpf } from '../../../utils/validate'
-import { maskPhone } from '../../../utils/masks'
+import { maskCPF, maskPhone } from '../../../utils/masks'
+import { ChakraPasswordInput } from '../../../components/chakra/ChakraPasswordInput'
+import { RepresentativeUsers } from '../../../types/TRepresentativeUsers'
+import moment from 'moment'
+import { mutate } from 'swr'
+
+interface Props {
+  user: RepresentativeUsers
+}
 
 const schema = z
   .object({
     name: z.string().nonempty(),
     email: z.string().email('E-mail inválido'),
-    phone: z.string().min(14, 'Telefone inválido'),
+    phone: z.string().min(15, 'Telefone inválido'),
     birthday: z.string().min(10, 'Data inválida'),
     cpf: z.string().min(14, 'CPF inválido'),
-    password: z.string().min(6, 'Senha muito curta'),
-    passwordConfirmation: z.string().min(6, 'Senha muito curta')
+    password: z
+      .string()
+      .min(6, 'Senha muito curta')
+      .optional()
+      .or(z.literal('')),
+    passwordConfirmation: z
+      .string()
+      .min(6, 'Senha muito curta')
+      .optional()
+      .or(z.literal(''))
   })
-  .refine(data => data.password === data.passwordConfirmation, {
-    message: 'Senhas não conferem',
-    path: ['passwordConfirmation']
-  })
+  .refine(
+    ({ password, passwordConfirmation }) => {
+      if (!password) return true
+
+      return password === passwordConfirmation
+    },
+    {
+      path: ['passwordConfirmation'],
+      message: 'As senhas não coincidem'
+    }
+  )
   .refine(data => validCpf(data.cpf), {
     path: ['cpf'],
     message: 'CPF inválido'
@@ -46,16 +70,16 @@ const schema = z
 
 type RepresentativeUserForm = z.infer<typeof schema>
 
-export function EditRepresentativeUserModalButton() {
+export function EditRepresentativeUserModalButton({ user }: Props) {
   const toast = useToast(chakraToastConfig)
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { register, reset, handleSubmit, formState } =
+  const { register, handleSubmit, formState, setValue } =
     useForm<RepresentativeUserForm>({
       resolver: zodResolver(schema)
     })
 
   async function onSubmit(data: RepresentativeUserForm) {
-    const [isOk, response] = await createRepresentativeUser(data)
+    const [isOk, response] = await editRepresentativeUser(user.id, data)
 
     if (!isOk) {
       return toast({
@@ -71,20 +95,36 @@ export function EditRepresentativeUserModalButton() {
       status: 'success'
     })
 
-    handleClose()
-  }
+    await mutate('/representative/consultants')
 
-  function handleClose() {
-    reset()
     onClose()
   }
 
+  useEffect(() => {
+    setValue('name', user.name)
+    setValue('email', user.email)
+    setValue('phone', maskPhone(user.phone))
+    setValue('cpf', maskCPF(user.cpf))
+    setValue(
+      'birthday',
+      moment({
+        year: user.birthYear,
+        month: user.birthMonth,
+        day: user.birthDay
+      }).format('YYYY-MM-DD')
+    )
+  }, [user, setValue])
+
   return (
     <>
-      <Button size={'sm'} colorScheme="blue" onClick={onOpen}>
-        <IoCreateOutline />
-      </Button>
-      <Modal size="2xl" isOpen={isOpen} onClose={handleClose}>
+      <IconButton
+        size={'sm'}
+        colorScheme="blue"
+        onClick={onOpen}
+        icon={<IoCreateOutline />}
+        aria-label="Editar"
+      />
+      <Modal size="2xl" isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader fontSize="lg">Editar Consultor</ModalHeader>
@@ -101,16 +141,20 @@ export function EditRepresentativeUserModalButton() {
               <ChakraInput
                 label="CPF"
                 size="sm"
-                isRequired
                 error={formState.errors.cpf?.message}
-                {...register('cpf')}
+                isRequired
+                {...register('cpf', {
+                  onChange: e => {
+                    e.target.value = maskCPF(e.target.value)
+                  }
+                })}
               />
               <ChakraInput
                 label="Email"
                 size="sm"
                 isRequired
-                error={formState.errors.email?.message}
                 {...register('email')}
+                error={formState.errors.email?.message}
               />
               <ChakraInput
                 label="Telefone"
@@ -131,17 +175,15 @@ export function EditRepresentativeUserModalButton() {
                 {...register('birthday')}
                 error={formState.errors.birthday?.message}
               />
-              <ChakraInput
+              <ChakraPasswordInput
                 label="Senha"
                 size="sm"
-                isRequired
                 {...register('password')}
                 error={formState.errors.password?.message}
               />
-              <ChakraInput
-                label="Confimação de Senha"
+              <ChakraPasswordInput
+                label="Confirmação de Senha"
                 size="sm"
-                isRequired
                 {...register('passwordConfirmation')}
                 error={formState.errors.passwordConfirmation?.message}
               />
@@ -150,7 +192,7 @@ export function EditRepresentativeUserModalButton() {
 
           <ModalFooter>
             <ButtonGroup>
-              <Button variant="ghost" onClick={handleClose}>
+              <Button variant="ghost" onClick={onClose}>
                 Fechar
               </Button>
               <Button colorScheme="blue" onClick={handleSubmit(onSubmit)}>

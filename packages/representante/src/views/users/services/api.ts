@@ -1,5 +1,6 @@
 import { AxiosError } from 'axios'
 import { API } from '../../../services/API'
+import { removeMask } from '../../../utils/masks'
 
 type ReturnApi = [boolean, { message?: string }]
 
@@ -13,24 +14,24 @@ export interface CreateRepresentativeUsersForm {
 }
 
 export interface EditRepresentativeUsersForm {
-  id: string
   name: string
   email: string
   phone: string
   birthday: string
   cpf: string
-  password: string
+  password?: string
 }
 
 export async function createRepresentativeUser(
   data: CreateRepresentativeUsersForm
 ): Promise<ReturnApi> {
-  try {
-    await API.post('representative/users', {
-      data: data
-    })
+  data.cpf = removeMask(data.cpf)
+  data.phone = removeMask(data.phone)
 
-    return [true, { message: 'Usuário cadastrado com sucesso' }]
+  try {
+    await API.post('representative/consultants', data)
+
+    return [true, { message: 'Consultor cadastrado!' }]
   } catch (err) {
     const error = err as AxiosError
 
@@ -42,14 +43,16 @@ export async function createRepresentativeUser(
 }
 
 export async function editRepresentativeUser(
+  id: string,
   data: EditRepresentativeUsersForm
 ): Promise<ReturnApi> {
-  try {
-    await API.put(`representative/users/${data.id}`, {
-      data: data
-    })
+  data.cpf = removeMask(data.cpf)
+  data.phone = removeMask(data.phone)
 
-    return [true, { message: 'Usuário editado com sucesso' }]
+  try {
+    await API.put(`representative/consultants/${id}`, data)
+
+    return [true, { message: 'Consultor editado!' }]
   } catch (err) {
     const error = err as AxiosError
 
@@ -62,9 +65,9 @@ export async function editRepresentativeUser(
 
 export async function deleteRepresentativeUser(id: string): Promise<ReturnApi> {
   try {
-    await API.delete(`representative/users/${id}`)
+    await API.delete(`representative/consultants/${id}`)
 
-    return [true, { message: 'Usuário deletado com sucesso' }]
+    return [true, { message: 'Consultor deletado!' }]
   } catch (err) {
     const error = err as AxiosError
 

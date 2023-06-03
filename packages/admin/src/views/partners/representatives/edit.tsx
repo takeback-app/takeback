@@ -37,7 +37,7 @@ const schema = z
     fantasyName: z.string().min(3, 'Nome muito curto'),
     cnpj: z.string().min(18, 'CNPJ inválido'),
     email: z.string().email('E-mail inválido'),
-    phone: z.string().min(14, 'Telefone inválido'),
+    phone: z.string().min(15, 'Telefone inválido'),
     isActive: z.boolean().optional(),
     commissionPercentage: z.string(),
     consultantBonusPercentage: z.string(),
@@ -52,7 +52,7 @@ const schema = z
     user: z.object({
       name: z.string().nonempty(),
       email: z.string().email('E-mail inválido'),
-      phone: z.string().min(14, 'Telefone inválido'),
+      phone: z.string().min(15, 'Telefone inválido'),
       birthday: z.string().min(10, 'Data inválida'),
       cpf: z.string().min(14, 'CPF inválido'),
       password: z
@@ -69,7 +69,7 @@ const schema = z
   })
   .refine(
     ({ user: { password, passwordConfirmation } }) => {
-      if (!password || !passwordConfirmation) return true
+      if (!password) return true
 
       return password === passwordConfirmation
     },

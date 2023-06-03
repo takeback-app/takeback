@@ -3,6 +3,7 @@ export type RepresentativeUsers = {
   name: string
   cpf: string
   email: string
+  phone: string
   isActive: boolean
   role: 'ADMIN' | 'CONSULTANT'
   birthDay: number

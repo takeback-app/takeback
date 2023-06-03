@@ -12,19 +12,19 @@ export class ConsultantController {
     const users = await prisma.representativeUser.findMany({
       where: { representativeId, role: "CONSULTANT" },
       select: {
+        id: true,
         name: true,
         cpf: true,
         email: true,
         phone: true,
+        role: true,
         birthDay: true,
         birthMonth: true,
         birthYear: true,
       },
     });
 
-    return response.status(200).json({
-      data: users,
-    });
+    return response.status(200).json(users);
   }
 
   async store(request: Request, response: Response) {
@@ -41,7 +41,7 @@ export class ConsultantController {
     }
 
     const userBirthday = DateTime.fromISO(user.birthday);
-    const userPassword = await bcrypt.hash(user.password, 8);
+    const userPassword = await bcrypt.hash(user.password, 10);
 
     await prisma.representativeUser.create({
       data: {
@@ -73,11 +73,11 @@ export class ConsultantController {
     const userBirthday = DateTime.fromISO(user.birthday);
 
     const userPassword = user.password
-      ? await bcrypt.hash(user.password, 8)
+      ? await bcrypt.hash(user.password, 10)
       : undefined;
 
-    await prisma.representativeUser.updateMany({
-      where: { representativeId: id, role: "ADMIN" },
+    await prisma.representativeUser.update({
+      where: { id },
       data: {
         representativeId,
         cpf: user.cpf,

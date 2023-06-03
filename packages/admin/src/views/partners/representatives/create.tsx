@@ -17,7 +17,13 @@ import useSWR from 'swr'
 
 import { useForm } from 'react-hook-form'
 import { IoCheckmarkSharp } from 'react-icons/io5'
-import { maskCEP, maskCNPJ, maskCPF, maskPhone } from '../../../utils/masks'
+import {
+  maskCEP,
+  maskCNPJ,
+  maskCPF,
+  maskPhone,
+  removeMask
+} from '../../../utils/masks'
 import { ChakraSelect, Option } from '../../../components/chakra/ChakraSelect'
 import { z } from 'zod'
 import { validCnpj, validCpf } from '../../../utils/validate'
@@ -32,7 +38,7 @@ const schema = z
     fantasyName: z.string().min(3, 'Nome muito curto'),
     cnpj: z.string().min(18, 'CNPJ inválido'),
     email: z.string().email('E-mail inválido'),
-    phone: z.string().min(14, 'Telefone inválido'),
+    phone: z.string().min(15, 'Telefone inválido'),
     commissionPercentage: z.string(),
     consultantBonusPercentage: z.string(),
     address: z.object({
@@ -46,7 +52,7 @@ const schema = z
     user: z.object({
       name: z.string().nonempty(),
       email: z.string().email('E-mail inválido'),
-      phone: z.string().min(14, 'Telefone inválido'),
+      phone: z.string().min(15, 'Telefone inválido'),
       birthday: z.string().min(10, 'Data inválida'),
       cpf: z.string().min(14, 'CPF inválido'),
       password: z.string().min(6, 'Senha muito curta'),
@@ -112,10 +118,10 @@ export function CreateRepresentative() {
     })
 
   async function handleCreate(data: CreateRepresentativeForm) {
-    data.cnpj = data.cnpj.replace(/\D/g, '')
-    data.phone = data.phone.replace(/\D/g, '')
-    data.user.cpf = data.user.cpf.replace(/\D/g, '')
-    data.user.phone = data.user.phone.replace(/\D/g, '')
+    data.cnpj = removeMask(data.cnpj)
+    data.phone = removeMask(data.phone)
+    data.user.cpf = removeMask(data.user.cpf)
+    data.user.phone = removeMask(data.user.phone)
 
     const [isOk, response] = await storeRepresentative({
       ...data,

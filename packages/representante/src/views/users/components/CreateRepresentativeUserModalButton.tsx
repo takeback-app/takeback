@@ -24,12 +24,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { validCpf } from '../../../utils/validate'
 import { maskCPF, maskPhone } from '../../../utils/masks'
 import { ChakraPasswordInput } from '../../../components/chakra/ChakraPasswordInput'
+import { mutate } from 'swr'
 
 const schema = z
   .object({
     name: z.string().nonempty(),
     email: z.string().email('E-mail inválido'),
-    phone: z.string().min(14, 'Telefone inválido'),
+    phone: z.string().min(15, 'Telefone inválido'),
     birthday: z.string().min(10, 'Data inválida'),
     cpf: z.string().min(14, 'CPF inválido'),
     password: z.string().min(6, 'Senha muito curta'),
@@ -71,6 +72,7 @@ export function CreateRepresentativeUserModalButton() {
       status: 'success'
     })
 
+    await mutate('/representative/consultants')
     handleClose()
   }
 

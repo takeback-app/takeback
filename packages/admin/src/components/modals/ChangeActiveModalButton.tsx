@@ -82,7 +82,7 @@ export function ChangeActiveModalButton({
             <AlertDialogBody>
               <Text>
                 Tem certeza que deseja {isActive ? 'desativar' : 'ativar'} o
-                representante? Essa ação não pode ser desfeita.
+                representante? Essa ação não poderá ser desfeita.
               </Text>
               <br />
               <Text>
