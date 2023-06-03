@@ -37,6 +37,7 @@ import CompaniesReport from '../views/reports/companiesReport/CompaniesReport'
 import ResetPassword from '../views/auth/ResetPassword'
 import ForgotPassword from '../views/auth/ForgotPassword'
 import CashbackReport from '../views/reports/cashbackReport'
+import SelersReport from '../views/reports/salersReport/SalersReport'
 import { WithdrawOrderDetails } from '../views/cashbacks/cashbacksToPay/details'
 import { Raffles } from '../views/partners/raffles'
 import { RaffleDetail } from '../views/partners/raffles/RaffleDetail'
@@ -313,6 +314,14 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <CashbackReport />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/relatorios/vendedores"
+        element={
+          <PrivateRoute>
+            <SelersReport />
           </PrivateRoute>
         }
       />

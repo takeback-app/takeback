@@ -28,6 +28,7 @@ import { BonusController } from "../controllers/manager/bonus/BonusController";
 import { DashboardController } from "../controllers/manager/dashboard/DashboardController";
 import { NotificationSolicitationController } from "../controllers/manager/NotificationSolicitationController";
 import { LogoChangeRequestController } from "../controllers/manager/LogoChangeRequestController";
+import { SelersReportController } from "../controllers/manager/managerReports/SelersReportController";
 
 const paymentMethod = new PaymentMethodController();
 const managerAuth = new ManagerAuthController();
@@ -48,6 +49,7 @@ const managerRepresentatives = new RepresentativeController();
 const managerCompaniesUsers = new UserCompaniesController();
 const withDrawController = new WithDrawController();
 const logoChangeRequestController = new LogoChangeRequestController();
+const selersReport = new SelersReportController();
 
 const notificationSolicitationController =
   new NotificationSolicitationController();
@@ -162,6 +164,11 @@ routes.put("/montlhy/update", managerCompanyMontlhy.updatePaymentMonthlyPlan);
 routes.post("/support/register", managerSupport.registerSupportUser);
 routes.put("/support/update/:id", managerSupport.updateSupportUser);
 routes.get("/support/find/all", managerSupport.findAllSupportUsers);
+
+routes.get("/report/selers", selersReport.index);
+routes.get("/report/selers/pdf", selersReport.getPdf);
+routes.get("/report/selers/excel", selersReport.getExcel);
+routes.get("/report/selers/totalizer", selersReport.totalizer);
 
 routes.get("/report/find/filters", managerReports.findFilterOptions);
 routes.get("/report/payment-order", managerReports.paymentOrderReport);
