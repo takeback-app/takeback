@@ -7,7 +7,30 @@ interface Props {
 
 class FindPendingCashbacksUseCase {
   async execute({ companyId, order = "asc" }: Props) {
-    return prisma.transaction.findMany({
+    const monthlyPayments = await prisma.companyMonthlyPayment.findMany({
+      where: {
+        companyId,
+        isPaid: false,
+        isForgiven: false,
+        paymentMade: false,
+      },
+    });
+
+    const monthlyTransaction = monthlyPayments.map((m) => ({
+      id: `Mensalidade - ${m.id}`,
+      totalAmount: 0,
+      dateAt: m.dueDate,
+      createdAt: m.createdAt,
+      takebackFeeAmount: m.amountPaid,
+      cashbackAmount: 0,
+      backAmount: 0,
+      consumer: { fullName: "Mensalidade" },
+      transactionPaymentMethods: [],
+      transactionStatus: { description: "Pendente" },
+      companyUser: { name: "-" },
+    }));
+
+    const transactions = await prisma.transaction.findMany({
       select: {
         id: true,
         totalAmount: true,
@@ -16,47 +39,27 @@ class FindPendingCashbacksUseCase {
         takebackFeeAmount: true,
         cashbackAmount: true,
         backAmount: true,
+        consumer: { select: { fullName: true } },
+        transactionStatus: { select: { description: true } },
+        companyUser: { select: { name: true } },
         transactionPaymentMethods: {
           select: {
             companyPaymentMethod: {
-              select: {
-                paymentMethod: {
-                  select: {
-                    description: true,
-                  },
-                },
-              },
+              select: { paymentMethod: { select: { description: true } } },
             },
-          },
-        },
-        consumer: {
-          select: {
-            fullName: true,
-          },
-        },
-        transactionStatus: {
-          select: {
-            description: true,
-          },
-        },
-        companyUser: {
-          select: {
-            name: true,
           },
         },
       },
       where: {
         companiesId: companyId,
-        transactionStatus: {
-          description: {
-            in: ["Pendente", "Em atraso"],
-          },
-        },
+        transactionStatus: { description: { in: ["Pendente", "Em atraso"] } },
       },
-      orderBy: {
-        id: order,
-      },
+      orderBy: { id: order },
     });
+
+    return transactions
+      .concat(monthlyTransaction as any)
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
   }
 }
 

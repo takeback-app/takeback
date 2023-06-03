@@ -3,6 +3,7 @@ import { InternalError } from "../../../config/GenerateErros";
 import { Companies } from "../../../database/models/Company";
 import { CompanyMonthlyPayment } from "../../../database/models/CompanyMonthlyPayment";
 import { CompanyStatus } from "../../../database/models/CompanyStatus";
+import { MonthlyPaymentPaidUseCase } from "../../../useCases/shared/MonthlyPaymentPaidUseCase";
 
 interface Props {
   monthlyIds: Array<number>;
@@ -16,6 +17,8 @@ class ConfirmPaymentOfMonthiesUseCase {
 
     const successUpdate = [];
 
+    const useCase = new MonthlyPaymentPaidUseCase();
+
     await Promise.all(
       monthlyIds.map(async (item) => {
         // Buscando a empresa referente à mensalidade
@@ -28,18 +31,7 @@ class ConfirmPaymentOfMonthiesUseCase {
           return "Falha ao atualizar";
         }
 
-        // Atualizando o status da mensalidade enviada
-        const updated = await getRepository(CompanyMonthlyPayment).update(
-          monthly.id,
-          {
-            isPaid: true,
-            paidDate: new Date(),
-          }
-        );
-
-        if (updated.affected === 0) {
-          return "Falha ao atualizar";
-        }
+        await useCase.execute(monthly.id);
 
         // Buscando mensalidades atrasadas e não perdoadas da empresa
         const companyMonthlies = await getRepository(

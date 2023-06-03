@@ -18,6 +18,15 @@ export abstract class GenerateCommission {
     });
   }
 
+  protected getMonthlyPayment(monthlyPaymentId: number) {
+    return prisma.companyMonthlyPayment.findUniqueOrThrow({
+      where: { id: monthlyPaymentId },
+      include: {
+        company: { include: { representative: true } },
+      },
+    });
+  }
+
   protected updateRepresentativeBalance(
     representative: Representative,
     commission: Commission
