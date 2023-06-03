@@ -14,7 +14,7 @@ export async function updateCompany(id: string, data: any): Promise<ReturnApi> {
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }
@@ -29,7 +29,7 @@ export async function storeCompany(data: any): Promise<ReturnApi> {
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }
@@ -50,7 +50,7 @@ export async function resetRootUser(
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }
@@ -68,7 +68,7 @@ export async function updateCompanyConsultant(
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }

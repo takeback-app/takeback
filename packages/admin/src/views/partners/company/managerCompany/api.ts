@@ -19,7 +19,7 @@ export async function updateCompanyRepresentative(
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }

@@ -7,18 +7,19 @@ import React, {
 } from 'react'
 import { FormHandles } from '@unform/core'
 import * as Yup from 'yup'
-import { IoCreateOutline, IoKeyOutline } from 'react-icons/io5'
 
 import { API } from '../../services/API'
 import { maskCPF } from '../../utils/masks'
 
 import * as S from './styles'
-import { Button, useToast } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { CompanyUsersTypes } from '../../types/TCompanyUsers'
 import Layout from '../../components/ui/Layout/Layout'
 import { chakraToastConfig } from '../../styles/chakraToastConfig'
 import { RepresentativeUsers } from '../../types/TRepresentativeUsers'
+import { CreateRepresentativeUserModalButton } from './components/CreateRepresentativeUserModalButton'
+import { EditRepresentativeUserModalButton } from './components/EditRepresentativeUserModalButton'
 
 interface UpdatePasswordFormProps {
   userName: string
@@ -49,7 +50,8 @@ export function Users() {
   >([])
 
   const [editVisible, setEditVisible] = useState(false)
-  const [registerVisible, setRegisterVisible] = useState(false)
+  const [isOpenCreateModal, setIsOpenCreateModal] = useState(false)
+  const [onCloseCreateModal, setOnCloseCreateModal] = useState(false)
   const [visible, setVisible] = useState(false)
   const [disabled, setDisabled] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -73,35 +75,35 @@ export function Users() {
       })
   }, [toast])
 
-  // const openEdit = (item: CompanyUsersTypes) => {
-  //   setEditVisible(true)
-  //   formRefUpdateUser.current?.setData({
-  //     name: item.name,
-  //     office: item.companyUserType.id,
-  //     email: item.email,
-  //     status: item.isActive ? 0 : 1,
-  //     cpf: maskCPF(item.cpf || '')
-  //   })
+  const openEdit = (item: CompanyUsersTypes) => {
+    setEditVisible(true)
+    formRefUpdateUser.current?.setData({
+      name: item.name,
+      office: item.companyUserType.id,
+      email: item.email,
+      status: item.isActive ? 0 : 1,
+      cpf: maskCPF(item.cpf || '')
+    })
 
-  //   if (item.isRootUser) {
-  //     setDisabled(true)
-  //   } else {
-  //     setDisabled(false)
-  //   }
+    if (item.isRootUser) {
+      setDisabled(true)
+    } else {
+      setDisabled(false)
+    }
 
-  //   if (item.companyUserType.isManager) {
-  //     setIsManagerUser(true)
-  //   } else {
-  //     setIsManagerUser(false)
-  //   }
+    if (item.companyUserType.isManager) {
+      setIsManagerUser(true)
+    } else {
+      setIsManagerUser(false)
+    }
 
-  //   setUserId(item.id)
-  //   setCpf(maskCPF(item.cpf || ''))
-  // }
+    setUserId(item.id)
+    setCpf(maskCPF(item.cpf || ''))
+  }
 
   const onCancel = () => {
     setEditVisible(false)
-    setRegisterVisible(false)
+    // setRegisterVisible(false)
     setIsManagerUser(true)
   }
 
@@ -125,80 +127,80 @@ export function Users() {
     formRefUpdateUserPassword.current?.reset()
   }
 
-  // async function validateDataToUpdate(data: {
-  //   name: string
-  //   email: string
-  //   office: string
-  //   status: string
-  //   cpf: string
-  // }) {
-  //   try {
-  //     const schema = Yup.object().shape({
-  //       name: Yup.string().min(4).required('Informe o nome')
-  //     })
+  async function validateDataToUpdate(data: {
+    name: string
+    email: string
+    office: string
+    status: string
+    cpf: string
+  }) {
+    try {
+      const schema = Yup.object().shape({
+        name: Yup.string().min(4).required('Informe o nome')
+      })
 
-  //     await schema.validate(data, {
-  //       abortEarly: false
-  //     })
+      await schema.validate(data, {
+        abortEarly: false
+      })
 
-  //     if (isManagerUser && !data.email) {
-  //       return toast({
-  //         title: 'Atenção!',
-  //         description: 'Informe o email',
-  //         status: 'warning'
-  //       })
-  //     }
+      if (isManagerUser && !data.email) {
+        return toast({
+          title: 'Atenção!',
+          description: 'Informe o email',
+          status: 'warning'
+        })
+      }
 
-  //     if (isManagerUser && !data.cpf) {
-  //       return toast({
-  //         title: 'Atenção!',
-  //         description: 'Informe o cpf',
-  //         status: 'warning'
-  //       })
-  //     }
+      if (isManagerUser && !data.cpf) {
+        return toast({
+          title: 'Atenção!',
+          description: 'Informe o cpf',
+          status: 'warning'
+        })
+      }
 
-  //     setLoading(true)
-  //     API.put(`/company/user/update/${userId}`, {
-  //       userTypeId: data.office,
-  //       name: data.name.replace(/\s+$/, ''),
-  //       email: data.email?.replace(/\s/g, ''),
-  //       isActive: data.status === '0',
-  //       cpf: data.cpf.replace(/[^\d]/g, '')
-  //     })
-  //       .then(response => {
-  //         toast({
-  //           title: 'Sucesso!',
-  //           description: response.data,
-  //           status: 'success'
-  //         })
-  //         findRepresentativeUsers()
-  //       })
-  //       .catch(error => {
-  //         toast({
-  //           title: 'Atenção',
-  //           description: error.response.data.message,
-  //           status: 'error'
-  //         })
-  //       })
-  //       .finally(() => {
-  //         setLoading(false)
-  //         onCancel()
-  //       })
+      setLoading(true)
+      API.put(`/company/user/update/${userId}`, {
+        userTypeId: data.office,
+        name: data.name.replace(/\s+$/, ''),
+        email: data.email?.replace(/\s/g, ''),
+        isActive: data.status === '0',
+        cpf: data.cpf.replace(/[^\d]/g, '')
+      })
+        .then(response => {
+          toast({
+            title: 'Sucesso!',
+            description: response.data,
+            status: 'success'
+          })
+          findRepresentativeUsers()
+        })
+        .catch(error => {
+          toast({
+            title: 'Atenção',
+            description: error.response.data.message,
+            status: 'error'
+          })
+        })
+        .finally(() => {
+          setLoading(false)
+          onCancel()
+        })
 
-  //     formRefUpdateUser.current?.setErrors({})
-  //   } catch (error) {
-  //     if (error instanceof Yup.ValidationError) {
-  //       // eslint-disable-next-line
-  //       const validationErrors: any = {}
+      formRefUpdateUser.current?.setErrors({})
+    } catch (error) {
+      if (error instanceof Yup.ValidationError) {
+        // eslint-disable-next-line
+        const validationErrors: any = {}
 
-  //       error.inner.forEach(err => {
-  //         validationErrors[err.path] = err.message
-  //       })
+        error.inner.forEach(err => {
+          validationErrors[err.path] = err.message
+        })
 
-  //       formRefUpdateUser.current?.setErrors(validationErrors)
-  //     }
-  //   }
-  // }
+        formRefUpdateUser.current?.setErrors(validationErrors)
+      }
+    }
+  }
 
   async function validateDataToRegister(data: {
     userName: string
@@ -270,7 +272,7 @@ export function Users() {
             status: 'success'
           })
 
-          setRegisterVisible(false)
+          // setRegisterVisible(false)
           findRepresentativeUsers()
           formRefRegisterUser.current?.reset()
           setCpf('')
@@ -358,10 +360,12 @@ export function Users() {
     }
   }
 
-  function toggleRegisterVisible() {
-    setCpf('')
-    formRefRegisterUser.current?.reset()
-    setRegisterVisible(true)
+  function openCreateModal() {
+    setIsOpenCreateModal(true)
+  }
+
+  function closeCreateModal() {
+    setOnCloseCreateModal(true)
   }
 
   useEffect(() => {
@@ -372,9 +376,7 @@ export function Users() {
     <Layout title="Consultores">
       <S.Container>
         <S.SubHeader>
-          <Button colorScheme="blue" onClick={toggleRegisterVisible}>
-            Adicionar
-          </Button>
+          <CreateRepresentativeUserModalButton />
         </S.SubHeader>
         <S.Table>
           <S.THead>
@@ -382,7 +384,7 @@ export function Users() {
               <S.Th>Nome</S.Th>
               <S.Th>CPF</S.Th>
               <S.Th>Perfil</S.Th>
-              {/* <S.Th>&nbsp;</S.Th> */}
+              <S.Th>&nbsp;</S.Th>
             </S.Tr>
           </S.THead>
           <S.TBody>
@@ -391,22 +393,21 @@ export function Users() {
                 <S.Td>{item.name}</S.Td>
                 <S.Td>{item.cpf}</S.Td>
                 <S.Td>{roleText[item.role]}</S.Td>
-                {/* <S.Td>
+                <S.Td>
                   <S.ButtonWrapper>
-                    <Button>
-                      <IoKeyOutline />
-                    </Button>
+                    <EditRepresentativeUserModalButton />
 
-                    <Button>
+                    {/* <Button>
                       <IoCreateOutline />
-                    </Button>
+                    </Button> */}
                   </S.ButtonWrapper>
-                </S.Td> */}
+                </S.Td>
               </S.Tr>
             ))}
           </S.TBody>
         </S.Table>
       </S.Container>
+
       {/* <DefaultModal title="Editar" visible={editVisible} onClose={onCancel}>
         <Form ref={formRefUpdateUser} onSubmit={validateDataToUpdate}>
           <S.ModalContent>
@@ -450,59 +451,7 @@ export function Users() {
         </Form>
       </DefaultModal>
 
-      <DefaultModal
-        title="Cadastrar"
-        visible={registerVisible}
-        onClose={onCancel}
-      >
-        <Form ref={formRefRegisterUser} onSubmit={validateDataToRegister}>
-          <S.ModalContent>
-            <S.InputsWrapper>
-              <PrimaryInput name="userName" label="Nome" />
-              <SelectInput
-                label="Função"
-                name="office"
-                disabled={false}
-                options={companyUsersOffice}
-                onChange={e => verifyUserType(e.currentTarget.value)}
-              />
-              {isManagerUser && (
-                <>
-                  <PrimaryInput name="email" label="Email" />
-                </>
-              )}
-              <PrimaryInput
-                name="cpf"
-                label="CPF"
-                maxLength={14}
-                value={cpf}
-                onChange={e => setCpf(maskCPF(e.currentTarget.value))}
-              />
-              {!isManagerUser && (
-                <>
-                  <PasswordInput
-                    name="password"
-                    label="Senha"
-                    toggle={toggle}
-                    visible={visible}
-                  />
-                  <PasswordInput
-                    name="confirmPassword"
-                    label="Confirme a senha"
-                    toggle={toggle}
-                    visible={visible}
-                  />
-                </>
-              )}
-            </S.InputsWrapper>
-            <S.Footer>
-              <OutlinedButton type="submit" color={theme.colors['blue-600']}>
-                <span>Salvar</span>
-              </OutlinedButton>
-            </S.Footer>
-          </S.ModalContent>
-        </Form>
-      </DefaultModal>
+
 
       <DefaultModal
         title="Redefinir senha"

@@ -60,6 +60,7 @@ routes.get("/cashback/find/status", cashbackHistoricController.findStatus);
 routes.put("/user/password", authController.updatePassword);
 
 routes.get("/users", representativeUserController.index);
+routes.post("/users", representativeUserController.store);
 
 routes.get("/cities", dataController.cities);
 routes.get("/industries", dataController.industries);

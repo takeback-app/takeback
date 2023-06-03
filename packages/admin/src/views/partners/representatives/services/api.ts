@@ -13,7 +13,7 @@ export async function storeRepresentative(data: any): Promise<ReturnApi> {
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }
@@ -30,7 +30,7 @@ export async function activateRepresentative(id: string): Promise<ReturnApi> {
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }
@@ -47,7 +47,7 @@ export async function deactivateRepresentative(id: string): Promise<ReturnApi> {
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }
@@ -68,7 +68,7 @@ export async function updateRepresentative(
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }
