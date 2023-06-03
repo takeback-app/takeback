@@ -11,6 +11,15 @@ export class ConsultantController {
 
     const users = await prisma.representativeUser.findMany({
       where: { representativeId, role: "CONSULTANT" },
+      select: {
+        name: true,
+        cpf: true,
+        email: true,
+        phone: true,
+        birthDay: true,
+        birthMonth: true,
+        birthYear: true,
+      },
     });
 
     return response.status(200).json({
