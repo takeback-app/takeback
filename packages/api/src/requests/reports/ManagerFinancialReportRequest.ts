@@ -10,5 +10,6 @@ export const ManagerFinancialReportRequest = z
     citiesIds: z.string().array().optional(),
     statesIds: z.string().array().optional(),
     monthlyPaymentStatus: z.string().optional(),
+    sort: z.string().optional(),
   })
   .strict();

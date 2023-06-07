@@ -19,6 +19,7 @@ export class FinancialReportController {
       statesIds,
       transactionStatus,
       monthlyPaymentStatus,
+      sort,
     } = form.data;
 
     const report = new ManagerFinancialReport();
@@ -38,6 +39,7 @@ export class FinancialReportController {
             : undefined,
         monthlyPaymentStatus: Number(monthlyPaymentStatus),
         transactionStatus: Number(transactionStatus),
+        sort,
       }
     );
 
@@ -54,10 +56,11 @@ export class FinancialReportController {
     const {
       dateStart,
       dateEnd,
-      orderByColumn,
-      order,
+      citiesIds,
+      statesIds,
       transactionStatus,
       monthlyPaymentStatus,
+      sort,
     } = form.data;
 
     const report = new ManagerFinancialReport();
@@ -65,10 +68,17 @@ export class FinancialReportController {
     const excel = await report.getExcel({
       dateEnd,
       dateStart,
-      order,
-      orderByColumn,
+      citiesIds:
+        citiesIds && citiesIds.length
+          ? citiesIds.map((id) => Number(id))
+          : undefined,
+      statesIds:
+        statesIds && statesIds.length
+          ? statesIds.map((id) => Number(id))
+          : undefined,
       monthlyPaymentStatus: Number(monthlyPaymentStatus),
       transactionStatus: Number(transactionStatus),
+      sort,
     });
 
     excel.write("Relatório Financeiro.xlsx", response);
@@ -84,10 +94,11 @@ export class FinancialReportController {
     const {
       dateStart,
       dateEnd,
-      orderByColumn,
-      order,
+      citiesIds,
+      statesIds,
       transactionStatus,
       monthlyPaymentStatus,
+      sort,
     } = form.data;
 
     const report = new ManagerFinancialReport();
@@ -95,10 +106,17 @@ export class FinancialReportController {
     const pdf = await report.getPdf({
       dateEnd,
       dateStart,
-      order,
-      orderByColumn,
+      citiesIds:
+        citiesIds && citiesIds.length
+          ? citiesIds.map((id) => Number(id))
+          : undefined,
+      statesIds:
+        statesIds && statesIds.length
+          ? statesIds.map((id) => Number(id))
+          : undefined,
       monthlyPaymentStatus: Number(monthlyPaymentStatus),
       transactionStatus: Number(transactionStatus),
+      sort,
     });
 
     response.setHeader("Content-type", "application/pdf");
