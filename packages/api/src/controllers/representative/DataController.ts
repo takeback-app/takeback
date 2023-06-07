@@ -12,7 +12,9 @@ export class DataController {
   }
 
   async industries(_request: Request, response: Response) {
-    const industries = await prisma.industry.findMany();
+    const industries = await prisma.industry.findMany({
+      select: { id: true, description: true },
+    });
 
     return response.json(
       industries.map((industry) => ({
@@ -27,6 +29,7 @@ export class DataController {
 
     const users = await prisma.representativeUser.findMany({
       where: { representativeId, role: "CONSULTANT" },
+      select: { id: true, name: true },
     });
 
     return response.json(

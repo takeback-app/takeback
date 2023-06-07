@@ -67,7 +67,7 @@ routes.post("/consultants/:id/deactivate", consultantController.deactivate);
 
 routes.get("/cities", dataController.cities);
 routes.get("/industries", dataController.industries);
-routes.get("/consultants", dataController.consultants);
+routes.get("/select-consultants", dataController.consultants);
 routes.get("/payment-plans", dataController.paymentPlans);
 
 export default routes;

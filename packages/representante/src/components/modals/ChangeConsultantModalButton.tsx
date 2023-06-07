@@ -21,6 +21,7 @@ import { chakraToastConfig } from '../../styles/chakraToastConfig'
 import { Option, ChakraSelect } from '../chakra/ChakraSelect'
 
 import useSWR from 'swr'
+import { useNavigate } from 'react-router'
 
 interface FormValues {
   consultantId: string
@@ -35,7 +36,11 @@ export function ChangeConsultantModalButton({
   companyId,
   consultantId
 }: ChangeConsultantModalButtonButtonProps) {
-  const { data: consultants } = useSWR<Option[]>('representative/consultants')
+  const navigateTo = useNavigate()
+
+  const { data: consultants } = useSWR<Option[]>(
+    'representative/select-consultants'
+  )
 
   const toast = useToast(chakraToastConfig)
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -60,6 +65,8 @@ export function ChangeConsultantModalButton({
       description: response.message,
       status: 'success'
     })
+
+    navigateTo(-1)
 
     handleClose()
   }
