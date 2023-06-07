@@ -14,6 +14,11 @@ export class DashboardController {
       _count: true,
     });
 
+    const representatives = await prisma.representative.aggregate({
+      _sum: { balance: true },
+      _count: true,
+    });
+
     const companies = await prisma.company.aggregate({
       _sum: { positiveBalance: true },
       _count: true,
@@ -42,6 +47,8 @@ export class DashboardController {
       consumerCount: +consumers._count,
       companyBalance: +companies._sum.positiveBalance,
       companyCount: +companies._count,
+      representativeBalance: +representatives._sum.balance,
+      representativeCount: +representatives._count,
       pendingCashbackAmount: +pendingCashbacks._sum.cashbackAmount,
       pendingFeeAmount: +pendingCashbacks._sum.takebackFeeAmount,
     });

@@ -21,9 +21,15 @@ interface Withdraw {
   id: string
   value: number
   pixKey: string
-  company: {
+  company?: {
     id: string
     fantasyName: string
+    positiveBalance: string
+  }
+  representative?: {
+    id: string
+    fantasyName: string
+    balance: string
   }
   status: {
     id: number
@@ -70,7 +76,7 @@ export function CashbackWithdraw() {
       >
         <Thead>
           <Tr>
-            <Th>Empresa</Th>
+            <Th>Empresa/Representante</Th>
             <Th>Status</Th>
             <Th>Valor</Th>
             <Th>Chave Pix</Th>
@@ -80,9 +86,17 @@ export function CashbackWithdraw() {
         </Thead>
         <Tbody>
           {data.data.map(
-            ({ createdAt, id, pixKey, status, value, company }) => (
+            ({
+              createdAt,
+              id,
+              pixKey,
+              status,
+              value,
+              company,
+              representative
+            }) => (
               <Tr color="gray.500" key={id}>
-                <Td>{company.fantasyName}</Td>
+                <Td>{company?.fantasyName || representative?.fantasyName}</Td>
                 <Td fontSize="xs" color={statusColor[status.description]}>
                   {status.description.toUpperCase()}
                 </Td>

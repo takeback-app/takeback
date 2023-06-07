@@ -63,8 +63,6 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [modalMontlyVisible, setModalMontlyVisible] = useState(false)
   const [modalForgotPassVisible, setModalForgotPassVisible] = useState(false)
   const [modalProvisionalAccess, setModalProvisionalAccess] = useState(false)
-  const [representativeModalVisible, setRepresentativeModalVisible] =
-    useState(false)
 
   const [registeredNumber, setRegisteredNumber] = useState('')
 
@@ -250,12 +248,12 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
             color="#009933"
             onClick={() => setModalProvisionalAccess(true)}
           />
-          <ReportButton
-            label="Alterar Representante"
-            icon={IoPersonOutline}
-            color="#0088cc"
-            onClick={() => setRepresentativeModalVisible(true)}
-          />
+          {!loading && (
+            <RepresentativeModal
+              companyId={id || ''}
+              representativeId={company.company_representativeId}
+            />
+          )}
         </S.SubHeader>
 
         <Form ref={formRef} onSubmit={validateDataEdit}>
@@ -377,11 +375,6 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
       <ModalForgotPassword
         visible={modalForgotPassVisible}
         onClose={() => setModalForgotPassVisible(false)}
-      />
-
-      <RepresentativeModal
-        visible={representativeModalVisible}
-        onClose={() => setRepresentativeModalVisible(false)}
       />
     </Layout>
   )
