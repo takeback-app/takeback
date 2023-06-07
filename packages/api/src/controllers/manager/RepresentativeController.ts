@@ -141,6 +141,7 @@ export class RepresentativeController {
         ...representative.address,
         city: String(representative.address.city.name),
         state: String(representative.address.city.state.initials),
+        ibgeCode: String(representative.address.city.ibgeCode),
         zipCode: maskCEP(representative.address.zipCode),
       },
       commissionPercentage: String(+representative.commissionPercentage * 100),
