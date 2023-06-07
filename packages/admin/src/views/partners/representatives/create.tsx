@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FocusEvent } from 'react'
 
 import {
   Button,
@@ -13,7 +13,6 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { useNavigate } from 'react-router'
-import useSWR from 'swr'
 
 import { useForm } from 'react-hook-form'
 import { IoCheckmarkSharp } from 'react-icons/io5'
@@ -24,7 +23,6 @@ import {
   maskPhone,
   removeMask
 } from '../../../utils/masks'
-import { ChakraSelect, Option } from '../../../components/chakra/ChakraSelect'
 import { z } from 'zod'
 import { validCnpj, validCpf } from '../../../utils/validate'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -32,6 +30,8 @@ import Layout from '../../../components/ui/Layout/Layout'
 import { chakraToastConfig } from '../../../styles/chakraToastConfig'
 import { ChakraInput } from '../../../components/chakra/ChakraInput'
 import { storeRepresentative } from './services/api'
+import axios from 'axios'
+import { ViaCepCepResponse } from './types'
 
 const schema = z
   .object({
@@ -47,7 +47,9 @@ const schema = z
       number: z.string(),
       complement: z.string(),
       zipCode: z.string(),
-      cityId: z.string()
+      city: z.string(),
+      state: z.string(),
+      ibgeCode: z.string().nonempty({ message: 'CEP inválido' })
     }),
     user: z.object({
       name: z.string().nonempty(),
@@ -106,13 +108,13 @@ const schema = z
 type CreateRepresentativeForm = z.infer<typeof schema>
 
 export function CreateRepresentative() {
-  const { data: cities } = useSWR<Option[]>('manager/cities')
+  const [isLoadingAddress, setLoadingAddress] = React.useState(false)
 
   const navigateTo = useNavigate()
 
   const toast = useToast(chakraToastConfig)
 
-  const { register, handleSubmit, formState } =
+  const { register, handleSubmit, formState, setError, setValue, clearErrors } =
     useForm<CreateRepresentativeForm>({
       resolver: zodResolver(schema)
     })
@@ -144,6 +146,40 @@ export function CreateRepresentative() {
     })
 
     navigateTo(-1)
+  }
+
+  async function searchZipCode(e: FocusEvent<HTMLInputElement>) {
+    if (e.target.value.length < 9) return
+
+    setLoadingAddress(true)
+
+    const zipCode = e.target.value
+
+    const { data } = await axios.get<ViaCepCepResponse>(
+      `https://viacep.com.br/ws/${zipCode}/json/`
+    )
+
+    if (data.erro) {
+      setLoadingAddress(false)
+
+      setValue('address.street', '')
+      setValue('address.district', '')
+      setValue('address.ibgeCode', '')
+      setValue('address.city', '')
+      setValue('address.complement', '')
+
+      return setError('address.zipCode', { message: 'CEP inválido' })
+    }
+
+    clearErrors('address.zipCode')
+
+    setValue('address.street', data.logradouro)
+    setValue('address.district', data.bairro)
+    setValue('address.ibgeCode', data.ibge)
+    setValue('address.city', data.localidade)
+    setValue('address.state', data.uf)
+
+    setLoadingAddress(false)
   }
 
   return (
@@ -226,8 +262,26 @@ export function CreateRepresentative() {
           <CardBody>
             <SimpleGrid columns={[1, 2, 3, 4]} gap={8}>
               <ChakraInput
+                label="CEP"
+                size="sm"
+                isDisabled={isLoadingAddress}
+                isRequired
+                error={
+                  formState.errors.address?.zipCode?.message ||
+                  formState.errors.address?.ibgeCode?.message
+                }
+                {...register('address.zipCode', {
+                  onChange: e => {
+                    e.target.value = maskCEP(e.target.value)
+                  },
+                  onBlur: searchZipCode
+                })}
+              />
+
+              <ChakraInput
                 label="Rua"
                 size="sm"
+                isDisabled={isLoadingAddress}
                 isRequired
                 error={formState.errors.address?.street?.message}
                 {...register('address.street')}
@@ -235,6 +289,7 @@ export function CreateRepresentative() {
               <ChakraInput
                 label="Número"
                 size="sm"
+                isDisabled={isLoadingAddress}
                 isRequired
                 error={formState.errors.address?.number?.message}
                 {...register('address.number')}
@@ -242,6 +297,7 @@ export function CreateRepresentative() {
               <ChakraInput
                 label="Complemento"
                 size="sm"
+                isDisabled={isLoadingAddress}
                 error={formState.errors.address?.complement?.message}
                 {...register('address.complement')}
               />
@@ -249,31 +305,36 @@ export function CreateRepresentative() {
               <ChakraInput
                 label="Bairro"
                 size="sm"
+                isDisabled={isLoadingAddress}
                 isRequired
                 error={formState.errors.address?.district?.message}
                 {...register('address.district')}
               />
 
               <ChakraInput
-                label="CEP"
-                size="sm"
-                isRequired
-                error={formState.errors.address?.zipCode?.message}
-                {...register('address.zipCode', {
-                  onChange: e => {
-                    e.target.value = maskCEP(e.target.value)
-                  }
-                })}
-              />
-
-              <ChakraSelect
                 label="Cidade"
                 size="sm"
-                options={cities ?? []}
+                isReadOnly
                 isRequired
-                placeholderOption="Selecione uma cidade"
-                error={formState.errors.address?.cityId?.message}
-                {...register('address.cityId')}
+                error={formState.errors.address?.city?.message}
+                {...register('address.city')}
+              />
+
+              <ChakraInput
+                label="Estado (UF)"
+                size="sm"
+                isReadOnly
+                isRequired
+                error={formState.errors.address?.state?.message}
+                {...register('address.state')}
+              />
+
+              <ChakraInput
+                label="IBGE"
+                size="sm"
+                hidden
+                isDisabled={isLoadingAddress}
+                {...register('address.ibgeCode')}
               />
             </SimpleGrid>
           </CardBody>

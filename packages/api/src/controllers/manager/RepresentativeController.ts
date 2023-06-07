@@ -4,6 +4,7 @@ import { prisma } from "../../prisma";
 import { DateTime } from "luxon";
 import { InternalError } from "../../config/GenerateErros";
 import { maskCEP, maskCNPJ, maskCPF, maskPhone } from "../../utils/Masks";
+import { CityFirstOrCreateUseCase } from "../../useCases/shared/CityFirstOrCreateUseCase";
 
 const PER_PAGE = 25;
 
@@ -46,7 +47,19 @@ export class RepresentativeController {
       throw new InternalError("Representante (CPF) já cadastrado", 400);
     }
 
-    address.cityId = Number(address.cityId);
+    const cityUseCase = new CityFirstOrCreateUseCase();
+
+    const city = await cityUseCase.handle({
+      ibgeCode: address.ibgeCode,
+      city: address.city,
+      state: address.state,
+    });
+
+    delete address.city;
+    delete address.ibgeCode;
+    delete address.state;
+
+    address.cityId = city.id;
 
     const representativeAddress = await prisma.representativeAddress.create({
       data: address,
@@ -101,7 +114,7 @@ export class RepresentativeController {
             district: true,
             complement: true,
             zipCode: true,
-            cityId: true,
+            city: { include: { state: true } },
           },
         },
       },
@@ -126,7 +139,8 @@ export class RepresentativeController {
       phone: maskPhone(representative.phone),
       address: {
         ...representative.address,
-        cityId: String(representative.address.cityId),
+        city: String(representative.address.city.name),
+        state: String(representative.address.city.state.initials),
         zipCode: maskCEP(representative.address.zipCode),
       },
       commissionPercentage: String(+representative.commissionPercentage * 100),
@@ -156,7 +170,19 @@ export class RepresentativeController {
       data,
     });
 
-    address.cityId = Number(address.cityId);
+    const cityUseCase = new CityFirstOrCreateUseCase();
+
+    const city = await cityUseCase.handle({
+      ibgeCode: address.ibgeCode,
+      city: address.city,
+      state: address.state,
+    });
+
+    delete address.city;
+    delete address.ibgeCode;
+    delete address.state;
+
+    address.cityId = city.id;
 
     await prisma.representativeAddress.update({
       where: { id: representative.representativeAddressId },
