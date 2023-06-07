@@ -48,6 +48,7 @@ import { Representatives } from '../views/partners/representatives'
 import { EditRepresentative } from '../views/partners/representatives/edit'
 import { CreateRepresentative } from '../views/partners/representatives/create'
 import { LogoChangeRequest } from '../views/partners/logoChangeRequest'
+import FinancialReport from '../views/reports/financialReport/FinancialReport'
 
 interface Props {
   children: JSX.Element
