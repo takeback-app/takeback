@@ -14,9 +14,7 @@ class ReportCashbackByPaymentMethodUseCase {
   async execute({ companyId }: Props) {
     const date = new Date();
     let today = date;
-    let sevenDaysAgo = new Date(
-      date.setDate(date.getDate() - 7)
-    );
+    let sevenDaysAgo = new Date(date.setDate(date.getDate() - 7));
 
     // Buscando os status de transações válidos
     const transactionStatus = await getRepository(TransactionStatus).find({

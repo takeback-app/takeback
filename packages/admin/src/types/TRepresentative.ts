@@ -1,12 +1,13 @@
 export type TRepresentative = {
   id: string
-  name: string
-  cpf: string
+  fantasyName: string
+  cnpj: string
   phone: string
-  isActive: boolean
   email: string
-  gainPercentage: number
-  whatsapp: string
+  isActive: boolean
+  balance: string
+  commissionPercentage: string
+  consultantBonusPercentage: string
   createdAt: string
   updatedAt: string
 }

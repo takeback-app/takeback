@@ -38,7 +38,7 @@ export async function approveSolicitation(
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }
@@ -55,7 +55,7 @@ export async function reproveSolicitation(
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }

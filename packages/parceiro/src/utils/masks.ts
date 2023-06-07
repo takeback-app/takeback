@@ -33,12 +33,12 @@ export const maskCNPJ = (value: string): string => {
     .replace(/(\d{4})(\d)/, '$1-$2')
 }
 
-export function maskPhone(value: string) {
-  const match = value.replace(/\D/g, '').match(/^(\d{2})(\d{5})(\d{4})$/)
-
-  if (!match) return null
-
-  return `(${match[1]}) ${match[2]}-${match[3]}`
+export const maskPhone = (value: string) => {
+  return value
+    .replace(/\D/g, '')
+    .replace(/(\d{2})(\d)/, '($1) $2')
+    .replace(/(\d{5})(\d)/, '$1-$2')
+    .replace(/(-\d{4})(\d+?)$/, '$1')
 }
 
 export const maskCEP = (value: string): string => {

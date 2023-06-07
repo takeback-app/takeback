@@ -1,5 +1,3 @@
-import { PaymentPlan } from "@prisma/client";
-
 import { GenerateBonus } from "./GenerateBonus";
 
 import { prisma } from "../../../prisma";
@@ -8,8 +6,10 @@ export class GenerateSellBonus extends GenerateBonus {
   async create(transactionId: number) {
     const transaction = await this.getTransaction(transactionId);
 
-    const takebackBonus = this.getValidBonusCalculator(
-      transaction.company.paymentPlan
+    if (transaction.totalAmount.toNumber() <= 10) return;
+
+    const takebackBonus = await this.getValidBonusCalculator(
+      transaction.company.paymentPlanId
     );
 
     if (!takebackBonus) return;
@@ -37,7 +37,12 @@ export class GenerateSellBonus extends GenerateBonus {
     return bonus;
   }
 
-  getValidBonusCalculator(paymentPlan: PaymentPlan) {
+  async getValidBonusCalculator(paymentPlanId: number) {
+    const paymentPlan = await prisma.paymentPlan.findUniqueOrThrow({
+      where: { id: paymentPlanId },
+      select: { takebackBonus: true },
+    });
+
     const takebackBonus = paymentPlan.takebackBonus.toNumber();
 
     if (!takebackBonus || takebackBonus > 1 || takebackBonus < 0) {

@@ -3,7 +3,8 @@ import {
   IoWalletOutline,
   IoReceiptOutline,
   IoPeopleOutline,
-  IoStorefrontOutline
+  IoStorefrontOutline,
+  IoStorefrontSharp
 } from 'react-icons/io5'
 
 import useSWR from 'swr'
@@ -25,6 +26,7 @@ interface GraphResponse {
 interface TotalizerResponse {
   consumerBalance: number
   companyBalance: number
+  representativeBalance: number
   pendingCashbackAmount: number
   pendingFeeAmount: number
   consumerCount: number
@@ -90,6 +92,19 @@ export function Dashboard() {
               minimumFractionDigits: 2
             }).format(totalizer?.companyBalance || 0)}
             icon={IoStorefrontOutline}
+            color="#00BF78"
+            loading={isTotalizerLoading}
+          />
+
+          <SmallCard
+            title="Saldo em representantes"
+            label="Saldo takeback dos representantes"
+            description={Intl.NumberFormat('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+              minimumFractionDigits: 2
+            }).format(totalizer?.representativeBalance || 0)}
+            icon={IoStorefrontSharp}
             color="#00BF78"
             loading={isTotalizerLoading}
           />

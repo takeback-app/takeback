@@ -25,6 +25,7 @@ const ChakraInput = React.forwardRef<HTMLInputElement, ChakraInputProps>(
       label,
       children,
       display,
+      hidden,
       gridColumnStart,
       gridColumnEnd,
       isRequired = false,
@@ -37,6 +38,7 @@ const ChakraInput = React.forwardRef<HTMLInputElement, ChakraInputProps>(
       <FormControl
         gridColumnStart={gridColumnStart}
         gridColumnEnd={gridColumnEnd}
+        hidden={hidden}
         display={display}
         isRequired={isRequired}
         isInvalid={!!rest.error}
@@ -48,7 +50,12 @@ const ChakraInput = React.forwardRef<HTMLInputElement, ChakraInputProps>(
         )}
 
         <InputGroup>
-          <Input autoFocus={rest.autoFocus} ref={ref} {...rest} />
+          <Input
+            hidden={hidden}
+            autoFocus={rest.autoFocus}
+            ref={ref}
+            {...rest}
+          />
           {isLoading ? (
             <InputRightElement pointerEvents="none" color="gray.300">
               <Spinner size="xs" mb={6} />

@@ -7,6 +7,8 @@ import { GeneratePaymentOrderUseCase } from "./GeneratePaymentOrderUseCase";
 import { GeneratePaymentOrderWithTakebackBalanceUseCase } from "./GeneratePaymentOrderWithTakebackBalanceUseCase";
 import { FindPaymentOrderUseCase } from "./FindPaymentOrderUseCase";
 import { FindTransactionsInPaymentOrderUseCase } from "./FindTransactionsInPaymentOrderUseCase";
+import { partition } from "../../../utils";
+import { MonthlyPaymentUseCase } from "../../../useCases/company/MonthlyPaymentUseCase";
 
 interface Props {
   transactionIDs: number[];
@@ -20,7 +22,14 @@ interface FindOrdersQueryProps {
 class PaymentOrderController {
   async generate(request: Request, response: Response) {
     const { companyId } = request["tokenPayload"];
-    const { transactionIDs, paymentMethodId }: Props = request.body;
+    let { transactionIDs: ids, paymentMethodId }: Props = request.body;
+
+    let [transactionIDs, monthlyPayment] = partition(
+      ids,
+      (t) => typeof t === "number"
+    );
+
+    const monthlyPaymentUseCase = new MonthlyPaymentUseCase();
 
     if (paymentMethodId === 1) {
       const generatePaymentOrderWithTakebackBalance =
@@ -29,11 +38,19 @@ class PaymentOrderController {
       const finData = new FindCompanyDataUseCase();
       const findCashbacks = new FindPendingCashbacksUseCase();
 
-      const message = await generatePaymentOrderWithTakebackBalance.execute({
-        transactionIDs,
-        companyId,
-        paymentMethodId,
-      });
+      const message = transactionIDs.length
+        ? await generatePaymentOrderWithTakebackBalance.execute({
+            transactionIDs,
+            companyId,
+            paymentMethodId,
+          })
+        : "Cashbacks liberados 🤑";
+
+      if (monthlyPayment.length) {
+        await monthlyPaymentUseCase.payManyWithTakeback(
+          monthlyPayment.map((m) => Number(m.replace(/\D/g, ""))) // remove all non numeric characters
+        );
+      }
 
       const companyData = await finData.execute({
         companyId,
@@ -50,19 +67,25 @@ class PaymentOrderController {
       const finData = new FindCompanyDataUseCase();
       const findCashbacks = new FindPendingCashbacksUseCase();
 
-      const message = await generatePaymentOrder.execute({
-        transactionIDs,
-        companyId,
-        paymentMethodId,
-      });
+      const message = transactionIDs.length
+        ? await generatePaymentOrder.execute({
+            transactionIDs,
+            companyId,
+            paymentMethodId,
+          })
+        : "Estamos processando o pagamento, isso pode levar algumas horas.";
+
+      if (monthlyPayment.length) {
+        await monthlyPaymentUseCase.payMany(
+          monthlyPayment.map((m) => Number(m.replace(/\D/g, ""))) // remove all non numeric characters
+        );
+      }
 
       const companyData = await finData.execute({
         companyId,
       });
 
-      const transactions = await findCashbacks.execute({
-        companyId,
-      });
+      const transactions = await findCashbacks.execute({ companyId });
 
       return response.status(200).json({ message, companyData, transactions });
     }
