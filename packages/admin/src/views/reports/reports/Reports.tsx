@@ -4,7 +4,8 @@ import {
   IoCalendarClearOutline,
   IoLogoUsd,
   IoStorefrontOutline,
-  IoPersonCircleOutline
+  IoPersonCircleOutline,
+  IoCashOutline
 } from 'react-icons/io5'
 
 import Layout from '../../../components/ui/Layout'
@@ -36,6 +37,11 @@ const ReportsOptions = [
     title: 'Vendedores',
     icon: IoPersonCircleOutline,
     navTo: '/relatorios/vendedores'
+  },
+  {
+    title: 'Financeiro',
+    icon: IoCashOutline,
+    navTo: '/relatorios/financeiro'
   }
 ]
 

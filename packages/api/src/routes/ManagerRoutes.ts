@@ -29,6 +29,7 @@ import { DashboardController } from "../controllers/manager/dashboard/DashboardC
 import { NotificationSolicitationController } from "../controllers/manager/NotificationSolicitationController";
 import { LogoChangeRequestController } from "../controllers/manager/LogoChangeRequestController";
 import { SelersReportController } from "../controllers/manager/managerReports/SelersReportController";
+import { FinancialReportController } from "../controllers/manager/reports/FinancialReportController";
 
 const paymentMethod = new PaymentMethodController();
 const managerAuth = new ManagerAuthController();
@@ -50,6 +51,7 @@ const managerCompaniesUsers = new UserCompaniesController();
 const withDrawController = new WithDrawController();
 const logoChangeRequestController = new LogoChangeRequestController();
 const selersReport = new SelersReportController();
+const financialReport = new FinancialReportController();
 
 const notificationSolicitationController =
   new NotificationSolicitationController();
@@ -169,6 +171,11 @@ routes.get("/report/selers", selersReport.index);
 routes.get("/report/selers/pdf", selersReport.getPdf);
 routes.get("/report/selers/excel", selersReport.getExcel);
 routes.get("/report/selers/totalizer", selersReport.totalizer);
+
+routes.get("/report/financial", financialReport.index);
+routes.get("/report/financial/pdf", financialReport.getPdf);
+routes.get("/report/financial/excel", financialReport.getExcel);
+// routes.get("/report/financial/totalizer", financialReport.totalizer);
 
 routes.get("/report/find/filters", managerReports.findFilterOptions);
 routes.get("/report/payment-order", managerReports.paymentOrderReport);

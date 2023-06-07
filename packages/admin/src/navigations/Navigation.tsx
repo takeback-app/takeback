@@ -325,6 +325,14 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
           </PrivateRoute>
         }
       />
+      <Route
+        path="/relatorios/financeiro"
+        element={
+          <PrivateRoute>
+            <FinancialReport />
+          </PrivateRoute>
+        }
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )
