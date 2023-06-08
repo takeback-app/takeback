@@ -187,7 +187,8 @@ export function CashbacksHistoric() {
         <Tbody>
           {cashbacks?.data.map(cashback => (
             <Tr color="gray.500" key={cashback.id}>
-              <Td>{cashback.id}</Td>
+              <Td>{new Date(cashback.createdAt).toLocaleString()}</Td>
+
               <Td>{cashback.transactionStatus.description}</Td>
               <Td>{cashback.company.fantasyName}</Td>
               <Td>{cashback.consumer.fullName}</Td>
@@ -207,7 +208,7 @@ export function CashbacksHistoric() {
                     parseFloat(cashback.backAmount)
                 )}
               </Td>
-              <Td>{new Date(cashback.createdAt).toLocaleString()}</Td>
+              <Td>{cashback.id}</Td>
             </Tr>
           ))}
         </Tbody>

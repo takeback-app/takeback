@@ -146,7 +146,9 @@ export class RaffleController {
         },
         _count: {
           select: {
-            tickets: { where: { consumerId, status: { not: "CANCELED" } } },
+            tickets: {
+              where: { consumerId, status: { notIn: ["CANCELED", "PENDING"] } },
+            },
           },
         },
       },

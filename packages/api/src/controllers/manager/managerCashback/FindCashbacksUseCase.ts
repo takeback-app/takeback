@@ -31,7 +31,7 @@ class FindCashbacksUseCase {
       consumer: consumer
         ? {
             OR: [
-              { fullName: { contains: consumer } },
+              { fullName: { contains: consumer, mode: "insensitive" } },
               { cpf: { startsWith: consumer } },
             ],
           }
@@ -39,8 +39,8 @@ class FindCashbacksUseCase {
       company: company
         ? {
             OR: [
-              { fantasyName: { contains: company } },
-              { registeredNumber: { contains: company } },
+              { fantasyName: { contains: company, mode: "insensitive" } },
+              { registeredNumber: { startsWith: company } },
             ],
           }
         : undefined,
