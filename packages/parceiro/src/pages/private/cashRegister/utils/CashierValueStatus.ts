@@ -28,7 +28,7 @@ export function getStatus(
   paymentValue: number,
   canHasChange = false
 ): [number, CashierValueStatus] {
-  const shortfall = paymentValue - purchaseValue
+  const shortfall = Number((paymentValue - purchaseValue).toFixed(2))
 
   if (shortfall === 0) {
     return [shortfall, CashierValueStatus.EQUAL]
