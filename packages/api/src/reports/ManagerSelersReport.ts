@@ -51,12 +51,14 @@ export class ManagerSelersReport extends BaseReport<ReportResponse, Filter> {
     return {
       order: String(record.order),
       sellerName: record.sellerName,
-      cpf: maskCPF(record.cpf),
+      cpf: record.cpf ? maskCPF(record.cpf) : "-",
       description: record.description,
       companyName: record.companyName,
-      registeredNumber: maskCNPJ(record.registeredNumber),
+      registeredNumber: record.registeredNumber
+        ? maskCNPJ(record.registeredNumber)
+        : "-",
       downloadedApp: record.downloadedApp,
-      totalAmount: currency(record.totalAmount ?? 0),
+      totalAmount: record.totalAmount ? currency(record.totalAmount) : "0",
       newClients: String(record.newClients),
     };
   }

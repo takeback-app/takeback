@@ -348,7 +348,7 @@ const FinancialReport: React.FC<React.PropsWithChildren<unknown>> = () => {
 
             <AppTable
               dataLength={financial?.data.length ?? 0}
-              noDataMessage="Nenhum vendedor encontrado"
+              noDataMessage="Nenhum dado financeiro encontrado"
               pagination={
                 <Pagination
                   page={page}

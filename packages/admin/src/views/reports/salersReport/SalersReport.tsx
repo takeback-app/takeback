@@ -424,14 +424,22 @@ const SelersReport: React.FC<React.PropsWithChildren<unknown>> = () => {
                 {selers?.data.map(item => (
                   <Tr key={item.id}>
                     <Td>{item.order}</Td>
-                    <Td>{item.sellerName}</Td>
-                    <Td>{maskCPF(item.cpf)}</Td>
-                    <Td>{item.description}</Td>
-                    <Td>{item.companyName}</Td>
-                    <Td>{maskCNPJ(item.registeredNumber)}</Td>
-                    <Td>{item.downloadedApp}</Td>
-                    <Td>{currencyFormat(parseFloat(item.totalAmount))}</Td>
-                    <Td>{item.newClients}</Td>
+                    <Td>{item.sellerName ?? '-'}</Td>
+                    <Td>{item.cpf ? maskCPF(item.cpf) : '-'}</Td>
+                    <Td>{item.description ?? '-'}</Td>
+                    <Td>{item.companyName ?? '-'}</Td>
+                    <Td>
+                      {item.registeredNumber
+                        ? maskCNPJ(item.registeredNumber)
+                        : '-'}
+                    </Td>
+                    <Td>{item.downloadedApp ?? '-'}</Td>
+                    <Td>
+                      {item.totalAmount
+                        ? currencyFormat(parseFloat(item.totalAmount))
+                        : '-'}
+                    </Td>
+                    <Td>{item.newClients ?? '-'}</Td>
                   </Tr>
                 ))}
               </Tbody>
