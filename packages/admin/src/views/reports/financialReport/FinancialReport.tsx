@@ -424,7 +424,7 @@ const FinancialReport: React.FC<React.PropsWithChildren<unknown>> = () => {
                 <Card mt="1rem">
                   <CardBody>
                     <Stat>
-                      <StatLabel>T. Gratificação por Novo Usuário</StatLabel>
+                      <StatLabel>Total Gratificação por Novo Usuário</StatLabel>
                       <StatNumber>
                         {currencyFormat(totals?.totalNewClientsTotalValue)}
                       </StatNumber>
@@ -434,7 +434,7 @@ const FinancialReport: React.FC<React.PropsWithChildren<unknown>> = () => {
                 <Card mt="1rem">
                   <CardBody>
                     <Stat>
-                      <StatLabel>T. Gratificação por Compra</StatLabel>
+                      <StatLabel>Total Gratificação por Compra</StatLabel>
                       <StatNumber>
                         {currencyFormat(totals?.totalPurchasesTotalValue)}
                       </StatNumber>
