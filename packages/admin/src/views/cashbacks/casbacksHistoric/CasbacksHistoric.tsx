@@ -172,7 +172,7 @@ export function CashbacksHistoric() {
       >
         <Thead>
           <Tr>
-            <Th>ID</Th>
+            <Th>Data da Emissão</Th>
             <Th>Status</Th>
             <Th>Empresa</Th>
             <Th>Cliente</Th>
@@ -181,7 +181,7 @@ export function CashbacksHistoric() {
             <Th>Cashback</Th>
             <Th>Taxa Takeback</Th>
             <Th>Total a Pagar</Th>
-            <Th isNumeric>Data da Emissão</Th>
+            <Th isNumeric>ID</Th>
           </Tr>
         </Thead>
         <Tbody>

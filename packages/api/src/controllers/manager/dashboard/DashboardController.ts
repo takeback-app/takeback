@@ -6,6 +6,7 @@ import { BonusGraphUseCase } from "../../../useCases/graphs/BonusGraphUseCase";
 import { ExpiredBalanceGraphUseCase } from "../../../useCases/graphs/ExpiredBalanceGraphUseCase";
 import { ExpiredBalanceForecastGraphUseCase } from "../../../useCases/graphs/ExpiredBalanceForecastGraphUseCase";
 import { CashbackGraphUseCase } from "../../../useCases/graphs/CashbackGraphUseCase";
+import { CalculateCommissionAmountPendingUseCase } from "../../../useCases/manager/CalculateCommissionAmountPendingUseCase";
 
 export class DashboardController {
   async totalizer(_request: Request, response: Response) {
@@ -42,10 +43,15 @@ export class DashboardController {
       },
     });
 
+    const useCase = new CalculateCommissionAmountPendingUseCase();
+
+    const commissionAmountPending = await useCase.handle();
+
     return response.json({
       consumerBalance: +consumers._sum.balance,
       consumerCount: +consumers._count,
       companyBalance: +companies._sum.positiveBalance,
+      commissionAmountPending,
       companyCount: +companies._count,
       representativeBalance: +representatives._sum.balance,
       representativeCount: +representatives._count,

@@ -28,6 +28,7 @@ interface TotalizerResponse {
   companyBalance: number
   representativeBalance: number
   pendingCashbackAmount: number
+  commissionAmountPending: number
   pendingFeeAmount: number
   consumerCount: number
   companyCount: number
@@ -128,6 +129,18 @@ export function Dashboard() {
               currency: 'BRL',
               minimumFractionDigits: 2
             }).format(totalizer?.pendingFeeAmount || 0)}
+            icon={IoReceiptOutline}
+            color="#ff9f40"
+            loading={isTotalizerLoading}
+          />
+          <SmallCard
+            title="Comissões pendentes"
+            label="Previsão de comissões"
+            description={Intl.NumberFormat('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+              minimumFractionDigits: 2
+            }).format(totalizer?.commissionAmountPending || 0)}
             icon={IoReceiptOutline}
             color="#ff9f40"
             loading={isTotalizerLoading}
