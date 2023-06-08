@@ -40,7 +40,6 @@ export class DashboardUseCase {
         transactionStatus: {
           description: {
             in: [
-              TransactionStatusEnum.NOT_PAID,
               TransactionStatusEnum.ON_DELAY,
               TransactionStatusEnum.PENDING,
               TransactionStatusEnum.PROCESSING,
@@ -51,7 +50,6 @@ export class DashboardUseCase {
       _sum: {
         takebackFeeAmount: true,
         cashbackAmount: true,
-        backAmount: true,
       },
     });
 

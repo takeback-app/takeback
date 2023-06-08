@@ -175,25 +175,25 @@ export function CashbacksHistoric() {
       >
         <Thead>
           <Tr>
-            <Th>ID</Th>
+            <Th>Data da Emissão</Th>
             <Th>Status</Th>
             <Th>Empresa</Th>
-            <Th>Cliente</Th>
+            {/* <Th>Cliente</Th> */}
             <Th>Valor</Th>
             <Th>Método de Pagamento</Th>
             <Th>Cashback</Th>
             <Th>Taxa Takeback</Th>
             <Th>Total a Pagar</Th>
-            <Th isNumeric>Data da Emissão</Th>
+            <Th isNumeric>ID</Th>
           </Tr>
         </Thead>
         <Tbody>
           {cashbacks?.data.map(cashback => (
             <Tr color="gray.500" key={cashback.id}>
-              <Td>{cashback.id}</Td>
+              <Td>{new Date(cashback.createdAt).toLocaleString()}</Td>
               <Td>{cashback.transactionStatus.description}</Td>
               <Td>{cashback.company.fantasyName}</Td>
-              <Td>{isAdmin ? cashback.consumer.fullName : '-'}</Td>
+              {/* <Td>{isAdmin ? cashback.consumer.fullName : '-'}</Td> */}
               <Td>{currencyFormat(parseFloat(cashback.totalAmount))}</Td>
               <Td>
                 {cashback.transactionPaymentMethods.length > 1
@@ -210,7 +210,7 @@ export function CashbacksHistoric() {
                     parseFloat(cashback.backAmount)
                 )}
               </Td>
-              <Td>{new Date(cashback.createdAt).toLocaleString()}</Td>
+              <Td>{cashback.id}</Td>
             </Tr>
           ))}
         </Tbody>
