@@ -55,12 +55,11 @@ export interface FinancialData {
   newClientsTotalValue: number
   purchasesTotalValue: number
   companyName: string
-  totalInPeriod: number
 }
 
 interface Option {
   label: string | number
-  value: string | number
+  value: string | number | boolean
 }
 
 interface FilterProps {
@@ -82,9 +81,10 @@ interface SortProps {
 }
 
 interface TotalizerData {
-  totalSelers: number
-  totalSales: number
-  totalNewClients: number
+  totalMonthlyPaymentBilling: number
+  totalFeeBilling: number
+  totalNewClientsTotalValue: number
+  totalPurchasesTotalValue: number
 }
 
 const columns = [
@@ -163,6 +163,7 @@ const FinancialReport: React.FC<React.PropsWithChildren<unknown>> = () => {
     API.get('/manager/data/find')
       .then(({ data }) => {
         const statesOfCities: Array<Option> = []
+        const monthlyPaymentStatuses = ['Pago', 'Pendente']
         const cities = data.cities.map((item: any) => {
           const foundState = statesOfCities.find(
             state => (state.value = item.state.id)
@@ -189,11 +190,12 @@ const FinancialReport: React.FC<React.PropsWithChildren<unknown>> = () => {
         )
 
         setMonthlyPaymentStatus(
-          data.status.map((item: any) => ({
-            label: item.description,
-            value: item.id
+          monthlyPaymentStatuses.map(item => ({
+            label: item,
+            value: item === 'Pago'
           }))
         )
+
         setStates(statesOfCities)
         setAllCities(cities)
       })
@@ -384,7 +386,14 @@ const FinancialReport: React.FC<React.PropsWithChildren<unknown>> = () => {
                     <Td>{currencyFormat(item.monthlyPaymentBilling)}</Td>
                     <Td>{currencyFormat(item.purchasesTotalValue)}</Td>
                     <Td>{currencyFormat(item.newClientsTotalValue)}</Td>
-                    <Td>{currencyFormat(item.totalInPeriod)}</Td>
+                    <Td>
+                      {currencyFormat(
+                        item.feeBilling +
+                          item.monthlyPaymentBilling -
+                          item.purchasesTotalValue -
+                          item.newClientsTotalValue
+                      )}
+                    </Td>
                     <Td>{item.companyName}</Td>
                   </Tr>
                 ))}
@@ -395,17 +404,9 @@ const FinancialReport: React.FC<React.PropsWithChildren<unknown>> = () => {
                 <Card mt="1rem">
                   <CardBody>
                     <Stat>
-                      <StatLabel>Quantidade de vendedores listados</StatLabel>
-                      <StatNumber>{totals?.totalSelers}</StatNumber>
-                    </Stat>
-                  </CardBody>
-                </Card>
-                <Card mt="1rem">
-                  <CardBody>
-                    <Stat>
-                      <StatLabel>Total Vendido</StatLabel>
+                      <StatLabel>Total de Taxas</StatLabel>
                       <StatNumber>
-                        {currencyFormat(totals?.totalSales)}
+                        {currencyFormat(totals?.totalFeeBilling)}
                       </StatNumber>
                     </Stat>
                   </CardBody>
@@ -413,8 +414,30 @@ const FinancialReport: React.FC<React.PropsWithChildren<unknown>> = () => {
                 <Card mt="1rem">
                   <CardBody>
                     <Stat>
-                      <StatLabel>Total de novos clientes</StatLabel>
-                      <StatNumber>{totals?.totalNewClients}</StatNumber>
+                      <StatLabel>Total de Mensalidades</StatLabel>
+                      <StatNumber>
+                        {currencyFormat(totals?.totalMonthlyPaymentBilling)}
+                      </StatNumber>
+                    </Stat>
+                  </CardBody>
+                </Card>
+                <Card mt="1rem">
+                  <CardBody>
+                    <Stat>
+                      <StatLabel>T. Gratificação por Novo Usuário</StatLabel>
+                      <StatNumber>
+                        {currencyFormat(totals?.totalNewClientsTotalValue)}
+                      </StatNumber>
+                    </Stat>
+                  </CardBody>
+                </Card>
+                <Card mt="1rem">
+                  <CardBody>
+                    <Stat>
+                      <StatLabel>T. Gratificação por Compra</StatLabel>
+                      <StatNumber>
+                        {currencyFormat(totals?.totalPurchasesTotalValue)}
+                      </StatNumber>
                     </Stat>
                   </CardBody>
                 </Card>

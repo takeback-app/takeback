@@ -183,7 +183,7 @@ routes.get("/report/selers/totalizer", selersReport.totalizer);
 routes.get("/report/financial", financialReport.index);
 routes.get("/report/financial/pdf", financialReport.getPdf);
 routes.get("/report/financial/excel", financialReport.getExcel);
-// routes.get("/report/financial/totalizer", financialReport.totalizer);
+routes.get("/report/financial/totalizer", financialReport.totalizer);
 
 routes.get("/report/find/filters", managerReports.findFilterOptions);
 routes.get("/report/payment-order", managerReports.paymentOrderReport);

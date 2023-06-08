@@ -53,7 +53,21 @@ class FindDataToUseInAplicationUseCase {
       },
     });
 
-    return { industries, status, cities, plans, cashbackStatus, offices };
+    const monthlyPayment = await prisma.companyMonthlyPayment.findMany({
+      orderBy: {
+        id: "asc",
+      },
+    });
+
+    return {
+      industries,
+      status,
+      cities,
+      plans,
+      cashbackStatus,
+      offices,
+      monthlyPayment,
+    };
   }
 }
 

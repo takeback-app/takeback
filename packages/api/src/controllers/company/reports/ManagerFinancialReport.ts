@@ -1,11 +1,7 @@
 import { DateTime } from "luxon";
 import { db } from "../../../knex";
 import { BaseQueryDto, BaseReport } from "../../../reports/BaseReport";
-import { currency } from "../../../utils/Masks";
-
-export enum OrderByColumn {
-  TRANSACTION_STATUS = "transactionStatus",
-}
+import { currencyFormat } from "../../../../../admin/src/utils/currencytFormat";
 
 interface Filter {
   dateStart?: string;
@@ -46,11 +42,23 @@ export class ManagerFinancialReport extends BaseReport<ReportResponse, Filter> {
 
   protected excelRow(record: ReportResponse) {
     return {
-      monthlyPaymentBilling: currency(record.monthlyPaymentBilling),
-      feeBilling: currency(record.feeBilling),
-      companyName: record.companyName,
-      newClientsTotalValue: currency(record.newClientsTotalValue),
-      purchasesTotalValue: currency(record.purchasesTotalValue),
+      feeBilling: record.feeBilling ? currencyFormat(record.feeBilling) : "0",
+      monthlyPaymentBilling: record.monthlyPaymentBilling
+        ? currencyFormat(record.monthlyPaymentBilling)
+        : "0",
+      purchasesTotalValue: record.purchasesTotalValue
+        ? currencyFormat(record.purchasesTotalValue)
+        : "0",
+      newClientsTotalValue: record.newClientsTotalValue
+        ? currencyFormat(record.newClientsTotalValue)
+        : "0",
+      totalInPeriod: currencyFormat(
+        record.feeBilling +
+          record.monthlyPaymentBilling -
+          record.purchasesTotalValue -
+          record.newClientsTotalValue
+      ),
+      companyName: record.companyName ? record.companyName : "-",
     };
   }
 
@@ -58,14 +66,12 @@ export class ManagerFinancialReport extends BaseReport<ReportResponse, Filter> {
     return Object.values(this.excelRow(record));
   }
 
-  protected getQuery(dto: Filter & BaseQueryDto) {
+  public getQuery(dto: Filter & BaseQueryDto) {
     const {
       transactionStatus,
       monthlyPaymentStatus,
       dateStart,
       dateEnd,
-      orderByColumn = OrderByColumn.TRANSACTION_STATUS,
-      order = "asc",
       citiesIds,
       statesIds,
       sort,
@@ -86,18 +92,10 @@ export class ManagerFinancialReport extends BaseReport<ReportResponse, Filter> {
         db.raw(
           'sum("bonus"."value") filter (where "bonus"."type" = ?) as "purchasesTotalValue"',
           [SELL_BONUS_TYPE]
-        ),
-        db.raw(
-          'sum(sum("industries"."industryFee") + sum("company_monthly_payment"."amountPaid") + sum("bonus"."value") filter (where "bonus"."type" = ?) + sum("bonus"."value") filter (where "bonus"."type" = ?)) as "totalInPeriod"'
-        ),
-        [NEW_USER_BONUS_TYPE, SELL_BONUS_TYPE]
+        )
       )
       .from("companies")
-      .join(
-        "companies_address",
-        "companies_address.companiesId",
-        "companies.id"
-      )
+      .join("companies_address", "companies_address.id", "companies.addressId")
       .leftJoin(
         "company_monthly_payment",
         "company_monthly_payment.companyId",
@@ -107,8 +105,7 @@ export class ManagerFinancialReport extends BaseReport<ReportResponse, Filter> {
       .join("transactions", "transactions.companiesId", "companies.id")
       .leftJoin("bonus", "bonus.transactionId", "transactions.id")
       .join("industries", "industries.id", "companies.industryId")
-      .groupBy("city.id", "companies.id")
-      .orderBy(orderByColumn, order);
+      .groupBy("city.id", "companies.id");
 
     if (sort) {
       JSON.parse(sort, (key, value) => {
