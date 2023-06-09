@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { db } from "../../../knex";
 import { BaseQueryDto, BaseReport } from "../../../reports/BaseReport";
-import { currencyFormat } from "../../../../../admin/src/utils/currencytFormat";
+import { currency } from "../../../utils/Masks";
 
 interface Filter {
   dateStart?: string;
@@ -42,17 +42,17 @@ export class ManagerFinancialReport extends BaseReport<ReportResponse, Filter> {
 
   protected excelRow(record: ReportResponse) {
     return {
-      feeBilling: record.feeBilling ? currencyFormat(record.feeBilling) : "0",
+      feeBilling: record.feeBilling ? currency(record.feeBilling) : "0",
       monthlyPaymentBilling: record.monthlyPaymentBilling
-        ? currencyFormat(record.monthlyPaymentBilling)
+        ? currency(record.monthlyPaymentBilling)
         : "0",
       purchasesTotalValue: record.purchasesTotalValue
-        ? currencyFormat(record.purchasesTotalValue)
+        ? currency(record.purchasesTotalValue)
         : "0",
       newClientsTotalValue: record.newClientsTotalValue
-        ? currencyFormat(record.newClientsTotalValue)
+        ? currency(record.newClientsTotalValue)
         : "0",
-      totalInPeriod: currencyFormat(
+      totalInPeriod: currency(
         record.feeBilling +
           record.monthlyPaymentBilling -
           record.purchasesTotalValue -
