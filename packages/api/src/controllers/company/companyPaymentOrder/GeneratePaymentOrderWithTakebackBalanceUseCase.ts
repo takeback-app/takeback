@@ -7,13 +7,13 @@ import { PaymentOrder } from "../../../database/models/PaymentOrder";
 import { PaymentOrderStatus } from "../../../database/models/PaymentOrderStatus";
 import { Transactions } from "../../../database/models/Transaction";
 import { TransactionStatus } from "../../../database/models/TransactionStatus";
-import { CompanyStatus } from "../../../database/models/CompanyStatus";
 import { applyCurrencyMask } from "../../../utils/Masks";
 import transporter from "../../../config/SMTP";
 import path from "path";
 import fs from "fs";
 import hbs from "handlebars";
 import { ApproveTransactionUseCase } from "../../../useCases/cashback/ApproveTransactionUseCase";
+import { updateCompanyStatusByTransactionsUseCase } from "../companyCashback/updateCompanyStatusByTransactionsUseCase";
 
 interface Props {
   transactionIDs: number[];
@@ -204,43 +204,7 @@ class GeneratePaymentOrderWithTakebackBalanceUseCase {
       );
     }
 
-    // VERIFICANDO SE HÁ TRANSAÇẼOS PENDENTES PARA ATUALIZAR O STATUS DA EMPRESA
-    // Buscando as transações
-    const verifyTransactions = await getRepository(Transactions)
-      .createQueryBuilder("transaction")
-      .select(["transaction.id", "transaction.createdAt"])
-      .addSelect(["status.description", "company.id"])
-      .leftJoin(Companies, "company", "company.id = transaction.companies")
-      .leftJoin(
-        TransactionStatus,
-        "status",
-        "status.id = transaction.transactionStatus"
-      )
-      .where("company.id = :companyId", { companyId })
-      .andWhere("status.description = :status", { status: "Em atraso" })
-      .getRawMany();
-
-    // Buscando os status necessários
-    const overStatus = await getRepository(CompanyStatus).findOne({
-      where: { description: "Inadimplente por cashbacks" },
-    });
-
-    const activeStatus = await getRepository(CompanyStatus).findOne({
-      where: { description: "Ativo" },
-    });
-
-    // Verificando se há alguma transação em atraso
-    if (verifyTransactions.length > 0) {
-      // Bloqueando a empresa caso tenha pelo menos uma transação em atraso
-      await getRepository(Companies).update(companyId, {
-        status: overStatus,
-      });
-    } else {
-      // Desbloqueando a empresa caso não haja mais cashbacks pendentes
-      await getRepository(Companies).update(companyId, {
-        status: activeStatus,
-      });
-    }
+    await new updateCompanyStatusByTransactionsUseCase().execute(companyId);
 
     const emailTemplate = fs.readFileSync(
       path.resolve("src/utils/emailTemplates/template1.hbs"),
