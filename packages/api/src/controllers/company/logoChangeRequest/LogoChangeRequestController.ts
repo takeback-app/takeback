@@ -20,7 +20,12 @@ export class LogoChangeRequestController {
     const { logoUrl } = request.body;
 
     const logoChangeRequest = await prisma.logoChangeRequest.create({
-      data: { logoUrl, companyId },
+      data: { logoUrl, companyId, status: "APPROVED" },
+    });
+
+    await prisma.company.update({
+      where: { id: companyId },
+      data: { logoUrl: logoUrl },
     });
 
     return response.status(201).json(logoChangeRequest);

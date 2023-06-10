@@ -115,16 +115,16 @@ export const drawerNav = [
         isActive: false,
         to: '/parceiros/notification-solicitations',
         userBlocked: 0
-      },
-      {
-        id: 5,
-        label: 'Troca de Logo',
-        activeIcon: IoImage,
-        inactiveIcon: IoImageOutline,
-        isActive: false,
-        to: '/parceiros/troca-logo',
-        userBlocked: 0
       }
+      // {
+      //   id: 5,
+      //   label: 'Troca de Logo',
+      //   activeIcon: IoImage,
+      //   inactiveIcon: IoImageOutline,
+      //   isActive: false,
+      //   to: '/parceiros/troca-logo',
+      //   userBlocked: 0
+      // }
     ]
   },
   {
