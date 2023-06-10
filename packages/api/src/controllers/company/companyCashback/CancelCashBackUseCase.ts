@@ -5,7 +5,7 @@ import { Consumers } from "../../../database/models/Consumer";
 import { Transactions } from "../../../database/models/Transaction";
 import { TransactionStatus } from "../../../database/models/TransactionStatus";
 import { CancelTransactionUseCase } from "../../../useCases/cashback/CancelTransactionUseCase";
-import { updateCompanyStatusByTransactionsUseCase } from "./updateCompanyStatusByTransactionsUseCase";
+import { UpdateCompanyStatusByTransactionsUseCase } from "./UpdateCompanyStatusByTransactionsUseCase";
 
 interface CancelProps {
   transactionIDs: number[];
@@ -168,7 +168,7 @@ class CancelCashBackUseCase {
       throw new InternalError("Erro ao atualizar o saldo da empresa", 400);
     }
 
-    await new updateCompanyStatusByTransactionsUseCase().execute(companyId);
+    await new UpdateCompanyStatusByTransactionsUseCase().execute(companyId);
 
     return true;
   }

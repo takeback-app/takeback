@@ -13,7 +13,7 @@ import path from "path";
 import fs from "fs";
 import hbs from "handlebars";
 import { ApproveTransactionUseCase } from "../../../useCases/cashback/ApproveTransactionUseCase";
-import { updateCompanyStatusByTransactionsUseCase } from "../companyCashback/updateCompanyStatusByTransactionsUseCase";
+import { UpdateCompanyStatusByTransactionsUseCase } from "../companyCashback/UpdateCompanyStatusByTransactionsUseCase";
 
 interface Props {
   transactionIDs: number[];
@@ -204,7 +204,7 @@ class GeneratePaymentOrderWithTakebackBalanceUseCase {
       );
     }
 
-    await new updateCompanyStatusByTransactionsUseCase().execute(companyId);
+    await new UpdateCompanyStatusByTransactionsUseCase().execute(companyId);
 
     const emailTemplate = fs.readFileSync(
       path.resolve("src/utils/emailTemplates/template1.hbs"),
