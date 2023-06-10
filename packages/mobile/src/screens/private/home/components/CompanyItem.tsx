@@ -63,7 +63,7 @@ export function CompanyItem({ company, isLoading, onPress }: CompanyItemProps) {
           >
             {company.logoUrl ? (
               <LoadingImage
-                source={company.logoUrl}
+                source={{ uri: company.logoUrl }}
                 style={{
                   flex: 1,
                   height: '100%',
