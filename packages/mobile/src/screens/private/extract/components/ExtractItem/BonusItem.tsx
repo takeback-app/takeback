@@ -12,13 +12,17 @@ type BonusItemProps = BonusData & {
 
 const titleByType: { [key in BonusType]: string } = {
   SELL: 'Gratificação por venda',
-  NEW_USER: 'Gratificação por novo usuário'
+  NEW_USER: 'Gratificação por novo usuário',
+  REFERRAL: 'Bônus Indicação',
+  CONSULTANT: 'Bônus Consultor'
 }
 
 const textByType: { [key in BonusType]: string } = {
   SELL: 'Você também ganha quando emite cashback para seus clientes. Aproveite!',
   NEW_USER:
-    'Um novo usuário entrou na Takeback vindo por você. Aproveite sua gratificação!'
+    'Um novo usuário entrou na Takeback vindo por você. Aproveite sua gratificação!',
+  REFERRAL: 'Seu amigo comprou e você também ganhou. ',
+  CONSULTANT: 'Bonus de movimentação das empresas'
 }
 
 export function BonusItem(props: BonusItemProps) {

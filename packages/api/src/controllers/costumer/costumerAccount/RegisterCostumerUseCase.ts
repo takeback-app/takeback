@@ -151,11 +151,7 @@ class RegisterCostumerUseCase {
       await newUserBonus.create(transaction.id);
     }
 
-    if (!newClient) {
-      throw new InternalError("Houve um erro", 400);
-    }
-
-    return { message: "Cadastro realizado" };
+    return newClient;
   }
 }
 

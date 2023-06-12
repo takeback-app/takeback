@@ -14,7 +14,7 @@ export async function cancelRaffle(id: string): Promise<ReturnApi> {
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }
@@ -29,7 +29,7 @@ export async function drawRaffle(id: string): Promise<ReturnApi> {
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }
@@ -61,7 +61,7 @@ export async function storeRaffle(data: RaffleFormData): Promise<ReturnApi> {
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }
@@ -79,7 +79,7 @@ export async function confirmDelivery(
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }
@@ -97,7 +97,7 @@ export async function updateRaffle(
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }
@@ -120,7 +120,7 @@ export async function storeImage(file: File): Promise<ReturnApi> {
 
     return [
       false,
-      { message: error.response?.data.message || 'Conte um administrador' }
+      { message: error.response?.data.message || 'Contate um administrador' }
     ]
   }
 }

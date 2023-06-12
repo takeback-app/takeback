@@ -71,6 +71,9 @@ export type PrivateRouteParam = {
   newPayment: undefined
   takebackPayment: undefined
   electricDiscount: undefined
+
+  referrals: undefined
+  createReferral: undefined
 }
 
 export type PublicRouteProps<T extends keyof PublicRouteParam> =

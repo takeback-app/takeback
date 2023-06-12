@@ -14,6 +14,14 @@ export async function sendWhatsAppMessage() {
   } catch {}
 }
 
+export async function createWhatsAppMessage(number: string) {
+  try {
+    await Linking.openURL(
+      `whatsapp://send?text=Ol%C3%A1%2C+vim+pelo+app+da+Takeback+e+gostaria+de+fazer+um+pedido.&phone=55${number}`
+    )
+  } catch {}
+}
+
 export async function sendIGreenMessage() {
   try {
     await Linking.openURL(constants.whatsAppLinkIGreen)

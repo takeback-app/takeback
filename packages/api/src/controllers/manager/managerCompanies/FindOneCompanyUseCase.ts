@@ -5,7 +5,6 @@ import { CompaniesAddress } from "../../../database/models/CompanyAddress";
 import { CompanyStatus } from "../../../database/models/CompanyStatus";
 import { Industries } from "../../../database/models/Industry";
 import { PaymentPlans } from "../../../database/models/PaymentPlans";
-import { Representative } from "../../../database/models/Representative";
 
 interface Props {
   companyId: string;
@@ -28,6 +27,7 @@ class FindOneCompanyUseCase {
         "company.customIndustryFee",
         "company.customIndustryFeeActive",
         "company.contactPhone",
+        "company.representativeId",
       ])
       .addSelect([
         "industry.id",
@@ -43,19 +43,12 @@ class FindOneCompanyUseCase {
         "plan.id",
         "plan.description",
         "plan.value",
-        "representative.id",
-        "representative.name",
       ])
       .leftJoin(Industries, "industry", "industry.id = company.industry")
       .leftJoin(CompanyStatus, "status", "status.id = company.status")
       .leftJoin(CompaniesAddress, "address", "address.id = company.address")
       .leftJoin(City, "city", "city.id = address.city")
       .leftJoin(PaymentPlans, "plan", "plan.id = company.paymentPlan")
-      .leftJoin(
-        Representative,
-        "representative",
-        "representative.id = company.representative"
-      )
       .where("company.id = :companyId", {
         companyId,
       })

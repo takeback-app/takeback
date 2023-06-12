@@ -38,12 +38,14 @@ interface Bonus {
 
 export enum BonusType {
   SELL = 'SELL',
-  NEW_USER = 'NEW_USER'
+  NEW_USER = 'NEW_USER',
+  CONSULTANT = 'CONSULTANT'
 }
 
 export const typeText: { [key in BonusType]: string } = {
   SELL: 'Venda',
-  NEW_USER: 'Novo Usuário'
+  NEW_USER: 'Novo Usuário',
+  CONSULTANT: 'Consultor'
 }
 
 export function Bonus() {

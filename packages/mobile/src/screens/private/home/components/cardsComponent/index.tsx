@@ -18,9 +18,11 @@ const cardsItems = [
   },
   {
     id: 1,
-    title: 'Transferir',
-    icon: 'swap-horizontal',
-    to: 'transferUser'
+    title: 'Indique e Ganhe',
+    icon: 'megaphone-outline',
+    comingSoon: false,
+    isNew: true,
+    to: 'referrals'
   },
   {
     id: 2,
@@ -30,20 +32,26 @@ const cardsItems = [
     to: 'balanceSaved'
   },
   {
-    id: 4,
+    id: 3,
     title: 'Sorteios',
     icon: 'gift-outline',
     comingSoon: false,
-    isNew: true,
+    isNew: false,
     to: 'raffles'
   },
   {
-    id: 5,
+    id: 4,
     title: 'Desconto Energia',
     icon: 'flash-outline',
     comingSoon: false,
-    isNew: true,
+    isNew: false,
     to: 'electricDiscount'
+  },
+  {
+    id: 5,
+    title: 'Transferir',
+    icon: 'swap-horizontal',
+    to: 'transferUser'
   }
 ]
 

@@ -1,32 +1,73 @@
-import { getRepository } from "typeorm";
-import { City } from "../../../database/models/City";
-import { CompanyStatus } from "../../../database/models/CompanyStatus";
-import { Industries } from "../../../database/models/Industry";
-import { PaymentPlans } from "../../../database/models/PaymentPlans";
-
+import { prisma } from "../../../prisma";
 class FindDataToUseInAplicationUseCase {
   async execute() {
-    const industries = await getRepository(Industries).find({
-      select: ["id", "description", "industryFee"],
-      order: { id: "ASC" },
+    const industries = await prisma.industry.findMany({
+      select: {
+        id: true,
+        description: true,
+        industryFee: true,
+      },
+      orderBy: {
+        id: "asc",
+      },
     });
 
-    const status = await getRepository(CompanyStatus).find({
-      select: ["id", "description", "blocked"],
-      order: { description: "ASC" },
+    const status = await prisma.companyStatus.findMany({
+      select: {
+        id: true,
+        description: true,
+        blocked: true,
+      },
+      orderBy: {
+        description: "asc",
+      },
     });
 
-    const cities = await getRepository(City).find({
-      select: ["id", "name"],
-      relations: ["state", "zipCode"],
-      order: { name: "ASC" },
+    const cities = await prisma.city.findMany({
+      select: {
+        id: true,
+        name: true,
+        state: true,
+        zipCodes: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
     });
 
-    const plans = await getRepository(PaymentPlans).find({
-      order: { id: "ASC" },
+    const plans = await prisma.paymentPlan.findMany({
+      orderBy: {
+        id: "asc",
+      },
     });
 
-    return { industries, status, cities, plans };
+    const cashbackStatus = await prisma.transactionStatus.findMany({
+      orderBy: {
+        description: "asc",
+      },
+    });
+
+    const offices = await prisma.companyUserType.findMany({
+      orderBy: {
+        id: "asc",
+      },
+    });
+
+    const monthlyPayment = await prisma.companyMonthlyPayment.findMany({
+      orderBy: {
+        id: "asc",
+      },
+    });
+
+    return {
+      industries,
+      status,
+      cities,
+      plans,
+      cashbackStatus,
+      offices,
+      monthlyPayment,
+    };
   }
 }
 

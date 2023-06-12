@@ -3,7 +3,8 @@ import {
   IoWalletOutline,
   IoReceiptOutline,
   IoPeopleOutline,
-  IoStorefrontOutline
+  IoStorefrontOutline,
+  IoStorefrontSharp
 } from 'react-icons/io5'
 
 import useSWR from 'swr'
@@ -25,7 +26,9 @@ interface GraphResponse {
 interface TotalizerResponse {
   consumerBalance: number
   companyBalance: number
+  representativeBalance: number
   pendingCashbackAmount: number
+  commissionAmountPending: number
   pendingFeeAmount: number
   consumerCount: number
   companyCount: number
@@ -93,6 +96,19 @@ export function Dashboard() {
             color="#00BF78"
             loading={isTotalizerLoading}
           />
+
+          <SmallCard
+            title="Saldo em representantes"
+            label="Saldo takeback dos representantes"
+            description={Intl.NumberFormat('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+              minimumFractionDigits: 2
+            }).format(totalizer?.representativeBalance || 0)}
+            icon={IoStorefrontSharp}
+            color="#00BF78"
+            loading={isTotalizerLoading}
+          />
           <SmallCard
             title="Pendentes"
             label="Empresas devem para aos usuários"
@@ -113,6 +129,18 @@ export function Dashboard() {
               currency: 'BRL',
               minimumFractionDigits: 2
             }).format(totalizer?.pendingFeeAmount || 0)}
+            icon={IoReceiptOutline}
+            color="#ff9f40"
+            loading={isTotalizerLoading}
+          />
+          <SmallCard
+            title="Comissões pendentes"
+            label="Previsão de comissões"
+            description={Intl.NumberFormat('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+              minimumFractionDigits: 2
+            }).format(totalizer?.commissionAmountPending || 0)}
             icon={IoReceiptOutline}
             color="#ff9f40"
             loading={isTotalizerLoading}

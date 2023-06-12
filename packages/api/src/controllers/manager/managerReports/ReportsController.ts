@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { PaymentOrderReportUseCase } from "./PaymentOrderReportUseCase";
 import { MonthlyPaymentReportUseCase } from "./MonthlyPaymentReportUseCase";
 import { FindFiltersOptionsUseCase } from "./FindFiltersOptionsUseCase";
-import { CompaniesReportUseCase } from "./CompaniesReportUseCase";
 import { CashbackReportsUseCase } from "./CashbackReportsUseCase";
 
 class ReportsController {
@@ -32,16 +31,6 @@ class ReportsController {
     const filters = await findFilters.execute();
 
     return response.status(200).json(filters);
-  }
-
-  async CompaniesReport(request: Request, response: Response) {
-    const filters = request.query;
-
-    const companies = new CompaniesReportUseCase();
-
-    const report = await companies.execute({ filters });
-
-    return response.status(200).json(report);
   }
 
   async CashbacksReport(request: Request, response: Response) {

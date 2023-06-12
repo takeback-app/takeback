@@ -20,7 +20,7 @@ export class NewCashback extends Notification {
 
     return {
       title: "Cashback lançado 💲",
-      body: `Cashback de ${money} lançado em ${this.companyName}.`,
+      body: `Seu cashback de ${money} lançado em ${this.companyName} e logo logo estará disponível no seu aplicativo.`,
       data: { id: this.transaction.id },
     };
   }

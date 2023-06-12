@@ -11,12 +11,12 @@ import Layout from '../../../../components/ui/Layout'
 import PageLoader from '../../../../components/loaders/primaryLoader'
 import DisplayInfo from '../../../../components/ui/DisplayInfo'
 import QuartenaryButton from '../../../../components/buttons/QuartenaryButton'
-import DefaultModal from '../../../../components/modals/DefaultModal'
 import { notifyError } from '../../../../components/ui/Toastify'
 
 import CheckAnimation from '../../../../assets/check.json'
 import PALLET from '../../../../styles/ColorPallet'
 import * as S from './styles'
+import { DefaultModalChakra } from '../../../../components/modals/DefaultModal/DefaultModalChakra'
 
 interface PaymentOrderTypes {
   paymentOrder_id: number
@@ -221,7 +221,7 @@ const PaymentOrderDetails: React.FC<React.PropsWithChildren<unknown>> = () => {
         </S.ButtonsWrapper>
       </S.Footer>
 
-      <DefaultModal
+      <DefaultModalChakra
         title="Confime a operação"
         visible={modalConfirmVisible}
         onClose={() => setModalConfirmVisible(false)}
@@ -254,9 +254,9 @@ const PaymentOrderDetails: React.FC<React.PropsWithChildren<unknown>> = () => {
             />
           </S.FooterModal>
         </S.ContainerModal>
-      </DefaultModal>
+      </DefaultModalChakra>
 
-      <DefaultModal visible={modalNotifyVisible}>
+      <DefaultModalChakra visible={modalNotifyVisible}>
         <S.ModalConfirmMain>
           <Lottie
             options={defaultOptions}
@@ -276,7 +276,7 @@ const PaymentOrderDetails: React.FC<React.PropsWithChildren<unknown>> = () => {
             onClick={() => navigateTo('/cashbacks/pagamentos')}
           />
         </S.ModalFooter>
-      </DefaultModal>
+      </DefaultModalChakra>
     </Layout>
   )
 }

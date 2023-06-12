@@ -31,7 +31,7 @@ interface Props {
 
 class CashbackReportsUseCase {
   async execute({ filters }: Props) {
-    const query = await getRepository(TransactionPaymentMethods)
+    const query = getRepository(TransactionPaymentMethods)
       .createQueryBuilder("tPaymentMethods")
       .select(["tPaymentMethods.id", "tPaymentMethods.cashbackValue"])
       .addSelect([
@@ -218,12 +218,12 @@ class CashbackReportsUseCase {
 
       cells.push(
         result.transaction_id.toString(),
-        result.company_fantasyName,
-        result.consumer_fullName,
-        result.paymentMethods_description,
-        maskCurrency(result.transaction_totalAmount),
-        maskCurrency(result.transaction_takebackFeeAmount),
-        maskCurrency(result.transaction_cashbackAmount),
+        result.company_fantasyName.toString(),
+        result.consumer_fullName.toString(),
+        result.paymentMethods_description.toString(),
+        maskCurrency(result.transaction_totalAmount.toString()),
+        maskCurrency(result.transaction_takebackFeeAmount.toString()),
+        maskCurrency(result.transaction_cashbackAmount.toString()),
         maskCurrency(totalString),
         " " + ordem,
         result.status_description,
@@ -273,15 +273,15 @@ class CashbackReportsUseCase {
         { text: result.consumer_fullName, style: "content" },
         { text: result.paymentMethods_description, style: "content" },
         {
-          text: maskCurrency(result.transaction_totalAmount),
+          text: maskCurrency(result.transaction_totalAmount.toString()),
           style: "content",
         },
         {
-          text: maskCurrency(result.transaction_takebackFeeAmount),
+          text: maskCurrency(result.transaction_takebackFeeAmount.toString()),
           style: "content",
         },
         {
-          text: maskCurrency(result.transaction_cashbackAmount),
+          text: maskCurrency(result.transaction_cashbackAmount.toString()),
           style: "content",
         },
         {
@@ -293,7 +293,7 @@ class CashbackReportsUseCase {
           style: "content",
         },
         {
-          text: result.status_description,
+          text: result.status_description.toString(),
           style: "content",
         },
         {

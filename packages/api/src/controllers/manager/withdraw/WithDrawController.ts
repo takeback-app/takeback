@@ -18,6 +18,12 @@ export class WithDrawController {
             fantasyName: true,
           },
         },
+        representative: {
+          select: {
+            id: true,
+            fantasyName: true,
+          },
+        },
         status: true,
       },
       orderBy: { createdAt: "desc" },
@@ -40,6 +46,7 @@ export class WithDrawController {
       where: { id },
       include: {
         company: true,
+        representative: true,
         status: true,
       },
     });
