@@ -37,6 +37,8 @@ import { AskPassword } from '../screens/private/askPassword'
 import { UpdateAccountStack } from '../screens/private/updateAccount'
 import { useStorage } from '../hooks/useStorage'
 import { RaffleRules } from '../screens/private/raffles/RaffleRules'
+import { Referrals } from '../screens/private/consumerReferrals'
+import { CreateReferral } from '../screens/private/consumerReferrals/CreateReferral'
 
 export function PrivateRoutes() {
   const { isAccountUpdated } = useStorage()
@@ -96,6 +98,11 @@ export function PrivateRoutes() {
         <Screen name="transactionDetails" component={TransactionDetails} />
         <Screen name="transferDetails" component={TransferDetails} />
         <Screen name="electricDiscount" component={ElectricDiscount} />
+      </Group>
+
+      <Group>
+        <Screen name="referrals" component={Referrals} />
+        <Screen name="createReferral" component={CreateReferral} />
       </Group>
     </Navigator>
   )

@@ -2,12 +2,14 @@ import React, { useContext, useMemo } from 'react'
 
 import { KeyboardAvoidingView, Platform, StyleSheet } from 'react-native'
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { StatusBar } from 'expo-status-bar'
 import {
+  Button,
   Flex,
   HStack,
   Heading,
+  Icon,
   IconButton,
   Pressable,
   Stack,
@@ -16,7 +18,7 @@ import {
 import { MaskedTextInput, mask } from 'react-native-mask-text'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { UserDataContext } from '../../../contexts/UserDataContext'
-import { masks } from '../../../utils'
+import { createWhatsAppMessage, masks } from '../../../utils'
 import { usePaymentStore } from './state'
 
 export function PaymentValue({ navigation }) {
@@ -88,12 +90,12 @@ export function PaymentValue({ navigation }) {
             selectionColor="#449FE7"
           />
 
-          <Stack mt={8}>
+          <Stack mt={8} alignItems="center">
             <Text
-              color="gray.600"
+              color="gray.800"
               textAlign="center"
               textTransform="capitalize"
-              fontWeight="medium"
+              fontWeight="bold"
             >
               {company.fantasyName}
             </Text>
@@ -124,6 +126,24 @@ export function PaymentValue({ navigation }) {
             >
               {mask(company.phone, '(99) 99999-9999')}
             </Text>
+            <Button
+              size="md"
+              mt={4}
+              bgColor="#128C7E"
+              _pressed={{ bgColor: '#128c7ed8' }}
+              rounded="full"
+              leftIcon={
+                <Icon
+                  color="white"
+                  as={Ionicons}
+                  name="logo-whatsapp"
+                  size="4"
+                />
+              }
+              onPress={() => createWhatsAppMessage(company.phone)}
+            >
+              Fale com a empresa
+            </Button>
           </Stack>
         </Flex>
         <Flex flex={1} pb={4} justify="flex-end" align="flex-end">

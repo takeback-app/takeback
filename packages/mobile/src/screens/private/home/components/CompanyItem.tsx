@@ -17,9 +17,7 @@ import { LoadingImage } from '../../../../components/LoadingImage'
 function calculateHighestPercentage(methods: CompanyPaymentMethod[]) {
   if (!methods.length) return 0
 
-  const activeMethods = methods.filter(method => method.isActive)
-
-  const { cashbackPercentage } = activeMethods.reduce((prev, current) =>
+  const { cashbackPercentage } = methods.reduce((prev, current) =>
     prev.cashbackPercentage > current.cashbackPercentage ? prev : current
   )
 
@@ -56,14 +54,12 @@ export function CompanyItem({ company, isLoading, onPress }: CompanyItemProps) {
             w="16"
             justifyContent="center"
             alignItems="center"
-            borderWidth="1"
-            borderColor="gray.300"
-            bgColor="blue.400"
-            rounded="xl"
+            bgColor={company.logoUrl ? undefined : 'blue.400'}
+            rounded="12px"
           >
             {company.logoUrl ? (
               <LoadingImage
-                source={company.logoUrl}
+                source={{ uri: company.logoUrl }}
                 style={{
                   flex: 1,
                   height: '100%',

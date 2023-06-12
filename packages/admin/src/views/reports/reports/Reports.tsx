@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router'
 import {
   IoCalendarClearOutline,
   IoLogoUsd,
-  IoStorefrontOutline
+  IoStorefrontOutline,
+  IoPersonCircleOutline,
+  IoCashOutline
 } from 'react-icons/io5'
 
 import Layout from '../../../components/ui/Layout'
@@ -30,6 +32,16 @@ const ReportsOptions = [
     title: 'Cashbacks',
     icon: IoCalendarClearOutline,
     navTo: '/relatorios/cashbacks'
+  },
+  {
+    title: 'Vendedores',
+    icon: IoPersonCircleOutline,
+    navTo: '/relatorios/vendedores'
+  },
+  {
+    title: 'Financeiro',
+    icon: IoCashOutline,
+    navTo: '/relatorios/financeiro'
   }
 ]
 

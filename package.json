@@ -5,6 +5,7 @@
   "scripts": {
     "start:api": "yarn workspace @takeback/api dev",
     "start:admin": "yarn workspace @takeback/admin start",
+    "start:representante": "yarn workspace @takeback/representante start",
     "start:parceiro": "yarn workspace @takeback/parceiro start",
     "start:mobile": "yarn workspace @takeback/mobile start"
   },

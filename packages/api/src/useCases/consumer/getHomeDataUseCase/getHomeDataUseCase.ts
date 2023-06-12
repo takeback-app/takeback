@@ -1,3 +1,4 @@
+import { CompanyPaymentMethod } from "@prisma/client";
 import { Consumers } from "../../../database/models/Consumer";
 import { TransactionStatus } from "../../../database/models/TransactionStatus";
 import { consumerRepository } from "../../../database/repositories/consumerRepository";
@@ -15,9 +16,8 @@ export class GetHomeDataUseCase {
 
     const companies = await prisma.company.findMany({
       where: {
-        companyStatus: {
-          generateCashback: true,
-        },
+        companyStatus: { generateCashback: true },
+        companyPaymentMethods: { some: { isActive: true } },
       },
       select: {
         id: true,
@@ -28,9 +28,15 @@ export class GetHomeDataUseCase {
         createdAt: true,
         industry: { select: { description: true } },
         companyAddress: { include: { city: { select: { name: true } } } },
-        companyPaymentMethods: true,
+        companyPaymentMethods: { where: { isActive: true } },
       },
     });
+
+    companies.sort(
+      (current, next) =>
+        this.getMaxPercentage(next.companyPaymentMethods) -
+        this.getMaxPercentage(current.companyPaymentMethods)
+    );
 
     const transactions = await transactionsRepository()
       .createQueryBuilder("t")
@@ -52,5 +58,15 @@ export class GetHomeDataUseCase {
       totalSaved: parseFloat(transactions[0].saved),
       expireBalanceDate,
     };
+  }
+
+  private getMaxPercentage(arr: CompanyPaymentMethod[]) {
+    if (arr.length === 0) return 0;
+
+    return arr
+      .reduce((prev, current) =>
+        prev.cashbackPercentage > current.cashbackPercentage ? prev : current
+      )
+      .cashbackPercentage.toNumber();
   }
 }

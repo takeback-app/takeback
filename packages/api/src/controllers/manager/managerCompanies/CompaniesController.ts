@@ -11,6 +11,7 @@ import { ForgotPasswordToRootUserUseCase } from "./ForgotPasswordToRootUserUseCa
 import { UpdateManyCompanyStatusUseCase } from "./UpdateManyCompanyStatusUseCase";
 import { RelationWithRepresentativeUseCase } from "./RelationWithRepresentativeUseCase";
 import { FindUseCase } from "../managerRepresentatives/FindUseCase";
+import { prisma } from "../../../prisma";
 
 class CompaniesController {
   async allowFirstAccess(request: Request, response: Response) {
@@ -148,15 +149,21 @@ class CompaniesController {
   }
 
   async relationWithRepresentative(request: Request, response: Response) {
-    const relation = new RelationWithRepresentativeUseCase();
-    const findCompany = new FindOneCompanyUseCase();
+    const { representativeId } = request.body;
+    const companyId = request.params.id;
 
-    const message = await relation.execute(request.body);
-    const companyData = await findCompany.execute({
-      companyId: request.body.companyId,
+    await prisma.company.update({
+      where: { id: companyId },
+      data: { representativeId: representativeId ? representativeId : null },
     });
 
-    return response.status(200).json({ message, companyData });
+    if (!representativeId) {
+      await prisma.representativeUserCompany.deleteMany({
+        where: { companyId },
+      });
+    }
+
+    return response.json({ message: "Representante alterado" });
   }
 }
 

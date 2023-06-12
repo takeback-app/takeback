@@ -199,222 +199,234 @@ const CashbackReport: React.FC<React.PropsWithChildren<unknown>> = () => {
   }, [])
 
   return (
-    <Layout goBack={() => navigateTo(-1)} goBackTitle="Relatório de cashbacks">
-      {pageLoading ? (
-        <PageLoader label="Carregando relatório..." />
-      ) : (
-        <S.Container>
-          <S.SubHeader>
-            <QuartenaryButton
-              onClick={() => setFilterVisible(true)}
-              label="Filtrar"
-              color={PALLET.COLOR_06}
-              icon={IoFilter}
-              noFullWidth
-            />
-            <S.DownloadContainer>
-              <DownloadButton
-                href={filePathPDF}
-                icon={MdPictureAsPdf}
-                title="Baixar em PDF"
-                color="#AA0A00"
-                disabled={filePathPDF.length === 0}
-              />
-              <DownloadButton
-                href={filePathExcel}
-                icon={MdFileDownload}
-                title="Baixar em Excel"
-                color="#006E3D"
-                disabled={filePathExcel.length === 0}
-              />
-            </S.DownloadContainer>
-          </S.SubHeader>
-
-          <S.TableWrapper>
-            <S.Table>
-              <S.THead>
-                <S.Tr>
-                  <S.Th>id</S.Th>
-                  <S.Th>Empresa</S.Th>
-                  <S.Th>Cliente</S.Th>
-                  <S.Th>Método de Pagamento</S.Th>
-                  <S.Th>Valor de compra</S.Th>
-                  <S.Th>Taxa de administração</S.Th>
-                  <S.Th>Cashback</S.Th>
-                  <S.Th>Total a pagar</S.Th>
-                  <S.Th>Ordem de pagamento</S.Th>
-                  <S.Th>Status da transação</S.Th>
-                  <S.Th>Data de emissão</S.Th>
-                  <S.Th>Data de Aprovação</S.Th>
-                </S.Tr>
-              </S.THead>
-              {cashbacks?.map(item => (
-                <S.TBody key={item.transaction_id}>
-                  <S.Tr>
-                    <S.Td>{item.transaction_id}</S.Td>
-                    <S.Td>{item.company_fantasyName}</S.Td>
-                    <S.Td>{item.consumer_fullName}</S.Td>
-                    <S.Td>{item.paymentMethods_description}</S.Td>
-                    <S.Td>
-                      {currencyFormat(parseFloat(item.transaction_totalAmount))}
-                    </S.Td>
-                    <S.Td>
-                      {currencyFormat(
-                        parseFloat(item.transaction_takebackFeeAmount)
-                      )}
-                    </S.Td>
-                    <S.Td>
-                      {currencyFormat(
-                        parseFloat(item.transaction_cashbackAmount)
-                      )}
-                    </S.Td>
-                    <S.Td>
-                      {currencyFormat(
-                        parseFloat(item.transaction_takebackFeeAmount) +
-                          parseFloat(item.transaction_cashbackAmount)
-                      )}
-                    </S.Td>
-
-                    <S.Td>
-                      {item.paymentOrder_id
-                        ? item.paymentOrder_id
-                        : 'Não possui'}
-                    </S.Td>
-                    <S.Td>{item.status_description}</S.Td>
-                    <S.Td>
-                      {new Date(
-                        item.transaction_createdAt
-                      ).toLocaleDateString()}
-                    </S.Td>
-                    <S.Td>
-                      {item.transaction_aprovedAt
-                        ? new Date(
-                            item.transaction_aprovedAt
-                          ).toLocaleDateString()
-                        : 'Não aprovada'}
-                    </S.Td>
-                  </S.Tr>
-                </S.TBody>
-              ))}
-            </S.Table>
-          </S.TableWrapper>
-        </S.Container>
-      )}
-
-      <FilterModal
-        title="Filtros"
-        visible={filterVisible}
-        onClose={() => setFilterVisible(false)}
+    <>
+      {console.log(cashbacks)}
+      <Layout
+        goBack={() => navigateTo(-1)}
+        goBackTitle="Relatório de cashbacks"
       >
-        <S.DividerWrapper />
-        <Form ref={formRef} onSubmit={handleFilters}>
-          <S.ModalContent>
-            <S.InputsWrapper>
-              <S.InputTitle>Cliente</S.InputTitle>
-              <PrimaryInput
-                label="CPF do cliente"
-                name="consumer"
-                maxLength={14}
-                value={cpf}
-                onChange={e => setCpf(maskCPF(e.currentTarget.value))}
-                minLength={3}
+        {pageLoading ? (
+          <PageLoader label="Carregando relatório..." />
+        ) : (
+          <S.Container>
+            <S.SubHeader>
+              <QuartenaryButton
+                onClick={() => setFilterVisible(true)}
+                label="Filtrar"
+                color={PALLET.COLOR_06}
+                icon={IoFilter}
+                noFullWidth
               />
-            </S.InputsWrapper>
+              <S.DownloadContainer>
+                <DownloadButton
+                  href={filePathPDF}
+                  icon={MdPictureAsPdf}
+                  title="Baixar em PDF"
+                  color="#AA0A00"
+                  disabled={filePathPDF.length === 0}
+                />
+                <DownloadButton
+                  href={filePathExcel}
+                  icon={MdFileDownload}
+                  title="Baixar em Excel"
+                  color="#006E3D"
+                  disabled={filePathExcel.length === 0}
+                />
+              </S.DownloadContainer>
+            </S.SubHeader>
 
-            <S.DividerWrapper />
+            <S.TableWrapper>
+              <S.Table>
+                <S.THead>
+                  <S.Tr>
+                    <S.Th>id</S.Th>
+                    <S.Th>Empresa</S.Th>
+                    <S.Th>Cliente</S.Th>
+                    <S.Th>Método de Pagamento</S.Th>
+                    <S.Th>Valor de compra</S.Th>
+                    <S.Th>Taxa de administração</S.Th>
+                    <S.Th>Cashback</S.Th>
+                    <S.Th>Total a pagar</S.Th>
+                    <S.Th>Ordem de pagamento</S.Th>
+                    <S.Th>Status da transação</S.Th>
+                    <S.Th>Data de emissão</S.Th>
+                    <S.Th>Data de Aprovação</S.Th>
+                  </S.Tr>
+                </S.THead>
+                {cashbacks?.map(item => (
+                  <S.TBody key={item.transaction_id}>
+                    <S.Tr>
+                      <S.Td>{item.transaction_id}</S.Td>
+                      <S.Td>{item.company_fantasyName}</S.Td>
+                      <S.Td>{item.consumer_fullName}</S.Td>
+                      <S.Td>{item.paymentMethods_description}</S.Td>
+                      <S.Td>
+                        {currencyFormat(
+                          parseFloat(item.transaction_totalAmount)
+                        )}
+                      </S.Td>
+                      <S.Td>
+                        {currencyFormat(
+                          parseFloat(item.transaction_takebackFeeAmount)
+                        )}
+                      </S.Td>
+                      <S.Td>
+                        {currencyFormat(
+                          parseFloat(item.transaction_cashbackAmount)
+                        )}
+                      </S.Td>
+                      <S.Td>
+                        {currencyFormat(
+                          parseFloat(item.transaction_takebackFeeAmount) +
+                            parseFloat(item.transaction_cashbackAmount)
+                        )}
+                      </S.Td>
 
-            <S.InputsWrapper>
-              <S.InputTitle>Empresa</S.InputTitle>
-              <PrimaryInput
-                label="CNPJ da empresa"
-                name="company"
-                maxLength={18}
-                value={cnpj}
-                onChange={e => setCnpj(maskCNPJ(e.currentTarget.value))}
-                minLength={3}
-              />
-            </S.InputsWrapper>
-            <S.DividerWrapper />
+                      <S.Td>
+                        {item.paymentOrder_id
+                          ? item.paymentOrder_id
+                          : 'Não possui'}
+                      </S.Td>
+                      <S.Td>{item.status_description}</S.Td>
+                      <S.Td>
+                        {new Date(
+                          item.transaction_createdAt
+                        ).toLocaleDateString()}
+                      </S.Td>
+                      <S.Td>
+                        {item.transaction_aprovedAt
+                          ? new Date(
+                              item.transaction_aprovedAt
+                            ).toLocaleDateString()
+                          : 'Não aprovada'}
+                      </S.Td>
+                    </S.Tr>
+                  </S.TBody>
+                ))}
+              </S.Table>
+            </S.TableWrapper>
+          </S.Container>
+        )}
 
-            <S.InputsWrapper>
-              <S.InputTitle>Período de emissão</S.InputTitle>
-              <S.InputDateWrapper>
-                <PrimaryInput type="date" name="dataStart" label="Início" />
-                <PrimaryInput type="date" name="dataEnd" label="Fim" />
-              </S.InputDateWrapper>
-            </S.InputsWrapper>
-            <S.DividerWrapper />
-
-            <S.InputsWrapper>
-              <S.InputTitle>Período de pagamento</S.InputTitle>
-              <S.InputDateWrapper>
-                <PrimaryInput type="date" name="datePaidStart" label="Início" />
-                <PrimaryInput type="date" name="datePaidEnd" label="Fim" />
-              </S.InputDateWrapper>
-            </S.InputsWrapper>
-            <S.DividerWrapper />
-
-            <S.InputsWrapper>
-              <S.InputTitle>Período de vencimento</S.InputTitle>
-              <S.InputDateWrapper>
+        <FilterModal
+          title="Filtros"
+          visible={filterVisible}
+          onClose={() => setFilterVisible(false)}
+        >
+          <S.DividerWrapper />
+          <Form ref={formRef} onSubmit={handleFilters}>
+            <S.ModalContent>
+              <S.InputsWrapper>
+                <S.InputTitle>Cliente</S.InputTitle>
                 <PrimaryInput
-                  type="date"
-                  name="dateExpiredStart"
-                  label="Início"
+                  label="CPF do cliente"
+                  name="consumer"
+                  maxLength={14}
+                  value={cpf}
+                  onChange={e => setCpf(maskCPF(e.currentTarget.value))}
+                  minLength={3}
                 />
-                <PrimaryInput type="date" name="dateExpiredEnd" label="Fim" />
-              </S.InputDateWrapper>
-            </S.InputsWrapper>
-            <S.DividerWrapper />
+              </S.InputsWrapper>
 
-            <S.TitleWrapper>
-              <S.InputTitle>Status</S.InputTitle>
-            </S.TitleWrapper>
-            <S.CheckboxWrapper>
-              {stateCashback.map(item => (
-                <Checkbox
-                  key={item.id}
-                  label={item.description}
-                  onChange={event => {
-                    addOrRemoveItem(event.target.checked, item.id)
-                  }}
+              <S.DividerWrapper />
+
+              <S.InputsWrapper>
+                <S.InputTitle>Empresa</S.InputTitle>
+                <PrimaryInput
+                  label="CNPJ da empresa"
+                  name="company"
+                  maxLength={18}
+                  value={cnpj}
+                  onChange={e => setCnpj(maskCNPJ(e.currentTarget.value))}
+                  minLength={3}
                 />
-              ))}
-            </S.CheckboxWrapper>
-            <S.DividerWrapper />
+              </S.InputsWrapper>
+              <S.DividerWrapper />
 
-            <S.TitleWrapper>
-              <S.InputTitle>Métodos de pagamentos</S.InputTitle>
-            </S.TitleWrapper>
-            <S.CheckboxWrapper>
-              {payments.map(item => (
-                <Checkbox
-                  key={item.id}
-                  label={item.description}
-                  onChange={event => {
-                    addOrRemovePaymentMethod(event.target.checked, item.id)
-                  }}
+              <S.InputsWrapper>
+                <S.InputTitle>Período de emissão</S.InputTitle>
+                <S.InputDateWrapper>
+                  <PrimaryInput type="date" name="dataStart" label="Início" />
+                  <PrimaryInput type="date" name="dataEnd" label="Fim" />
+                </S.InputDateWrapper>
+              </S.InputsWrapper>
+              <S.DividerWrapper />
+
+              <S.InputsWrapper>
+                <S.InputTitle>Período de pagamento</S.InputTitle>
+                <S.InputDateWrapper>
+                  <PrimaryInput
+                    type="date"
+                    name="datePaidStart"
+                    label="Início"
+                  />
+                  <PrimaryInput type="date" name="datePaidEnd" label="Fim" />
+                </S.InputDateWrapper>
+              </S.InputsWrapper>
+              <S.DividerWrapper />
+
+              <S.InputsWrapper>
+                <S.InputTitle>Período de vencimento</S.InputTitle>
+                <S.InputDateWrapper>
+                  <PrimaryInput
+                    type="date"
+                    name="dateExpiredStart"
+                    label="Início"
+                  />
+                  <PrimaryInput type="date" name="dateExpiredEnd" label="Fim" />
+                </S.InputDateWrapper>
+              </S.InputsWrapper>
+              <S.DividerWrapper />
+
+              <S.TitleWrapper>
+                <S.InputTitle>Status</S.InputTitle>
+              </S.TitleWrapper>
+              <S.CheckboxWrapper>
+                {stateCashback.map(item => (
+                  <Checkbox
+                    key={item.id}
+                    label={item.description}
+                    onChange={event => {
+                      addOrRemoveItem(event.target.checked, item.id)
+                    }}
+                  />
+                ))}
+              </S.CheckboxWrapper>
+              <S.DividerWrapper />
+
+              <S.TitleWrapper>
+                <S.InputTitle>Métodos de pagamentos</S.InputTitle>
+              </S.TitleWrapper>
+              <S.CheckboxWrapper>
+                {payments.map(item => (
+                  <Checkbox
+                    key={item.id}
+                    label={item.description}
+                    onChange={event => {
+                      addOrRemovePaymentMethod(event.target.checked, item.id)
+                    }}
+                  />
+                ))}
+              </S.CheckboxWrapper>
+
+              <S.FooterModal>
+                <QuartenaryButton
+                  type="button"
+                  label="Limpar filtros"
+                  color={PALLET.COLOR_17}
+                  onClick={() => limpaFiltro()}
                 />
-              ))}
-            </S.CheckboxWrapper>
-
-            <S.FooterModal>
-              <QuartenaryButton
-                type="button"
-                label="Limpar filtros"
-                color={PALLET.COLOR_17}
-                onClick={() => limpaFiltro()}
-              />
-              <QuartenaryButton
-                type="submit"
-                label="Gerar relatório"
-                color={PALLET.COLOR_02}
-              />
-            </S.FooterModal>
-          </S.ModalContent>
-        </Form>
-      </FilterModal>
-    </Layout>
+                <QuartenaryButton
+                  type="submit"
+                  label="Gerar relatório"
+                  color={PALLET.COLOR_02}
+                />
+              </S.FooterModal>
+            </S.ModalContent>
+          </Form>
+        </FilterModal>
+      </Layout>
+    </>
   )
 }
 

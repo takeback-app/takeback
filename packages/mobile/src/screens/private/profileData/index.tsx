@@ -1,7 +1,15 @@
 import React from 'react'
 import { Platform, KeyboardAvoidingView, ActivityIndicator } from 'react-native'
 
-import { ScrollView, Button, Stack, Center, Heading, Box } from 'native-base'
+import {
+  ScrollView,
+  Button,
+  Stack,
+  Center,
+  Heading,
+  Box,
+  useToast
+} from 'native-base'
 import { unMask } from 'react-native-mask-text'
 import { useForm, useFormState } from 'react-hook-form'
 
@@ -24,6 +32,7 @@ import { GenericInput } from '../../../components/form/GenericInput'
 
 import { isValidBirthDate } from '../../../utils/birthdayValidator'
 import { updateAccount } from '../../../services'
+import { ToastAlert } from '../../../components/ToastAlert'
 
 export type UpdateProfileData = {
   name: string
@@ -46,6 +55,8 @@ export type UpdateProfileData = {
 }
 
 export function ProfileData({ navigation }) {
+  const toast = useToast()
+
   const { control, handleSubmit, setError, setFocus } =
     useForm<UpdateProfileData>({
       defaultValues: async () => axiosFetcher('costumer/me')
@@ -69,6 +80,18 @@ export function ProfileData({ navigation }) {
     if (!isOk) {
       return setError('name', { message: response.message })
     }
+
+    toast.show({
+      render: () => (
+        <ToastAlert
+          status="success"
+          title="Prontinho! 😉"
+          variant="left-accent"
+          description="Seus dados foram atualizados com sucesso!"
+        />
+      ),
+      duration: 3000
+    })
   }
 
   if (isLoading) {

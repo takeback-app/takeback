@@ -22,7 +22,7 @@ export function ZipCodeInput({ control, name = 'zipCode' }: ZipCodeInputProps) {
         fieldState: { error }
       }) => (
         <CustomInput
-          label="CEP da sua cidade"
+          label="Seu CEP"
           keyboardAppearance="light"
           keyboardType="numeric"
           maxLength={9}

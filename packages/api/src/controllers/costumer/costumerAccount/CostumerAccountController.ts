@@ -12,9 +12,14 @@ class CostumerAccountController {
 
     const register = new RegisterCostumerUseCase();
 
-    const result = await register.execute(data);
+    const consumer = await register.execute(data);
 
-    return response.status(200).json(result);
+    await prisma.referral.updateMany({
+      where: { cpf: consumer.cpf },
+      data: { status: "APPROVED", childrenConsumerId: consumer.id },
+    });
+
+    return response.status(200).json({ message: "Usuário cadastrado" });
   }
 
   async updateConsumer(request: Request, response: Response) {
@@ -57,10 +62,6 @@ class CostumerAccountController {
     await prisma.consumerAddress.updateMany({
       where: { consumer: { id } },
       data: {
-        complement: address.complement || undefined,
-        district: address.district || undefined,
-        number: address.number || undefined,
-        street: address.street || undefined,
         zipCode: address.zipCode,
       },
     });

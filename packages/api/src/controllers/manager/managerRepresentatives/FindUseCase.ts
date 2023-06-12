@@ -1,12 +1,9 @@
-import { getRepository } from "typeorm";
-import { Representative } from "../../../database/models/Representative";
+import { prisma } from "../../../prisma";
 
 class FindUseCase {
   async execute() {
-    const representatives = await getRepository(Representative).find({
-      order: {
-        createdAt: "ASC",
-      },
+    const representatives = await prisma.representative.findMany({
+      orderBy: { createdAt: "desc" },
     });
 
     return representatives;

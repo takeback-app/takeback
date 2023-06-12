@@ -20,6 +20,8 @@ export interface BalanceExpirationData {
 }
 
 export enum BonusType {
+  CONSULTANT = 'CONSULTANT',
+  REFERRAL = 'REFERRAL',
   SELL = 'SELL',
   NEW_USER = 'NEW_USER'
 }

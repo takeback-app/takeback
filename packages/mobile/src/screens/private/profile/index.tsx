@@ -1,6 +1,15 @@
 import React, { useContext } from 'react'
 import { StatusBar } from 'react-native'
-import { VStack, Text, View, Flex, Fab, Icon, ScrollView } from 'native-base'
+import {
+  VStack,
+  Text,
+  View,
+  Flex,
+  Fab,
+  Icon,
+  ScrollView,
+  useDisclose
+} from 'native-base'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { mask } from 'react-native-mask-text'
@@ -17,9 +26,11 @@ import { PrivateRouteParam } from '../../../@types/routes'
 
 import { getInitials, sendWhatsAppMessage } from '../../../utils'
 import { DeactivateAccount } from './components/DeactivateAccount'
+import { TermsOfUse } from '../../public/createAccount/components/termsOfUse'
 
 export function Profile() {
   const { userData } = useContext(UserDataContext)
+  const { isOpen, onClose, onOpen } = useDisclose()
 
   const navigation =
     useNavigation<NativeStackNavigationProp<PrivateRouteParam>>()
@@ -84,10 +95,10 @@ export function Profile() {
           />
           <Info
             title="Dados pessoais"
-            borderB
             value=""
             onPress={() => navigateTo({ url: 'profileData' })}
           />
+          <Info title="Termos de uso" borderB value="" onPress={onOpen} />
           <View h="12" />
 
           <DeactivateAccount />
@@ -108,6 +119,8 @@ export function Profile() {
         label="Fale conosco!"
         onPress={sendWhatsAppMessage}
       />
+
+      <TermsOfUse modalVisible={isOpen} onClose={onClose} />
     </Layout>
   )
 }
