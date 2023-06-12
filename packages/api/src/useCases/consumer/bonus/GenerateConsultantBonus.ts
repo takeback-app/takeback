@@ -1,6 +1,8 @@
 import { GenerateBonus } from "./GenerateBonus";
 
 import { prisma } from "../../../prisma";
+import { Notify } from "../../../notifications";
+import { ConsultantBonusNotification } from "../../../notifications/ConsultantBonusNotification";
 
 export class GenerateConsultantBonus extends GenerateBonus {
   async create(transactionId: number) {
@@ -33,6 +35,8 @@ export class GenerateConsultantBonus extends GenerateBonus {
     });
 
     await this.updateConsumerBalance(consumer, bonus);
+
+    Notify.send(consumer.id, new ConsultantBonusNotification(bonus));
 
     return bonus;
   }

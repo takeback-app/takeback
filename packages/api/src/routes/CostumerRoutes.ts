@@ -28,6 +28,7 @@ import { SolicitationController } from "../controllers/costumer/SolicitationCont
 import { authorize } from "../controllers/costumer/costumerCashBack/AuthorizeController";
 import { NotificationController } from "../controllers/costumer/NotificationController";
 import { MissingFieldController } from "../controllers/costumer/MissingFieldController";
+import { ReferralController } from "../controllers/costumer/ReferralController";
 
 const costumerAuth = new ConstumerAuthenticationController();
 const costumerAccount = new CostumerAccountController();
@@ -44,6 +45,7 @@ const balanceController = new BalanceController();
 const solicitationController = new SolicitationController();
 const notificationController = new NotificationController();
 const missingFieldController = new MissingFieldController();
+const referralController = new ReferralController();
 
 const routes = Router();
 
@@ -137,5 +139,8 @@ routes.get(
   "/notifications/unread-count",
   notificationController.unreadNotificationCount
 );
+
+routes.get("/referrals", referralController.index);
+routes.post("/referrals", referralController.store);
 
 export default routes;

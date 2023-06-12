@@ -31,6 +31,7 @@ import { RepresentativeController } from "../controllers/manager/RepresentativeC
 import { LogoChangeRequestController } from "../controllers/manager/LogoChangeRequestController";
 import { SelersReportController } from "../controllers/manager/managerReports/SelersReportController";
 import { FinancialReportController } from "../controllers/manager/reports/FinancialReportController";
+import { ReferralBonusController } from "../controllers/manager/ReferralBonusController";
 
 const paymentMethod = new PaymentMethodController();
 const managerAuth = new ManagerAuthController();
@@ -54,6 +55,7 @@ const companiesReport = new CompaniesReportController();
 const logoChangeRequestController = new LogoChangeRequestController();
 const selersReport = new SelersReportController();
 const financialReport = new FinancialReportController();
+const referralBonusController = new ReferralBonusController();
 
 const notificationSolicitationController =
   new NotificationSolicitationController();
@@ -263,5 +265,8 @@ routes.put(
   "/logo-change-requests/:id/reprove",
   logoChangeRequestController.reprove
 );
+
+routes.get("/referral-percentage", referralBonusController.index);
+routes.put("/referral-percentage", referralBonusController.update);
 
 export default routes;

@@ -113,9 +113,6 @@ export function FilterCompanySection({
               Clique na empresa para solicitar cashback 👇
             </Text>
           </NativeText>
-          <Box ml={1}>
-            <NewTag />
-          </Box>
         </Flex>
       </Stack>
     </Box>

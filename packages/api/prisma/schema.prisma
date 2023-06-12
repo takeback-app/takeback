@@ -216,6 +216,8 @@ model Consumer {
   TransactionSolicitation       TransactionSolicitation[]
   notifications                 Notification[]
   monthlyIncome                 MonthlyIncome?            @relation(fields: [monthlyIncomeId], references: [id])
+  referrals                     Referral[]
+  fatherReferrals               Referral[]                @relation("ReferralConsumer")
 
   @@map("consumers")
 }
@@ -342,6 +344,8 @@ model Setting {
   provisionalAccessDays Int?
   takebackPixKey        String?  @db.VarChar
   takebackQRCode        String?  @db.VarChar
+
+  referralBonusPercentage Decimal? @default(0) @db.Decimal(10, 4)
 
   @@map("settings")
 }
@@ -533,6 +537,7 @@ enum BonusType {
   SELL
   CONSULTANT
   NEW_USER
+  REFERRAL
 }
 
 model Commission {
@@ -704,6 +709,7 @@ enum NotificationType {
   PAYMENT_APPROVED
   NEW_RAFFLE
   RAFFLE_WINNER
+  BONUS
   CUSTOM
 }
 
@@ -860,4 +866,24 @@ enum LogoChangeRequestStatus {
   CREATED
   APPROVED
   REPROVED
+}
+
+model Referral {
+  id                 String         @id @default(uuid()) @db.Uuid
+  consumerId         String         @db.Uuid
+  childrenConsumerId String?        @db.Uuid
+  cpf                String         @unique
+  status             ReferralStatus @default(WAITING)
+  createdAt          DateTime       @default(now())
+
+  consumer         Consumer  @relation(fields: [consumerId], references: [id])
+  childrenConsumer Consumer? @relation("ReferralConsumer", fields: [childrenConsumerId], references: [id])
+
+  @@map("referrals")
+}
+
+enum ReferralStatus {
+  WAITING
+  APPROVED
+  BONUSING
 }

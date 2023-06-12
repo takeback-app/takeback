@@ -2,6 +2,7 @@ import { TransactionStatusEnum } from "../../enum/TransactionStatusEnum";
 import { CashbackApproved, Notify } from "../../notifications";
 import { prisma } from "../../prisma";
 import { GenerateConsultantBonus } from "../consumer/bonus/GenerateConsultantBonus";
+import { GenerateReferralBonus } from "../consumer/bonus/GenerateReferralBonus";
 import { GenerateSellBonus } from "../consumer/bonus/GenerateSellBonus";
 import { GenerateCashbackCommission } from "../representative/commission/GenerateCashbackCommission";
 
@@ -15,11 +16,13 @@ interface ExecuteDTO {
 export class ApproveTransactionUseCase {
   private sellBonus: GenerateSellBonus;
   private consultantBonus: GenerateConsultantBonus;
+  private referralBonus: GenerateReferralBonus;
   private cashbackCommission: GenerateCashbackCommission;
 
   constructor(private paymentOrderId: number) {
     this.sellBonus = new GenerateSellBonus();
     this.consultantBonus = new GenerateConsultantBonus();
+    this.referralBonus = new GenerateReferralBonus();
     this.cashbackCommission = new GenerateCashbackCommission();
   }
 
@@ -28,6 +31,7 @@ export class ApproveTransactionUseCase {
       this.approve(transactionId, companyName),
       this.sellBonus.create(transactionId),
       this.consultantBonus.create(transactionId),
+      this.referralBonus.create(transactionId),
       this.cashbackCommission.create(transactionId),
     ]);
   }

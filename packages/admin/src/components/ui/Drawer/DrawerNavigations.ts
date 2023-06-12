@@ -54,7 +54,7 @@ export const drawerNav = [
 
   {
     id: 1,
-    label: 'Clientes',
+    label: 'Usuários',
     activeIcon: IoPerson,
     inactiveIcon: IoPersonOutline,
     isActive: false,

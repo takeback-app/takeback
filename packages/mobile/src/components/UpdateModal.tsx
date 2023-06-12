@@ -16,11 +16,11 @@ export function UpdateModal(props: UpdateModalProps) {
       <StatusBar style="dark" />
       <Modal {...props}>
         <Modal.Content maxWidth="400px">
-          <Modal.Header>Nova atualização</Modal.Header>
+          <Modal.Header>Novidade! 😀</Modal.Header>
           <Modal.Body>
             <Text>
-              É preciso que você atualize o app para continuar utilizando. O app
-              irá fechar e abrir novamente, não se preocupe.
+              Seu aplicativo foi atualizado! O app irá fechar e abrir novamente,
+              não se preocupe.
             </Text>
           </Modal.Body>
           <Modal.Footer>
@@ -32,7 +32,7 @@ export function UpdateModal(props: UpdateModalProps) {
               }}
               isLoading={isLoading}
             >
-              Atualizar
+              OK
             </Button>
           </Modal.Footer>
         </Modal.Content>

@@ -19,6 +19,8 @@ import Toastify, { notifyError } from '../../../components/ui/Toastify'
 
 import PALLET from '../../../styles/ColorPallet'
 import * as S from './styles'
+import { ButtonGroup, Flex } from '@chakra-ui/react'
+import { ChangeReferralPercentageButton } from './ChangeReferralPercentageButton'
 
 const statusOptions = [
   { id: 0, description: 'Todos' },
@@ -131,13 +133,16 @@ const Consumer: React.FC<React.PropsWithChildren<unknown>> = () => {
       ) : (
         <S.Container>
           <S.SubHeader>
-            <QuartenaryButton
-              onClick={() => setFilterVisible(true)}
-              label="Filtrar"
-              color={PALLET.COLOR_06}
-              icon={IoFilter}
-              noFullWidth
-            />
+            <ButtonGroup flex="1" justifyContent="space-between">
+              <ChangeReferralPercentageButton />
+              <QuartenaryButton
+                onClick={() => setFilterVisible(true)}
+                label="Filtrar"
+                color={PALLET.COLOR_06}
+                icon={IoFilter}
+                noFullWidth
+              />
+            </ButtonGroup>
           </S.SubHeader>
 
           <S.Table>

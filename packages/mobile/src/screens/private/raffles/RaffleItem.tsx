@@ -86,7 +86,7 @@ export function RaffleItem({ raffle }: { raffle: Raffle }) {
         style={{ margin: gap / 2 }}
       >
         <LoadingImage
-          source={raffle.imageUrl}
+          source={{ uri: raffle.imageUrl }}
           style={{
             flex: 1,
             backgroundColor: '#e4e4e7',

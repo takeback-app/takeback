@@ -16,7 +16,6 @@ import moment from 'moment'
 import 'moment/locale/pt-br'
 import { NativeBaseProvider } from 'native-base'
 import React, { useEffect, useState } from 'react'
-import { LogBox } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import AuthProvider from './src/contexts/AuthContext'
@@ -31,8 +30,6 @@ import { theme } from './src/styles/theme'
 import { cacheImages } from './src/utils/cache'
 import { initFocus } from './src/utils/initFocus'
 import { registerForPushNotificationsAsync } from './src/utils/notifications'
-
-LogBox.ignoreAllLogs()
 
 moment.locale('pt-BR')
 

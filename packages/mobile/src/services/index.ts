@@ -221,3 +221,18 @@ export async function generateCashback(
     ]
   }
 }
+
+export async function createReferral(data: any): Promise<ReturnApi> {
+  try {
+    await API.post('costumer/referrals', data)
+
+    return [true, { message: '' }]
+  } catch (err) {
+    const error = err as AxiosError
+
+    return [
+      false,
+      { message: error.response?.data.message || 'Contate um administrador' }
+    ]
+  }
+}
