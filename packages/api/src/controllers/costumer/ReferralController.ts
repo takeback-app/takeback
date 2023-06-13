@@ -17,18 +17,28 @@ export class ReferralController {
   async store(request: Request, response: Response) {
     const { id: consumerId } = request["tokenPayload"];
 
-    const { cpf } = request.body;
+    const { identifier } = request.body;
 
     const alreadyExistReferral = await prisma.referral.findFirst({
-      where: { cpf },
+      where: { identifier },
     });
 
     if (alreadyExistReferral) {
       return response.status(400).json({ message: "CPF já indicado" });
     }
 
+    const consumerReferralCount = await prisma.referral.count({
+      where: { consumerId, status: "WAITING" },
+    });
+
+    if (consumerReferralCount >= 10) {
+      return response
+        .status(400)
+        .json({ message: "Limite de indicações atingido" });
+    }
+
     const alreadyExistConsumer = await prisma.consumer.findFirst({
-      where: { cpf },
+      where: { phone: identifier },
     });
 
     if (alreadyExistConsumer) {
@@ -36,9 +46,21 @@ export class ReferralController {
     }
 
     const referral = await prisma.referral.create({
-      data: { cpf, consumerId },
+      data: { identifier, consumerId },
     });
 
     return response.status(201).json(referral);
+  }
+
+  async delete(request: Request, response: Response) {
+    const { id: consumerId } = request["tokenPayload"];
+
+    const { id } = request.params;
+
+    await prisma.referral.deleteMany({
+      where: { id, consumerId, status: "WAITING" },
+    });
+
+    return response.status(204).json();
   }
 }

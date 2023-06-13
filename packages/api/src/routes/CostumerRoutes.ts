@@ -142,5 +142,6 @@ routes.get(
 
 routes.get("/referrals", referralController.index);
 routes.post("/referrals", referralController.store);
+routes.delete("/referrals/:id", referralController.delete);
 
 export default routes;

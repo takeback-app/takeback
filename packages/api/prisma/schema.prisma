@@ -872,7 +872,7 @@ model Referral {
   id                 String         @id @default(uuid()) @db.Uuid
   consumerId         String         @db.Uuid
   childrenConsumerId String?        @db.Uuid
-  cpf                String         @unique
+  identifier         String         @unique
   status             ReferralStatus @default(WAITING)
   createdAt          DateTime       @default(now())
 
