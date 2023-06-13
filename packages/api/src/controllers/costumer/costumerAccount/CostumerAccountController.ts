@@ -15,7 +15,7 @@ class CostumerAccountController {
     const consumer = await register.execute(data);
 
     await prisma.referral.updateMany({
-      where: { cpf: consumer.cpf },
+      where: { identifier: consumer.phone, status: "WAITING" },
       data: { status: "APPROVED", childrenConsumerId: consumer.id },
     });
 
