@@ -7,7 +7,9 @@ interface DialogProps {
   confirmTitle?: string
   cancelTitle?: string
   hideCancelTitle?: boolean
+  confirmColor?: string
   onClose?: () => void
+  onCancel?: () => void
   onConfirm?: () => void
 }
 
@@ -16,6 +18,7 @@ export function Dialog(props: DialogProps) {
 
   return (
     <AlertDialog
+      size="xl"
       leastDestructiveRef={cancelRef}
       isOpen={props.isOpen}
       onClose={props.onClose}
@@ -32,7 +35,7 @@ export function Dialog(props: DialogProps) {
               <Button
                 variant="unstyled"
                 colorScheme="coolGray"
-                onPress={props.onClose}
+                onPress={props.onCancel ? props.onCancel : props.onClose}
                 ref={cancelRef}
                 _text={{
                   fontWeight: 'medium'
@@ -44,7 +47,7 @@ export function Dialog(props: DialogProps) {
               <></>
             )}
             <Button
-              bgColor="blue.600"
+              bgColor={props.confirmColor ? props.confirmColor : 'blue.600'}
               px="6"
               rounded="md"
               onPress={props.onConfirm}

@@ -24,7 +24,7 @@ export class ReferralController {
     });
 
     if (alreadyExistReferral) {
-      return response.status(400).json({ message: "CPF já indicado" });
+      return response.status(400).json({ message: "Cliente já indicado" });
     }
 
     const consumerReferralCount = await prisma.referral.count({
@@ -42,7 +42,7 @@ export class ReferralController {
     });
 
     if (alreadyExistConsumer) {
-      return response.status(400).json({ message: "CPF já cadastrado" });
+      return response.status(400).json({ message: "Cliente já cadastrado" });
     }
 
     const referral = await prisma.referral.create({

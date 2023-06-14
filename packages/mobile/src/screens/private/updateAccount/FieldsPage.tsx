@@ -26,6 +26,7 @@ import { MaritalStatusInput } from '../../../components/form/MaritalStatusInput'
 import { SchoolingInput } from '../../../components/form/SchoolingInput'
 import { MonthlyIncomeInput } from '../../../components/form/MonthlyIncomeInput'
 import { HasChildrenInput } from '../../../components/form/HasChildrenInput'
+import { Layout } from '../../../components/layout'
 
 enum Field {
   SEX = 'sex',
@@ -78,7 +79,7 @@ export function FieldsPage({ navigation, route }) {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+    <Layout>
       <KeyboardAvoidingView
         style={{ flex: 1, backgroundColor: 'white' }}
         keyboardVerticalOffset={bottomHeight}
@@ -160,6 +161,6 @@ export function FieldsPage({ navigation, route }) {
           </Stack>
         </Flex>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </Layout>
   )
 }
