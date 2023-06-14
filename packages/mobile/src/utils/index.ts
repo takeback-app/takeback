@@ -22,6 +22,15 @@ export async function createWhatsAppMessage(number: string) {
   } catch {}
 }
 
+export async function createWhatsAppReferralMessage(number: string) {
+  const text =
+    'Convido você para baixar o Takeback e experimentar uma nova forma de valorizar o seu dinheiro 💴.  Para isso, basta digitar Takeback na sua loja de aplicativos. É gratuito e sempre será! 😉'
+
+  try {
+    await Linking.openURL(`whatsapp://send?text=${text}&phone=55${number}`)
+  } catch {}
+}
+
 export async function sendIGreenMessage() {
   try {
     await Linking.openURL(constants.whatsAppLinkIGreen)

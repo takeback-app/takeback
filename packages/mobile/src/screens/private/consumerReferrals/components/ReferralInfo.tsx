@@ -25,8 +25,8 @@ export function ReferralInfo() {
           <Text fontWeight="bold">Funcionamento:</Text>
           <Text fontWeight="bold">Muito simples!</Text>
           <Text fontWeight="bold">
-            1 - Primeiro indique aqui o cpf do seu amigo, somente depois peça
-            que ele baixe o app Takeback;
+            1 - Primeiro indique aqui o telefone do seu amigo, somente depois
+            peça que ele baixe o app Takeback;
           </Text>
           <Text fontWeight="bold">
             2 - Apenas é possível indicar amigos que ainda não têm Takeback.

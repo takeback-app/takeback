@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 
 import { Center, Flex, Icon, Spinner, Text } from 'native-base'
 import { TouchableOpacity } from 'react-native'
@@ -19,6 +19,20 @@ export function Referrals({ navigation }) {
   useFocusEffect(() => {
     mutate()
   })
+
+  const renderItem: ListRenderItem<Referral> = useCallback(
+    ({ item }) => {
+      return (
+        <ReferralItem
+          item={item}
+          onDeleted={() => {
+            mutate()
+          }}
+        />
+      )
+    },
+    [mutate]
+  )
 
   return (
     <Layout>
@@ -44,10 +58,6 @@ export function Referrals({ navigation }) {
       )}
     </Layout>
   )
-}
-
-const renderItem: ListRenderItem<Referral> = ({ item }) => {
-  return <ReferralItem item={item} />
 }
 
 function CreateButton({ navigation }) {

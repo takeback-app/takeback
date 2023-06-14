@@ -236,3 +236,18 @@ export async function createReferral(data: any): Promise<ReturnApi> {
     ]
   }
 }
+
+export async function deleteReferral(id: string): Promise<ReturnApi> {
+  try {
+    await API.delete(`costumer/referrals/${id}`)
+
+    return [true, { message: '' }]
+  } catch (err) {
+    const error = err as AxiosError
+
+    return [
+      false,
+      { message: error.response?.data.message || 'Contate um administrador' }
+    ]
+  }
+}

@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
-import { Circle, HStack, Text, VStack } from 'native-base'
+import { Center, Circle, HStack, Text, VStack } from 'native-base'
 import { Ionicons } from '@expo/vector-icons'
 import { dateFormatSimple } from '../../../../utils'
-import { maskCPF } from '../../../../utils/masks'
+import { maskPhone } from '../../../../utils/masks'
+import { RemoveButton } from './RemoveButton'
 
 export enum ReferralStatus {
   WAITING = 'WAITING',
@@ -13,7 +14,7 @@ export enum ReferralStatus {
 
 export interface Referral {
   id: string
-  cpf: string
+  identifier: string
   status: ReferralStatus
   createdAt: string
   childrenConsumer?: {
@@ -23,6 +24,7 @@ export interface Referral {
 
 interface ReferralItemProps {
   item: Referral
+  onDeleted: () => void
 }
 
 const statusData = {
@@ -43,7 +45,7 @@ const statusData = {
   }
 }
 
-export function ReferralItem({ item }: ReferralItemProps) {
+export function ReferralItem({ item, onDeleted }: ReferralItemProps) {
   const status = statusData[item.status]
 
   return (
@@ -60,7 +62,7 @@ export function ReferralItem({ item }: ReferralItemProps) {
 
       <VStack flex="1" space={1}>
         <Text fontWeight="semibold" fontSize="15px" color="gray.800">
-          {item.childrenConsumer?.fullName || maskCPF(item.cpf)}
+          {item.childrenConsumer?.fullName || maskPhone(item.identifier)}
         </Text>
         <Text fontWeight="medium" fontSize="13px">
           {status.text}
@@ -69,8 +71,12 @@ export function ReferralItem({ item }: ReferralItemProps) {
           {dateFormatSimple(item.createdAt, true)}
         </Text>
       </VStack>
-      {item.childrenConsumer && (
+      {item.childrenConsumer ? (
         <Circle bg={status.color} w={2} h={2} alignSelf="center" />
+      ) : (
+        <Center>
+          <RemoveButton id={item.id} onDeleted={onDeleted} />
+        </Center>
       )}
     </HStack>
   )

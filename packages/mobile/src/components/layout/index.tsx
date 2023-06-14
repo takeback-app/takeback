@@ -3,7 +3,9 @@ import {
   SafeAreaView,
   StatusBar as RNStatusBar,
   StyleSheet,
-  ViewProps
+  ViewProps,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native'
 import { StatusBar as ExpoStatusBar, StatusBarProps } from 'expo-status-bar'
 
@@ -15,9 +17,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, ...rest }) => {
   return (
     <>
       <ExpoStatusBar style="dark" {...rest.barProps} />
-      <SafeAreaView style={styles.safeArea} {...rest}>
-        {children}
-      </SafeAreaView>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <SafeAreaView style={styles.safeArea} {...rest}>
+          {children}
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
     </>
   )
 }
