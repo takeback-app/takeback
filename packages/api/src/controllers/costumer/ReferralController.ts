@@ -34,7 +34,10 @@ export class ReferralController {
     if (consumerReferralCount >= 10) {
       return response
         .status(400)
-        .json({ message: "Limite de indicações atingido" });
+        .json({
+          message:
+            "Limite de indicações atingidos. Aguarde até algum amigo baixar o app para poder fazer novas indicações.",
+        });
     }
 
     const alreadyExistConsumer = await prisma.consumer.findFirst({
