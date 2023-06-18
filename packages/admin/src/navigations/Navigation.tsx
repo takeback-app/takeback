@@ -25,7 +25,6 @@ import Settings from '../views/settings/settings'
 import Industries from '../views/settings/industries'
 import Users from '../views/settings/users/users'
 import PaymentMethods from '../views/settings/paymentMethods'
-import SupportUsers from '../views/settings/supportUsers/supportUsers'
 import Plans from '../views/settings/plans'
 import NotFound from '../views/notFound'
 import Reports from '../views/reports/reports'
@@ -276,14 +275,6 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <Plans />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/configuracoes/suporte"
-        element={
-          <PrivateRoute>
-            <SupportUsers />
           </PrivateRoute>
         }
       />

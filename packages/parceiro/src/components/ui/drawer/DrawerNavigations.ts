@@ -34,12 +34,7 @@ import {
   IoImage,
   IoImageOutline
 } from 'react-icons/io5'
-import {
-  RiCustomerService2Line,
-  RiCustomerService2Fill,
-  RiTimeFill,
-  RiTimeLine
-} from 'react-icons/ri'
+import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
 import { FaCashRegister } from 'react-icons/fa'
 
 export const drawerNav = [
@@ -234,15 +229,6 @@ export const drawerNav = [
         inactiveIcon: IoCardOutline,
         isActive: false,
         to: '/configuracoes/pagamento',
-        userBlocked: 0
-      },
-      {
-        id: 4,
-        label: 'Suporte',
-        activeIcon: RiCustomerService2Fill,
-        inactiveIcon: RiCustomerService2Line,
-        isActive: false,
-        to: '/configuracoes/suporte',
         userBlocked: 0
       }
     ]

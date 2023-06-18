@@ -229,15 +229,6 @@ export const drawerNav = [
         isActive: false,
         to: '/configuracoes/planos-e-mensalidade',
         userBlocked: 0
-      },
-      {
-        id: 4,
-        label: 'Suportes',
-        activeIcon: RiCustomerService2Fill,
-        inactiveIcon: RiCustomerService2Line,
-        isActive: false,
-        to: '/configuracoes/suporte',
-        userBlocked: 0
       }
     ]
   }
