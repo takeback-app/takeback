@@ -108,7 +108,9 @@ export function LogoChangeRequest() {
       })
     }
 
-    const [isImageOk, imageData] = await storeImage(data.file[0])
+    const [isImageOk, imageData] = await storeImage(data.file[0], {
+      resize: '128'
+    })
 
     if (!isImageOk) {
       return toast({
