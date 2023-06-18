@@ -403,6 +403,7 @@ model TransactionPaymentMethod {
   id                   Int                   @id(map: "PK_3d6d4cfd25b7a2628411bd0ebf0") @default(autoincrement())
   cashbackPercentage   Decimal               @default(0) @db.Decimal(10, 4)
   cashbackValue        Decimal               @default(0) @db.Decimal(10, 4)
+  amount               Decimal               @default(0) @db.Decimal(10, 4)
   transactionsId       Int?
   paymentMethodId      Int?
   transaction          Transaction?          @relation(fields: [transactionsId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_03ae65f4f819fed4d1837622348")
