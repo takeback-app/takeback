@@ -6,7 +6,7 @@ export class GenerateSellBonus extends GenerateBonus {
   async create(transactionId: number) {
     const transaction = await this.getTransaction(transactionId);
 
-    if (transaction.totalAmount.toNumber() <= 10) return;
+    if (transaction.totalAmount.toNumber() < 10) return;
 
     const takebackBonus = await this.getValidBonusCalculator(
       transaction.company.paymentPlanId

@@ -20,6 +20,7 @@ test.group("Bonus", (group) => {
 
     const originalTransaction = await prisma.transaction.create({
       data: {
+        totalAmount: 10,
         takebackFeeAmount,
         companyUsersId: companyUser.id,
         companiesId: company.id,

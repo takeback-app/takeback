@@ -49,7 +49,7 @@ model Company {
   periodFree                  Boolean                     @default(true)
   permissionToSupportAccess   Boolean                     @default(true)
   representativeId            String?                     @db.Uuid
-  useCashbackAsBack           Boolean                     @default(false)
+  useCashbackAsBack           Boolean                     @default(true)
   paymentPlan                 PaymentPlan?                @relation(fields: [paymentPlanId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_0d4ef1a2673e3fc3b1934baaea5")
   companyAddress              CompanyAddress?             @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_2bb6583d4cf35554e19694c8a9b")
   companyStatus               CompanyStatus?              @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_78f70c4376dbfc35f8ba9257295")

@@ -91,6 +91,10 @@ export class GenerateCashbackUseCase {
       transactionGenerator.hasTakebackPaymentMethod() &&
       companyPaymentMethods.length === 1;
 
+    if (transactionData.cashbackAmount == 0 && !hasOnlyTakebackPaymentMethod) {
+      return null;
+    }
+
     const transactionStatusId = hasOnlyTakebackPaymentMethod
       ? takebackTransactionStatus.id
       : pendingTransactionStatus.id;

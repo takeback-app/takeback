@@ -10,17 +10,19 @@ declare module "@japa/runner" {
   }
 }
 
+type Row = {
+  tablename: string;
+};
+
 export function databasePlugin() {
   const plugin: PluginFn = (_config, _runner, { Group }) => {
     Group.macro("deleteTables", function () {
       this.each.setup(async () => {
-        type Row = {
-          tablename: string;
-        };
-
         const data = await prisma.$queryRaw<Row[]>`
           SELECT tablename FROM pg_tables WHERE schemaname='public'
         `;
+
+        const queries = [];
 
         for (const { tablename } of data) {
           if (tablename === "_prisma_migrations") {
@@ -29,8 +31,10 @@ export function databasePlugin() {
 
           const sql = `TRUNCATE TABLE ${tablename} RESTART IDENTITY CASCADE;`;
 
-          await prisma.$executeRawUnsafe(sql);
+          queries.push(prisma.$executeRawUnsafe(sql));
         }
+
+        await prisma.$transaction(queries);
       });
     });
   };
