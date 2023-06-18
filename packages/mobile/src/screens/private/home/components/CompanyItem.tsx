@@ -2,7 +2,6 @@ import React from 'react'
 
 import {
   Box,
-  Flex,
   HStack,
   Pressable,
   Skeleton,
@@ -10,9 +9,8 @@ import {
   VStack,
   View
 } from 'native-base'
-import { getInitials } from '../../../../utils'
 import { Company, CompanyPaymentMethod } from '../../../../stores/useCompanies'
-import { LoadingImage } from '../../../../components/LoadingImage'
+import { CompanyLogo } from '../../../../components/CompanyLogo'
 
 function calculateHighestPercentage(methods: CompanyPaymentMethod[]) {
   if (!methods.length) return 0
@@ -50,35 +48,10 @@ export function CompanyItem({ company, isLoading, onPress }: CompanyItemProps) {
         </HStack>
       ) : (
         <>
-          <Flex
-            w="16"
-            justifyContent="center"
-            alignItems="center"
-            bgColor={company.logoUrl ? undefined : 'blue.400'}
-            rounded="12px"
-          >
-            {company.logoUrl ? (
-              <LoadingImage
-                source={{ uri: company.logoUrl }}
-                style={{
-                  flex: 1,
-                  height: '100%',
-                  width: '100%',
-                  borderRadius: 12,
-                  backgroundColor: '#60a5fa'
-                }}
-              />
-            ) : (
-              <Text
-                fontSize="md"
-                fontWeight="semibold"
-                color="white"
-                textTransform="uppercase"
-              >
-                {getInitials(company.fantasyName || '')}
-              </Text>
-            )}
-          </Flex>
+          <CompanyLogo
+            companyName={company.fantasyName}
+            companyLogoUrl={company.logoUrl}
+          />
           <VStack flex="1" w="full" justifyContent="space-between" ml="2">
             <View>
               <Text
