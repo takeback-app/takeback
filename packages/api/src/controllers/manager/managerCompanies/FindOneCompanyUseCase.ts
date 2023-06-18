@@ -28,6 +28,7 @@ class FindOneCompanyUseCase {
         "company.customIndustryFeeActive",
         "company.contactPhone",
         "company.representativeId",
+        "company.logoUrl",
       ])
       .addSelect([
         "industry.id",

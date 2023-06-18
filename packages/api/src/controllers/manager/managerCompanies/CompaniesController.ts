@@ -165,6 +165,18 @@ class CompaniesController {
 
     return response.json({ message: "Representante alterado" });
   }
+
+  async updateCompanyLogo(request: Request, response: Response) {
+    const { id } = request.params;
+    const { logoUrl } = request.body;
+
+    await prisma.company.update({
+      where: { id },
+      data: { logoUrl },
+    });
+
+    return response.json({ message: "Logo alterado" });
+  }
 }
 
 export { CompaniesController };

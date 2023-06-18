@@ -5,6 +5,7 @@ export type TCompany = {
   company_registeredNumber: string
   company_email: string
   company_phone: string
+  company_logoUrl: string | null
   company_customIndustryFee: number
   company_customIndustryFeeActive: boolean
   company_positiveBalance: number

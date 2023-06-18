@@ -48,6 +48,9 @@ export class Companies {
   phone: string;
 
   @Column()
+  logoUrl: string;
+
+  @Column()
   contactPhone: string;
 
   @Column({
