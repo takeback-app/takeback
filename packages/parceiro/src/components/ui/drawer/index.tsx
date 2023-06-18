@@ -1,26 +1,47 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5'
 import { useTheme } from 'styled-components'
 
-import { AuthContext } from '../../../contexts/AuthContext'
-import { drawerNav } from './DrawerNavigations'
-
 import * as S from './styles'
-import { MenuNavigationCashier } from './MenuNavigationCashier'
 
 import useSWR from 'swr'
 import { Dot } from './Dot'
+import { IconType } from 'react-icons'
 
-export const Drawer: React.FC = () => {
+interface Nav {
+  id: number
+  inactiveIcon: IconType
+  activeIcon: IconType
+  label: string
+  isActive: boolean
+  to: string
+  hasDot?: boolean
+  pages?: Page[]
+  isOpened?: boolean
+}
+
+export interface Page {
+  id: number
+  label: string
+  inactiveIcon: IconType
+  activeIcon: IconType
+  isActive: boolean
+  to: string
+  userBlocked?: number
+}
+
+interface Props {
+  navData: Nav[]
+}
+
+export function Drawer({ navData }: Props) {
   const history = useNavigate()
   const theme = useTheme()
 
   const { data } = useSWR<{ count: number }>('company/waiting-solicitations', {
     refreshInterval: 10 * 1000 /** 10 segundos */
   })
-
-  const { isManager } = useContext(AuthContext)
 
   const [renderingAux, setRenderingAux] = useState(false)
 
@@ -29,7 +50,7 @@ export const Drawer: React.FC = () => {
     to: string,
     subPageId?: number
   ) => {
-    drawerNav.map(nav => {
+    navData.map(nav => {
       if (nav.id === id) {
         if (nav.pages) {
           return nav.pages.map(page => {
@@ -52,14 +73,10 @@ export const Drawer: React.FC = () => {
     })
 
     history(to)
-
-    // if (window.innerWidth < 1070) {
-    //   setIsOpen(false)
-    // }
   }
 
   const openSubPages = (id: number) => {
-    drawerNav.map(nav => {
+    navData.map(nav => {
       return nav.id === id ? (nav.isOpened = !nav.isOpened) : false
     })
 
@@ -68,70 +85,66 @@ export const Drawer: React.FC = () => {
 
   return (
     <S.Content>
-      {isManager ? (
-        drawerNav.map(nav => {
-          if (nav.pages) {
-            return (
-              <S.NavWrapperMultiPages key={nav.id}>
-                <S.NavWrapper onClick={() => openSubPages(nav.id)}>
-                  <nav.inactiveIcon color={theme.colors['white-300']} />
+      {navData.map(nav => {
+        if (nav.pages) {
+          return (
+            <S.NavWrapperMultiPages key={nav.id}>
+              <S.NavWrapper onClick={() => openSubPages(nav.id)}>
+                <nav.inactiveIcon color={theme.colors['white-300']} />
 
-                  <S.LabelMultiPages>
-                    {nav.label}
-                    {nav.isOpened ? <IoChevronDown /> : <IoChevronUp />}
-                  </S.LabelMultiPages>
-                </S.NavWrapper>
-                {nav.isOpened &&
-                  nav.pages.map(page => {
-                    return (
-                      <S.NavWrapperVariant
-                        key={page.id}
-                        isActive={page.isActive}
-                        isOpened={true}
-                        onClick={() =>
-                          handleDrawerNavigation(nav.id, page.to, page.id)
-                        }
-                      >
-                        {page.isActive ? (
-                          <page.activeIcon color={theme.colors['blue-700']} />
-                        ) : (
-                          <page.inactiveIcon
-                            color={theme.colors['white-300']}
-                          />
-                        )}
-                        <S.Label to={page.to} isActive={page.isActive}>
-                          {page.label}
-                        </S.Label>
-                      </S.NavWrapperVariant>
-                    )
-                  })}
-              </S.NavWrapperMultiPages>
-            )
-          } else {
-            return (
-              <S.NavWrapper
-                key={nav.id}
-                isActive={nav.isActive}
-                onClick={() => handleDrawerNavigation(nav.id, nav.to)}
-              >
                 {nav.hasDot && data?.count ? <Dot /> : null}
 
-                {nav.isActive ? (
-                  <nav.activeIcon color={theme.colors['blue-700']} />
-                ) : (
-                  <nav.inactiveIcon color={theme.colors['white-300']} />
-                )}
-
-                <S.Label to={nav.to} isActive={nav.isActive}>
+                <S.LabelMultiPages>
                   {nav.label}
-                </S.Label>
+                  {nav.isOpened ? <IoChevronDown /> : <IoChevronUp />}
+                </S.LabelMultiPages>
               </S.NavWrapper>
-            )
-          }
-        })
-      ) : (
-        <MenuNavigationCashier count={data?.count} />
-      )}
+              {nav.isOpened &&
+                nav.pages.map(page => {
+                  return (
+                    <S.NavWrapperVariant
+                      key={page.id}
+                      isActive={page.isActive}
+                      isOpened={true}
+                      onClick={() =>
+                        handleDrawerNavigation(nav.id, page.to, page.id)
+                      }
+                    >
+                      {page.isActive ? (
+                        <page.activeIcon color={theme.colors['blue-700']} />
+                      ) : (
+                        <page.inactiveIcon color={theme.colors['white-300']} />
+                      )}
+                      <S.Label to={page.to} isActive={page.isActive}>
+                        {page.label}
+                      </S.Label>
+                    </S.NavWrapperVariant>
+                  )
+                })}
+            </S.NavWrapperMultiPages>
+          )
+        } else {
+          return (
+            <S.NavWrapper
+              key={nav.id}
+              isActive={nav.isActive}
+              onClick={() => handleDrawerNavigation(nav.id, nav.to)}
+            >
+              {nav.hasDot && data?.count ? <Dot /> : null}
+
+              {nav.isActive ? (
+                <nav.activeIcon color={theme.colors['blue-700']} />
+              ) : (
+                <nav.inactiveIcon color={theme.colors['white-300']} />
+              )}
+
+              <S.Label to={nav.to} isActive={nav.isActive}>
+                {nav.label}
+              </S.Label>
+            </S.NavWrapper>
+          )
+        }
+      })}
     </S.Content>
   )
 }

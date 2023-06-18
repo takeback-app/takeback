@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import {
   Box,
   CloseButton,
@@ -10,12 +10,17 @@ import {
 import { Drawer } from '../drawer'
 
 import logoHorizontal from '../../../assets/logos/logoTakebackHorizontal.png'
+import { AuthContext } from '../../../contexts/AuthContext'
+import { managerNav } from '../drawer/managerNav'
+import { cashierNav } from '../drawer/cashierrNav'
 
 interface SidebarProps extends BoxProps {
   onClose: () => void
 }
 
 export function SidebarContent({ onClose, ...rest }: SidebarProps) {
+  const { isManager } = useContext(AuthContext)
+
   return (
     <Box
       transition="3s ease"
@@ -33,7 +38,7 @@ export function SidebarContent({ onClose, ...rest }: SidebarProps) {
         <Image src={logoHorizontal} w="60" />
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
-      <Drawer />
+      <Drawer navData={isManager ? managerNav : cashierNav} />
     </Box>
   )
 }

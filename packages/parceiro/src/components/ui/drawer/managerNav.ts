@@ -37,7 +37,7 @@ import {
 import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
 import { FaCashRegister } from 'react-icons/fa'
 
-export const drawerNav = [
+export const managerNav = [
   {
     id: 0,
     label: 'Painel',
@@ -61,7 +61,25 @@ export const drawerNav = [
     inactiveIcon: IoBagAddOutline,
     isActive: false,
     hasDot: true,
-    to: '/solicitações'
+    to: '/solicitações',
+    pages: [
+      {
+        id: 0,
+        label: 'Pagamento',
+        activeIcon: BsCashCoin,
+        inactiveIcon: BsCash,
+        isActive: false,
+        to: '/solicitações/pagamento'
+      },
+      {
+        id: 1,
+        label: 'Cashback',
+        activeIcon: IoCart,
+        inactiveIcon: IoCartOutline,
+        isActive: false,
+        to: '/solicitações/cashback'
+      }
+    ]
   },
   {
     id: 3,
