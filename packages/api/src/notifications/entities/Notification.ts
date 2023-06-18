@@ -2,8 +2,7 @@ import { NotificationType, Prisma } from "@prisma/client";
 import { Expo as ExpoSdk, ExpoPushMessage } from "expo-server-sdk";
 
 import { prisma } from "../../prisma";
-import { logger } from "../../services/logger";
-import { expo, Expo } from "../../services/expo";
+import { Expo } from "../../services/expo";
 
 export type User = {
   id: string;
