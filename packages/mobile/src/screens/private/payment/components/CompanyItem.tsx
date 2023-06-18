@@ -1,9 +1,9 @@
 import React from 'react'
 import { Company } from '../../../../stores/useCompanies'
-import { Circle, HStack, Text, VStack } from 'native-base'
+import { HStack, Text, VStack } from 'native-base'
 import { TouchableOpacity } from 'react-native'
-import { getInitials } from '../../../../utils'
 import { usePaymentStore } from '../state'
+import { CompanyLogo } from '../../../../components/CompanyLogo'
 
 interface CompanyItemProps {
   company: Company
@@ -30,16 +30,12 @@ export function CompanyItem({ company, onPress }: CompanyItemProps) {
   return (
     <TouchableOpacity onPress={handleSelection}>
       <HStack p="4" space="4" alignItems="center">
-        <Circle w="12" h="12" rounded="full" bgColor="blue.400">
-          <Text
-            fontSize="md"
-            fontWeight="semibold"
-            color="white"
-            textTransform="uppercase"
-          >
-            {getInitials(company.fantasyName || '')}
-          </Text>
-        </Circle>
+        <CompanyLogo
+          rounded={100}
+          size={12}
+          companyName={company.fantasyName}
+          companyLogoUrl={company.logoUrl}
+        />
 
         <VStack flex="1">
           <Text
