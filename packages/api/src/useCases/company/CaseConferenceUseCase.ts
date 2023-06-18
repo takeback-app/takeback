@@ -22,7 +22,7 @@ export class CaseConferenceUseCase {
         companiesId: companyId,
         transactionStatus: { description: { in: transactionStatus } },
         companyUsersId: { not: null },
-        transactionPaymentMethods: { some: { cashbackPercentage: { gt: 0 } } },
+        transactionPaymentMethods: { some: { amount: { gt: 0 } } },
         createdAt: {
           gte: DateTime.fromISO(date).startOf("day").toJSDate(),
           lte: DateTime.fromISO(date).endOf("day").toJSDate(),
@@ -33,7 +33,7 @@ export class CaseConferenceUseCase {
         totalAmount: true,
         companyUsersId: true,
         transactionPaymentMethods: {
-          where: { cashbackPercentage: { gt: 0 } },
+          where: { amount: { gt: 0 } },
           include: {
             companyPaymentMethod: {
               select: {

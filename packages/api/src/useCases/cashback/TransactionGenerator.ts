@@ -24,6 +24,7 @@ type Company = PrismaCompany & {
 type TransactionPaymentMethodData = {
   paymentMethodId: number;
   cashbackPercentage: number;
+  amount: number;
   cashbackValue: number;
 };
 
@@ -120,6 +121,7 @@ export class TransactionGenerator {
       return {
         cashbackPercentage: 0,
         cashbackValue: 0,
+        amount: payment,
         paymentMethodId: id,
       };
     }
@@ -133,6 +135,7 @@ export class TransactionGenerator {
       paymentMethodId: id,
       cashbackPercentage: cashbackPercentage.toNumber(),
       cashbackValue,
+      amount: payment,
     };
   }
 

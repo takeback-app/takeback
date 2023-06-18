@@ -15,6 +15,7 @@ export interface Data {
 
 type TransactionPaymentMethod = {
   cashbackValue: Decimal;
+  amount: Decimal;
   cashbackPercentage: Decimal;
   companyPaymentMethod: {
     paymentMethod: {
@@ -61,9 +62,7 @@ export class CashConferenceCalculator {
         transactionPaymentMethod
       );
 
-      const amount =
-        +transactionPaymentMethod.cashbackValue /
-        +transactionPaymentMethod.cashbackPercentage;
+      const amount = +transactionPaymentMethod.amount;
 
       this.data.totalAmount += amount;
 
