@@ -45,10 +45,6 @@ const Drawer: React.FC<React.PropsWithChildren<unknown>> = () => {
     })
 
     history(to)
-
-    if (window.innerWidth < 1024) {
-      setIsOpen(false)
-    }
   }
 
   const openSubPages = (id: number) => {

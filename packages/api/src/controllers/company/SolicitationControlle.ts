@@ -5,13 +5,15 @@ import { InternalError } from "../../config/GenerateErros";
 import { ApproveSolicitationUseCase } from "../../useCases/cashback/ApproveSolicitationUseCase";
 import { solicitationKey } from "../../services/cacheKeys";
 import { Cache } from "../../redis";
+import { SolicitationType } from "@prisma/client";
 
 export class SolicitationController {
   async index(request: Request, response: Response) {
+    const type = request.query.type as SolicitationType;
     const { companyId } = request["tokenPayload"];
 
     const solicitations = await prisma.transactionSolicitation.findMany({
-      where: { companyId, status: "WAITING" },
+      where: { companyId, status: "WAITING", type },
       orderBy: { createdAt: "desc" },
       include: {
         consumer: { select: { fullName: true } },

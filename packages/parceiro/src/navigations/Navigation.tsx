@@ -21,7 +21,7 @@ import { CashbacksToReceive } from '../pages/private/cashbacksReceive'
 import { MonthlyPayments } from '../pages/private/monthlyPayments'
 import { WithDrawPage } from '../pages/private/withDraw'
 import { CashRegister } from '../pages/private/cashRegister'
-import { Solicitations } from '../pages/private/solicitations'
+import { SolicitationType, Solicitations } from '../pages/private/solicitations'
 import { Raffles } from '../pages/private/raffles'
 import { RaffleCreate } from '../pages/private/raffles/raffleCreate'
 import { RaffleDetails } from '../pages/private/raffles/raffleDetails'
@@ -62,10 +62,18 @@ const Navigation: React.FC = () => {
         }
       />
       <Route
-        path="/solicitações"
+        path="/solicitações/pagamento"
         element={
           <PrivateRoute>
-            <Solicitations />
+            <Solicitations type={SolicitationType.PAYMENT} />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/solicitações/cashback"
+        element={
+          <PrivateRoute>
+            <Solicitations type={SolicitationType.CASHBACK} />
           </PrivateRoute>
         }
       />

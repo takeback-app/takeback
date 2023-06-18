@@ -24,7 +24,7 @@ enum SolicitationStatus {
   APPROVED = 'APPROVED'
 }
 
-enum SolicitationType {
+export enum SolicitationType {
   CASHBACK = 'CASHBACK',
   PAYMENT = 'PAYMENT'
 }
@@ -51,9 +51,11 @@ const titleByType: { [key in SolicitationType]: string } = {
   PAYMENT: 'Solicitação de pagamento'
 }
 
-const fontWeightByType: { [key in SolicitationType]: string } = {
-  CASHBACK: 'semibold',
-  PAYMENT: 'bold'
+const fontByType: {
+  [key in SolicitationType]: { weight: string; size: string }
+} = {
+  CASHBACK: { weight: 'normal', size: '0.7rem' },
+  PAYMENT: { weight: 'bold', size: '0.8rem' }
 }
 
 const textByStatus: { [key in SolicitationStatus]: string } = {
@@ -62,7 +64,11 @@ const textByStatus: { [key in SolicitationStatus]: string } = {
   WAITING: 'Aguardando'
 }
 
-export function Solicitations() {
+interface SolicitationsProps {
+  type: SolicitationType
+}
+
+export function Solicitations({ type }: SolicitationsProps) {
   const theme = useTheme()
 
   const { isOpen, onClose, onOpen } = useDisclosure()
@@ -73,7 +79,7 @@ export function Solicitations() {
     data: solicitations,
     isLoading,
     mutate
-  } = useSWR<Solicitation[]>('company/solicitations')
+  } = useSWR<Solicitation[]>(['company/solicitations', { type }])
 
   const [selectedIds, setSelectedIds] = useState<string[]>([])
 
@@ -103,7 +109,7 @@ export function Solicitations() {
 
   if (isLoading || !solicitations) {
     return (
-      <Layout title="Solicitações">
+      <Layout title={titleByType[type]}>
         <S.ContainLoader>
           <Loader color="rgba(54, 162, 235, 1)" />
         </S.ContainLoader>
@@ -113,7 +119,7 @@ export function Solicitations() {
 
   return (
     <>
-      <Layout title="Solicitações">
+      <Layout title={titleByType[type]}>
         <S.Container>
           {solicitations.length > 0 ? (
             <S.Content>
@@ -144,10 +150,21 @@ export function Solicitations() {
                           onChange={() => addOrRemoveItem(item.id)}
                         />
                       </S.Td>
-                      <S.Td style={{ color: '#FD79A8' }}>
+                      <S.Td
+                        style={{
+                          color: '#FD79A8',
+                          fontWeight: fontByType[item.type].weight,
+                          fontSize: fontByType[item.type].size
+                        }}
+                      >
                         {textByStatus[item.status]}
                       </S.Td>
-                      <S.Td style={{ fontWeight: fontWeightByType[item.type] }}>
+                      <S.Td
+                        style={{
+                          fontWeight: fontByType[item.type].weight,
+                          fontSize: fontByType[item.type].size
+                        }}
+                      >
                         {titleByType[item.type]}
                       </S.Td>
                       <S.Td>{item.consumer.fullName}</S.Td>
@@ -155,7 +172,14 @@ export function Solicitations() {
                       <S.Td>
                         {item.companyPaymentMethod.paymentMethod.description}
                       </S.Td>
-                      <S.Td>{formatToDateTime(item.createdAt)}</S.Td>
+                      <S.Td
+                        style={{
+                          fontWeight: fontByType[item.type].weight,
+                          fontSize: fontByType[item.type].size
+                        }}
+                      >
+                        {formatToDateTime(item.createdAt)}
+                      </S.Td>
                     </S.Tr>
                   ))}
                 </S.TBody>
