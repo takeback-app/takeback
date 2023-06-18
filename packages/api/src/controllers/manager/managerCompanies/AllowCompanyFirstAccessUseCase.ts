@@ -13,6 +13,10 @@ import { CompanyStatus } from "../../../database/models/CompanyStatus";
 import { maskCNPJ } from "../../../utils/Masks";
 import { generateToken } from "../../../config/JWT";
 import { CPFValidate } from "../../../utils/CPFValidate";
+import { prisma } from "../../../prisma";
+import { Company } from "@prisma/client";
+import { Notify } from "../../../notifications";
+import { NewCompany } from "../../../notifications/NewCompany";
 
 interface Props {
   companyId: string;
@@ -29,7 +33,10 @@ class AllowCompanyFirstAccessUseCase {
       throw new InternalError("Informe o CPF", 400);
     }
 
-    const company = await getRepository(Companies).findOne(data.companyId);
+    const company = await prisma.company.findUnique({
+      where: { id: data.companyId },
+      include: { companyAddress: { select: { cityId: true } } },
+    });
 
     if (!company) {
       throw new InternalError("Empresa não localizada", 404);
@@ -44,7 +51,7 @@ class AllowCompanyFirstAccessUseCase {
     }
 
     const managerUser = await getRepository(CompanyUsers).find({
-      where: { company, isRootUser: true },
+      where: { companyId: company.id, isRootUser: true },
     });
 
     if (managerUser.length > 0) {
@@ -67,7 +74,7 @@ class AllowCompanyFirstAccessUseCase {
       name: data.useCustomName ? data.customName : "Administrativo",
       email: company.email,
       cpf: data.cpf,
-      company,
+      companyId: company.id,
       companyUserTypes,
       resetPasswordToken: token,
       resetPasswordTokenExpiresDate: new Date(expirateDate),
@@ -136,7 +143,20 @@ class AllowCompanyFirstAccessUseCase {
       }
     });
 
+    await this.sendNotification(company, company.companyAddress.cityId);
+
     return "Acesso liberado";
+  }
+
+  async sendNotification(company: Company, cityId: number) {
+    const users = await prisma.consumer.findMany({
+      where: { consumerAddress: { cityId } },
+      select: { id: true, expoNotificationToken: true },
+    });
+
+    if (!users.length) return;
+
+    Notify.sendMany(users, new NewCompany(company));
   }
 }
 
