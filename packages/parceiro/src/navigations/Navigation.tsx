@@ -16,7 +16,6 @@ import { Company } from '../pages/private/settingsData'
 import { PaymentOrders } from '../pages/private/cashbacksOrders'
 import { CashbackHistoric } from '../pages/private/cashbacksHistoric'
 import { PaymentOrderDetails } from '../pages/private/cashbacksOrdersDetails'
-import { Support } from '../pages/private/settingsSupport'
 import { Profile } from '../pages/private/settingsProfile'
 import { CashbacksToReceive } from '../pages/private/cashbacksReceive'
 import { MonthlyPayments } from '../pages/private/monthlyPayments'
@@ -238,14 +237,7 @@ const Navigation: React.FC = () => {
           </PrivateRoute>
         }
       />
-      <Route
-        path="/configuracoes/suporte"
-        element={
-          <PrivateRoute>
-            <Support />
-          </PrivateRoute>
-        }
-      />
+
       <Route
         path="/configuracoes/perfil"
         element={
