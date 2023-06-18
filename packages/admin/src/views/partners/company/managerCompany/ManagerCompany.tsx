@@ -42,6 +42,7 @@ import DefaultModal from '../../../../components/modals/DefaultModal'
 import PALLET from '../../../../styles/ColorPallet'
 import * as S from './styles'
 import { Users } from './users'
+import { EditLogo } from './EditLogo'
 
 const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { id } = useParams()
@@ -87,7 +88,6 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
     API.get(`/manager/company/find/one/${id}`)
       .then(response => {
         setCompany(response.data.company)
-        console.log(response.data.company)
         setCompanyUsers(response.data.users)
         setRepresentatives(response.data.representatives)
 
@@ -307,6 +307,13 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
             </S.CardFooter>
           </S.Content>
         </Form>
+        <S.Content>
+          <S.InfoTitle>Logo</S.InfoTitle>
+
+          {!!id && (
+            <EditLogo companyId={id} companyLogoUrl={company.company_logoUrl} />
+          )}
+        </S.Content>
         <S.Content>
           <S.InfoTitle>Usuários</S.InfoTitle>
           <S.TableContainer>

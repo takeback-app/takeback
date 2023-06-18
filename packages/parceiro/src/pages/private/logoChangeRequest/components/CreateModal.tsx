@@ -3,6 +3,7 @@ import React from 'react'
 import {
   Button,
   ButtonGroup,
+  Image,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -34,6 +35,7 @@ export function CreateModal({
   onSubmitNewLogo
 }: CreateModalProps) {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const [logoUrl, setLogoUrl] = React.useState<string>('')
 
   const initialRef = React.useRef<HTMLInputElement | null>(null)
 
@@ -69,6 +71,18 @@ export function CreateModal({
           <ModalCloseButton />
           <form style={{ marginBottom: 0 }} onSubmit={handleSubmit(onSubmit)}>
             <ModalBody pb={6}>
+              <Image
+                border="2px"
+                borderColor="gray.400"
+                shadow="lg"
+                objectFit="cover"
+                borderRadius="lg"
+                w={48}
+                h={48}
+                mb={8}
+                src={logoUrl}
+                fallbackSrc="https://via.placeholder.com/320"
+              />
               <Stack>
                 <ChakraInput
                   label="Logo"
@@ -77,7 +91,11 @@ export function CreateModal({
                   isRequired
                   accept="image/*"
                   error={errors.file?.message}
-                  {...register('file')}
+                  {...register('file', {
+                    onChange: e => {
+                      setLogoUrl(URL.createObjectURL(e.target.files[0]))
+                    }
+                  })}
                 />
               </Stack>
             </ModalBody>

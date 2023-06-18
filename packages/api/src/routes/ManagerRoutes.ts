@@ -32,6 +32,7 @@ import { LogoChangeRequestController } from "../controllers/manager/LogoChangeRe
 import { SelersReportController } from "../controllers/manager/managerReports/SelersReportController";
 import { FinancialReportController } from "../controllers/manager/reports/FinancialReportController";
 import { ReferralBonusController } from "../controllers/manager/ReferralBonusController";
+import { FileController } from "../controllers/company/FileController";
 
 const paymentMethod = new PaymentMethodController();
 const managerAuth = new ManagerAuthController();
@@ -64,7 +65,12 @@ const raffleController = new RaffleController();
 const bonusController = new BonusController();
 const dashboardController = new DashboardController();
 
+const fileController = new FileController();
+
 const routes = Router();
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 routes.post("/user/login", managerAuth.signInUser);
 routes.get("/verify-token", managerAuth.verifyToken);
@@ -72,6 +78,8 @@ routes.post("/reset-password", managerAuth.resetPassword);
 routes.post("/forgot-password", managerAuth.forgotPassword);
 
 routes.use(DecodeTokenMiddleware, AuthManagerMiddleware);
+
+routes.post("/file-upload", upload.single("file"), fileController.store);
 
 routes.get("/data/find", managerData.findDataToUseInApp);
 
@@ -84,6 +92,8 @@ routes.get("/user/types/find", managerAuth.findUserType);
 routes.post("/industry", managerIndustry.registerIndustry);
 routes.put("/industry/:id", managerIndustry.updateIndustry);
 routes.get("/industry/find", managerIndustry.findAllIndustries);
+
+routes.put("/companies/:id/logo", managerCompanies.updateCompanyLogo);
 
 routes.get("/companies/:id/users", managerCompaniesUsers.findUserCompanies);
 routes.put(
