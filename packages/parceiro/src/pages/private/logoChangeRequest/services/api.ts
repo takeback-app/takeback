@@ -25,13 +25,17 @@ export async function storeLogoChangeRequest(
   }
 }
 
-export async function storeImage(file: File): Promise<ReturnApi> {
+export async function storeImage(
+  file: File,
+  query: Record<string, string> = {}
+): Promise<ReturnApi> {
   const formData = new FormData()
 
   formData.append('file', file)
 
   try {
     const { data } = await API.post(`company/file-upload`, formData, {
+      params: query,
       headers: {
         'Content-Type': 'multipart/form-data'
       }
