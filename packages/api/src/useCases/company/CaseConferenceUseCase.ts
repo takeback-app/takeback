@@ -36,13 +36,7 @@ export class CaseConferenceUseCase {
           where: { amount: { gt: 0 } },
           include: {
             companyPaymentMethod: {
-              select: {
-                paymentMethod: {
-                  select: {
-                    description: true,
-                  },
-                },
-              },
+              select: { paymentMethod: { select: { description: true } } },
             },
           },
         },
