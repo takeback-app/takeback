@@ -47,12 +47,7 @@ export function RaffleTickets({ navigation }) {
   }
 
   return (
-    <Layout
-      style={{
-        flex: 1,
-        paddingTop: StatusBar.currentHeight
-      }}
-    >
+    <Layout withoutKeyboardDismiss>
       <Flex>
         <Header variant="arrow" title="Cupons" goBack={navigation.goBack} />
       </Flex>

@@ -80,13 +80,7 @@ export function Extract({ navigation }) {
   }
 
   return (
-    <Layout
-      style={{
-        flex: 1,
-        paddingTop: StatusBar.currentHeight,
-        backgroundColor: '#F5F5F5'
-      }}
-    >
+    <Layout withoutKeyboardDismiss>
       <Header variant="arrow" title="Extrato" goBack={navigation.goBack} />
 
       <FlashList

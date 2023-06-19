@@ -35,7 +35,7 @@ export function Referrals({ navigation }) {
   )
 
   return (
-    <Layout>
+    <Layout withoutKeyboardDismiss>
       <Header
         variant="arrow"
         title="Indicações"

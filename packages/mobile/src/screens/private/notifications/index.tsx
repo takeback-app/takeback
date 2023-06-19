@@ -51,13 +51,7 @@ export function Notifications({ navigation }) {
   }
 
   return (
-    <Layout
-      style={{
-        flex: 1,
-        paddingTop: StatusBar.currentHeight,
-        backgroundColor: 'white'
-      }}
-    >
+    <Layout withoutKeyboardDismiss>
       <Header variant="arrow" title="Notificações" goBack={navigation.goBack} />
 
       <Flex flex={1}>

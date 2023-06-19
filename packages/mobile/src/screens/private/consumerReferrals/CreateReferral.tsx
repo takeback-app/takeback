@@ -76,7 +76,7 @@ export function CreateReferral({ navigation }) {
   }
 
   return (
-    <Layout>
+    <Layout withoutKeyboardDismiss>
       <Header
         variant="arrow"
         title="Indique e ganhe"
