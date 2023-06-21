@@ -96,7 +96,7 @@ export const PaymentMethods: React.FC = () => {
 
     API.put('/company/payments-methods/update', {
       paymentId,
-      cashbackPercentage: parseInt(data.cashbackPercentage),
+      cashbackPercentage: parseFloat(data.cashbackPercentage),
       isActive: isActived
     })
       .then(response => {
@@ -124,7 +124,7 @@ export const PaymentMethods: React.FC = () => {
 
     API.post('/company/payments-methods/register', {
       paymentId: data.paymentMethod,
-      cashbackPercentage: parseInt(data.cashbackPercentage)
+      cashbackPercentage: parseFloat(data.cashbackPercentage)
     })
       .then(response => {
         setCompanyPaymentMethods(response.data.companyMethods)
@@ -184,7 +184,7 @@ export const PaymentMethods: React.FC = () => {
 
     if (
       data.paymentMethod !== 'Sorteio' &&
-      parseInt(data.cashbackPercentage) === 0
+      parseFloat(data.cashbackPercentage) === 0
     ) {
       toast({
         title: 'Atenção!',
