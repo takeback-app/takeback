@@ -1,6 +1,6 @@
 import React from 'react'
 import { StatusBar } from 'react-native'
-import { Center, Flex, Spinner, Text } from 'native-base'
+import { Center, Spinner, Text } from 'native-base'
 
 import { FlashList, ListRenderItem } from '@shopify/flash-list'
 
@@ -60,27 +60,23 @@ export function Notifications({ navigation }) {
     >
       <Header variant="arrow" title="Notificações" goBack={navigation.goBack} />
 
-      <Flex flex={1}>
-        <FlashList
-          data={data}
-          estimatedItemSize={140}
-          renderItem={renderItem}
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          onEndReached={() => {
-            if (isReachedEnd) return
+      <FlashList
+        data={data}
+        estimatedItemSize={140}
+        renderItem={renderItem}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        onEndReached={() => {
+          if (isReachedEnd) return
 
-            nextPage()
-          }}
-          onEndReachedThreshold={0.1}
-          ListFooterComponent={
-            <InfinityScrollFooter isLoadingMore={!!isLoadingMore} />
-          }
-          ListEmptyComponent={() => (
-            <EmptyComponent text="Nenhuma notificação" />
-          )}
-        />
-      </Flex>
+          nextPage()
+        }}
+        onEndReachedThreshold={0.1}
+        ListFooterComponent={
+          <InfinityScrollFooter isLoadingMore={!!isLoadingMore} />
+        }
+        ListEmptyComponent={() => <EmptyComponent text="Nenhuma notificação" />}
+      />
     </Layout>
   )
 }

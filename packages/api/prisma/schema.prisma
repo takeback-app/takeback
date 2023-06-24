@@ -205,6 +205,7 @@ model Consumer {
   addressId                     Int?                      @unique(map: "REL_3ffc911cff52ac729e01188ea1")
   resetPasswordToken            String?                   @db.VarChar
   resetPasswordTokenExpiresDate DateTime?                 @db.Date
+  firstExtractItemDate          DateTime?
   expoNotificationToken         String?
   consumerAddress               ConsumerAddress?          @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_3ffc911cff52ac729e01188ea1c")
   refreshToken                  RefreshToken?
