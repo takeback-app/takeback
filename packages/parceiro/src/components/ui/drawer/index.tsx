@@ -16,7 +16,7 @@ interface Nav {
   label: string
   isActive: boolean
   to: string
-  hasDot?: boolean
+  hasDotKey?: string
   pages?: Page[]
   isOpened?: boolean
 }
@@ -39,9 +39,12 @@ export function Drawer({ navData }: Props) {
   const history = useNavigate()
   const theme = useTheme()
 
-  const { data } = useSWR<{ count: number }>('company/waiting-solicitations', {
-    refreshInterval: 10 * 1000 /** 10 segundos */
-  })
+  const { data } = useSWR<{ [key: string]: number }>(
+    'company/waiting-solicitations',
+    {
+      refreshInterval: 10 * 1000 /** 10 segundos */
+    }
+  )
 
   const [renderingAux, setRenderingAux] = useState(false)
 
@@ -92,7 +95,7 @@ export function Drawer({ navData }: Props) {
               <S.NavWrapper onClick={() => openSubPages(nav.id)}>
                 <nav.inactiveIcon color={theme.colors['white-300']} />
 
-                {nav.hasDot && data?.count ? <Dot /> : null}
+                {nav.hasDotKey && data?.[nav.hasDotKey] ? <Dot /> : null}
 
                 <S.LabelMultiPages>
                   {nav.label}
@@ -130,7 +133,7 @@ export function Drawer({ navData }: Props) {
               isActive={nav.isActive}
               onClick={() => handleDrawerNavigation(nav.id, nav.to)}
             >
-              {nav.hasDot && data?.count ? <Dot /> : null}
+              {nav.hasDotKey && data?.[nav.hasDotKey] ? <Dot /> : null}
 
               {nav.isActive ? (
                 <nav.activeIcon color={theme.colors['blue-700']} />

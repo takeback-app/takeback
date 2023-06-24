@@ -56,33 +56,24 @@ export const managerNav = [
   },
   {
     id: 2,
-    label: 'Solicitações',
-    activeIcon: IoBagAdd,
-    inactiveIcon: IoBagAddOutline,
+    label: 'Receber pagamento',
+    activeIcon: BsCashCoin,
+    inactiveIcon: BsCash,
+    hasDotKey: 'paymentRequest',
     isActive: false,
-    hasDot: true,
-    to: '/solicitações',
-    pages: [
-      {
-        id: 0,
-        label: 'Pagamento',
-        activeIcon: BsCashCoin,
-        inactiveIcon: BsCash,
-        isActive: false,
-        to: '/solicitações/pagamento'
-      },
-      {
-        id: 1,
-        label: 'Cashback',
-        activeIcon: IoCart,
-        inactiveIcon: IoCartOutline,
-        isActive: false,
-        to: '/solicitações/cashback'
-      }
-    ]
+    to: '/solicitações/pagamento'
   },
   {
     id: 3,
+    label: 'Autorizar cashback',
+    activeIcon: IoCart,
+    inactiveIcon: IoCartOutline,
+    hasDotKey: 'cashbackRequest',
+    isActive: false,
+    to: '/solicitações/cashback'
+  },
+  {
+    id: 4,
     label: 'Sorteios',
     activeIcon: IoTicket,
     inactiveIcon: IoTicketOutline,
@@ -90,7 +81,7 @@ export const managerNav = [
     to: '/sorteios'
   },
   {
-    id: 4,
+    id: 5,
     label: 'Notificações',
     activeIcon: IoNotifications,
     inactiveIcon: IoNotificationsOutline,

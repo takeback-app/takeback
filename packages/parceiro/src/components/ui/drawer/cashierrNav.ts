@@ -1,10 +1,5 @@
 import { BsCash, BsCashCoin, BsFillPiggyBankFill } from 'react-icons/bs'
-import {
-  IoBagAdd,
-  IoBagAddOutline,
-  IoCart,
-  IoCartOutline
-} from 'react-icons/io5'
+import { IoCart, IoCartOutline } from 'react-icons/io5'
 import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
 
 export const cashierNav = [
@@ -18,33 +13,24 @@ export const cashierNav = [
   },
   {
     id: 2,
-    label: 'Solicitações',
-    activeIcon: IoBagAdd,
-    inactiveIcon: IoBagAddOutline,
+    label: 'Receber Pagamento',
+    activeIcon: BsCashCoin,
+    inactiveIcon: BsCash,
+    hasDotKey: 'paymentRequest',
     isActive: false,
-    hasDot: true,
-    to: '/solicitações',
-    pages: [
-      {
-        id: 0,
-        label: 'Pagamento',
-        activeIcon: BsCashCoin,
-        inactiveIcon: BsCash,
-        isActive: false,
-        to: '/solicitações/pagamento'
-      },
-      {
-        id: 1,
-        label: 'Cashback',
-        activeIcon: IoCart,
-        inactiveIcon: IoCartOutline,
-        isActive: false,
-        to: '/solicitações/cashback'
-      }
-    ]
+    to: '/solicitações/pagamento'
   },
   {
     id: 3,
+    label: 'Autorizar Cashback',
+    activeIcon: IoCart,
+    inactiveIcon: IoCartOutline,
+    hasDotKey: 'cashbackRequest',
+    isActive: false,
+    to: '/solicitações/cashback'
+  },
+  {
+    id: 4,
     label: 'Histórico',
     activeIcon: RiTimeFill,
     inactiveIcon: RiTimeLine,

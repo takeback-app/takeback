@@ -97,17 +97,28 @@ export class SolicitationController {
   async count(request: Request, response: Response) {
     const { companyId } = request["tokenPayload"];
 
-    const cacheKey = solicitationKey(companyId);
-
-    const value = await Cache.rememberForever<number>(cacheKey, async () => {
-      return prisma.transactionSolicitation.count({
+    const cashbackSolicitationCount =
+      await prisma.transactionSolicitation.count({
         where: {
           companyId,
+          type: "CASHBACK",
           status: "WAITING",
         },
       });
-    });
 
-    return response.json({ count: value });
+    const paymentSolicitationCount = await prisma.transactionSolicitation.count(
+      {
+        where: {
+          companyId,
+          type: "PAYMENT",
+          status: "WAITING",
+        },
+      }
+    );
+
+    return response.json({
+      paymentRequest: paymentSolicitationCount,
+      cashbackRequest: cashbackSolicitationCount,
+    });
   }
 }
