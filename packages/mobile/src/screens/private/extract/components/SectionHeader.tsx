@@ -10,7 +10,8 @@ export function SectionHeader({ text }: SectionHeaderProps) {
     <Box
       bg="white"
       borderBottomColor="gray.300"
-      borderBottomWidth={2}
+      borderBottomWidth={1}
+      shadow="0"
       px={3}
       py={4}
     >
