@@ -1,5 +1,5 @@
 import { Center, Spinner, Text, View } from 'native-base'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { StatusBar } from 'react-native'
 
 import { FlashList, ListRenderItem } from '@shopify/flash-list'
@@ -17,8 +17,19 @@ import { TransferItem } from './components/ExtractItem/TransferItem'
 import { BalanceExpirationItem } from './components/ExtractItem/BalanceExpirationItem'
 import { BonusItem } from './components/ExtractItem/BonusItem'
 import { SolicitationItem } from './components/ExtractItem/SolicitationItem'
+import { useInfiniteSectionList } from '../../../hooks/useInfiniteSectionList'
+import { InfinityScrollFooter } from '../../../components/List/InfinityScrollFooter'
+import { SectionHeader } from './components/SectionHeader'
 
-const renderItem: ListRenderItem<ExtractItem> = ({ item }) => {
+const renderItem: ListRenderItem<ExtractItem | undefined | string> = ({
+  item
+}) => {
+  if (!item) return null
+
+  if (typeof item === 'string') {
+    return <SectionHeader text={item} />
+  }
+
   switch (item.type) {
     case ExtractType.TRANSACTION:
       return (
@@ -45,19 +56,19 @@ const renderItem: ListRenderItem<ExtractItem> = ({ item }) => {
 }
 
 export function Extract({ navigation }) {
-  const [refreshing, setRefreshing] = useState(false)
-
   const {
-    data: extract,
+    data,
     isLoading,
-    mutate
-  } = useSWR<ExtractItem[]>('costumer/extract')
+    refreshing,
+    onRefresh,
+    isLoadingMore,
+    isReachedEnd,
+    nextPage
+  } = useInfiniteSectionList<ExtractItem>('costumer/extract/paginated')
 
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true)
-    await mutate()
-    setRefreshing(false)
-  }, [mutate])
+  const stickyHeaderIndices = data
+    ?.map((item, index) => (typeof item === 'string' ? index : null))
+    .filter(item => item !== null) as number[]
 
   if (isLoading) {
     return (
@@ -84,12 +95,24 @@ export function Extract({ navigation }) {
       <Header variant="arrow" title="Extrato" goBack={navigation.goBack} />
 
       <FlashList
-        data={extract}
+        data={data}
         estimatedItemSize={110}
         renderItem={renderItem}
-        getItemType={item => item.type}
+        getItemType={item =>
+          typeof item === 'string' ? 'HEADER' : item ? item.type : ''
+        }
         refreshing={refreshing}
         onRefresh={onRefresh}
+        onEndReached={() => {
+          if (isReachedEnd) return
+
+          nextPage()
+        }}
+        onEndReachedThreshold={0.1}
+        ListFooterComponent={
+          <InfinityScrollFooter isLoadingMore={!!isLoadingMore} />
+        }
+        stickyHeaderIndices={stickyHeaderIndices}
         ItemSeparatorComponent={() => (
           <View borderBottomWidth="1" borderColor="gray.400" />
         )}

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { GetExtractUseCase } from "../../../useCases/extract/GetExtractUseCase";
 import { prisma } from "../../../prisma";
+import { GetFirstExtractRegisterUseCase } from "../../../useCases/extract/GetFirstExtractRegisterUseCase";
 
 export class ExtractController {
   async index(request: Request, response: Response) {
@@ -11,6 +12,33 @@ export class ExtractController {
     const data = await useCase.execute();
 
     return response.json(data);
+  }
+
+  async paginated(request: Request, response: Response) {
+    const { page } = request.query;
+
+    const { id: consumerId } = request["tokenPayload"];
+
+    const pageNumber = Number(page) || 1;
+
+    const getFirstExtractRegisterUseCase = new GetFirstExtractRegisterUseCase(
+      consumerId,
+      pageNumber
+    );
+
+    const shouldLoadMore = await getFirstExtractRegisterUseCase.execute();
+
+    if (!shouldLoadMore) return response.json({ title: undefined, data: [] });
+
+    const useCase = new GetExtractUseCase(consumerId, pageNumber);
+
+    const data = await useCase.execute();
+    const monthName = useCase.getMonthName();
+
+    return response.json({
+      title: monthName,
+      data,
+    });
   }
 
   async showTransaction(request: Request, response: Response) {
@@ -27,13 +55,7 @@ export class ExtractController {
             cashbackPercentage: true,
             cashbackValue: true,
             companyPaymentMethod: {
-              select: {
-                paymentMethod: {
-                  select: {
-                    description: true,
-                  },
-                },
-              },
+              select: { paymentMethod: { select: { description: true } } },
             },
           },
         },

@@ -119,6 +119,7 @@ routes.get("/tickets/pending-count", ticketController.pendingCount);
 routes.post("/raffle-items/:id/start-delivery", raffleItemController.delivery);
 
 routes.get("/extract", extractController.index);
+routes.get("/extract/paginated", extractController.paginated);
 routes.get("/extract/transactions/:id", extractController.showTransaction);
 routes.get("/extract/transfers/:id", extractController.showTransfer);
 

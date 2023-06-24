@@ -6,6 +6,7 @@ import {
   SolicitationType,
 } from "@prisma/client";
 import { TransactionStatusEnum } from "../../enum/TransactionStatusEnum";
+import { DateTime } from "luxon";
 
 interface TransactionData {
   id: number;
@@ -56,7 +57,38 @@ type ExtractItem = ExtractItemType & {
 };
 
 export class GetExtractUseCase {
-  constructor(private consumerId: string) {}
+  private startPageDate?: Date;
+  private month?: DateTime;
+  private endPageDate?: Date;
+
+  constructor(private consumerId: string, page: number = 0) {
+    if (!page) return;
+
+    this.month = DateTime.now()
+      .minus({ months: page - 1 })
+      .setLocale("pt-br");
+
+    this.startPageDate = DateTime.now()
+      .minus({ months: page - 1 })
+      .startOf("month")
+      .toJSDate();
+    this.endPageDate = DateTime.now()
+      .minus({ months: page - 1 })
+      .endOf("month")
+      .toJSDate();
+  }
+
+  getMonthName() {
+    if (!this.month) return;
+
+    const isSameYear = this.month.hasSame(DateTime.now(), "year");
+
+    const monthName = isSameYear
+      ? this.month.toFormat("MMMM")
+      : this.month.toFormat("MMMM - yyyy");
+
+    return monthName[0].toUpperCase() + monthName.slice(1);
+  }
 
   async execute(): Promise<ExtractItem[]> {
     const transactions = await this.transactions();
@@ -77,6 +109,7 @@ export class GetExtractUseCase {
         transactionStatus: {
           description: { notIn: [TransactionStatusEnum.WAITING] },
         },
+        createdAt: { gte: this.startPageDate, lte: this.endPageDate },
       },
       select: {
         id: true,
@@ -111,6 +144,7 @@ export class GetExtractUseCase {
           { consumerSentId: this.consumerId },
           { consumerReceivedId: this.consumerId },
         ],
+        createdAt: { gte: this.startPageDate, lte: this.endPageDate },
       },
       select: {
         id: true,
@@ -140,7 +174,10 @@ export class GetExtractUseCase {
 
   async balanceExpirations(): Promise<ExtractItem[]> {
     const balanceExpirations = await prisma.consumerExpireBalances.findMany({
-      where: { consumerId: this.consumerId },
+      where: {
+        consumerId: this.consumerId,
+        expireAt: { gte: this.startPageDate, lte: this.endPageDate },
+      },
     });
 
     return balanceExpirations.map((t) => ({
@@ -156,7 +193,10 @@ export class GetExtractUseCase {
 
   async bonuses(): Promise<ExtractItem[]> {
     const bonuses = await prisma.bonus.findMany({
-      where: { consumerId: this.consumerId },
+      where: {
+        consumerId: this.consumerId,
+        createdAt: { gte: this.startPageDate, lte: this.endPageDate },
+      },
     });
 
     return bonuses.map((b) => ({
@@ -173,18 +213,14 @@ export class GetExtractUseCase {
 
   async solicitations(): Promise<ExtractItem[]> {
     const solicitations = await prisma.transactionSolicitation.findMany({
-      where: { consumerId: this.consumerId, status: { not: "APPROVED" } },
+      where: {
+        consumerId: this.consumerId,
+        status: { not: "APPROVED" },
+        createdAt: { gte: this.startPageDate, lte: this.endPageDate },
+      },
       include: {
-        company: {
-          select: {
-            fantasyName: true,
-          },
-        },
-        companyPaymentMethod: {
-          select: {
-            cashbackPercentage: true,
-          },
-        },
+        company: { select: { fantasyName: true } },
+        companyPaymentMethod: { select: { cashbackPercentage: true } },
       },
     });
 
