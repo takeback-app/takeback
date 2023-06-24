@@ -266,6 +266,7 @@ model PaymentMethod {
   isTakebackMethod      Boolean                @default(false)
   createdAt             DateTime               @default(now()) @db.Timestamp(6)
   updatedAt             DateTime               @default(now()) @db.Timestamp(6)
+  initialPercentage     Decimal?               @db.Decimal(10, 4)
   companyPaymentMethods CompanyPaymentMethod[]
 
   @@map("payment_methods")

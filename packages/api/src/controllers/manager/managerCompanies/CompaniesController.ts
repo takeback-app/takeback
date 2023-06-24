@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AllowCompanyFirstAccessUseCase } from "./AllowCompanyFirstAccessUseCase";
-import { RegisterCompanyTakebackPaymentMethodsUseCase } from "./RegisterCompanyTakebackPaymentMethodsUseCase";
+import { RegisterCompanyDefaultPaymentMethodsUseCase } from "./RegisterCompanyDefaultPaymentMethodsUseCase";
 import { UpdateCompanyUseCase } from "./UpdateCompanyUseCase";
 import { FindCompaniesUseCase } from "./FindCompaniesUseCase";
 import { FindOneCompanyUseCase } from "./FindOneCompanyUseCase";
@@ -19,14 +19,12 @@ class CompaniesController {
 
     const findUseCase = new FindOneCompanyUseCase();
     const findUser = new FindCompanyUsersUseCase();
-    const registerTakebackMethod =
-      new RegisterCompanyTakebackPaymentMethodsUseCase();
+    const registerDefaultMethods =
+      new RegisterCompanyDefaultPaymentMethodsUseCase();
     const allowCompanyAccess = new AllowCompanyFirstAccessUseCase();
 
     const message = await allowCompanyAccess.execute(data);
-    await registerTakebackMethod.execute({
-      companyId: data.companyId,
-    });
+    await registerDefaultMethods.execute(data.companyId);
     const companyData = await findUseCase.execute({
       companyId: data.companyId,
     });
