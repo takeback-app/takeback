@@ -85,8 +85,8 @@ routes.get("/company/filter", costumerData.filterCompanies); // DESCONTINUADA v1
 routes.put("/update/password", costumerAuth.updateCostumerPassword);
 routes.delete("/account/deactive", costumerAccount.desactiveCostumer);
 
-routes.post("/cashback/authorize", costumerCashBack.authorizePurchase);
-routes.post("/cashback/authorize/purchase", authorizePurchase.handle);
+// routes.post("/cashback/authorize", costumerCashBack.authorizePurchase);
+// routes.post("/cashback/authorize/purchase", authorizePurchase.handle);
 routes.get("/cashback/find/:offset/:limit", costumerCashBack.findTransaction);
 routes.get("/cashback/details/:id", costumerCashBack.findCashbackDetails);
 routes.delete("/cashback/delete/:id", costumerCashBack.dropTransaction);

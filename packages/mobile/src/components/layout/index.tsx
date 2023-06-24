@@ -10,10 +10,26 @@ import {
 import { StatusBar as ExpoStatusBar, StatusBarProps } from 'expo-status-bar'
 
 interface LayoutProps extends ViewProps {
+  withoutKeyboardDismiss?: boolean
   barProps?: StatusBarProps
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, ...rest }) => {
+export function Layout({
+  children,
+  withoutKeyboardDismiss = false,
+  ...rest
+}: LayoutProps) {
+  if (withoutKeyboardDismiss) {
+    return (
+      <>
+        <ExpoStatusBar style="dark" {...rest.barProps} />
+        <SafeAreaView style={styles.safeArea} {...rest}>
+          {children}
+        </SafeAreaView>
+      </>
+    )
+  }
+
   return (
     <>
       <ExpoStatusBar style="dark" {...rest.barProps} />

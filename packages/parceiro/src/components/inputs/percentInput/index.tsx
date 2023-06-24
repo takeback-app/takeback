@@ -38,6 +38,7 @@ export const PercentInput: React.FC<Props> = ({
         placeholder=" "
         type={type}
         onChange={onChange}
+        step={0.1}
         {...rest}
       />
       <Label>{label}</Label>

@@ -47,7 +47,7 @@ export function PaymentSelectCompany({ navigation }) {
   }
 
   return (
-    <Layout>
+    <Layout withoutKeyboardDismiss>
       <HStack
         p={4}
         style={{ marginTop: Platform.OS === 'ios' ? 0 : topHeight }}

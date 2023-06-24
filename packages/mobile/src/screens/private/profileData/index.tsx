@@ -103,7 +103,7 @@ export function ProfileData({ navigation }) {
   }
 
   return (
-    <Layout>
+    <Layout withoutKeyboardDismiss>
       <Header
         title="Dados pessoais"
         variant="arrow"

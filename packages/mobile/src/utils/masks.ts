@@ -83,5 +83,5 @@ export function remainingHours(date: string) {
 }
 
 export function percentageFormatter(value: string) {
-  return `${(parseFloat(value) * 100).toFixed(0)}%`
+  return `${(parseFloat(value) * 100).toFixed(1)}%`
 }
