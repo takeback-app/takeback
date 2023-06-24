@@ -20,7 +20,14 @@ export function Header({
   variant
 }: HeaderProps) {
   return (
-    <HStack justifyContent="space-between" alignItems="center" h="12" px="4">
+    <HStack
+      zIndex={1000}
+      bg="white"
+      justifyContent="space-between"
+      alignItems="center"
+      h="12"
+      px="4"
+    >
       <Pressable onPress={goBack}>
         {variant === 'arrow' ? (
           <Icon

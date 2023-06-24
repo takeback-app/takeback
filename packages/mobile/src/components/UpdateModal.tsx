@@ -18,10 +18,7 @@ export function UpdateModal(props: UpdateModalProps) {
         <Modal.Content maxWidth="400px">
           <Modal.Header>Novidade! 😀</Modal.Header>
           <Modal.Body>
-            <Text>
-              Seu aplicativo foi atualizado! O app irá fechar e abrir novamente,
-              não se preocupe.
-            </Text>
+            <Text>Seu aplicativo foi atualizado!</Text>
           </Modal.Body>
           <Modal.Footer>
             <Button

@@ -114,7 +114,7 @@ export function Extract({ navigation }) {
         }
         stickyHeaderIndices={stickyHeaderIndices}
         ItemSeparatorComponent={() => (
-          <View borderBottomWidth="1" borderColor="gray.400" />
+          <View borderBottomWidth="1" borderColor="gray.300" />
         )}
         ListHeaderComponent={<ExtractHeader />}
         ListEmptyComponent={() => <EmptyComponent />}
