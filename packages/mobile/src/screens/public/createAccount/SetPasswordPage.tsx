@@ -21,6 +21,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSignUp } from './state'
 import { createAccount } from '../../../services'
+import { authenticate } from '../../../utils/authenticate'
 
 const schema = z
   .object({
@@ -37,7 +38,7 @@ const schema = z
 export type PasswordData = z.infer<typeof schema>
 
 export function SetPasswordPage({ navigation }) {
-  const { birthday, cpf, email, name, phone, reset, sex, zipCode } = useSignUp()
+  const { getFormData, reset } = useSignUp()
 
   const { isOpen, onClose, onOpen } = useDisclose()
 
@@ -49,19 +50,18 @@ export function SetPasswordPage({ navigation }) {
   } = useForm<PasswordData>({ resolver: zodResolver(schema) })
 
   async function onSubmit({ password }: PasswordData) {
+    const formData = getFormData()
+
     const [isOk, response] = await createAccount({
-      birthday,
-      cpf,
-      email,
-      name,
-      password,
-      phone,
-      sex,
-      zipCode
+      ...formData,
+      password
     })
 
-    if (!isOk)
+    if (!isOk) {
       return setError('passwordConfirmation', { message: response.message })
+    }
+
+    authenticate(response.token, response.refreshToken, true)
 
     reset()
 

@@ -1,41 +1,24 @@
-import React, { useContext, useMemo } from 'react'
+import React, { useContext } from 'react'
 
 import { KeyboardAvoidingView, Platform, StyleSheet } from 'react-native'
 
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons'
 import { StatusBar } from 'expo-status-bar'
-import {
-  Button,
-  Flex,
-  HStack,
-  Heading,
-  Icon,
-  IconButton,
-  Pressable,
-  Stack,
-  Text
-} from 'native-base'
-import { MaskedTextInput, mask } from 'react-native-mask-text'
+import { Flex, HStack, Heading, IconButton, Pressable, Text } from 'native-base'
+import { MaskedTextInput } from 'react-native-mask-text'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { UserDataContext } from '../../../contexts/UserDataContext'
-import { createWhatsAppMessage, masks } from '../../../utils'
-import { usePaymentStore } from './state'
 import { Layout } from '../../../components/layout'
+import { UserDataContext } from '../../../contexts/UserDataContext'
+import { masks } from '../../../utils'
+import { CompanyInfo } from './components/CompanyInfo'
+import { usePaymentStore } from './state'
 
 export function PaymentValue({ navigation }) {
   const { balance } = useContext(UserDataContext)
 
   const { bottom: bottomHeight, top: topHeight } = useSafeAreaInsets()
 
-  const { setTotalAmount, totalAmount, company } = usePaymentStore()
-
-  const address = useMemo(() => {
-    if (!company?.companyAddress) return
-
-    const { district, number, street } = company.companyAddress
-
-    return [street, number, district].filter(i => i).join(', ')
-  }, [company])
+  const { setTotalAmount, totalAmount } = usePaymentStore()
 
   return (
     <Layout>
@@ -56,7 +39,7 @@ export function PaymentValue({ navigation }) {
             left="4"
             onPress={() => navigation.goBack()}
           >
-            <MaterialCommunityIcons name="close" color="#52525b" size={24} />
+            <Feather name="chevron-left" color="#52525b" size={24} />
           </Pressable>
           <Text mt={1} fontSize="md" fontWeight="semibold">
             Solicitação de cashback
@@ -92,61 +75,7 @@ export function PaymentValue({ navigation }) {
               selectionColor="#449FE7"
             />
 
-            <Stack mt={8} alignItems="center">
-              <Text
-                color="gray.800"
-                textAlign="center"
-                textTransform="capitalize"
-                fontWeight="bold"
-              >
-                {company.fantasyName}
-              </Text>
-              {address ? (
-                <Text
-                  color="gray.600"
-                  textAlign="center"
-                  textTransform="capitalize"
-                  fontWeight="medium"
-                >
-                  {address}
-                </Text>
-              ) : null}
-              <Text
-                color="gray.600"
-                textAlign="center"
-                textTransform="lowercase"
-                fontWeight="medium"
-              >
-                {company.email}
-              </Text>
-
-              <Text
-                color="gray.600"
-                textAlign="center"
-                textTransform="lowercase"
-                fontWeight="medium"
-              >
-                {mask(company.phone, '(99) 99999-9999')}
-              </Text>
-              <Button
-                size="md"
-                mt={4}
-                bgColor="#128C7E"
-                _pressed={{ bgColor: '#128c7ed8' }}
-                rounded="full"
-                leftIcon={
-                  <Icon
-                    color="white"
-                    as={Ionicons}
-                    name="logo-whatsapp"
-                    size="4"
-                  />
-                }
-                onPress={() => createWhatsAppMessage(company.phone)}
-              >
-                Fale com a empresa
-              </Button>
-            </Stack>
+            <CompanyInfo />
           </Flex>
           <Flex flex={1} pb={4} justify="flex-end" align="flex-end">
             <IconButton
@@ -161,7 +90,7 @@ export function PaymentValue({ navigation }) {
                 name: 'arrow-right',
                 size: 6
               }}
-              onPress={() => navigation.navigate('paymentSelectMethod')}
+              onPress={() => navigation.navigate('paymentCheckout')}
             />
           </Flex>
         </Flex>

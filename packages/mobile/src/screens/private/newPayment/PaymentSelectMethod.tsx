@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import React from 'react'
 
 import {
@@ -12,11 +11,12 @@ import {
   Text
 } from 'native-base'
 import { StatusBar } from 'expo-status-bar'
-import { Feather } from '@expo/vector-icons'
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons'
 import { usePaymentStore } from './state'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { percentageFormatter } from '../../../utils/masks'
 import { Platform } from 'react-native'
+import { CompanyInfo } from './components/CompanyInfo'
 
 export function PaymentSelectMethod({ navigation }) {
   const { company, paymentMethodId, setPaymentMethodId } = usePaymentStore()
@@ -24,7 +24,7 @@ export function PaymentSelectMethod({ navigation }) {
   const { bottom: bottomHeight, top: topHeight } = useSafeAreaInsets()
 
   async function handleSubmit() {
-    navigation.navigate('paymentCheckout')
+    navigation.navigate('paymentValue')
   }
 
   return (
@@ -35,7 +35,7 @@ export function PaymentSelectMethod({ navigation }) {
         style={{ marginTop: Platform.OS === 'ios' ? 0 : topHeight }}
       >
         <Pressable onPress={() => navigation.goBack()}>
-          <Feather name="chevron-left" color="#52525b" size={24} />
+          <MaterialCommunityIcons name="close" color="#52525b" size={24} />
         </Pressable>
       </HStack>
 
@@ -70,6 +70,8 @@ export function PaymentSelectMethod({ navigation }) {
               )
             )}
           </Radio.Group>
+
+          <CompanyInfo />
         </ScrollView>
 
         <Flex flex={1} minH={1} pb={4} justify="flex-end" align="flex-end">

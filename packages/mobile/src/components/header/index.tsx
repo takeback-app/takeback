@@ -5,6 +5,7 @@ import { Ionicons, Feather } from '@expo/vector-icons'
 interface HeaderProps {
   variant?: 'arrow' | 'close'
   title?: string
+  bgColor?: string
   goBack?: () => void
   info?: () => void
   onEdit?: () => void
@@ -16,13 +17,14 @@ export function Header({
   info,
   left,
   onEdit,
+  bgColor,
   title,
   variant
 }: HeaderProps) {
   return (
     <HStack
       zIndex={1000}
-      bg="white"
+      bg={bgColor}
       justifyContent="space-between"
       alignItems="center"
       h="12"

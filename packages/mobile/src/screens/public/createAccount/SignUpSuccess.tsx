@@ -1,14 +1,25 @@
-import React, { useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { BackHandler } from 'react-native'
 import { Center, Heading, Stack, Text, Button } from 'native-base'
 
 import { Layout } from '../../../components/layout'
 
 import Illustration from '../../../assets/illustration3.svg'
+import { saveNotificationToken } from '../../../services'
+import { useNotification } from '../../../stores/useNotification'
+import { AuthContext } from '../../../contexts/AuthContext'
 
 export function SignUpSuccess({ navigation }) {
-  function navigateToSignIn() {
-    navigation.navigate('signIn')
+  const notificationToken = useNotification(state => state.token)
+
+  const { setIsSignedIn } = useContext(AuthContext)
+
+  async function navigateToSignIn() {
+    await saveNotificationToken(notificationToken)
+
+    setIsSignedIn(true)
+
+    // navigation.navigate('signIn')
   }
 
   useEffect(() => {

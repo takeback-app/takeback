@@ -1,10 +1,7 @@
 import bcrypt from "bcrypt";
-import dayjs from "dayjs";
-import { getRepository } from "typeorm";
 import { InternalError } from "../../../config/GenerateErros";
-import { generateToken } from "../../../config/JWT";
-import { Consumers } from "../../../database/models/Consumer";
-import { RefreshTokens } from "../../../database/models/RefreshTokens";
+import { prisma } from "../../../prisma";
+import { GenerateConsumerTokenUseCase } from "./GenerateConsumerTokenUseCase";
 
 interface LoginProps {
   cpf: string;
@@ -17,25 +14,15 @@ class SignInCostumerUseCase {
       throw new InternalError("Dados incompletos", 400);
     }
 
-    const consumer = await getRepository(Consumers).findOne({
-      where: {
-        cpf: cpf.replace(/\D/g, ""),
-      },
-      select: [
-        "id",
-        "fullName",
-        "cpf",
-        "email",
-        "password",
-        "deactivedAccount",
-      ],
+    const consumer = await prisma.consumer.findFirst({
+      where: { cpf: cpf.replace(/\D/g, "") },
     });
 
     if (!consumer) {
       throw new InternalError("CPF não cadastrado", 404);
     }
 
-    if (consumer.deactivedAccount) {
+    if (consumer.deactivatedAccount) {
       throw new InternalError("Conta inativa", 400);
     }
 
@@ -45,25 +32,9 @@ class SignInCostumerUseCase {
       throw new InternalError("Erro ao efetuar login", 400);
     }
 
-    await getRepository(RefreshTokens).delete({ consumer });
+    const data = await GenerateConsumerTokenUseCase.handle(consumer);
 
-    const expiresIn = dayjs().add(45, "day").unix();
-
-    const refreshToken = await getRepository(RefreshTokens).save({
-      consumer,
-      expiresIn,
-    });
-
-    const token = generateToken(
-      {
-        id: consumer.id,
-        name: consumer.fullName,
-      },
-      process.env.JWT_PRIVATE_KEY,
-      2592000 // 30 dias
-    );
-
-    return { token, refreshToken: refreshToken.id, name: consumer.fullName };
+    return { ...data, name: consumer.fullName };
   }
 }
 

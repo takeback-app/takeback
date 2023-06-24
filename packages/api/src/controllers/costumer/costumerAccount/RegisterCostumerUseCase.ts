@@ -1,4 +1,4 @@
-import { Sex } from "@prisma/client";
+import { MaritalStatus, Schooling, Sex } from "@prisma/client";
 import axios from "axios";
 import bcrypt from "bcrypt";
 import { DateTime } from "luxon";
@@ -22,6 +22,10 @@ interface userDataProps {
   sex: string;
   birthDate: string;
   phone?: string;
+  maritalStatus: string;
+  schooling: string;
+  hasChildren: string;
+  monthlyIncomeId: string;
 }
 
 class RegisterCostumerUseCase {
@@ -34,6 +38,7 @@ class RegisterCostumerUseCase {
     sex,
     password,
     phone,
+    ...rest
   }: userDataProps) {
     if (!fullName || !cpf || !zipCode || !email || !password) {
       throw new InternalError("Dados incompletos", 400);
@@ -117,6 +122,8 @@ class RegisterCostumerUseCase {
 
     const passwordEncrypted = bcrypt.hashSync(password, 10);
 
+    const { hasChildren, maritalStatus, monthlyIncomeId, schooling } = rest;
+
     const consumerData = {
       fullName,
       cpf,
@@ -131,6 +138,10 @@ class RegisterCostumerUseCase {
       addressId: newAddress.id,
       password: passwordEncrypted,
       isPlaceholderConsumer: false,
+      hasChildren: hasChildren === "sim",
+      monthlyIncomeId: monthlyIncomeId ? Number(monthlyIncomeId) : undefined,
+      schooling: schooling as Schooling,
+      maritalStatus: maritalStatus as MaritalStatus,
     };
 
     const newClient = await prisma.consumer.upsert({
