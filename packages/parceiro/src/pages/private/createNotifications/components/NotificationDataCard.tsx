@@ -22,6 +22,7 @@ import { AuthContext } from '../../../../contexts/AuthContext'
 import { createNotificationSolicitation } from '../services/api'
 import { useCreateNotificationSolicitation } from '../state'
 import { useNavigate } from 'react-router'
+import { ChakraTextArea } from '../../../../components/chakra/ChakraTextArea'
 
 const schema = z.object({
   title: z.string(),
@@ -88,7 +89,7 @@ export function NotificationDataCard() {
               {...register('title')}
             />
 
-            <ChakraInput
+            <ChakraTextArea
               isRequired
               label="Mensagem"
               placeholder="Digite a mensagem que será enviada para os usuários."

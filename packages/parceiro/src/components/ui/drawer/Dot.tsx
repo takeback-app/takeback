@@ -10,7 +10,7 @@ export function Dot() {
       h={3}
       bg="red.500"
       rounded="full"
-      right={16}
+      right={4}
       top={3}
     />
   )
