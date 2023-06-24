@@ -58,9 +58,11 @@ class ConsumersController {
   async forgotCostumerPassword(request: Request, response: Response) {
     const { id } = request.params;
 
+    const { email } = request.body;
+
     const forgot = new ForgotCostumerPasswordUseCase();
 
-    const message = await forgot.execute({ id });
+    const message = await forgot.execute({ id, email });
 
     return response.status(200).json({ message });
   }

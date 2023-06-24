@@ -10,10 +10,11 @@ import transporter from "../../../config/SMTP";
 
 interface ForgotPasswordProps {
   id: string;
+  email?: string;
 }
 
 class ForgotCostumerPasswordUseCase {
-  async execute({ id }: ForgotPasswordProps) {
+  async execute({ id, email }: ForgotPasswordProps) {
     if (!id) {
       throw new InternalError("Dados não informados", 400);
     }
@@ -61,7 +62,7 @@ class ForgotCostumerPasswordUseCase {
 
     var mailOptions = {
       from: process.env.MAIL_CONFIG_USER,
-      to: consumer.email,
+      to: email ?? consumer.email,
       subject: "TakeBack | Recuperação de senha",
       html,
     };
