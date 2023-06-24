@@ -89,11 +89,6 @@ export function Profile() {
             onPress={() => navigateTo({ url: 'profileEmail' })}
           />
           <Info
-            title="Meu número"
-            value={mask(userData.phone, '(99) 9 9999-9999')}
-            onPress={() => navigateTo({ url: 'profilePhone' })}
-          />
-          <Info
             title="Dados pessoais"
             value=""
             onPress={() => navigateTo({ url: 'profileData' })}

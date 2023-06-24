@@ -18,7 +18,7 @@ export const TermsOfUse: React.FC<ModalProps> = props => {
       visible={props.modalVisible}
       onRequestClose={props.onClose}
     >
-      <Layout>
+      <Layout withoutKeyboardDismiss>
         <Header
           variant="close"
           title="Termos e Condições"

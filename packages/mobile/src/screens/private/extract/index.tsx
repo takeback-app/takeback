@@ -92,7 +92,12 @@ export function Extract({ navigation }) {
 
   return (
     <Layout withoutKeyboardDismiss>
-      <Header variant="arrow" title="Extrato" goBack={navigation.goBack} />
+      <Header
+        bgColor="white"
+        variant="arrow"
+        title="Extrato"
+        goBack={navigation.goBack}
+      />
 
       <FlashList
         data={data}

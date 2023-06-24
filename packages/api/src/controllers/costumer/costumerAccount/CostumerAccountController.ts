@@ -5,6 +5,7 @@ import { VerifyIfUserAlreadyExistsUseCase } from "./VerifyIfUserAlreadyExistsUse
 import { prisma } from "../../../prisma";
 import { Sex } from "@prisma/client";
 import { DateTime } from "luxon";
+import { GenerateConsumerTokenUseCase } from "../constumerAuthentication/GenerateConsumerTokenUseCase";
 
 class CostumerAccountController {
   async registerCostumer(request: Request, response: Response) {
@@ -19,7 +20,9 @@ class CostumerAccountController {
       data: { status: "APPROVED", childrenConsumerId: consumer.id },
     });
 
-    return response.status(200).json({ message: "Usuário cadastrado" });
+    const token = await GenerateConsumerTokenUseCase.handle(consumer);
+
+    return response.status(201).json(token);
   }
 
   async updateConsumer(request: Request, response: Response) {

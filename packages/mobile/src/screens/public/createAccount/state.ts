@@ -10,6 +10,10 @@ export interface CreateAccountFormData {
   sex: Sex
   email: string
   phone: string
+  maritalStatus: string
+  schooling: string
+  monthlyIncomeId: string
+  hasChildren: string
 }
 
 interface SignUpState extends CreateAccountFormData {
@@ -17,6 +21,7 @@ interface SignUpState extends CreateAccountFormData {
     key: K,
     value: CreateAccountFormData[K]
   ) => void
+  getFormData: () => CreateAccountFormData
   reset: () => void
 }
 
@@ -27,11 +32,32 @@ const initialState = {
   birthday: '',
   sex: 'M' as Sex,
   email: '',
-  phone: ''
+  phone: '',
+  maritalStatus: '',
+  schooling: '',
+  monthlyIncomeId: '',
+  hasChildren: ''
 }
 
-export const useSignUp = create<SignUpState>(set => ({
+export const useSignUp = create<SignUpState>((set, get) => ({
   ...initialState,
   setValue: (key, value) => set({ [key]: value }),
+  getFormData: () => {
+    const data = get()
+
+    return {
+      cpf: data.cpf,
+      name: data.name,
+      zipCode: data.zipCode,
+      birthday: data.birthday,
+      sex: data.sex,
+      email: data.email,
+      phone: data.phone,
+      maritalStatus: data.maritalStatus,
+      schooling: data.schooling,
+      monthlyIncomeId: data.monthlyIncomeId,
+      hasChildren: data.hasChildren
+    }
+  },
   reset: () => set(initialState)
 }))

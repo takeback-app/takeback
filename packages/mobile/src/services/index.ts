@@ -140,7 +140,11 @@ export async function createAccount(
       zipCode: form.zipCode,
       sex: form.sex,
       birthDate: form.birthday,
-      password: form.password
+      password: form.password,
+      maritalStatus: form.maritalStatus,
+      schooling: form.schooling,
+      hasChildren: form.hasChildren,
+      monthlyIncomeId: form.monthlyIncomeId
     })
 
     return [true, data]

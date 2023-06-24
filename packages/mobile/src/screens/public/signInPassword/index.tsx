@@ -14,6 +14,7 @@ import { AuthContext } from '../../../contexts/AuthContext'
 
 import { saveNotificationToken } from '../../../services'
 import { useNotification } from '../../../stores/useNotification'
+import { authenticate } from '../../../utils/authenticate'
 
 export function SignInPassword({ navigation, route }) {
   const { cpf } = route?.params
@@ -21,7 +22,7 @@ export function SignInPassword({ navigation, route }) {
   const notificationToken = useNotification(state => state.token)
 
   const [password, setPassword] = useState('')
-  const [remember, setRemember] = useState(false)
+  const [remember, setRemember] = useState(true)
   const [loading, setLoading] = useState(false)
   const [showError, setShowError] = useState(false)
 
@@ -46,17 +47,8 @@ export function SignInPassword({ navigation, route }) {
       cpf,
       password
     })
-      .then(async response => {
-        storeData('@take-back-user-token', response.data.token)
-        storeData('@take-back-refresh-token', response.data.refreshToken)
-
-        if (remember) {
-          storeData('@take-back-remember', true)
-        }
-
-        API.defaults.headers.common[
-          'Authorization'
-        ] = `Bearer ${response.data.token}`
+      .then(async ({ data }) => {
+        authenticate(data.token, data.refreshToken, remember)
 
         await saveNotificationToken(notificationToken)
 

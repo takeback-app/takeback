@@ -60,6 +60,7 @@ export function PaymentStack({ route }) {
 
   return (
     <Stack.Navigator
+      initialRouteName="paymentSelectMethod"
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right'
