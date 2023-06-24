@@ -5,8 +5,7 @@ import { prisma } from "../../prisma";
 
 import { CreateCompanyUseCase } from "../../useCases/representative/CreateCompanyUserCase";
 
-import { FindOneCompanyUseCase } from "../manager/managerCompanies/FindOneCompanyUseCase";
-import { RegisterCompanyTakebackPaymentMethodsUseCase } from "../manager/managerCompanies/RegisterCompanyTakebackPaymentMethodsUseCase";
+import { RegisterCompanyDefaultPaymentMethodsUseCase } from "../manager/managerCompanies/RegisterCompanyDefaultPaymentMethodsUseCase";
 import { AllowCompanyFirstAccessUseCase } from "../manager/managerCompanies/AllowCompanyFirstAccessUseCase";
 import { ForgotPasswordToRootUserUseCase } from "../manager/managerCompanies/ForgotPasswordToRootUserUseCase";
 import { FindCompanyUsersUseCase } from "../manager/managerCompanies/FindCompanyUsersUseCase";
@@ -157,8 +156,8 @@ export class CompanyController {
       });
     }
 
-    const registerTakebackMethod =
-      new RegisterCompanyTakebackPaymentMethodsUseCase();
+    const registerDefaultMethods =
+      new RegisterCompanyDefaultPaymentMethodsUseCase();
     const allowCompanyAccess = new AllowCompanyFirstAccessUseCase();
 
     await allowCompanyAccess.execute({
@@ -166,7 +165,7 @@ export class CompanyController {
       ...companyUserData,
     });
 
-    await registerTakebackMethod.execute({ companyId: company.id });
+    await registerDefaultMethods.execute(company.id);
 
     return response.status(201).json(company);
   }
