@@ -1,7 +1,14 @@
-import { Bonus, CompanyUser, Consumer } from "@prisma/client";
+import { Bonus, Consumer } from "@prisma/client";
 import { prisma } from "../../../prisma";
+import { UpdateBalanceExpireDate } from "../UpdateBalanceExpireDate";
 
 export abstract class GenerateBonus {
+  protected updateBalanceExpireDate: UpdateBalanceExpireDate;
+
+  constructor() {
+    this.updateBalanceExpireDate = new UpdateBalanceExpireDate();
+  }
+
   abstract create(...args): Promise<Bonus>;
 
   protected getTransaction(transactionId: number) {
