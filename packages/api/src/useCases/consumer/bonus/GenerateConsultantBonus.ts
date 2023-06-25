@@ -36,6 +36,8 @@ export class GenerateConsultantBonus extends GenerateBonus {
 
     await this.updateConsumerBalance(consumer, bonus);
 
+    await this.updateBalanceExpireDate.execute(consumer.id);
+
     Notify.send(consumer.id, new ConsultantBonusNotification(bonus));
 
     return bonus;
