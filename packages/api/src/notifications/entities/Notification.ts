@@ -3,26 +3,30 @@ import { Expo as ExpoSdk, ExpoPushMessage } from "expo-server-sdk";
 
 import { prisma } from "../../prisma";
 import { Expo } from "../../services/expo";
+import { EmailDto, sendMail } from "../../utils/SendMail";
 
 export type User = {
   id: string;
-  expoNotificationToken: string;
+  expoNotificationToken?: string;
+  email?: string;
 };
 
 export enum UserType {
   CONSUMER = "CONSUMER",
   COMPANY_USER = "COMPANY_USER",
+  TAKEBACK_USER = "TAKEBACK_USER",
 }
 
 export enum Via {
   DATABASE = "database",
   EXPO = "expo",
+  EMAIL = "email",
 }
 
 export interface NotificationRecord {
   title: string;
   body: string;
-  data: Record<string, any>;
+  data?: Record<string, any>;
 }
 
 export abstract class Notification {
@@ -79,11 +83,24 @@ export abstract class Notification {
     });
   }
 
+  public async toEmail(id: string) {
+    if (this.dontSendVia(Via.EMAIL)) return;
+
+    const { email } = await this.getUser(id);
+
+    if (!email) return;
+
+    const { body, title } = this.toRecord();
+
+    sendMail(email, title, body);
+  }
+
   public async createMany(users: User[]) {
     const { body, data, title } = this.toRecord();
     const type = this.getType();
 
     const messages: ExpoPushMessage[] = [];
+    const emailMessages: EmailDto[] = [];
     const createNotificationInput: Prisma.NotificationCreateManyInput[] = [];
 
     for (const user of users) {
@@ -94,6 +111,14 @@ export abstract class Notification {
           body,
           data,
           title,
+        });
+      }
+
+      if (user.email) {
+        emailMessages.push({
+          to: user.email,
+          subject: title,
+          text: body,
         });
       }
 
@@ -115,6 +140,10 @@ export abstract class Notification {
     if (this.canSendVia(Via.EXPO)) {
       await Expo.sendInChunks(messages);
     }
+
+    // if (this.canSendVia(Via.EMAIL)) {
+    //   sendManyMails(emailMessages);
+    // }
   }
 
   private getUserIdObject(id: string) {
@@ -123,6 +152,27 @@ export abstract class Notification {
         return { consumerId: id };
       case UserType.COMPANY_USER:
         return { companyUserId: id };
+      case UserType.TAKEBACK_USER:
+        return { takeBackUserId: id };
+      default:
+        throw new Error("Tipo inexistente");
+    }
+  }
+
+  private getUser(id: string) {
+    switch (this.getUserType()) {
+      case UserType.CONSUMER:
+        return prisma.consumer.findUniqueOrThrow({
+          where: { id },
+        });
+      case UserType.COMPANY_USER:
+        return prisma.companyUser.findUniqueOrThrow({
+          where: { id },
+        });
+      case UserType.TAKEBACK_USER:
+        return prisma.takebackUser.findUniqueOrThrow({
+          where: { id },
+        });
       default:
         throw new Error("Tipo inexistente");
     }

@@ -19,6 +19,7 @@ import { FiMenu, FiBell, FiChevronDown, FiUser, FiLogOut } from 'react-icons/fi'
 import { useNavigate } from 'react-router'
 
 import { AuthContext } from '../../../contexts/AuthContext'
+import { NotificationPopoverButton } from './NotificationPopoverButton'
 
 interface MobileProps extends FlexProps {
   onOpen: () => void
@@ -59,12 +60,8 @@ export function Nav({ onOpen, children, ...rest }: MobileProps) {
       </Text>
 
       <HStack spacing={{ base: '0', md: '6' }}>
-        <IconButton
-          size="lg"
-          variant="ghost"
-          aria-label="open menu"
-          icon={<FiBell />}
-        />
+        <NotificationPopoverButton />
+
         <Flex alignItems={'center'}>
           <Menu>
             <MenuButton

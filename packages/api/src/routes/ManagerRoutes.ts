@@ -33,6 +33,7 @@ import { SelersReportController } from "../controllers/manager/managerReports/Se
 import { FinancialReportController } from "../controllers/manager/reports/FinancialReportController";
 import { ReferralBonusController } from "../controllers/manager/ReferralBonusController";
 import { FileController } from "../controllers/company/FileController";
+import { NotificationController } from "../controllers/manager/notification/NotificationController";
 
 const paymentMethod = new PaymentMethodController();
 const managerAuth = new ManagerAuthController();
@@ -64,6 +65,7 @@ const notificationSolicitationController =
 const raffleController = new RaffleController();
 const bonusController = new BonusController();
 const dashboardController = new DashboardController();
+const notificationController = new NotificationController();
 
 const fileController = new FileController();
 
@@ -265,6 +267,10 @@ routes.put(
   "/notification-solicitations/:id/reprove",
   notificationSolicitationController.reprove
 );
+
+routes.get("/notifications", notificationController.index);
+routes.get("/unread-notifications", notificationController.unread);
+routes.put("/notifications/:id", notificationController.update);
 
 routes.get("/logo-change-requests", logoChangeRequestController.index);
 routes.put(

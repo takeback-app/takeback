@@ -267,6 +267,11 @@ export const Cashback: React.FC = () => {
         setIsPixMethod(false)
         cashbacksSelected = []
         setAllChecked(false)
+        toast({
+          title: 'Sucesso',
+          description: response.data.message,
+          status: 'success'
+        })
       })
       .catch(error => {
         if (error.isAxiosError) {

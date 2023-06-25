@@ -1,5 +1,11 @@
 import transporter from "../config/SMTP";
 
+export type EmailDto = {
+  to: string;
+  subject: string;
+  text: string;
+};
+
 export function sendMail(to: string, subject: string, text: string) {
   transporter.sendMail(
     {
