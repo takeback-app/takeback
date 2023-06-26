@@ -58,6 +58,8 @@ routes.get("/verify-if-exists/:cpf", costumerAccount.verifyIfUserAlreadyExists);
 
 routes.post("/signature/reset", costumerData.resetSignature);
 
+routes.get("/monthly-incomes", missingFieldController.monthlyIncomes);
+
 routes.use(DecodeTokenMiddleware, AuthCostumerMiddleware);
 
 routes.get("/data/find", costumerData.findAppData);
@@ -133,7 +135,6 @@ routes.post("/solicitations/payment", solicitationController.payment);
 routes.post("/notification-token", profileController.notificationToken);
 
 routes.get("/missing-fields", missingFieldController.index);
-routes.get("/monthly-incomes", missingFieldController.monthlyIncomes);
 
 routes.get("/notifications", notificationController.index);
 routes.get(

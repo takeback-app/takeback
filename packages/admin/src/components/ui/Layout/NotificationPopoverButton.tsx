@@ -22,47 +22,58 @@ import useSWR from 'swr'
 import { updateNotification } from '../../../services/notificationApi'
 import { chakraToastConfig } from '../../../styles/chakraToastConfig'
 import { FaBell } from 'react-icons/fa'
+import { useInfiniteList } from '../../../hooks/useInfiniteList'
+import InfiniteScroll from 'react-infinite-scroll-component'
 
-interface Notifications {
-  data: TNotifications[]
+interface Notification {
+  id: string
+  type: string
+  title: string
+  body: string
+  readAt: string | null
+  createdAt: string
 }
 
 export function NotificationPopoverButton() {
-  const [notifications, setNotifications] = useState([] as TNotifications[])
+  // const [notifications, setNotifications] = useState([] as TNotifications[])
 
   const toast = useToast(chakraToastConfig)
 
-  async function updateNotificationToRead(id: string) {
-    const [isOk, response] = await updateNotification(id, {
-      isRead: true
-    })
+  // async function updateNotificationToRead(id: string) {
+  //   const [isOk, response] = await updateNotification(id, {
+  //     isRead: true
+  //   })
 
-    if (!isOk) {
-      return toast({
-        title: 'Atenção',
-        description: response.message,
-        status: 'error'
-      })
-    }
+  //   if (!isOk) {
+  //     return toast({
+  //       title: 'Atenção',
+  //       description: response.message,
+  //       status: 'error'
+  //     })
+  //   }
 
-    setNotifications(state =>
-      state.map(function (value) {
-        if (value.id === id) {
-          value.readAt = new Date().toString()
-        }
+  //   setNotifications(state =>
+  //     state.map(function (value) {
+  //       if (value.id === id) {
+  //         value.readAt = new Date().toString()
+  //       }
 
-        return value
-      })
-    )
-  }
+  //       return value
+  //     })
+  //   )
+  // }
 
-  const { data } = useSWR<Notifications>(`/manager/unread-notifications`)
+  const {
+    data: notifications,
+    nextPage,
+    isReachedEnd
+  } = useInfiniteList<Notification>(`/manager/unread-notifications`)
 
-  useMemo(() => {
-    if (data !== undefined) {
-      setNotifications(data.data)
-    }
-  }, [data])
+  // useMemo(() => {
+  //   if (data !== undefined) {
+  //     setNotifications(data.data)
+  //   }
+  // }, [data])
 
   return (
     <Popover arrowSize={12} placement="bottom-end">
@@ -74,7 +85,7 @@ export function NotificationPopoverButton() {
           icon={
             <>
               <Avatar icon={<FaBell />} size="sm" bg="gray.400">
-                {!!notifications.filter(item => !item.readAt).length && (
+                {!!notifications && (
                   <AvatarBadge boxSize="1.25em" bg="blue.500"></AvatarBadge>
                 )}
               </Avatar>
@@ -88,8 +99,13 @@ export function NotificationPopoverButton() {
         <PopoverHeader fontSize={'lg'}>Notificações</PopoverHeader>
         <PopoverBody p={0} maxH="lg" overflowY="auto">
           <Stack spacing={0} bgColor="white" divider={<Divider />}>
-            {notifications.length > 0 ? (
-              notifications.map(item => (
+            <InfiniteScroll
+              dataLength={100}
+              next={nextPage}
+              hasMore={isReachedEnd}
+              loader={<h4>Loading...</h4>}
+            >
+              {notifications?.map(item => (
                 <Box
                   cursor="pointer"
                   key={item.id}
@@ -99,7 +115,7 @@ export function NotificationPopoverButton() {
                   }}
                   px={4}
                   py={2}
-                  onClick={() => updateNotificationToRead(item.id)}
+                  // onClick={() => updateNotificationToRead(item.id)}
                 >
                   <Flex flex="1" justify="space-between" gap="4">
                     <Box>
@@ -117,8 +133,10 @@ export function NotificationPopoverButton() {
                     }
                   </Flex>
                 </Box>
-              ))
-            ) : (
+              ))}
+            </InfiniteScroll>
+
+            {!notifications && (
               <Box
                 cursor="pointer"
                 _hover={{

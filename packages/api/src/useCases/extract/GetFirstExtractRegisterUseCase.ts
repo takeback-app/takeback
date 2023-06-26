@@ -1,60 +1,6 @@
-import { randomUUID } from "crypto";
-import { prisma } from "../../prisma";
-import {
-  BonusType,
-  SolicitationStatus,
-  SolicitationType,
-} from "@prisma/client";
-import { TransactionStatusEnum } from "../../enum/TransactionStatusEnum";
 import { DateTime } from "luxon";
-
-interface TransactionData {
-  id: number;
-  companyName: string;
-  status: string;
-  cashbackAmount: number;
-  backAmount: number;
-  amountPayWithTakebackBalance: number;
-}
-
-interface TransferData {
-  id: number;
-  consumerName: string;
-  isReceived: boolean;
-  amount: number;
-}
-
-interface BonusData {
-  id: string;
-  amount: number;
-  type: BonusType;
-}
-
-interface BalanceExpirationData {
-  id: string;
-  amount: number;
-}
-
-interface SolicitationData {
-  id: string;
-  amount: number;
-  companyName: string;
-  type: SolicitationType;
-  status: SolicitationStatus;
-  text?: string;
-}
-
-type ExtractItemType =
-  | { type: "TRANSACTION"; data: TransactionData }
-  | { type: "TRANSFER"; data: TransferData }
-  | { type: "BALANCE_EXPIRATION"; data: BalanceExpirationData }
-  | { type: "BONUS"; data: BonusData }
-  | { type: "SOLICITATION"; data: SolicitationData };
-
-type ExtractItem = ExtractItemType & {
-  id: string;
-  referenceDate: Date;
-};
+import { TransactionStatusEnum } from "../../enum/TransactionStatusEnum";
+import { prisma } from "../../prisma";
 
 export class GetFirstExtractRegisterUseCase {
   private month?: DateTime;

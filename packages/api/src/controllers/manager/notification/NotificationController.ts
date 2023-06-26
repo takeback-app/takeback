@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../../prisma";
 
-const PER_PAGE = 25;
-
 export class NotificationController {
   async index(request: Request, response: Response) {
     const { id } = request["tokenPayload"];
@@ -10,28 +8,20 @@ export class NotificationController {
 
     const pageNumber = Number(page) || 1;
 
+    const perPage = 25;
+
     const notifications = await prisma.notification.findMany({
-      select: {
-        id: true,
-        type: true,
-        title: true,
-        body: true,
-        readAt: true,
-        createdAt: true,
-      },
-      where: {
-        takeBackUserId: id,
-      },
+      where: { takeBackUserId: id },
       orderBy: { createdAt: "desc" },
-      take: PER_PAGE,
-      skip: (pageNumber - 1) * PER_PAGE,
+      take: perPage,
+      skip: (pageNumber - 1) * perPage,
     });
 
     const count = await prisma.notification.count();
 
     return response.json({
       data: notifications,
-      meta: { lastPage: Math.ceil(count / PER_PAGE) },
+      meta: { lastPage: Math.ceil(count / perPage) },
     });
   }
 
@@ -51,16 +41,19 @@ export class NotificationController {
   async unread(request: Request, response: Response) {
     const { id } = request["tokenPayload"];
 
+    const { page } = request.query;
+
+    const pageNumber = Number(page) || 1;
+
+    const perPage = 8;
+
     const notifications = await prisma.notification.findMany({
-      where: {
-        readAt: null,
-        takeBackUserId: id,
-      },
+      where: { readAt: null, takeBackUserId: id },
       orderBy: { createdAt: "desc" },
+      take: perPage,
+      skip: (pageNumber - 1) * perPage,
     });
 
-    return response.json({
-      data: notifications,
-    });
+    return response.json(notifications);
   }
 }
