@@ -1,6 +1,28 @@
 import { extendTheme } from 'native-base'
 
 export const theme = extendTheme({
+  components: {
+    Heading: {
+      defaultProps: {
+        allowFontScaling: false
+      }
+    },
+    Text: {
+      defaultProps: {
+        allowFontScaling: false
+      }
+    },
+    TextInput: {
+      defaultProps: {
+        allowFontScaling: false
+      }
+    },
+    Input: {
+      defaultProps: {
+        allowFontScaling: false
+      }
+    }
+  },
   fontConfig: {
     Montserrat: {
       100: {

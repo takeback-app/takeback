@@ -50,26 +50,23 @@ export function Welcome() {
                 fontSize: 'md',
                 fontWeight: 'medium'
               }}
-              onPress={navigateToSignIn}
+              onPress={navigateToSignUp}
             >
-              Entrar
+              Criar conta
             </Button>
             <Button
-              h="12"
-              rounded="full"
-              borderWidth="2"
-              variant="outline"
+              mt={-2}
+              variant="ghost"
               _text={{
-                fontSize: 'md',
-                fontWeight: 'medium',
+                fontSize: 'sm',
                 color: 'white'
               }}
               _pressed={{
                 bgColor: 'transparent'
               }}
-              onPress={navigateToSignUp}
+              onPress={navigateToSignIn}
             >
-              Criar conta
+              Já é usuário? Faça login
             </Button>
           </VStack>
         </Box>

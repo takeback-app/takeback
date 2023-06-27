@@ -2,11 +2,14 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { ChakraProvider, extendTheme } from '@chakra-ui/react'
+import { Buffer } from 'buffer'
 
 import App from './App'
 import reportWebVitals from './reportWebVitals'
 
 import './styles/ResetCSS.css'
+
+window.Buffer = window.Buffer ?? Buffer
 
 const container = document.getElementById('root')
 

@@ -233,7 +233,10 @@ export function RaffleDetail({ route, navigation }) {
                 </Text>
               ) : null}
             </Flex>
-            <NativeText style={{ marginTop: isWinner ? 4 : 0 }}>
+            <NativeText
+              allowFontScaling={false}
+              style={{ marginTop: isWinner ? 4 : 0 }}
+            >
               <Text fontSize="xs">Local de retirada: </Text>
               <Text fontWeight="bold" fontSize="xs">
                 {raffle.pickUpLocation || 'Nenhum local informado.'}{' '}

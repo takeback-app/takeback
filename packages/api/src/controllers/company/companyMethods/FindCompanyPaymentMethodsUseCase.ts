@@ -1,5 +1,4 @@
-import { getRepository } from "typeorm";
-import { CompanyPaymentMethods } from "../../../database/models/CompanyPaymentMethod";
+import { prisma } from "../../../prisma";
 
 interface Props {
   companyId: string;
@@ -7,13 +6,11 @@ interface Props {
 
 class FindCompanyPaymentMethodsUseCase {
   async execute({ companyId }: Props) {
-    const companyMethods = await getRepository(CompanyPaymentMethods).find({
-      where: { company: { id: companyId } },
-      relations: ["paymentMethod"],
-      order: { createdAt: "DESC" },
+    return prisma.companyPaymentMethod.findMany({
+      where: { companyId, paymentMethod: { isTakebackMethod: false } },
+      include: { paymentMethod: true },
+      orderBy: { createdAt: "desc" },
     });
-
-    return companyMethods;
   }
 }
 

@@ -1,11 +1,10 @@
-import { getRepository } from "typeorm";
-import { PaymentMethods } from "../../../database/models/PaymentMethod";
+import { prisma } from "../../../prisma";
 
 class FindPaymentMethodsUseCase {
   async execute() {
-    const paymentMethods = await getRepository(PaymentMethods).find();
-
-    return paymentMethods;
+    return prisma.paymentMethod.findMany({
+      where: { isTakebackMethod: false },
+    });
   }
 }
 

@@ -29,7 +29,7 @@ export const PaymentInfoWrapper = styled.div`
   align-items: center;
   justify-content: center;
   padding: 15px 0;
-  gap: 15px;
+  gap: 8px;
 `
 export const PaymentInfoDescription = styled.div`
   display: flex;

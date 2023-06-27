@@ -54,6 +54,7 @@
     "downshift": "^7.4.1",
     "framer-motion": "^9.0.1",
     "moment": "^2.29.3",
+    "pix-react": "^1.0.4",
     "react": "^18.2.0",
     "react-chakra-pagination": "^2.0.7",
     "react-chartjs-2": "^4.0.0",

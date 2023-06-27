@@ -43,8 +43,7 @@ const schema = z.object({
   password: z
     .string()
     .nonempty({ message: 'Senha deve ter no mínimo 3 caracteres' })
-    .min(3, { message: 'Senha deve ter no mínimo 3 caracteres' }),
-  cancellationDescription: z.string().optional()
+    .min(3, { message: 'Senha deve ter no mínimo 3 caracteres' })
 })
 
 export type ConfirmationModalData = z.infer<typeof schema>
@@ -68,28 +67,17 @@ export function ConfirmationModal({
     formState: { errors, isSubmitting }
   } = useForm<ConfirmationModalData>({ resolver: zodResolver(schema) })
 
-  async function onSubmit({
-    password,
-    cancellationDescription
-  }: ConfirmationModalData) {
+  async function onSubmit({ password }: ConfirmationModalData) {
     const [isPasswordOk, passwordData] = await checkPassword(password)
 
     if (!isPasswordOk) {
       return setError('password', { message: passwordData.message })
     }
 
-    if (isCancelation && !cancellationDescription) {
-      return setError('cancellationDescription', {
-        message: 'Campo obrigatório'
-      })
-    }
-
     const apiCall = isCancelation ? reproveSolicitation : approveSolicitation
 
     const [isOk, approveOrReproveData] = await apiCall({
-      cancellationDescription: isCancelation
-        ? cancellationDescription
-        : undefined,
+      cancellationDescription: 'Cancelado',
       companyUserPassword: password,
       solicitationsId: selectedIds
     })
@@ -159,14 +147,6 @@ export function ConfirmationModal({
               </InputGroup>
               <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
             </FormControl>
-
-            {isCancelation ? (
-              <ChakraInput
-                label="Motivo do cancelamento"
-                error={errors.cancellationDescription?.message}
-                {...register('cancellationDescription')}
-              />
-            ) : null}
           </ModalBody>
 
           <ModalFooter>

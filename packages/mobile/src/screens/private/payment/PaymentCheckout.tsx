@@ -47,7 +47,7 @@ export function PaymentCheckout({ navigation }) {
         <Heading fontSize="26" fontWeight="semibold">
           Revise os detalhes do seu pagamento
         </Heading>
-        <NativeText style={{ marginTop: 8 }}>
+        <NativeText allowFontScaling={false} style={{ marginTop: 8 }}>
           <Text fontSize="16px" color="gray.800">
             para{' '}
           </Text>

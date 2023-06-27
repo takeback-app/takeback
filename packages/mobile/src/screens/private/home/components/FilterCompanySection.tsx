@@ -108,7 +108,7 @@ export function FilterCompanySection({
         ) : null}
 
         <Flex align="flex-end" flexDir="row">
-          <NativeText style={{ marginTop: 8 }}>
+          <NativeText allowFontScaling={false} style={{ marginTop: 8 }}>
             <Text fontSize="13px" fontWeight="bold">
               Clique na empresa para solicitar cashback 👇
             </Text>
