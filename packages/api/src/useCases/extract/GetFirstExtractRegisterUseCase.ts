@@ -84,9 +84,11 @@ export class GetFirstExtractRegisterUseCase {
       this.solicitations(),
     ]);
 
-    if (!dates.length) return false;
+    const filteredDates = dates.filter((date) => date);
 
-    const firstRegisterDate = dates.sort(
+    if (!filteredDates.length) return false;
+
+    const firstRegisterDate = filteredDates.sort(
       (a, b) => a.getTime() - b.getTime()
     )[0];
 
