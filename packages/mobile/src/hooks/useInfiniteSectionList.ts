@@ -21,11 +21,12 @@ export function useInfiniteSectionList<T>(url: string) {
   const { data, isLoading, mutate, setSize, size } =
     useSWRInfinite<Data>(getKey)
 
-  const isLoadingMore = useMemo(
-    () =>
-      isLoading || (size > 0 && data && typeof data[size - 1] === 'undefined'),
-    [data, size, isLoading]
-  )
+  const isLoadingMore = useMemo(() => {
+    return (
+      isLoading ||
+      (size > 0 && data && typeof data[data.length - 1].title !== 'undefined')
+    )
+  }, [data, size, isLoading])
 
   const isReachedEnd = useMemo(() => {
     if (!data) return false
@@ -45,10 +46,12 @@ export function useInfiniteSectionList<T>(url: string) {
 
   return {
     data:
-      data?.reduce(
-        (a, b) => [...a, b.title, ...b.data],
-        [] as (string | undefined | T)[]
-      ) ?? [],
+      data
+        ?.reduce(
+          (a, b) => [...a, b.title, ...b.data],
+          [] as (string | undefined | T)[]
+        )
+        .filter(a => a) ?? [],
     isLoading,
     isLoadingMore,
     onRefresh,
