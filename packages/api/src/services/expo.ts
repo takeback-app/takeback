@@ -1,4 +1,4 @@
-import ExpoSdk, { ExpoPushMessage } from "expo-server-sdk";
+import ExpoSdk, { ExpoPushMessage, ExpoPushTicket } from "expo-server-sdk";
 import { logger } from "./logger";
 import { isDevelopment } from "../utils";
 
@@ -10,20 +10,28 @@ export class Expo {
 
     const chunks = expo.chunkPushNotifications(messages);
 
+    let tickets: ExpoPushTicket[] = [];
+
     for (let chunk of chunks) {
       try {
-        await expo.sendPushNotificationsAsync(chunk);
+        const ticketChunks = await expo.sendPushNotificationsAsync(chunk);
+
+        tickets.push(...ticketChunks);
       } catch (e) {
         logger.error(e);
       }
     }
+
+    logger.info(tickets, "expo-debug");
   }
 
   public static async sendNotification(message: ExpoPushMessage) {
     if (isDevelopment()) return;
 
     try {
-      await expo.sendPushNotificationsAsync([message]);
+      const tickets = await expo.sendPushNotificationsAsync([message]);
+
+      logger.info(tickets, "expo-debug");
     } catch (e) {
       logger.error(e);
     }
