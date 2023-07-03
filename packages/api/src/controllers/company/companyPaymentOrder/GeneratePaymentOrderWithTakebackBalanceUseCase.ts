@@ -14,6 +14,9 @@ import fs from "fs";
 import hbs from "handlebars";
 import { ApproveTransactionUseCase } from "../../../useCases/cashback/ApproveTransactionUseCase";
 import { UpdateCompanyStatusByTransactionsUseCase } from "../companyCashback/UpdateCompanyStatusByTransactionsUseCase";
+import { prisma } from "../../../prisma";
+import { Notify } from "../../../notifications";
+import { NewPaymentOrder } from "../../../notifications/NewPaymentOrder";
 
 interface Props {
   transactionIDs: number[];
@@ -205,6 +208,16 @@ class GeneratePaymentOrderWithTakebackBalanceUseCase {
     }
 
     await new UpdateCompanyStatusByTransactionsUseCase().execute(companyId);
+
+    const users = await prisma.takebackUser.findMany({
+      select: { id: true },
+      where: { userTypeId: 2 },
+    });
+
+    Notify.sendMany(
+      users,
+      new NewPaymentOrder(paymentOrder, company.fantasyName)
+    );
 
     const emailTemplate = fs.readFileSync(
       path.resolve("src/utils/emailTemplates/template1.hbs"),

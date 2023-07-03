@@ -24,3 +24,20 @@ export async function updateNotification(
     ]
   }
 }
+
+export async function updateManyNotifications(
+  data: updateForm
+): Promise<ReturnApi> {
+  try {
+    await API.patch(`manager/notifications`, data)
+
+    return [true, { message: 'Notificações atualizadas' }]
+  } catch (err) {
+    const error = err as AxiosError
+
+    return [
+      false,
+      { message: error.response?.data.message || 'Contate um administrador' }
+    ]
+  }
+}

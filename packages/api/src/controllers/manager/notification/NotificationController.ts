@@ -38,20 +38,30 @@ export class NotificationController {
     return response.json({ message: "Notificação atualizada" });
   }
 
+  async updateMany(request: Request, response: Response) {
+    const { id } = request["tokenPayload"];
+    const { isRead } = request.body;
+
+    await prisma.notification.updateMany({
+      where: {
+        OR: [{ consumerId: id }, { companyUserId: id }, { takeBackUserId: id }],
+        AND: { readAt: isRead ? null : undefined },
+      },
+      data: { readAt: isRead ? new Date() : null },
+    });
+
+    return response.json({ message: "Notificação atualizada" });
+  }
+
   async unread(request: Request, response: Response) {
     const { id } = request["tokenPayload"];
 
-    const { page } = request.query;
-
-    const pageNumber = Number(page) || 1;
-
-    const perPage = 8;
-
     const notifications = await prisma.notification.findMany({
-      where: { readAt: null, takeBackUserId: id },
+      where: {
+        OR: [{ consumerId: id }, { companyUserId: id }, { takeBackUserId: id }],
+        AND: { readAt: null },
+      },
       orderBy: { createdAt: "desc" },
-      take: perPage,
-      skip: (pageNumber - 1) * perPage,
     });
 
     return response.json(notifications);

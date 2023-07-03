@@ -5,6 +5,8 @@ import { AudienceCountRequest } from "../../requests/AudienceCountRequest";
 import { GetAudienceUseCase } from "../../useCases/notificationSolicitations/GetAudienceUseCase";
 import { ValidateNumberOfMonthlyNotificationSolicitationsUseCase } from "../../useCases/notificationSolicitations/ValidateNumberOfMonthlyNotificationSolicitationsUseCase";
 import { CreateNotificationSolicitationRequest } from "../../requests/CreateNotificationSolicitationRequest";
+import { Notify } from "../../notifications";
+import { NewCustomNotificationRequest } from "../../notifications/NewCustomNotificationRequest";
 
 export class NotificationSolicitationController {
   async index(request: Request, response: Response) {
@@ -40,20 +42,38 @@ export class NotificationSolicitationController {
       title,
     } = form.data;
 
-    await prisma.notificationSolicitation.create({
-      data: {
-        audienceBalance,
-        audienceSex,
-        dateOfPurchase,
-        hasChildren,
-        maxAudienceAge,
-        message,
-        minAudienceAge,
-        storeVisitType,
-        title,
-        companyId,
-      },
+    const notificationSolicitation =
+      await prisma.notificationSolicitation.create({
+        data: {
+          audienceBalance,
+          audienceSex,
+          dateOfPurchase,
+          hasChildren,
+          maxAudienceAge,
+          message,
+          minAudienceAge,
+          storeVisitType,
+          title,
+          companyId,
+        },
+      });
+
+    const users = await prisma.takebackUser.findMany({
+      select: { id: true },
+      where: { userTypeId: 2 },
     });
+
+    const company = await prisma.company.findFirst({
+      where: { id: companyId },
+    });
+
+    Notify.sendMany(
+      users,
+      new NewCustomNotificationRequest(
+        notificationSolicitation.id,
+        company.fantasyName
+      )
+    );
 
     return response.json({
       message: "Solicitação de notificação enviada com sucesso.",

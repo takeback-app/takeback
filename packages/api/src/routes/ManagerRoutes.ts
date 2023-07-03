@@ -271,6 +271,7 @@ routes.put(
 routes.get("/notifications", notificationController.index);
 routes.get("/unread-notifications", notificationController.unread);
 routes.put("/notifications/:id", notificationController.update);
+routes.patch("/notifications", notificationController.updateMany);
 
 routes.get("/logo-change-requests", logoChangeRequestController.index);
 routes.put(

@@ -13,8 +13,9 @@ export class NewRaffleToApprove extends Notification {
 
   public toRecord(): NotificationRecord {
     return {
-      title: "Novo sorteio na sua cidade 🤩",
-      body: `${this.companyName} lançou um novo sorteio. Não fique de fora! Acesse o app para saber mais.`,
+      title: "Novo sorteio Cadastrado",
+      body: `Sorteio gerado para ${this.companyName}`,
+      subject: `TakeBack - Novo sorteio Cadastrado`,
       data: { id: this.raffleId },
     };
   }

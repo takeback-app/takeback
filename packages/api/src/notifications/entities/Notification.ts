@@ -3,7 +3,11 @@ import { Expo as ExpoSdk, ExpoPushMessage } from "expo-server-sdk";
 
 import { prisma } from "../../prisma";
 import { Expo } from "../../services/expo";
-import { EmailDto, sendMail } from "../../utils/SendMail";
+
+import fs from "fs";
+import path from "path";
+import hbs from "handlebars";
+import transporter from "../../config/SMTP";
 
 export type User = {
   id: string;
@@ -27,6 +31,7 @@ export interface NotificationRecord {
   title: string;
   body: string;
   data?: Record<string, any>;
+  subject?: string;
 }
 
 export abstract class Notification {
@@ -51,10 +56,14 @@ export abstract class Notification {
 
     const userIdObject = this.getUserIdObject(id);
 
+    const { title, body, data } = this.toRecord();
+
     return prisma.notification.create({
       data: {
         type: this.getType(),
-        ...this.toRecord(),
+        title,
+        body,
+        data,
         ...userIdObject,
       },
     });
@@ -90,20 +99,31 @@ export abstract class Notification {
 
     if (!email) return;
 
-    const { body, title } = this.toRecord();
+    const { title, body, subject } = this.toRecord();
 
-    sendMail(email, title, body);
+    const html = this.getEmailTemplate(title, body);
+
+    var mailOptions = {
+      from: process.env.MAIL_CONFIG_USER,
+      to: email,
+      subject,
+      html,
+    };
+
+    transporter.sendMail(mailOptions);
   }
 
   public async createMany(users: User[]) {
-    const { body, data, title } = this.toRecord();
+    const { body, data, title, subject } = this.toRecord();
     const type = this.getType();
 
     const messages: ExpoPushMessage[] = [];
-    const emailMessages: EmailDto[] = [];
+    const emailList: string[] = [];
     const createNotificationInput: Prisma.NotificationCreateManyInput[] = [];
 
     for (const user of users) {
+      const userObject = this.getUserIdObject(user.id);
+
       if (user.expoNotificationToken) {
         messages.push({
           to: user.expoNotificationToken,
@@ -115,15 +135,11 @@ export abstract class Notification {
       }
 
       if (user.email) {
-        emailMessages.push({
-          to: user.email,
-          subject: title,
-          text: body,
-        });
+        emailList.push(user.email);
       }
 
       createNotificationInput.push({
-        consumerId: user.id,
+        ...userObject,
         body,
         title,
         type,
@@ -141,9 +157,18 @@ export abstract class Notification {
       await Expo.sendInChunks(messages);
     }
 
-    // if (this.canSendVia(Via.EMAIL)) {
-    //   sendManyMails(emailMessages);
-    // }
+    if (this.canSendVia(Via.EMAIL)) {
+      const html = this.getEmailTemplate(title, body);
+
+      for (const email of emailList) {
+        transporter.sendMail({
+          from: process.env.MAIL_CONFIG_USER,
+          to: email,
+          subject,
+          html,
+        });
+      }
+    }
   }
 
   private getUserIdObject(id: string) {
@@ -176,5 +201,20 @@ export abstract class Notification {
       default:
         throw new Error("Tipo inexistente");
     }
+  }
+
+  private getEmailTemplate(title: string, body: string) {
+    const emailTemplate = fs.readFileSync(
+      path.resolve("src/utils/emailTemplates/template1.hbs"),
+      "utf-8"
+    );
+
+    const template = hbs.compile(emailTemplate);
+
+    return template({
+      title: title,
+      sectionOne: body,
+      sectionThree: "Abraços! Equipe TakeBack :)",
+    });
   }
 }

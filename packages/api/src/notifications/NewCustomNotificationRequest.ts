@@ -9,16 +9,16 @@ import {
 export class NewCustomNotificationRequest extends Notification {
   constructor(
     protected notificationSolicitationId: string,
-    protected title: string,
-    protected message: string
+    protected responsibleName: string
   ) {
     super();
   }
 
   public toRecord(): NotificationRecord {
     return {
-      title: this.title,
-      body: this.message,
+      title: "Nova solicitação de notificação",
+      body: `Solicitação de notificação gerada para ${this.responsibleName}`,
+      subject: "TakeBack - Nova solicitação de notificação",
       data: { notificationSolicitationId: this.notificationSolicitationId },
     };
   }
