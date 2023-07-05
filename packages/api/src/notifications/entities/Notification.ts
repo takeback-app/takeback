@@ -4,25 +4,34 @@ import { Expo as ExpoSdk, ExpoPushMessage } from "expo-server-sdk";
 import { prisma } from "../../prisma";
 import { Expo } from "../../services/expo";
 
+import fs from "fs";
+import path from "path";
+import hbs from "handlebars";
+import transporter from "../../config/SMTP";
+
 export type User = {
   id: string;
-  expoNotificationToken: string;
+  expoNotificationToken?: string;
+  email?: string;
 };
 
 export enum UserType {
   CONSUMER = "CONSUMER",
   COMPANY_USER = "COMPANY_USER",
+  TAKEBACK_USER = "TAKEBACK_USER",
 }
 
 export enum Via {
   DATABASE = "database",
   EXPO = "expo",
+  EMAIL = "email",
 }
 
 export interface NotificationRecord {
   title: string;
   body: string;
-  data: Record<string, any>;
+  data?: Record<string, any>;
+  subject?: string;
 }
 
 export abstract class Notification {
@@ -47,10 +56,14 @@ export abstract class Notification {
 
     const userIdObject = this.getUserIdObject(id);
 
+    const { title, body, data } = this.toRecord();
+
     return prisma.notification.create({
       data: {
         type: this.getType(),
-        ...this.toRecord(),
+        title,
+        body,
+        data,
         ...userIdObject,
       },
     });
@@ -79,14 +92,38 @@ export abstract class Notification {
     });
   }
 
+  public async toEmail(id: string) {
+    if (this.dontSendVia(Via.EMAIL)) return;
+
+    const { email } = await this.getUser(id);
+
+    if (!email) return;
+
+    const { title, body, subject } = this.toRecord();
+
+    const html = this.getEmailTemplate(title, body);
+
+    var mailOptions = {
+      from: process.env.MAIL_CONFIG_USER,
+      to: email,
+      subject,
+      html,
+    };
+
+    transporter.sendMail(mailOptions);
+  }
+
   public async createMany(users: User[]) {
-    const { body, data, title } = this.toRecord();
+    const { body, data, title, subject } = this.toRecord();
     const type = this.getType();
 
     const messages: ExpoPushMessage[] = [];
+    const emailList: string[] = [];
     const createNotificationInput: Prisma.NotificationCreateManyInput[] = [];
 
     for (const user of users) {
+      const userObject = this.getUserIdObject(user.id);
+
       if (user.expoNotificationToken) {
         messages.push({
           to: user.expoNotificationToken,
@@ -97,8 +134,12 @@ export abstract class Notification {
         });
       }
 
+      if (user.email) {
+        emailList.push(user.email);
+      }
+
       createNotificationInput.push({
-        consumerId: user.id,
+        ...userObject,
         body,
         title,
         type,
@@ -115,6 +156,19 @@ export abstract class Notification {
     if (this.canSendVia(Via.EXPO)) {
       await Expo.sendInChunks(messages);
     }
+
+    if (this.canSendVia(Via.EMAIL)) {
+      const html = this.getEmailTemplate(title, body);
+
+      for (const email of emailList) {
+        transporter.sendMail({
+          from: process.env.MAIL_CONFIG_USER,
+          to: email,
+          subject,
+          html,
+        });
+      }
+    }
   }
 
   private getUserIdObject(id: string) {
@@ -123,8 +177,44 @@ export abstract class Notification {
         return { consumerId: id };
       case UserType.COMPANY_USER:
         return { companyUserId: id };
+      case UserType.TAKEBACK_USER:
+        return { takeBackUserId: id };
       default:
         throw new Error("Tipo inexistente");
     }
+  }
+
+  private getUser(id: string) {
+    switch (this.getUserType()) {
+      case UserType.CONSUMER:
+        return prisma.consumer.findUniqueOrThrow({
+          where: { id },
+        });
+      case UserType.COMPANY_USER:
+        return prisma.companyUser.findUniqueOrThrow({
+          where: { id },
+        });
+      case UserType.TAKEBACK_USER:
+        return prisma.takebackUser.findUniqueOrThrow({
+          where: { id },
+        });
+      default:
+        throw new Error("Tipo inexistente");
+    }
+  }
+
+  private getEmailTemplate(title: string, body: string) {
+    const emailTemplate = fs.readFileSync(
+      path.resolve("src/utils/emailTemplates/template1.hbs"),
+      "utf-8"
+    );
+
+    const template = hbs.compile(emailTemplate);
+
+    return template({
+      title: title,
+      sectionOne: body,
+      sectionThree: "Abraços! Equipe TakeBack :)",
+    });
   }
 }

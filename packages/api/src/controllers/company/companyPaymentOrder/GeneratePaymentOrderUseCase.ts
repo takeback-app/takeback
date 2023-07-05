@@ -12,6 +12,9 @@ import path from "path";
 import fs from "fs";
 import hbs from "handlebars";
 import { Settings } from "../../../database/models/Settings";
+import { prisma } from "../../../prisma";
+import { Notify } from "../../../notifications";
+import { NewPaymentOrder } from "../../../notifications/NewPaymentOrder";
 
 interface Props {
   transactionIDs: number[];
@@ -110,6 +113,15 @@ class GeneratePaymentOrderUseCase {
         transactionStatus: processStatus,
       });
     });
+
+    const users = await prisma.takebackUser.findMany({
+      where: { userTypeId: 2 },
+    });
+
+    Notify.sendMany(
+      users,
+      new NewPaymentOrder(paymentOrder, company.fantasyName)
+    );
 
     const settings = await getRepository(Settings).findOne({
       select: ["takebackPixKey"],

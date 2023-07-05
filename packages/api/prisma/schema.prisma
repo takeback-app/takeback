@@ -397,6 +397,7 @@ model TakebackUser {
   resetPasswordToken            String?           @db.VarChar
   resetPasswordTokenExpiresDate DateTime?         @db.Date
   takebackUserType              TakebackUserType? @relation(fields: [userTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_a5f51751e237d232f4e9f44ffda")
+  Notification                  Notification[]
 
   @@map("take_back_users")
 }
@@ -689,16 +690,18 @@ enum SolicitationStatus {
 }
 
 model Notification {
-  id            String           @id @default(uuid()) @db.Uuid
-  type          NotificationType
-  title         String
-  body          String
-  consumerId    String?          @db.Uuid
-  companyUserId String?          @db.Uuid
-  data          Json             @default("{}")
+  id             String           @id @default(uuid()) @db.Uuid
+  type           NotificationType
+  title          String
+  body           String
+  consumerId     String?          @db.Uuid
+  companyUserId  String?          @db.Uuid
+  takeBackUserId String?          @db.Uuid
+  data           Json             @default("{}")
 
-  consumer    Consumer?    @relation(fields: [consumerId], references: [id])
-  companyUser CompanyUser? @relation(fields: [companyUserId], references: [id])
+  consumer     Consumer?     @relation(fields: [consumerId], references: [id])
+  companyUser  CompanyUser?  @relation(fields: [companyUserId], references: [id])
+  takeBackUser TakebackUser? @relation(fields: [takeBackUserId], references: [id])
 
   readAt    DateTime?
   createdAt DateTime  @default(now())
@@ -715,6 +718,11 @@ enum NotificationType {
   RAFFLE_WINNER
   BONUS
   CUSTOM
+  NEW_CUSTOM_NOTIFICATION_REQUEST
+  NEW_PAYMENT_ORDER
+  NEW_RAFFLE_TO_APPROVE
+  NEW_REPRESENTATIVE_WITHDRAW_REQUEST
+  NEW_PARTNER_WITHDRAW_REQUEST
 }
 
 model NotificationSolicitation {

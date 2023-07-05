@@ -105,13 +105,13 @@ class CashbackController {
 
     const cancel = new CancelCashBackUseCase();
 
-    const sucess = await cancel.execute({
+    const success = await cancel.execute({
       cancellationDescription,
       transactionIDs,
       companyId,
     });
 
-    if (sucess) {
+    if (success) {
       const cashbacks = new FindPendingCashbacksUseCase();
 
       const result = await cashbacks.execute({ companyId });
