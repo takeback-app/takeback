@@ -1,47 +1,41 @@
+import { FaBell } from 'react-icons/fa'
 import {
-  IoPerson,
-  IoPersonOutline,
+  IoBagAdd,
+  IoBagAddOutline,
+  IoBagRemove,
+  IoBagRemoveOutline,
+  IoBusiness,
+  IoBusinessOutline,
+  IoCalendar,
+  IoCalendarOutline,
+  IoCard,
+  IoCardOutline,
+  IoGift,
+  IoGiftOutline,
   IoGrid,
   IoGridOutline,
+  IoIdCard,
+  IoIdCardOutline,
+  IoNotifications,
+  IoNotificationsOutline,
+  IoPerson,
+  IoPersonOutline,
+  IoReader,
+  IoReaderOutline,
+  IoRefresh,
+  IoRefreshOutline,
+  IoRocket,
+  IoRocketOutline,
+  IoSend,
+  IoSendOutline,
   IoSettings,
   IoSettingsOutline,
   IoStorefront,
   IoStorefrontOutline,
-  IoReader,
-  IoReaderOutline,
-  IoCalendarOutline,
-  IoCalendar,
-  IoCardOutline,
-  IoCard,
-  IoIdCard,
-  IoIdCardOutline,
-  IoBusiness,
-  IoBusinessOutline,
   IoWallet,
-  IoWalletOutline,
-  // IoBagRemoveOutline,
-  // IoBagRemove,
-  IoBagAddOutline,
-  IoBagAdd,
-  IoRocketOutline,
-  IoRocket,
-  IoBagRemove,
-  IoBagRemoveOutline,
-  IoGift,
-  IoGiftOutline,
-  IoSend,
-  IoSendOutline,
-  IoImage,
-  IoImageOutline,
-  IoRefresh,
-  IoRefreshOutline
+  IoWalletOutline
 } from 'react-icons/io5'
-import {
-  RiCustomerService2Line,
-  RiCustomerService2Fill,
-  RiTimeFill,
-  RiTimeLine
-} from 'react-icons/ri'
+import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
 
 export const drawerNav = [
   {
@@ -142,6 +136,15 @@ export const drawerNav = [
   },
   {
     id: 5,
+    label: 'Notificações',
+    activeIcon: IoNotifications,
+    inactiveIcon: IoNotificationsOutline,
+    isActive: false,
+    to: '/notificacoes',
+    userBlocked: 0
+  },
+  {
+    id: 6,
     label: 'Verificação Constante',
     activeIcon: IoRefresh,
     inactiveIcon: IoRefreshOutline,
@@ -187,7 +190,7 @@ export const drawerNav = [
     ]
   },
   {
-    id: 6,
+    id: 7,
     label: 'Relatórios',
     activeIcon: IoReader,
     inactiveIcon: IoReaderOutline,
@@ -196,7 +199,7 @@ export const drawerNav = [
     userBlocked: 0
   },
   {
-    id: 7,
+    id: 8,
     label: 'Configurações',
     activeIcon: IoSettings,
     inactiveIcon: IoSettingsOutline,

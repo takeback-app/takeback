@@ -97,7 +97,6 @@ export class WithdrawController {
     });
 
     const users = await prisma.takebackUser.findMany({
-      select: { id: true },
       where: { userTypeId: 2 },
     });
 

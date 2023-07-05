@@ -11,13 +11,19 @@ export class NotificationController {
     const perPage = 25;
 
     const notifications = await prisma.notification.findMany({
-      where: { takeBackUserId: id },
+      where: {
+        takeBackUserId: id,
+      },
       orderBy: { createdAt: "desc" },
       take: perPage,
       skip: (pageNumber - 1) * perPage,
     });
 
-    const count = await prisma.notification.count();
+    const count = await prisma.notification.count({
+      where: {
+        takeBackUserId: id,
+      },
+    });
 
     return response.json({
       data: notifications,
@@ -44,8 +50,8 @@ export class NotificationController {
 
     await prisma.notification.updateMany({
       where: {
-        OR: [{ consumerId: id }, { companyUserId: id }, { takeBackUserId: id }],
-        AND: { readAt: isRead ? null : undefined },
+        takeBackUserId: id,
+        readAt: isRead ? null : undefined,
       },
       data: { readAt: isRead ? new Date() : null },
     });
@@ -58,8 +64,8 @@ export class NotificationController {
 
     const notifications = await prisma.notification.findMany({
       where: {
-        OR: [{ consumerId: id }, { companyUserId: id }, { takeBackUserId: id }],
-        AND: { readAt: null },
+        takeBackUserId: id,
+        readAt: null,
       },
       orderBy: { createdAt: "desc" },
     });
