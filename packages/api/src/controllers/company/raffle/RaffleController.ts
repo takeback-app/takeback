@@ -9,6 +9,8 @@ import { DateTime } from "luxon";
 import { UpdateOrCreateRaffleItemsUseCase } from "../../../useCases/raffle/UpdateOrCreateRaffleItemsUseCase";
 import { DrawRaffleUseCase } from "../../../useCases/raffle/DrawRaffleUseCase";
 import { TransactionStatusEnum } from "../../../enum/TransactionStatusEnum";
+import { Notify } from "../../../notifications";
+import { NewRaffleToApprove } from "../../../notifications/NewRaffleToApprove";
 
 const validateNumberOfMonthlyRaffles =
   new ValidateNumberOfMonthlyRafflesUseCase();
@@ -141,6 +143,19 @@ export class RaffleController {
     });
 
     await updateOrCreateRaffleItemsUseCase.execute(raffle.id, items);
+
+    const users = await prisma.takebackUser.findMany({
+      where: { userTypeId: 2 },
+    });
+
+    const company = await prisma.company.findFirst({
+      where: { id: companyId },
+    });
+
+    Notify.sendMany(
+      users,
+      new NewRaffleToApprove(raffle.id, company.fantasyName)
+    );
 
     return response.status(201).json(raffle);
   }

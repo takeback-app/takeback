@@ -1,18 +1,18 @@
+import fs from "fs";
+import hbs from "handlebars";
+import path from "path";
 import { getRepository } from "typeorm";
 import { InternalError } from "../../../config/GenerateErros";
+import transporter from "../../../config/SMTP";
 import { Companies } from "../../../database/models/Company";
 import { Consumers } from "../../../database/models/Consumer";
-import { PaymentOrderMethods } from "../../../database/models/PaymentOrderMethods";
 import { PaymentOrder } from "../../../database/models/PaymentOrder";
+import { PaymentOrderMethods } from "../../../database/models/PaymentOrderMethods";
 import { PaymentOrderStatus } from "../../../database/models/PaymentOrderStatus";
 import { Transactions } from "../../../database/models/Transaction";
 import { TransactionStatus } from "../../../database/models/TransactionStatus";
-import { applyCurrencyMask } from "../../../utils/Masks";
-import transporter from "../../../config/SMTP";
-import path from "path";
-import fs from "fs";
-import hbs from "handlebars";
 import { ApproveTransactionUseCase } from "../../../useCases/cashback/ApproveTransactionUseCase";
+import { applyCurrencyMask } from "../../../utils/Masks";
 import { UpdateCompanyStatusByTransactionsUseCase } from "../companyCashback/UpdateCompanyStatusByTransactionsUseCase";
 
 interface Props {

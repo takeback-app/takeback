@@ -48,6 +48,7 @@ import { EditRepresentative } from '../views/partners/representatives/edit'
 import { CreateRepresentative } from '../views/partners/representatives/create'
 import { LogoChangeRequest } from '../views/partners/logoChangeRequest'
 import FinancialReport from '../views/reports/financialReport/FinancialReport'
+import { Notifications } from '../views/notifications'
 
 interface Props {
   children: JSX.Element
@@ -98,6 +99,14 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <BonusDetail />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/notificacoes"
+        element={
+          <PrivateRoute>
+            <Notifications />
           </PrivateRoute>
         }
       />

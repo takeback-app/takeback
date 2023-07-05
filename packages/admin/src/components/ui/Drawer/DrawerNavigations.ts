@@ -1,45 +1,41 @@
+import { FaBell } from 'react-icons/fa'
 import {
-  IoPerson,
-  IoPersonOutline,
+  IoBagAdd,
+  IoBagAddOutline,
+  IoBagRemove,
+  IoBagRemoveOutline,
+  IoBusiness,
+  IoBusinessOutline,
+  IoCalendar,
+  IoCalendarOutline,
+  IoCard,
+  IoCardOutline,
+  IoGift,
+  IoGiftOutline,
   IoGrid,
   IoGridOutline,
+  IoIdCard,
+  IoIdCardOutline,
+  IoNotifications,
+  IoNotificationsOutline,
+  IoPerson,
+  IoPersonOutline,
+  IoReader,
+  IoReaderOutline,
+  IoRefresh,
+  IoRefreshOutline,
+  IoRocket,
+  IoRocketOutline,
+  IoSend,
+  IoSendOutline,
   IoSettings,
   IoSettingsOutline,
   IoStorefront,
   IoStorefrontOutline,
-  IoReader,
-  IoReaderOutline,
-  IoCalendarOutline,
-  IoCalendar,
-  IoCardOutline,
-  IoCard,
-  IoIdCard,
-  IoIdCardOutline,
-  IoBusiness,
-  IoBusinessOutline,
   IoWallet,
-  IoWalletOutline,
-  // IoBagRemoveOutline,
-  // IoBagRemove,
-  IoBagAddOutline,
-  IoBagAdd,
-  IoRocketOutline,
-  IoRocket,
-  IoBagRemove,
-  IoBagRemoveOutline,
-  IoGift,
-  IoGiftOutline,
-  IoSend,
-  IoSendOutline,
-  IoImage,
-  IoImageOutline
+  IoWalletOutline
 } from 'react-icons/io5'
-import {
-  RiCustomerService2Line,
-  RiCustomerService2Fill,
-  RiTimeFill,
-  RiTimeLine
-} from 'react-icons/ri'
+import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
 
 export const drawerNav = [
   {
@@ -51,7 +47,6 @@ export const drawerNav = [
     to: '/dashboard',
     userBlocked: 0
   },
-
   {
     id: 1,
     label: 'Usuários',
@@ -97,27 +92,9 @@ export const drawerNav = [
         isActive: false,
         to: '/parceiros/representantes',
         userBlocked: 0
-      },
-      {
-        id: 3,
-        label: 'Sorteios',
-        activeIcon: IoGift,
-        inactiveIcon: IoGiftOutline,
-        isActive: false,
-        to: '/parceiros/sorteios',
-        userBlocked: 0
-      },
-      {
-        id: 4,
-        label: 'Envio Notificações',
-        activeIcon: IoSend,
-        inactiveIcon: IoSendOutline,
-        isActive: false,
-        to: '/parceiros/notification-solicitations',
-        userBlocked: 0
       }
       // {
-      //   id: 5,
+      //   id: 3,
       //   label: 'Troca de Logo',
       //   activeIcon: IoImage,
       //   inactiveIcon: IoImageOutline,
@@ -139,24 +116,6 @@ export const drawerNav = [
     pages: [
       {
         id: 0,
-        label: 'Saque',
-        activeIcon: IoBagRemove,
-        inactiveIcon: IoBagRemoveOutline,
-        isActive: false,
-        to: '/cashbacks/saque',
-        userBlocked: 0
-      },
-      {
-        id: 1,
-        label: 'Receber',
-        activeIcon: IoBagAdd,
-        inactiveIcon: IoBagAddOutline,
-        isActive: false,
-        to: '/cashbacks/pagamentos',
-        userBlocked: 0
-      },
-      {
-        id: 2,
         label: 'Histórico',
         activeIcon: RiTimeFill,
         inactiveIcon: RiTimeLine,
@@ -177,6 +136,61 @@ export const drawerNav = [
   },
   {
     id: 5,
+    label: 'Notificações',
+    activeIcon: IoNotifications,
+    inactiveIcon: IoNotificationsOutline,
+    isActive: false,
+    to: '/notificacoes',
+    userBlocked: 0
+  },
+  {
+    id: 6,
+    label: 'Verificação Constante',
+    activeIcon: IoRefresh,
+    inactiveIcon: IoRefreshOutline,
+    isActive: false,
+    userBlocked: 0,
+    pages: [
+      {
+        id: 0,
+        label: 'Sorteios',
+        activeIcon: IoGift,
+        inactiveIcon: IoGiftOutline,
+        isActive: false,
+        to: '/parceiros/sorteios',
+        userBlocked: 0
+      },
+      {
+        id: 1,
+        label: 'Envio Notificações',
+        activeIcon: IoSend,
+        inactiveIcon: IoSendOutline,
+        isActive: false,
+        to: '/parceiros/notification-solicitations',
+        userBlocked: 0
+      },
+      {
+        id: 2,
+        label: 'Saque',
+        activeIcon: IoBagRemove,
+        inactiveIcon: IoBagRemoveOutline,
+        isActive: false,
+        to: '/cashbacks/saque',
+        userBlocked: 0
+      },
+      {
+        id: 3,
+        label: 'Receber',
+        activeIcon: IoBagAdd,
+        inactiveIcon: IoBagAddOutline,
+        isActive: false,
+        to: '/cashbacks/pagamentos',
+        userBlocked: 0
+      }
+    ]
+  },
+  {
+    id: 7,
     label: 'Relatórios',
     activeIcon: IoReader,
     inactiveIcon: IoReaderOutline,
@@ -185,7 +199,7 @@ export const drawerNav = [
     userBlocked: 0
   },
   {
-    id: 6,
+    id: 8,
     label: 'Configurações',
     activeIcon: IoSettings,
     inactiveIcon: IoSettingsOutline,

@@ -60,6 +60,8 @@ routes.get("/monthly-incomes", missingFieldController.monthlyIncomes);
 
 routes.post("/signature/reset", costumerData.resetSignature);
 
+routes.get("/monthly-incomes", missingFieldController.monthlyIncomes);
+
 routes.use(DecodeTokenMiddleware, AuthCostumerMiddleware);
 
 routes.get("/data/find", costumerData.findAppData);

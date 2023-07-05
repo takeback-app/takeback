@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { prisma } from "../../../prisma";
 import { InternalError } from "../../../config/GenerateErros";
+import { Notify } from "../../../notifications";
+import { NewPartnerWithdrawRequest } from "../../../notifications/NewPartnerWithdrawRequest";
 
 export class WithDrawController {
   async index(request: Request, response: Response) {
@@ -83,6 +85,15 @@ export class WithDrawController {
         statusId: pendingStatus.id,
       },
     });
+
+    const users = await prisma.takebackUser.findMany({
+      where: { userTypeId: 2 },
+    });
+
+    Notify.sendMany(
+      users,
+      new NewPartnerWithdrawRequest(withdrawOrder, company.fantasyName)
+    );
 
     return response.status(201).json(withdrawOrder);
   }
