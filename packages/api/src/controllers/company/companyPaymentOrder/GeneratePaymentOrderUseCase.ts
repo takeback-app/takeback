@@ -115,7 +115,7 @@ class GeneratePaymentOrderUseCase {
     });
 
     const users = await prisma.takebackUser.findMany({
-      where: { userTypeId: 2 },
+      where: { userTypeId: 2, isActive: true },
     });
 
     Notify.sendMany(

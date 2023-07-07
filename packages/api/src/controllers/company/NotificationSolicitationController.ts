@@ -59,7 +59,7 @@ export class NotificationSolicitationController {
       });
 
     const users = await prisma.takebackUser.findMany({
-      where: { userTypeId: 2 },
+      where: { userTypeId: 2, isActive: true },
     });
 
     const company = await prisma.company.findFirst({
