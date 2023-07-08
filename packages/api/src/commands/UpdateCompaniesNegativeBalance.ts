@@ -1,19 +1,17 @@
-import dotenv from "dotenv";
+import 'dotenv/config'
 
-dotenv.config();
-
-import { SingleBar, Presets } from "cli-progress";
-import { prisma } from "../prisma";
-import { TransactionStatusEnum } from "../enum/TransactionStatusEnum";
+import { SingleBar, Presets } from 'cli-progress'
+import { prisma } from '../prisma'
+import { TransactionStatusEnum } from '../enum/TransactionStatusEnum'
 
 async function main() {
   const consumers = await prisma.consumer.findMany({
     where: { blockedBalance: { not: 0 } },
-  });
+  })
 
-  const bar = new SingleBar({}, Presets.shades_classic);
+  const bar = new SingleBar({}, Presets.shades_classic)
 
-  bar.start(consumers.length, 0);
+  bar.start(consumers.length, 0)
 
   for (const consumer of consumers) {
     const a = await prisma.transaction.aggregate({
@@ -32,19 +30,19 @@ async function main() {
       _sum: {
         cashbackAmount: true,
       },
-    });
+    })
 
-    const blockedBalance = +a._sum.cashbackAmount;
+    const blockedBalance = +a._sum.cashbackAmount
 
     await prisma.consumer.update({
       where: { id: consumer.id },
       data: { blockedBalance },
-    });
+    })
 
-    bar.increment();
+    bar.increment()
   }
 
-  bar.stop();
+  bar.stop()
 }
 
-main();
+main()

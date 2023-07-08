@@ -1,20 +1,18 @@
-import dotenv from "dotenv";
+import 'dotenv/config'
 
-import { SingleBar, Presets } from "cli-progress";
+import { SingleBar, Presets } from 'cli-progress'
 
-import { maskCPF } from "../utils/Masks";
+import { maskCPF } from '../utils/Masks'
 
-dotenv.config();
+import { redis } from '../redis'
 
-import { redis } from "../redis";
+import { prisma } from '../prisma'
 
-import { prisma } from "../prisma";
-
-const TAG = "autocomplete";
+const TAG = 'autocomplete'
 
 async function main() {
   const transactions = await prisma.transaction.findMany({
-    distinct: ["consumersId"],
+    distinct: ['consumersId'],
     select: {
       consumer: {
         select: {
@@ -24,28 +22,28 @@ async function main() {
       },
       companiesId: true,
     },
-  });
+  })
 
-  const bar = new SingleBar({}, Presets.shades_classic);
+  const bar = new SingleBar({}, Presets.shades_classic)
 
-  bar.start(transactions.length, 0);
+  bar.start(transactions.length, 0)
 
   // const keys = await redis.keys(`${TAG}*`);
 
   // await redis.del(keys);
 
   for (const { consumer, companiesId } of transactions) {
-    const cpf = consumer.cpf.replace(/\D/g, "");
+    const cpf = consumer.cpf.replace(/\D/g, '')
 
     await redis.set(
       `${TAG}:${companiesId}:${cpf}`,
-      `${maskCPF(cpf)} - ${consumer.fullName}`
-    );
+      `${maskCPF(cpf)} - ${consumer.fullName}`,
+    )
 
-    bar.increment();
+    bar.increment()
   }
 
-  bar.stop();
+  bar.stop()
 }
 
-main();
+main()

@@ -1,6 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["filteredRelationCount"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -67,6 +66,9 @@ model Company {
   birthdayNotifications       BirthdayNotification[]
   representativeUserCompanies RepresentativeUserCompany[]
   logoChangeRequests          LogoChangeRequest[]
+  accessTokens                AccessToken[]
+  integrationSettings         IntegrationSettings?
+  NFCe                        NFCe[]
 
   @@map("companies")
 }
@@ -267,6 +269,7 @@ model PaymentMethod {
   createdAt             DateTime               @default(now()) @db.Timestamp(6)
   updatedAt             DateTime               @default(now()) @db.Timestamp(6)
   initialPercentage     Decimal?               @db.Decimal(10, 4)
+  tPag                  Int?
   companyPaymentMethods CompanyPaymentMethod[]
 
   @@map("payment_methods")
@@ -321,6 +324,7 @@ model PaymentPlan {
   numberOfMonthlyNotificationSolicitations Int                     @default(0)
   canSendBirthdayNotification              Boolean                 @default(false)
   canAccessClientReport                    Boolean                 @default(false)
+  canUseIntegration                        Boolean                 @default(false)
   createdAt                                DateTime                @default(now()) @db.Timestamp(6)
   updatedAt                                DateTime                @default(now()) @db.Timestamp(6)
   companies                                Company[]
@@ -446,6 +450,8 @@ model Transaction {
   fatherTransactionId          Int?
   companyUsersId               String?                    @db.Uuid
   backAmount                   Decimal?                   @default(0) @db.Decimal(10, 4)
+  nfceId                       String?                    @unique() @db.Uuid
+  validatedByNfce              Boolean?
   transactionPaymentMethods    TransactionPaymentMethod[]
   companyUser                  CompanyUser?               @relation(fields: [companyUsersId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_349047f9afb490b3e4f5f0ee761")
   paymentOrder                 PaymentOrder?              @relation(fields: [paymentOrderId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_3eeb502d7c7f5b94e88d02bfb55")
@@ -456,7 +462,8 @@ model Transaction {
   childrenTransactions         Transaction[]              @relation("FatherTransaction")
   Bonus                        Bonus[]
   raffleTickets                RaffleTicket[]
-  Commission                   Commission[]
+  commissions                  Commission[]
+  nfce                         NFCe?                      @relation(fields: [nfceId], references: [id])
 
   @@map("transactions")
 }
@@ -898,4 +905,73 @@ enum ReferralStatus {
   WAITING
   APPROVED
   BONUSING
+}
+
+model AccessToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  token     String?
+  companyId String   @db.Uuid
+  createdAt DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@map("access_tokens")
+}
+
+model IntegrationSettings {
+  id         String   @id @default(uuid()) @db.Uuid
+  companyId  String   @unique @db.Uuid
+  url        String
+  folderPath String?
+  createdAt  DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@map("integration_settings")
+}
+
+model NFCe {
+  id        String   @id @default(uuid()) @db.Uuid
+  companyId String   @db.Uuid
+  path      String
+  issuedAt  DateTime
+  createdAt DateTime @default(now())
+
+  company      Company       @relation(fields: [companyId], references: [id])
+  nfcePayments NFCePayment[]
+  transaction  Transaction?
+
+  @@map("nfce")
+}
+
+model NFCePayment {
+  id        String            @id @default(uuid()) @db.Uuid
+  nFCeId    String            @db.Uuid
+  value     Decimal?          @default(0) @db.Decimal(10, 4)
+  method    NFCePaymentMethod
+  tPag      Int
+  createdAt DateTime          @default(now())
+
+  NFCe NFCe @relation(fields: [nFCeId], references: [id], onDelete: Cascade)
+
+  @@map("nfce_payments")
+}
+
+enum NFCePaymentMethod {
+  CASH
+  BANK_CHECK
+  CREDIT
+  DEBIT
+  STORE_CREDIT
+  FOOD_VOUCHER
+  MEAL_VOUCHER
+  GIFT_VOUCHER
+  FUEL_VOUCHER
+  BANK_PAYMENT_SLIP
+  BANK_DEPOSIT
+  PIX
+  BANK_TRANSFER
+  CASHBACK
+  NO_PAYMENT
+  OTHER
 }

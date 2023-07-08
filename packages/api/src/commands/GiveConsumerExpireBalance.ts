@@ -1,44 +1,42 @@
-import dotenv from "dotenv";
+import 'dotenv/config'
 
-dotenv.config();
-
-import { prisma } from "../prisma";
-import { Presets, SingleBar } from "cli-progress";
-import { DateTime } from "luxon";
+import { Presets, SingleBar } from 'cli-progress'
+import { DateTime } from 'luxon'
+import { prisma } from '../prisma'
 
 async function getLastCreatedAt(consumerId: string) {
   const transactions = await prisma.transaction.aggregate({
     where: { consumersId: consumerId },
     _max: { createdAt: true },
-  });
+  })
 
   const bonus = await prisma.bonus.aggregate({
     where: { consumerId },
     _max: { createdAt: true },
-  });
+  })
 
-  if (!transactions._max.createdAt) return bonus._max.createdAt;
+  if (!transactions._max.createdAt) return bonus._max.createdAt
 
-  if (!bonus._max.createdAt) return transactions._max.createdAt;
+  if (!bonus._max.createdAt) return transactions._max.createdAt
 
   return transactions._max.createdAt > bonus._max.createdAt
     ? transactions._max.createdAt
-    : bonus._max.createdAt;
+    : bonus._max.createdAt
 }
 
 async function main() {
   await prisma.consumer.updateMany({
     data: { expireBalanceDate: null },
-  });
+  })
 
-  const consumers = await prisma.consumer.findMany();
+  const consumers = await prisma.consumer.findMany()
 
-  const bar = new SingleBar({}, Presets.shades_classic);
+  const bar = new SingleBar({}, Presets.shades_classic)
 
-  bar.start(consumers.length, 0);
+  bar.start(consumers.length, 0)
 
   for (const consumer of consumers) {
-    const lastCreatedAt = await getLastCreatedAt(consumer.id);
+    const lastCreatedAt = await getLastCreatedAt(consumer.id)
 
     await prisma.consumer.update({
       where: { id: consumer.id },
@@ -47,12 +45,12 @@ async function main() {
           ? DateTime.fromJSDate(lastCreatedAt).plus({ months: 4 }).toJSDate()
           : null,
       },
-    });
+    })
 
-    bar.increment();
+    bar.increment()
   }
 
-  bar.stop();
+  bar.stop()
 }
 
-main();
+main()

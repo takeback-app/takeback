@@ -7,6 +7,7 @@ import CompanyRoutes from "./CompanyRoutes";
 import ManagerRoutes from "./ManagerRoutes";
 import representativeRoutes from "./RepresentativeRoutes";
 import sharedRoutes from "./sharedRoutes";
+import { IntegrationRoutes } from "./IntegrationRoutes";
 
 const routes = express();
 
@@ -20,6 +21,7 @@ routes.use("/manager", ManagerRoutes);
 routes.use("/support", SupportRoutes);
 routes.use("/representative", representativeRoutes);
 routes.use("/shared", sharedRoutes);
+routes.use("/integration", IntegrationRoutes);
 routes.use(
   "/uploads",
   express.static(resolve(__dirname, "..", "..", "uploads"))

@@ -1,31 +1,29 @@
-import dotenv from "dotenv";
+import 'dotenv/config'
 
-dotenv.config();
-
-import { prisma } from "../prisma";
-import { Presets, SingleBar } from "cli-progress";
+import { Presets, SingleBar } from 'cli-progress'
+import { prisma } from '../prisma'
 
 async function main() {
   const paymentMethods = await prisma.paymentMethod.findMany({
     where: { initialPercentage: { not: null } },
-  });
+  })
 
   const companies = await prisma.company.findMany({
     where: { firstAccessAllowedAt: { not: null } },
     include: { companyPaymentMethods: true },
-  });
+  })
 
-  const bar = new SingleBar({}, Presets.shades_classic);
+  const bar = new SingleBar({}, Presets.shades_classic)
 
-  bar.start(companies.length, 0);
+  bar.start(companies.length, 0)
 
   for (const company of companies) {
     for (const paymentMethod of paymentMethods) {
       const alreadyCreated = !!company.companyPaymentMethods.find(
-        (p) => p.paymentMethodId === paymentMethod.id
-      );
+        (p) => p.paymentMethodId === paymentMethod.id,
+      )
 
-      if (alreadyCreated) continue;
+      if (alreadyCreated) continue
 
       await prisma.companyPaymentMethod.create({
         data: {
@@ -34,13 +32,13 @@ async function main() {
           cashbackPercentage: paymentMethod.initialPercentage,
           isActive: true,
         },
-      });
+      })
     }
 
-    bar.increment();
+    bar.increment()
   }
 
-  bar.stop();
+  bar.stop()
 }
 
-main();
+main()
