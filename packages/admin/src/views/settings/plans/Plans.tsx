@@ -33,6 +33,7 @@ interface DataProps {
   canSendBirthdayNotification: string | boolean
   newUserBonus: number
   canAccessClientReport: string | boolean
+  canUseIntegration: string | boolean
 }
 
 const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
@@ -55,6 +56,7 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
         item.numberOfMonthlyNotificationSolicitations,
       canSendBirthdayNotification: item.canSendBirthdayNotification ? '1' : '0',
       canAccessClientReport: item.canAccessClientReport ? '1' : '0',
+      canUseIntegration: item.canUseIntegration ? '1' : '0',
       newUserBonus: item.newUserBonus
     })
 
@@ -92,6 +94,8 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
         data.canSendBirthdayNotification === '1'
 
       data.canAccessClientReport = data.canAccessClientReport === '1'
+
+      data.canUseIntegration = data.canUseIntegration === '1'
 
       await schema.validate(data, {
         abortEarly: false
@@ -156,6 +160,7 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
         ),
         canSendBirthdayNotification: data.canSendBirthdayNotification === '1',
         canAccessClientReport: data.canAccessClientReport === '1',
+        canUseIntegration: data.canUseIntegration === '1',
         newUserBonus: Number(data.newUserBonus)
       })
         .then(response => {
@@ -231,6 +236,7 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
                 <S.Th>Gratificação por venda</S.Th>
                 <S.Th>Gratificação por novo usuário</S.Th>
                 <S.Th>Notificação de aniversário</S.Th>
+                <S.Th>Integração NFC-e</S.Th>
                 <S.Th>Relatório de clientes</S.Th>
                 <S.Th>&nbsp;</S.Th>
               </S.Tr>
@@ -260,6 +266,7 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
                   <S.Td>
                     {item.canSendBirthdayNotification ? 'Ativo' : 'Inativo'}
                   </S.Td>
+                  <S.Td>{item.canUseIntegration ? 'Ativo' : 'Inativo'}</S.Td>
                   <S.Td>
                     {item.canAccessClientReport ? 'Ativo' : 'Inativo'}
                   </S.Td>
@@ -316,6 +323,14 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
               <SelectInput
                 label="Notificação de aniversário"
                 name="canSendBirthdayNotification"
+                options={[
+                  { id: 1, description: 'Ativo' },
+                  { id: 0, description: 'Inativo' }
+                ]}
+              />
+              <SelectInput
+                label="Integração NFC-e"
+                name="canUseIntegration"
                 options={[
                   { id: 1, description: 'Ativo' },
                   { id: 0, description: 'Inativo' }
@@ -380,6 +395,14 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
               <SelectInput
                 label="Notificação de aniversário"
                 name="canSendBirthdayNotification"
+                options={[
+                  { id: 1, description: 'Ativo' },
+                  { id: 0, description: 'Inativo' }
+                ]}
+              />
+              <SelectInput
+                label="Integração NFC-e"
+                name="canUseIntegration"
                 options={[
                   { id: 1, description: 'Ativo' },
                   { id: 0, description: 'Inativo' }

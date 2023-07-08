@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
-import { FindPaymentPlanUseCase } from "./FindPaymentPlanUseCase";
-import { RegisterPaymentPlanUseCase } from "./RegisterPaymentPlanUseCase";
-import { UpdatePaymentPlanUseCase } from "./UpdatePaymentPlanUseCase";
+import { Request, Response } from 'express'
+import { FindPaymentPlanUseCase } from './FindPaymentPlanUseCase'
+import { RegisterPaymentPlanUseCase } from './RegisterPaymentPlanUseCase'
+import { UpdatePaymentPlanUseCase } from './UpdatePaymentPlanUseCase'
 
 class PaymentPlanController {
   async register(request: Request, response: Response) {
@@ -13,11 +13,12 @@ class PaymentPlanController {
       numberOfMonthlyNotificationSolicitations,
       canSendBirthdayNotification,
       canAccessClientReport,
+      canUseIntegration,
       newUserBonus,
-    } = request.body;
+    } = request.body
 
-    const register = new RegisterPaymentPlanUseCase();
-    const find = new FindPaymentPlanUseCase();
+    const register = new RegisterPaymentPlanUseCase()
+    const find = new FindPaymentPlanUseCase()
 
     const message = await register.execute({
       description,
@@ -25,27 +26,28 @@ class PaymentPlanController {
       takebackBonus,
       numberOfMonthlyRaffles: Number(numberOfMonthlyRaffles),
       numberOfMonthlyNotificationSolicitations: Number(
-        numberOfMonthlyNotificationSolicitations
+        numberOfMonthlyNotificationSolicitations,
       ),
       canSendBirthdayNotification,
       canAccessClientReport,
+      canUseIntegration,
       newUserBonus: Number(newUserBonus),
-    });
-    const plans = await find.execute();
+    })
+    const plans = await find.execute()
 
-    return response.status(201).json({ message, plans });
+    return response.status(201).json({ message, plans })
   }
 
   async findAll(_request: Request, response: Response) {
-    const find = new FindPaymentPlanUseCase();
+    const find = new FindPaymentPlanUseCase()
 
-    const plans = await find.execute();
+    const plans = await find.execute()
 
-    return response.status(200).json(plans);
+    return response.status(200).json(plans)
   }
 
   async update(request: Request, response: Response) {
-    const planId = request.params.id;
+    const planId = request.params.id
 
     const {
       description,
@@ -55,11 +57,12 @@ class PaymentPlanController {
       numberOfMonthlyNotificationSolicitations,
       canSendBirthdayNotification,
       canAccessClientReport,
+      canUseIntegration,
       newUserBonus,
-    } = request.body;
+    } = request.body
 
-    const update = new UpdatePaymentPlanUseCase();
-    const find = new FindPaymentPlanUseCase();
+    const update = new UpdatePaymentPlanUseCase()
+    const find = new FindPaymentPlanUseCase()
 
     const message = await update.execute({
       planId: parseInt(planId),
@@ -70,12 +73,13 @@ class PaymentPlanController {
       numberOfMonthlyNotificationSolicitations,
       canSendBirthdayNotification,
       canAccessClientReport,
+      canUseIntegration,
       newUserBonus: Number(newUserBonus),
-    });
-    const plans = await find.execute();
+    })
+    const plans = await find.execute()
 
-    return response.status(200).json({ message, plans });
+    return response.status(200).json({ message, plans })
   }
 }
 
-export { PaymentPlanController };
+export { PaymentPlanController }
