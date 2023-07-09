@@ -9,7 +9,6 @@ import { UpdateCustomFeeUseCase } from './UpdateCustomFeeUseCase'
 import { UpdateCompanyMontlyPlanUseCase } from './UpdateCompanyMontlyPlanUseCase'
 import { ForgotPasswordToRootUserUseCase } from './ForgotPasswordToRootUserUseCase'
 import { UpdateManyCompanyStatusUseCase } from './UpdateManyCompanyStatusUseCase'
-import { RelationWithRepresentativeUseCase } from './RelationWithRepresentativeUseCase'
 import { FindUseCase } from '../managerRepresentatives/FindUseCase'
 import { prisma } from '../../../prisma'
 import { InternalError } from '../../../config/GenerateErros'
@@ -217,6 +216,14 @@ class CompaniesController {
     })
 
     return response.json({ message: 'Integração atualizada com sucesso' })
+  }
+
+  async deleteIntegration(request: Request, response: Response) {
+    const { id } = request.params
+
+    await prisma.integrationSettings.delete({ where: { id } })
+
+    return response.json({ message: 'Integração removida com sucesso' })
   }
 }
 

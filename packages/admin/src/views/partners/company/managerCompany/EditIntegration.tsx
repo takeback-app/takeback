@@ -8,6 +8,7 @@ import {
   AlertDescription,
   AlertIcon,
   Button,
+  ButtonGroup,
   Flex,
   SimpleGrid,
   Stack,
@@ -19,6 +20,7 @@ import { chakraToastConfig } from '../../../../styles/chakraToastConfig'
 import useSWR from 'swr'
 import Loader from 'react-spinners/PulseLoader'
 import { updateIntegration } from '../../../../services/integrationApi'
+import { RemoveIntegrationButton } from './RemoveIntegrationButton'
 
 interface Props {
   companyId: string
@@ -43,6 +45,7 @@ export function EditIntegration({ companyId }: Props) {
   const {
     data: integration,
     error,
+    mutate,
     isValidating
   } = useSWR<IntegrationResponse>(
     `manager/companies/${companyId}/integration`,
@@ -123,13 +126,21 @@ export function EditIntegration({ companyId }: Props) {
         />
       </SimpleGrid>
       <Flex align="center" justify="flex-end">
-        <Button
-          colorScheme="blue"
-          onClick={handleSubmit(onSubmit)}
-          isLoading={isSubmitting}
-        >
-          {integration?.id ? 'Atualizar' : 'Criar'}
-        </Button>
+        <ButtonGroup>
+          {!!integration?.id && (
+            <RemoveIntegrationButton
+              integrationId={integration.id}
+              onDeleted={() => mutate()}
+            />
+          )}
+          <Button
+            colorScheme="blue"
+            onClick={handleSubmit(onSubmit)}
+            isLoading={isSubmitting}
+          >
+            {integration?.id ? 'Atualizar' : 'Criar'}
+          </Button>
+        </ButtonGroup>
       </Flex>
     </Stack>
   )

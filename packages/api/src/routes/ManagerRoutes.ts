@@ -100,6 +100,8 @@ routes.put('/companies/:id/logo', managerCompanies.updateCompanyLogo)
 routes.get('/companies/:id/integration', managerCompanies.getIntegration)
 routes.put('/companies/:id/integration', managerCompanies.updateIntegration)
 
+routes.delete('/integration/:id', managerCompanies.deleteIntegration)
+
 routes.get('/companies/:id/users', managerCompaniesUsers.findUserCompanies)
 routes.put(
   '/company/user/update/:id',

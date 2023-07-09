@@ -28,3 +28,20 @@ export async function updateIntegration(
     ]
   }
 }
+
+export async function deleteIntegration(
+  integrationId: string
+): Promise<ReturnApi> {
+  try {
+    const { data } = await API.delete(`manager/integration/${integrationId}`)
+
+    return [true, data]
+  } catch (err) {
+    const error = err as AxiosError
+
+    return [
+      false,
+      { message: error.response?.data.message || 'Contate um administrador' }
+    ]
+  }
+}
