@@ -7,13 +7,20 @@ interface PaginationProps {
   page: number
   lastPage: number
   setPage: React.Dispatch<React.SetStateAction<number>>
+  isLoading?: boolean
 }
 
-export function Pagination({ page, lastPage, setPage }: PaginationProps) {
+export function Pagination({
+  page,
+  lastPage,
+  setPage,
+  isLoading
+}: PaginationProps) {
   return (
     <Box mt={4}>
       <ButtonGroup size="sm">
         <Button
+          isLoading={isLoading}
           isDisabled={page === 1}
           onClick={() => setPage(state => state - 1)}
           leftIcon={<IoChevronBack />}
@@ -21,6 +28,7 @@ export function Pagination({ page, lastPage, setPage }: PaginationProps) {
           Anterior
         </Button>
         <Button
+          isLoading={isLoading}
           onClick={() => setPage(state => state + 1)}
           isDisabled={lastPage === page}
           rightIcon={<IoChevronForward />}

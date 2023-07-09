@@ -1,22 +1,41 @@
 import { Prisma } from '@prisma/client'
 import { DateTime } from 'luxon'
 import { prisma } from '../../../prisma'
-import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
 
 interface FilterProps {
   statusId?: string
+  cashierLimit?: string
 }
 
 interface Props {
   companyId: string
   filters?: FilterProps
-  offset: string
-  limit: string
+  page: number
+  perPage?: number
   order?: Prisma.SortOrder
 }
 
 class FindAllCashbacksUseCase {
-  async execute({ companyId, filters, offset, limit, order = 'desc' }: Props) {
+  async execute({
+    companyId,
+    filters,
+    page,
+    perPage = 20,
+    order = 'desc',
+  }: Props) {
+    const where: Prisma.TransactionWhereInput = {
+      transactionStatusId: filters.statusId
+        ? Number(filters.statusId)
+        : undefined,
+      companiesId: companyId,
+      createdAt:
+        filters.cashierLimit === '1'
+          ? {
+              gte: DateTime.now().minus({ days: 1 }).toJSDate(),
+            }
+          : undefined,
+    }
+
     const cashbacks = await prisma.transaction.findMany({
       select: {
         id: true,
@@ -26,6 +45,7 @@ class FindAllCashbacksUseCase {
         takebackFeeAmount: true,
         cashbackAmount: true,
         backAmount: true,
+        transactionStatusId: true,
         transactionPaymentMethods: {
           select: {
             companyPaymentMethod: {
@@ -37,29 +57,18 @@ class FindAllCashbacksUseCase {
         consumer: { select: { fullName: true } },
         transactionStatus: { select: { description: true } },
       },
-      where: {
-        transactionStatusId: filters.statusId
-          ? Number(filters.statusId)
-          : undefined,
-        companiesId: companyId,
-        createdAt: {
-          gte: DateTime.now()
-            .minus({ days: filters.statusId !== '3' ? 1 : 7 })
-            .toJSDate(),
-        },
-        transactionStatus: {
-          description:
-            filters.statusId !== '3'
-              ? TransactionStatusEnum.PAID_WITH_TAKEBACK
-              : undefined,
-        },
-      },
+      where,
       orderBy: { id: order },
-      // skip: parseInt(offset) * parseInt(limit),
-      // take: parseInt(limit),
+      skip: (page - 1) * perPage,
+      take: perPage,
     })
 
-    return cashbacks
+    const total = await prisma.transaction.count({ where })
+
+    return {
+      data: cashbacks,
+      meta: { lastPage: Math.ceil(total / perPage) },
+    }
   }
 }
 

@@ -95,21 +95,22 @@ class CashbackController {
   async findAllCashbacks(request: Request, response: Response) {
     const { companyId } = request['tokenPayload']
     const filters = request.query
-    const { offset, limit } = request.params
 
-    const findCashbacks = new FindAllCashbacksUseCase()
-    const findStatus = new FindCashbackStatusUseCase()
+    const { page } = request.query
 
-    const cashbacks = await findCashbacks.execute({
+    const responseJson = await new FindAllCashbacksUseCase().execute({
       companyId,
       filters,
-      offset,
-      limit,
+      page: Number(page || 1),
     })
-    const status = await findStatus.execute()
-    // const types = await findTypes.execute();
 
-    return response.status(200).json({ cashbacks, status })
+    return response.status(200).json(responseJson)
+  }
+
+  async status(_request: Request, response: Response) {
+    const status = await new FindCashbackStatusUseCase().execute()
+
+    return response.status(200).json(status)
   }
 
   async cancelCashBack(request: Request, response: Response) {

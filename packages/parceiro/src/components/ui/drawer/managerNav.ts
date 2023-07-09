@@ -141,19 +141,11 @@ export const managerNav = [
       },
       {
         id: 3,
-        label: 'Lançamentos',
+        label: 'Histórico',
         activeIcon: RiTimeFill,
         inactiveIcon: RiTimeLine,
         isActive: false,
         to: '/cashbacks/historico'
-      },
-      {
-        id: 4,
-        label: 'Pagamentos dos usuários',
-        activeIcon: BsCash,
-        inactiveIcon: BsCashCoin,
-        isActive: false,
-        to: '/cashbacks/historico-pagamentos'
       },
       {
         id: 5,

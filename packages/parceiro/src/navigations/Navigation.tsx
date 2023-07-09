@@ -118,15 +118,6 @@ const Navigation: React.FC = () => {
           </PrivateRoute>
         }
       />
-
-      <Route
-        path="/cashbacks/historico-pagamentos"
-        element={
-          <PrivateRoute>
-            <TakebackPayments />
-          </PrivateRoute>
-        }
-      />
       <Route
         path="/cashbacks/saque"
         element={
