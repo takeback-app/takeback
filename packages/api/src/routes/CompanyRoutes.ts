@@ -131,6 +131,8 @@ routes.get('/cashbacks/find/waiting', cashback.listWaiting)
 routes.get('/cashbacks/find/all/:offset/:limit', cashback.findAllCashbacks)
 routes.get('/cashbacks/find/filters', cashback.findCashbackFilters)
 
+routes.post('/transactions/:id/chargeback', cashback.chargeback)
+
 routes.post(
   '/cashback/generate',
   VerifyIfIsAuthorizedToEmitCashbacks,

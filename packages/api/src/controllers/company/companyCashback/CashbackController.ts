@@ -12,6 +12,7 @@ import { GetConsumerAutocompleteUseCase } from './GetConsumerAutocompleteUseCase
 import { prisma } from '../../../prisma'
 import { CashRegisterUseCase } from '../../../useCases/cashback/CashRegisterUseCase'
 import { partition } from '../../../utils'
+import { ChargebackUseCase } from '../../../useCases/cashback/ChargebackUseCase'
 
 interface CancelProps {
   transactionIDs: number[]
@@ -60,6 +61,16 @@ class CashbackController {
     const status = await find.execute()
 
     return response.status(200).json(status)
+  }
+
+  async chargeback(request: Request, response: Response) {
+    const { id } = request.params
+
+    const useCase = new ChargebackUseCase()
+
+    await useCase.handle(Number(id))
+
+    return response.json({ message: 'Chargeback realizado com sucesso' })
   }
 
   async findPendingCashbacks(request: Request, response: Response) {

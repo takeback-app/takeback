@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React from 'react'
+import React, { useState } from 'react'
 import Loader from 'react-spinners/PulseLoader'
 import { useTheme } from 'styled-components'
 
@@ -8,10 +8,15 @@ import { currencyFormat } from '../../../utils/currencyFormat'
 
 import useSWR from 'swr'
 
-import { IconButton, Tooltip, useToast } from '@chakra-ui/react'
+import { IconButton, Tooltip, useDisclosure, useToast } from '@chakra-ui/react'
 import { chakraToastOptions } from '../../../components/ui/toast'
 import * as S from './styles'
 import { FiRotateCw } from 'react-icons/fi'
+import {
+  ChargebackModalButton,
+  chargebackTransaction
+} from '../../../components/modals/ChargebackModalButton'
+import { on } from 'events'
 
 interface Transaction {
   id: number
@@ -45,13 +50,44 @@ interface Response {
 }
 
 export const TakebackPayments: React.FC = () => {
-  const theme = useTheme()
+  const [transactionId, setTransactionId] = useState<number>()
   const toast = useToast(chakraToastOptions)
 
-  const { data, isLoading } = useSWR<Response>([
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  const { data, isLoading, mutate } = useSWR<Response>([
     '/company/cashbacks/find/all/0/30',
     { statusId: 3 }
   ])
+
+  function selectTransaction(transactionId: number) {
+    setTransactionId(transactionId)
+    onOpen()
+  }
+
+  async function handleSubmit() {
+    if (!transactionId) return
+
+    const [isOk, response] = await chargebackTransaction(transactionId)
+
+    if (!isOk) {
+      return toast({
+        title: 'Atenção',
+        description: response.message,
+        status: 'error'
+      })
+    }
+
+    toast({
+      title: 'Sucesso',
+      description: response.message,
+      status: 'success'
+    })
+
+    await mutate()
+
+    onClose()
+  }
 
   return (
     <Layout title="Conferencia de Pagamentos">
@@ -98,6 +134,7 @@ export const TakebackPayments: React.FC = () => {
                       <Tooltip label="Estornar" aria-label="Estornar">
                         <IconButton
                           size="sm"
+                          onClick={() => selectTransaction(item.id)}
                           colorScheme="orange"
                           icon={<FiRotateCw />}
                           aria-label="Estornar"
@@ -115,6 +152,11 @@ export const TakebackPayments: React.FC = () => {
           )}
         </S.Container>
       )}
+      <ChargebackModalButton
+        isOpen={isOpen}
+        onClose={onClose}
+        onSubmit={handleSubmit}
+      />
     </Layout>
   )
 }
