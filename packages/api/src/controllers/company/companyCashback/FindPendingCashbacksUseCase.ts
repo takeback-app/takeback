@@ -1,12 +1,12 @@
-import { prisma } from "../../../prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from '@prisma/client'
+import { prisma } from '../../../prisma'
 interface Props {
-  companyId: string;
-  order?: Prisma.SortOrder;
+  companyId: string
+  order?: Prisma.SortOrder
 }
 
 class FindPendingCashbacksUseCase {
-  async execute({ companyId, order = "asc" }: Props) {
+  async execute({ companyId, order = 'asc' }: Props) {
     const monthlyPayments = await prisma.companyMonthlyPayment.findMany({
       where: {
         companyId,
@@ -14,7 +14,7 @@ class FindPendingCashbacksUseCase {
         isForgiven: false,
         paymentMade: false,
       },
-    });
+    })
 
     const monthlyTransaction = monthlyPayments.map((m) => ({
       id: `Mensalidade - ${m.id}`,
@@ -24,11 +24,11 @@ class FindPendingCashbacksUseCase {
       takebackFeeAmount: m.amountPaid,
       cashbackAmount: 0,
       backAmount: 0,
-      consumer: { fullName: "Mensalidade" },
+      consumer: { fullName: 'Mensalidade' },
       transactionPaymentMethods: [],
-      transactionStatus: { description: "Pendente" },
-      companyUser: { name: "-" },
-    }));
+      transactionStatus: { description: 'Pendente' },
+      companyUser: { name: '-' },
+    }))
 
     const transactions = await prisma.transaction.findMany({
       select: {
@@ -42,6 +42,8 @@ class FindPendingCashbacksUseCase {
         consumer: { select: { fullName: true } },
         transactionStatus: { select: { description: true } },
         companyUser: { select: { name: true } },
+        nfceValidationStatus: true,
+        nfce: true,
         transactionPaymentMethods: {
           select: {
             companyPaymentMethod: {
@@ -52,15 +54,15 @@ class FindPendingCashbacksUseCase {
       },
       where: {
         companiesId: companyId,
-        transactionStatus: { description: { in: ["Pendente", "Em atraso"] } },
+        transactionStatus: { description: { in: ['Pendente', 'Em atraso'] } },
       },
       orderBy: { id: order },
-    });
+    })
 
     return transactions
       .concat(monthlyTransaction as any)
-      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
   }
 }
 
-export { FindPendingCashbacksUseCase };
+export { FindPendingCashbacksUseCase }

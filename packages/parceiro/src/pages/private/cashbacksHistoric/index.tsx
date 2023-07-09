@@ -58,7 +58,7 @@ export const CashbackHistoric: React.FC = () => {
   const [isLoadingPage, setIsLoadingPage] = useState(true)
   const [moreLoading, setMoreLoading] = useState(false)
   const [offset, setOffSet] = useState(1)
-  const [endList, setEndList] = useState(false)
+  const [endList, setEndList] = useState(true)
   const [filterVisible, setFilterVisible] = useState(false)
   const { cashbackStatus, setCashbackStatus } = useContext(CCashbacks)
   const [statusFilter, setStatusFilter] = useState('')
@@ -88,7 +88,7 @@ export const CashbackHistoric: React.FC = () => {
   const handleFilters = (data: any) => {
     const status = data.status === '0' ? '' : data.status
     setStatusFilter(status)
-    setEndList(false)
+    // setEndList(false)
 
     setFilterVisible(false)
     setIsLoadingPage(true)

@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["filteredRelationCount"]
 }
 
 datasource db {
@@ -451,7 +452,7 @@ model Transaction {
   companyUsersId               String?                    @db.Uuid
   backAmount                   Decimal?                   @default(0) @db.Decimal(10, 4)
   nfceId                       String?                    @unique() @db.Uuid
-  validatedByNfce              Boolean?
+  nfceValidationStatus         NFCeValidationStatus       @default(IN_PROGRESS)
   transactionPaymentMethods    TransactionPaymentMethod[]
   companyUser                  CompanyUser?               @relation(fields: [companyUsersId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_349047f9afb490b3e4f5f0ee761")
   paymentOrder                 PaymentOrder?              @relation(fields: [paymentOrderId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_3eeb502d7c7f5b94e88d02bfb55")
@@ -466,6 +467,12 @@ model Transaction {
   nfce                         NFCe?                      @relation(fields: [nfceId], references: [id])
 
   @@map("transactions")
+}
+
+enum NFCeValidationStatus {
+  IN_PROGRESS
+  NOT_FOUND
+  VALIDATED
 }
 
 model Transfer {

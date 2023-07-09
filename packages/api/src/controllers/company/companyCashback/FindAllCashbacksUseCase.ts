@@ -1,20 +1,22 @@
-import { prisma } from "../../../prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from '@prisma/client'
+import { DateTime } from 'luxon'
+import { prisma } from '../../../prisma'
+import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
 
 interface FilterProps {
-  statusId?: string;
+  statusId?: string
 }
 
 interface Props {
-  companyId: string;
-  filters?: FilterProps;
-  offset: string;
-  limit: string;
-  order?: Prisma.SortOrder;
+  companyId: string
+  filters?: FilterProps
+  offset: string
+  limit: string
+  order?: Prisma.SortOrder
 }
 
 class FindAllCashbacksUseCase {
-  async execute({ companyId, filters, offset, limit, order = "desc" }: Props) {
+  async execute({ companyId, filters, offset, limit, order = 'desc' }: Props) {
     const cashbacks = await prisma.transaction.findMany({
       select: {
         id: true,
@@ -27,13 +29,7 @@ class FindAllCashbacksUseCase {
         transactionPaymentMethods: {
           select: {
             companyPaymentMethod: {
-              select: {
-                paymentMethod: {
-                  select: {
-                    description: true,
-                  },
-                },
-              },
+              select: { paymentMethod: { select: { description: true } } },
             },
           },
         },
@@ -46,16 +42,25 @@ class FindAllCashbacksUseCase {
           ? Number(filters.statusId)
           : undefined,
         companiesId: companyId,
+        createdAt: {
+          gte: DateTime.now()
+            .minus({ days: filters.statusId !== '3' ? 1 : 7 })
+            .toJSDate(),
+        },
+        transactionStatus: {
+          description:
+            filters.statusId !== '3'
+              ? TransactionStatusEnum.PAID_WITH_TAKEBACK
+              : undefined,
+        },
       },
-      orderBy: {
-        id: order,
-      },
-      skip: parseInt(offset) * parseInt(limit),
-      take: parseInt(limit),
-    });
+      orderBy: { id: order },
+      // skip: parseInt(offset) * parseInt(limit),
+      // take: parseInt(limit),
+    })
 
-    return cashbacks;
+    return cashbacks
   }
 }
 
-export { FindAllCashbacksUseCase };
+export { FindAllCashbacksUseCase }

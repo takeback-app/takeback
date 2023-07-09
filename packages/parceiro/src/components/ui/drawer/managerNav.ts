@@ -18,8 +18,8 @@ import {
   IoIdCardOutline,
   IoCard,
   IoCardOutline,
-  IoBagAdd,
-  IoBagAddOutline,
+  // IoBagAdd,
+  // IoBagAddOutline,
   IoTicket,
   IoTicketOutline,
   IoAlbumsOutline,
@@ -54,15 +54,15 @@ export const managerNav = [
     isActive: false,
     to: '/caixa'
   },
-  {
-    id: 2,
-    label: 'Receber pagamento',
-    activeIcon: BsCashCoin,
-    inactiveIcon: BsCash,
-    hasDotKey: 'paymentRequest',
-    isActive: false,
-    to: '/solicitações/pagamento'
-  },
+  // {
+  //   id: 2,
+  //   label: 'Receber pagamento',
+  //   activeIcon: BsCashCoin,
+  //   inactiveIcon: BsCash,
+  //   hasDotKey: 'paymentRequest',
+  //   isActive: false,
+  //   to: '/solicitações/pagamento'
+  // },
   {
     id: 3,
     label: 'Autorizar cashback',
@@ -141,7 +141,7 @@ export const managerNav = [
       },
       {
         id: 3,
-        label: 'Histórico',
+        label: 'Lançamentos',
         activeIcon: RiTimeFill,
         inactiveIcon: RiTimeLine,
         isActive: false,
@@ -149,6 +149,14 @@ export const managerNav = [
       },
       {
         id: 4,
+        label: 'Pagamentos dos usuários',
+        activeIcon: BsCash,
+        inactiveIcon: BsCashCoin,
+        isActive: false,
+        to: '/cashbacks/historico-pagamentos'
+      },
+      {
+        id: 5,
         label: 'Conferencia de Caixa',
         activeIcon: FaCashRegister,
         inactiveIcon: FaCashRegister,

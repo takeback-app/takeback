@@ -2,23 +2,27 @@ import 'dotenv/config'
 
 import { Presets, SingleBar } from 'cli-progress'
 import { DateTime } from 'luxon'
+import { NFCeValidationStatus } from '@prisma/client'
 import { prisma } from '../prisma'
 import { TransactionStatusEnum } from '../enum/TransactionStatusEnum'
+import { AutomaticCancelTransactionsUseCase } from '../useCases/integration/AutomaticCancelTransactionsUseCase'
 
 async function main() {
+  await new AutomaticCancelTransactionsUseCase().handle()
+
   await prisma.transaction.updateMany({
     where: {
       transactionStatus: { description: TransactionStatusEnum.PENDING },
-      validatedByNfce: null,
+      nfceValidationStatus: NFCeValidationStatus.IN_PROGRESS,
       createdAt: { lte: DateTime.now().minus({ day: 1 }).toJSDate() },
     },
-    data: { validatedByNfce: false },
+    data: { nfceValidationStatus: NFCeValidationStatus.NOT_FOUND },
   })
 
   const transactions = await prisma.transaction.findMany({
     where: {
       transactionStatus: { description: TransactionStatusEnum.PENDING },
-      validatedByNfce: null,
+      nfceValidationStatus: NFCeValidationStatus.IN_PROGRESS,
     },
     include: {
       transactionPaymentMethods: {
@@ -77,7 +81,7 @@ async function main() {
 
     await prisma.transaction.update({
       where: { id: transaction.id },
-      data: { nfceId, validatedByNfce: true },
+      data: { nfceId, nfceValidationStatus: NFCeValidationStatus.VALIDATED },
     })
   }
 
