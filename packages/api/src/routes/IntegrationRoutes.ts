@@ -5,10 +5,12 @@ import { AuthIntegrationMiddleware } from '../middlewares/AuthIntegrationMiddlew
 import SessionController from '../controllers/integration/SessionController'
 import IntegrationSettingsController from '../controllers/integration/IntegrationSettingsController'
 import NfceController from '../controllers/integration/NfceController'
+import UpdaterController from '../controllers/integration/UpdaterController'
 
 const routes = Router()
 
 routes.post('/login', LoginController.handle)
+routes.get('/updater/:target/:arch/:currentVersion', UpdaterController.handle)
 
 routes.use(AccessTokenMiddleware, AuthIntegrationMiddleware)
 
