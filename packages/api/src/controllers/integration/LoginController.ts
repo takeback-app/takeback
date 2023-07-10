@@ -39,22 +39,22 @@ class LoginController {
       throw new InternalError('Erro ao realizar login', 401)
     }
 
-    await prisma.accessToken.deleteMany({
+    const token = await prisma.accessToken.findFirst({
       where: { companyId: user.companyId },
     })
 
+    if (token) {
+      return response.status(200).json({ token: token.token })
+    }
+
     const accessToken = await prisma.accessToken.create({
-      data: { companyId: user.companyId },
+      data: {
+        companyId: user.companyId,
+        token: createHash('sha256').digest('hex'),
+      },
     })
 
-    const token = createHash('sha256').update(accessToken.id).digest('hex')
-
-    await prisma.accessToken.update({
-      where: { id: accessToken.id },
-      data: { token },
-    })
-
-    return response.status(200).json({ token })
+    return response.status(200).json({ token: accessToken.token })
   }
 }
 

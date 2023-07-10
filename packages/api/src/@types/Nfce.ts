@@ -1,5 +1,6 @@
+/* eslint-disable no-use-before-define */
 export interface Nfce {
-  "?xml": string
+  '?xml': string
   nfeProc: NfeProc
 }
 
@@ -166,6 +167,7 @@ export interface Transp {
 
 export interface Pag {
   detPag: DetPag | DetPag[]
+  vTroco?: number
 }
 
 export interface DetPag {

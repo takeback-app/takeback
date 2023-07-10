@@ -115,7 +115,7 @@ export function CashbackHistoric() {
   }
 
   return (
-    <Layout title="Clientes">
+    <Layout title="Histórico de Lançamentos">
       <Box p={4} overflow="hidden">
         <Flex align="center" justify="flex-end">
           <ButtonGroup>

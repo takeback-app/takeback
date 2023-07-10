@@ -12,7 +12,7 @@ class SessionController {
         id: true,
         fantasyName: true,
         registeredNumber: true,
-        integrationSettings: { select: { url: true, folderPath: true } },
+        integrationSettings: { select: { url: true } },
       },
     })
 

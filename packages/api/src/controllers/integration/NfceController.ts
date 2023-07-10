@@ -16,14 +16,22 @@ class NfceController {
 
     const detPag = nfce.nfeProc.NFe.infNFe.pag.detPag
 
+    const vTroco = nfce.nfeProc.NFe.infNFe.pag.vTroco
+
     const manyDetPag = Array.isArray(detPag) ? detPag : [detPag]
 
     const nfcePayments: Prisma.NFCePaymentCreateManyNFCeInput[] =
-      manyDetPag.map(({ tPag, vPag }) => ({
-        value: vPag,
-        method: getNFCePaymentMethod(tPag),
-        tPag,
-      }))
+      manyDetPag.map(({ tPag, vPag }) => {
+        if (vTroco && tPag === 1) {
+          vPag -= vTroco
+        }
+
+        return {
+          value: vPag,
+          method: getNFCePaymentMethod(tPag),
+          tPag,
+        }
+      })
 
     await prisma.nFCe.create({
       data: {
