@@ -35,7 +35,7 @@ export function BalanceExpirationItem(props: TransactionItemProps) {
             lineHeight="xs"
             numberOfLines={2}
           >
-            Expiração ocorreu for falta de movimentação durante 6 meses
+            Seu saldo expirou por falta de movimentação nos últimos 4 meses.
           </Text>
 
           <Flex mt={2}>

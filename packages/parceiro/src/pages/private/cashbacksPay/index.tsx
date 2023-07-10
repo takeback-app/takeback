@@ -26,13 +26,20 @@ import { SmallCardButton } from '../../../components/cards/smallCardButton'
 import { OutlinedButton } from '../../../components/buttons'
 
 import * as S from './styles'
-import { Button, useDisclosure, useToast } from '@chakra-ui/react'
+import {
+  Button,
+  useDisclosure,
+  useToast,
+  Heading,
+  Text
+} from '@chakra-ui/react'
 import { chakraToastOptions } from '../../../components/ui/toast'
 import { ChakraInput } from '../../../components/inputs/ChakraInput'
 import { ValidationNfce } from './components/ValidationNfce'
 import { FiFilter } from 'react-icons/fi'
 import { FilterDrawer } from './components/FilterDrawer'
 import { useCashbackPay } from './state'
+import { PixQRCode } from 'pix-react'
 
 export type NfceValidationStatus = 'IN_PROGRESS' | 'NOT_FOUND' | 'VALIDATED'
 
@@ -594,20 +601,37 @@ export const Cashback: React.FC = () => {
           </DefaultModal>
 
           <DefaultModal
-            title="Chave pix"
+            title="QR Code"
             visible={modalPixVisible}
             onClose={closeModalPix}
           >
             <S.ModalContent>
               <S.PaymentInfoWrapper>
-                <S.PixKey onClick={() => copyText(pixKey)}>
-                  {pixKey} <IoCopy />{' '}
-                </S.PixKey>
-
                 <S.PaymentInfoDescription>
-                  <h5>Copie a chave pix para efetuar o pagamento</h5>
-                  <h3>Valor a ser pago: {currencyFormat(total)}</h3>
+                  <Heading fontSize="2xl">
+                    Valor a ser pago: {currencyFormat(total)}
+                  </Heading>
+                  <Text mt={2} color="gray.600" fontSize="sm">
+                    Leia o QR Code abaixo para fazer o pagamento,
+                    <br /> ou copie a chave Pix.
+                  </Text>
                 </S.PaymentInfoDescription>
+                <PixQRCode
+                  pixParams={{
+                    chave: '+5538998330021',
+                    recebedor: 'Takeback',
+                    cidade: 'Porteirinha',
+                    identificador: '00001',
+                    valor: total,
+                    mensagem: 'Pagamento de cashbacks'
+                  }}
+                  renderAs="svg"
+                  includeMargin={true}
+                  size={256}
+                />
+                <S.PixKey onClick={() => copyText(pixKey)}>
+                  Chave Pix: {pixKey} <IoCopy />{' '}
+                </S.PixKey>
               </S.PaymentInfoWrapper>
               <S.ModalFooter>
                 <OutlinedButton

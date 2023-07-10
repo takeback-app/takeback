@@ -244,7 +244,7 @@ export const TermsOfUse: React.FC<ModalProps> = props => {
               nos termos do item anterior para liberação do Cashback. E sendo
               confirmada a irregularidade, o Cashback poderá ser cancelado e a
               conta do Usuário poderá ser bloqueada. 6.11. Importante! Cada
-              saldo referente a um Cashback obtido por você expira em 6 (seis)
+              saldo referente a um Cashback obtido por você expira em 4 (quatro)
               meses de inatividade da plataforma. Caso você não efetue o resgate
               do saldo no TakeBack dentro deste período, seu saldo de Cashback
               expirará e será zerado, e você não poderá mais adquirir o direito

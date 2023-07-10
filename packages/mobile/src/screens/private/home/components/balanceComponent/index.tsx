@@ -86,7 +86,7 @@ export const BalanceComponent: React.FC<BalanceComponentProps> = props => {
             <Text fontWeight="semibold" fontSize="md" color="white">
               Saldo disponível
             </Text>
-            {balanceExpireDate ? (
+            {balanceExpireDate && props.balance ? (
               <HStack direction="row" space={1} alignItems="center">
                 <Text fontWeight="normal" fontSize="xs" color="white">
                   Expira em: {moment(balanceExpireDate).format('DD/MM/YYYY')}

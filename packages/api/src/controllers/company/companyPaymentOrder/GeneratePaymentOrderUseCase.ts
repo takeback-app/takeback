@@ -107,15 +107,16 @@ class GeneratePaymentOrderUseCase {
     });
 
     // Atualizando as transações
-    transactionsLocalized.map(async (item) => {
-      await getRepository(Transactions).update(item.transaction_id, {
-        paymentOrder,
-        transactionStatus: processStatus,
-      });
-    });
+    await prisma.transaction.updateMany({
+      where: { id: { in: transactionIDs } },
+      data: {
+        transactionStatusId: processStatus.id,
+        paymentOrderId: paymentOrder.id
+      }
+    })
 
     const users = await prisma.takebackUser.findMany({
-      where: { userTypeId: 2 },
+      where: { userTypeId: 2, isActive: true },
     });
 
     Notify.sendMany(

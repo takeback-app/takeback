@@ -56,6 +56,9 @@ routes.post('/reset-password', costumerAuth.resetPassword)
 routes.get('/verify-if-exists/:cpf', costumerAccount.verifyIfUserAlreadyExists)
 
 routes.post('/signature/reset', costumerData.resetSignature)
+routes.get('/monthly-incomes', missingFieldController.monthlyIncomes)
+
+routes.post('/signature/reset', costumerData.resetSignature)
 
 routes.get('/monthly-incomes', missingFieldController.monthlyIncomes)
 
