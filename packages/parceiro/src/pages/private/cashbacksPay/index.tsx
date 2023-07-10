@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, useContext, useMemo } from 'react'
 import Loader from 'react-spinners/PulseLoader'
 import {
   IoCardOutline,
@@ -26,10 +26,22 @@ import { SmallCardButton } from '../../../components/cards/smallCardButton'
 import { OutlinedButton } from '../../../components/buttons'
 
 import * as S from './styles'
-import { Heading, Text, useToast } from '@chakra-ui/react'
+import {
+  Button,
+  useDisclosure,
+  useToast,
+  Heading,
+  Text
+} from '@chakra-ui/react'
 import { chakraToastOptions } from '../../../components/ui/toast'
 import { ChakraInput } from '../../../components/inputs/ChakraInput'
+import { ValidationNfce } from './components/ValidationNfce'
+import { FiFilter } from 'react-icons/fi'
+import { FilterDrawer } from './components/FilterDrawer'
+import { useCashbackPay } from './state'
 import { PixQRCode } from 'pix-react'
+
+export type NfceValidationStatus = 'IN_PROGRESS' | 'NOT_FOUND' | 'VALIDATED'
 
 interface TransactionProps {
   id: number
@@ -39,6 +51,8 @@ interface TransactionProps {
   backAmount: string
   createdAt: Date
   transactionPaymentMethods: TransactionPaymentMethod[]
+  nfceValidationStatus: NfceValidationStatus
+  nfce: string | null
   consumer: {
     fullName: string
   }
@@ -66,6 +80,10 @@ export const Cashback: React.FC = () => {
   const theme = useTheme()
   const toast = useToast(chakraToastOptions)
 
+  const { type: typeFilter, setForm: setFilterForm } = useCashbackPay()
+
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
   const {
     paymentMethodsOrder,
     setPaymentMethodsOrder,
@@ -73,11 +91,10 @@ export const Cashback: React.FC = () => {
     setCompanyData
   } = useContext(CData)
 
-  const [transactions, setTransactions] = useState(
-    {} as Array<TransactionProps>
-  )
+  const [allTransactions, setAllTransactions] = useState<TransactionProps[]>([])
   const [total, setTotal] = useState(0)
   const [allChecked, setAllChecked] = useState(false)
+  const [hasIntegration, setHasIntegration] = useState(false)
 
   const [modalCancelVisible, setModalCancelVisible] = useState(false)
   const [modalPaymentVisible, setModalPaymentVisible] = useState(false)
@@ -96,11 +113,18 @@ export const Cashback: React.FC = () => {
   const [pageLoading, setPageLoading] = useState(true)
   const [buttonLoading, setButtonLoading] = useState(false)
 
+  const transactions = useMemo(() => {
+    if (typeFilter === 'ALL') return allTransactions
+
+    return allTransactions.filter(t => t.nfceValidationStatus === typeFilter)
+  }, [allTransactions, typeFilter])
+
   // Buscanco os cashbacks da empresa com o status de pendente
   const findCashbacks = () => {
     API.get('/company/cashbacks/find/pending')
       .then(response => {
-        setTransactions(response.data)
+        setAllTransactions(response.data.cashbacks)
+        setHasIntegration(response.data.hasIntegration)
         setPageLoading(false)
       })
       .catch(error => {
@@ -165,7 +189,7 @@ export const Cashback: React.FC = () => {
       transactionIDs: cashbacksSelected
     })
       .then(response => {
-        setTransactions(response.data)
+        setAllTransactions(response.data)
         cashbacksSelected = []
         setTotal(0)
 
@@ -263,7 +287,7 @@ export const Cashback: React.FC = () => {
       .then(response => {
         setSuccessMessage(response.data.message)
         setCompanyData(response.data.companyData)
-        setTransactions(response.data.transactions)
+        setAllTransactions(response.data.transactions)
         setModalConfirmVisible(false)
         setIsPixMethod(false)
         cashbacksSelected = []
@@ -330,7 +354,11 @@ export const Cashback: React.FC = () => {
     getCompanyData()
     getPaymentOrderMethods()
 
-    // eslint-disable-next-line
+    return () => {
+      setFilterForm({ type: 'ALL' })
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
@@ -350,6 +378,13 @@ export const Cashback: React.FC = () => {
                 )}`}
                 color="#009900"
               />
+              <Button
+                leftIcon={<FiFilter />}
+                onClick={onOpen}
+                colorScheme="teal"
+              >
+                Filtro
+              </Button>
             </S.Header>
 
             {transactions.length > 0 ? (
@@ -367,6 +402,7 @@ export const Cashback: React.FC = () => {
                       <S.Th>Status</S.Th>
                       <S.Th>Cliente</S.Th>
                       <S.Th>Vendedor</S.Th>
+                      {hasIntegration && <S.Th>Validação por NFC-e</S.Th>}
                       <S.Th>Valor da Compra</S.Th>
                       <S.Th>Método de Pagamento</S.Th>
                       <S.Th>Cashback</S.Th>
@@ -399,6 +435,13 @@ export const Cashback: React.FC = () => {
                         </S.Td>
                         <S.Td>{item.consumer?.fullName ?? '-'}</S.Td>
                         <S.Td>{item.companyUser?.name ?? '-'}</S.Td>
+                        {hasIntegration && (
+                          <S.Td>
+                            <ValidationNfce
+                              nfceValidationStatus={item.nfceValidationStatus}
+                            />
+                          </S.Td>
+                        )}
                         <S.Td>
                           {currencyFormat(parseFloat(item.totalAmount))}
                         </S.Td>
@@ -604,6 +647,7 @@ export const Cashback: React.FC = () => {
           </DefaultModal>
         </>
       )}
+      <FilterDrawer isOpen={isOpen} onClose={onClose} />
     </Layout>
   )
 }

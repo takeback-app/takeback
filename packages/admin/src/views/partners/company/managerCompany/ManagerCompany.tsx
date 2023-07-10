@@ -43,6 +43,7 @@ import PALLET from '../../../../styles/ColorPallet'
 import * as S from './styles'
 import { Users } from './users'
 import { EditLogo } from './EditLogo'
+import { EditIntegration } from './EditIntegration'
 
 const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { id } = useParams()
@@ -319,6 +320,11 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
           <S.TableContainer>
             <Users companyId={id} />
           </S.TableContainer>
+        </S.Content>
+        <S.Content>
+          <S.InfoTitle>Integração NFC-e</S.InfoTitle>
+
+          {!!id && <EditIntegration companyId={id} />}
         </S.Content>
       </S.Container>
 

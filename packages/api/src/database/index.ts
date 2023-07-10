@@ -1,8 +1,8 @@
-import { createConnection } from "typeorm";
+import { createConnection } from 'typeorm'
 
 export async function connectTypeorm() {
   await createConnection({
-    type: "postgres",
+    type: 'postgres',
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT),
     username: process.env.DB_USER,
@@ -17,5 +17,5 @@ export async function connectTypeorm() {
       migrationsDir: process.env.MIGRATIONS_DIR,
       subscribersDir: process.env.SUBSCRIBERS_DIR,
     },
-  });
+  })
 }

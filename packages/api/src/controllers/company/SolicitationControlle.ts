@@ -1,20 +1,20 @@
-import { Request, Response } from "express";
-import { ValidateUserPasswordUseCase } from "./companyCashback/ValidateUserPasswordUseCase";
-import { prisma } from "../../prisma";
-import { InternalError } from "../../config/GenerateErros";
-import { ApproveSolicitationUseCase } from "../../useCases/cashback/ApproveSolicitationUseCase";
-import { solicitationKey } from "../../services/cacheKeys";
-import { Cache } from "../../redis";
-import { SolicitationType } from "@prisma/client";
+import { Request, Response } from 'express'
+import { SolicitationType } from '@prisma/client'
+import { ValidateUserPasswordUseCase } from './companyCashback/ValidateUserPasswordUseCase'
+import { prisma } from '../../prisma'
+import { InternalError } from '../../config/GenerateErros'
+import { ApproveSolicitationUseCase } from '../../useCases/cashback/ApproveSolicitationUseCase'
+import { solicitationKey } from '../../services/cacheKeys'
+import { Cache } from '../../redis'
 
 export class SolicitationController {
   async index(request: Request, response: Response) {
-    const type = request.query.type as SolicitationType;
-    const { companyId } = request["tokenPayload"];
+    const type = request.query.type as SolicitationType
+    const { companyId } = request['tokenPayload']
 
     const solicitations = await prisma.transactionSolicitation.findMany({
-      where: { companyId, status: "WAITING", type },
-      orderBy: { createdAt: "desc" },
+      where: { companyId, status: 'WAITING', type },
+      orderBy: { createdAt: 'desc' },
       include: {
         consumer: { select: { fullName: true } },
         companyPaymentMethod: {
@@ -24,22 +24,22 @@ export class SolicitationController {
           },
         },
       },
-    });
+    })
 
-    return response.json(solicitations);
+    return response.json(solicitations)
   }
 
   async approve(request: Request, response: Response) {
-    const { companyId } = request["tokenPayload"];
+    const { companyId } = request['tokenPayload']
 
-    const { companyUserPassword, solicitationsId } = request.body;
+    const { companyUserPassword, solicitationsId } = request.body
 
-    const validateUserPassword = new ValidateUserPasswordUseCase();
+    const validateUserPassword = new ValidateUserPasswordUseCase()
 
     const companyUser = await validateUserPassword.findCompanyUserByPassword(
       companyId,
-      companyUserPassword
-    );
+      companyUserPassword,
+    )
 
     const solicitations = await prisma.transactionSolicitation.findMany({
       where: {
@@ -47,78 +47,78 @@ export class SolicitationController {
         companyId: companyId,
         consumer: { cpf: { not: companyUser.cpf } },
       },
-    });
+    })
 
-    if (solicitations.length != solicitationsId.length) {
+    if (solicitations.length !== solicitationsId.length) {
       throw new InternalError(
-        "Não é possível aprovar solicitações gerados por si mesmo.",
-        400
-      );
+        'Não é possível aprovar solicitações gerados por si mesmo.',
+        400,
+      )
     }
 
-    const approveUseCase = new ApproveSolicitationUseCase();
+    const approveUseCase = new ApproveSolicitationUseCase()
 
     for (const solicitation of solicitations) {
-      await approveUseCase.execute(solicitation, companyUser.id);
+      await approveUseCase.execute(solicitation, companyUser.id)
     }
 
-    await Cache.forget(solicitationKey(companyId));
+    await Cache.forget(solicitationKey(companyId))
 
-    return response.status(204).json();
+    return response.status(204).json()
   }
 
   async reprove(request: Request, response: Response) {
-    const { companyId } = request["tokenPayload"];
+    const { companyId } = request['tokenPayload']
 
-    const { companyUserPassword, solicitationsId, reason } = request.body;
+    const { companyUserPassword, solicitationsId, reason } = request.body
 
-    const validateUserPassword = new ValidateUserPasswordUseCase();
+    const validateUserPassword = new ValidateUserPasswordUseCase()
 
     const companyUser = await validateUserPassword.findCompanyUserByPassword(
       companyId,
-      companyUserPassword
-    );
+      companyUserPassword,
+    )
 
     await prisma.transactionSolicitation.updateMany({
       where: { id: { in: solicitationsId }, companyId: companyId },
       data: {
-        status: "CANCELED",
+        status: 'CANCELED',
         updatedAt: new Date(),
         companyUserId: companyUser.id,
         text: reason,
       },
-    });
+    })
 
-    await Cache.forget(solicitationKey(companyId));
+    await Cache.forget(solicitationKey(companyId))
 
-    return response.status(204).json();
+    return response.status(204).json()
   }
 
   async count(request: Request, response: Response) {
-    const { companyId } = request["tokenPayload"];
+    const { companyId } = request['tokenPayload']
 
     const cashbackSolicitationCount =
       await prisma.transactionSolicitation.count({
         where: {
           companyId,
-          type: "CASHBACK",
-          status: "WAITING",
+          type: 'CASHBACK',
+          status: 'WAITING',
         },
-      });
+      })
 
-    const paymentSolicitationCount = await prisma.transactionSolicitation.count(
-      {
-        where: {
-          companyId,
-          type: "PAYMENT",
-          status: "WAITING",
-        },
-      }
-    );
+    // const paymentSolicitationCount = await prisma.transactionSolicitation.count(
+    //   {
+    //     where: {
+    //       companyId,
+    //       type: 'PAYMENT',
+    //       status: 'WAITING',
+    //     },
+    //   },
+    // )
 
     return response.json({
-      paymentRequest: paymentSolicitationCount,
+      // paymentRequest: paymentSolicitationCount,
       cashbackRequest: cashbackSolicitationCount,
-    });
+    })
   }
 }

@@ -13,7 +13,8 @@
     "migration:run": "npm run typeorm migration:run",
     "migration:revert": "npm run typeorm migration:revert",
     "test": "node -r ts-node/register bin/test.ts",
-    "cover": "nyc --reporter=lcov --reporter=text-summary yarn test"
+    "cover": "nyc --reporter=lcov --reporter=text-summary yarn test",
+    "lint": "eslint --ext .ts src --fix"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.304.0",
@@ -31,6 +32,7 @@
     "expo-server-sdk": "^3.7.0",
     "express": "^4.15.4",
     "express-async-errors": "^3.1.1",
+    "fast-xml-parser": "^4.2.5",
     "handlebars": "^4.7.7",
     "ioredis": "^5.3.1",
     "jsonwebtoken": "^8.5.1",
@@ -79,7 +81,7 @@
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-standard": "^16.0.3",
-    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-promise": "^4.2.1",

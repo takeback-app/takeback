@@ -1,36 +1,36 @@
-import { Company, Consumer, Transaction } from "@prisma/client";
-import { InternalError } from "../../config/GenerateErros";
-import { prisma } from "../../prisma";
-import { UpdateBalanceExpireDate } from "../consumer/UpdateBalanceExpireDate";
-import { GenerateUserCacheUseCase } from "../consumer/GenerateUserCacheUseCase";
-import { TransactionGenerator } from "./TransactionGenerator";
-import { GenerateTicketFromTransactionUseCase } from "../raffle/GenerateTicketFromTransactionUseCase";
-import { Notify, NewCashback, PaymentApproved } from "../../notifications";
+import { Company, Consumer, Transaction } from '@prisma/client'
+import { TransactionGenerator } from './TransactionGenerator'
+import { InternalError } from '../../config/GenerateErros'
+import { prisma } from '../../prisma'
+import { UpdateBalanceExpireDate } from '../consumer/UpdateBalanceExpireDate'
+import { GenerateUserCacheUseCase } from '../consumer/GenerateUserCacheUseCase'
+import { GenerateTicketFromTransactionUseCase } from '../raffle/GenerateTicketFromTransactionUseCase'
+import { Notify, NewCashback, PaymentApproved } from '../../notifications'
 
 interface PaymentMethod {
-  id: number;
-  value: number;
+  id: number
+  value: number
 }
 
 interface GenerateCashbackUseDTO {
-  companyId: string;
-  consumerId: string;
-  companyUserId: string;
-  totalAmount: number;
-  backAmount?: number;
-  paymentMethods: PaymentMethod[];
+  companyId: string
+  consumerId: string
+  companyUserId?: string
+  totalAmount: number
+  backAmount?: number
+  paymentMethods: PaymentMethod[]
 }
 
 export class GenerateCashbackUseCase {
-  private generateUserCache: GenerateUserCacheUseCase;
-  private generateTicketFromTransaction: GenerateTicketFromTransactionUseCase;
-  private updateBalanceExpireDate: UpdateBalanceExpireDate;
+  private generateUserCache: GenerateUserCacheUseCase
+  private generateTicketFromTransaction: GenerateTicketFromTransactionUseCase
+  private updateBalanceExpireDate: UpdateBalanceExpireDate
 
   constructor() {
-    this.generateUserCache = new GenerateUserCacheUseCase();
+    this.generateUserCache = new GenerateUserCacheUseCase()
     this.generateTicketFromTransaction =
-      new GenerateTicketFromTransactionUseCase();
-    this.updateBalanceExpireDate = new UpdateBalanceExpireDate();
+      new GenerateTicketFromTransactionUseCase()
+    this.updateBalanceExpireDate = new UpdateBalanceExpireDate()
   }
 
   async execute(data: GenerateCashbackUseDTO) {
@@ -41,25 +41,28 @@ export class GenerateCashbackUseCase {
       companyId,
       companyUserId,
       consumerId,
-    } = data;
+    } = data
 
     const sumMethodValue = paymentMethods.reduce(
       (sum, { value }) => sum + value,
-      0
-    );
+      0,
+    )
 
     if (sumMethodValue !== Number(totalAmount) + backAmount) {
-      throw new InternalError("A soma dos items está incorreta", 400);
+      throw new InternalError('A soma dos items está incorreta', 400)
     }
 
-    const { company, companyUser, consumer, ...status } =
-      await this.getInitialEntities(companyId, companyUserId, consumerId);
+    const { company, consumer, ...status } = await this.getInitialEntities(
+      companyId,
+      consumerId,
+      companyUserId,
+    )
 
     if (!company.useCashbackAsBack && backAmount) {
       throw new InternalError(
-        "Opção de troco como cashback não disponível",
-        400
-      );
+        'Opção de troco como cashback não disponível',
+        400,
+      )
     }
 
     const companyPaymentMethods = await prisma.companyPaymentMethod.findMany({
@@ -70,34 +73,32 @@ export class GenerateCashbackUseCase {
       include: {
         paymentMethod: true,
       },
-    });
+    })
 
     if (companyPaymentMethods.length !== paymentMethods.length) {
-      throw new InternalError("Há itens duplicados", 400);
+      throw new InternalError('Há itens duplicados', 400)
     }
 
-    const transactionGenerator = new TransactionGenerator(
-      companyPaymentMethods
-    );
+    const transactionGenerator = new TransactionGenerator(companyPaymentMethods)
 
     const transactionData = transactionGenerator
       .calculateCashback(paymentMethods, backAmount)
       .calculateFee(company)
-      .getData();
+      .getData()
 
-    const { pendingTransactionStatus, takebackTransactionStatus } = status;
+    const { pendingTransactionStatus, takebackTransactionStatus } = status
 
     const hasOnlyTakebackPaymentMethod =
       transactionGenerator.hasTakebackPaymentMethod() &&
-      companyPaymentMethods.length === 1;
+      companyPaymentMethods.length === 1
 
-    if (transactionData.cashbackAmount == 0 && !hasOnlyTakebackPaymentMethod) {
-      return null;
+    if (transactionData.cashbackAmount === 0 && !hasOnlyTakebackPaymentMethod) {
+      return null
     }
 
     const transactionStatusId = hasOnlyTakebackPaymentMethod
       ? takebackTransactionStatus.id
-      : pendingTransactionStatus.id;
+      : pendingTransactionStatus.id
 
     const transaction = await prisma.transaction.create({
       data: {
@@ -105,15 +106,15 @@ export class GenerateCashbackUseCase {
         totalAmount,
         consumersId: consumer.id,
         companiesId: company.id,
-        companyUsersId: companyUser.id,
+        companyUsersId: companyUserId,
         dateAt: new Date(),
         backAmount,
         transactionStatusId,
       },
-    });
+    })
 
     const transactionPaymentMethods =
-      transactionGenerator.getTransactionPaymentMethodsData();
+      transactionGenerator.getTransactionPaymentMethodsData()
 
     for (const transactionPaymentMethod of transactionPaymentMethods) {
       await prisma.transactionPaymentMethod.create({
@@ -121,50 +122,50 @@ export class GenerateCashbackUseCase {
           ...transactionPaymentMethod,
           transactionsId: transaction.id,
         },
-      });
+      })
     }
 
-    await this.updateConsumerBalance(consumer, transaction);
+    await this.updateConsumerBalance(consumer, transaction)
 
-    await this.updateCompanyBalance(company, transaction);
+    await this.updateCompanyBalance(company, transaction)
 
-    await this.updateBalanceExpireDate.execute(consumer.id);
+    await this.updateBalanceExpireDate.execute(consumer.id)
 
-    await this.generateUserCache.execute(consumer, companyId);
+    await this.generateUserCache.execute(consumer, companyId)
 
-    await this.generateTicketFromTransaction.execute(transaction);
+    await this.generateTicketFromTransaction.execute(transaction)
 
     const Notification = hasOnlyTakebackPaymentMethod
       ? PaymentApproved
-      : NewCashback;
+      : NewCashback
 
-    Notify.send(consumerId, new Notification(transaction, company.fantasyName));
+    Notify.send(consumerId, new Notification(transaction, company.fantasyName))
 
-    return transaction;
+    return transaction
   }
 
   private async getInitialEntities(
     companyId: string,
-    companyUserId: string,
-    consumerId: string
+    consumerId: string,
+    companyUserId?: string,
   ) {
-    const companyUser = await prisma.companyUser.findUniqueOrThrow({
+    const companyUser = await prisma.companyUser.findFirst({
       where: { id: companyUserId },
-    });
+    })
 
     const consumer = await prisma.consumer.findFirst({
       where: { id: consumerId },
-    });
+    })
 
     if (consumer.deactivatedAccount) {
-      throw new InternalError("O cliente não está ativo", 400);
+      throw new InternalError('O cliente não está ativo', 400)
     }
 
-    if (consumer.cpf === companyUser.cpf) {
+    if (consumer.cpf === companyUser?.cpf) {
       throw new InternalError(
-        "Não é possível lançar cashback para si mesmo",
-        400
-      );
+        'Não é possível lançar cashback para si mesmo',
+        400,
+      )
     }
 
     const company = await prisma.company.findUnique({
@@ -176,27 +177,26 @@ export class GenerateCashbackUseCase {
           },
         },
       },
-    });
+    })
 
     const pendingTransactionStatus = await prisma.transactionStatus.findFirst({
       where: {
-        description: "Pendente",
+        description: 'Pendente',
       },
-    });
+    })
 
     const takebackTransactionStatus = await prisma.transactionStatus.findFirst({
       where: {
-        description: "Pago com takeback",
+        description: 'Pago com takeback',
       },
-    });
+    })
 
     return {
       pendingTransactionStatus,
       takebackTransactionStatus,
       company,
       consumer,
-      companyUser,
-    };
+    }
   }
 
   updateConsumerBalance(consumer: Consumer, transaction: Transaction) {
@@ -208,7 +208,7 @@ export class GenerateCashbackUseCase {
           .add(transaction.backAmount),
         balance: consumer.balance.sub(transaction.amountPayWithTakebackBalance),
       },
-    });
+    })
   }
 
   updateCompanyBalance(company: Company, transaction: Transaction) {
@@ -216,13 +216,13 @@ export class GenerateCashbackUseCase {
       where: { id: company.id },
       data: {
         positiveBalance: company.positiveBalance.add(
-          transaction.amountPayWithTakebackBalance
+          transaction.amountPayWithTakebackBalance,
         ),
         negativeBalance: company.negativeBalance
           .add(transaction.cashbackAmount)
           .add(transaction.takebackFeeAmount)
           .add(transaction.backAmount),
       },
-    });
+    })
   }
 }

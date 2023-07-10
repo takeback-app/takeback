@@ -33,6 +33,7 @@ import { Notifications } from '../pages/private/createNotifications'
 import { NotificationCreate } from '../pages/private/createNotifications/createNotification'
 import { BirthdayNotificationCreate } from '../pages/private/birthdayNotification'
 import { LogoChangeRequest } from '../pages/private/logoChangeRequest'
+import { TakebackPayments } from '../pages/private/takebackPayments'
 
 interface Props {
   children: JSX.Element

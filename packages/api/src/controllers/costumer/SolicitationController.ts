@@ -1,58 +1,57 @@
-import { Request, Response } from "express";
-import { SolicitationUseCase } from "../../useCases/cashback/CreateSolicitationUseCase";
-import { CreateCashbackSolicitationRequest } from "../../requests/CreateCashbackSolicitationRequest";
-import { InternalError } from "../../config/GenerateErros";
-import { Cache } from "../../redis";
-import { solicitationKey } from "../../services/cacheKeys";
+import { Request, Response } from 'express'
+import { SolicitationUseCase } from '../../useCases/cashback/CreateSolicitationUseCase'
+import { CreateCashbackSolicitationRequest } from '../../requests/CreateCashbackSolicitationRequest'
+import { InternalError } from '../../config/GenerateErros'
+import AutomaticApproveSolicitationChecker from '../../useCases/integration/AutomaticApproveSolicitationChecker'
 
 export class SolicitationController {
   async cashback(request: Request, response: Response) {
-    const { id: consumerId } = request["tokenPayload"];
+    const { id: consumerId } = request['tokenPayload']
 
-    const form = CreateCashbackSolicitationRequest.safeParse(request.body);
+    const form = CreateCashbackSolicitationRequest.safeParse(request.body)
 
     if (!form.success) {
-      throw new InternalError("Existem erros nos dados enviados.", 422);
+      throw new InternalError('Existem erros nos dados enviados.', 422)
     }
 
-    const { companyId, companyPaymentMethodId, value } = form.data;
+    const { companyId, companyPaymentMethodId, value } = form.data
 
-    const useCase = new SolicitationUseCase();
+    const useCase = new SolicitationUseCase()
 
-    await useCase.createCashback({
+    const solicitation = await useCase.createCashback({
       consumerId,
       companyId,
       companyPaymentMethodId,
       valueInCents: Math.round(value * 100),
-    });
+    })
 
-    await Cache.increment(solicitationKey(companyId));
+    await AutomaticApproveSolicitationChecker.handle(solicitation)
 
-    return response.status(201).json();
+    return response.status(201).json()
   }
 
   async payment(request: Request, response: Response) {
-    const { id: consumerId } = request["tokenPayload"];
+    const { id: consumerId } = request['tokenPayload']
 
-    const form = CreateCashbackSolicitationRequest.safeParse(request.body);
+    const form = CreateCashbackSolicitationRequest.safeParse(request.body)
 
     if (!form.success) {
-      throw new InternalError("Existem erros nos dados enviados.", 422);
+      throw new InternalError('Existem erros nos dados enviados.', 422)
     }
 
-    const { companyId, companyPaymentMethodId, value } = form.data;
+    const { companyId, companyPaymentMethodId, value } = form.data
 
-    const useCase = new SolicitationUseCase();
+    const useCase = new SolicitationUseCase()
 
-    await useCase.createPayment({
+    const solicitation = await useCase.createPayment({
       consumerId,
       companyId,
       companyPaymentMethodId,
       valueInCents: Math.round(value * 100),
-    });
+    })
 
-    await Cache.increment(solicitationKey(companyId));
+    await AutomaticApproveSolicitationChecker.handle(solicitation)
 
-    return response.status(201).json();
+    return response.status(201).json()
   }
 }

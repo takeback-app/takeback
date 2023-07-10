@@ -1,23 +1,45 @@
 module.exports = {
-    parser: "@typescript-eslint/parser",
-    "env": {
-        "es2021": true,
-        "node": true
-    },
-    plugins: ["@typescript-eslint"],
-    extends: [
-        "plugin:@typescript-esint/recommended",
-        "prettier/@typescript-eslint",
-        "standard"
+  env: {
+    es2021: true,
+    node: true,
+  },
+  extends: ['standard', 'plugin:prettier/recommended'],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+  },
+  plugins: ['@typescript-eslint'],
+  rules: {
+    'dot-notation': 'off',
+    'prettier/prettier': [
+      'error',
+      {
+        printWidth: 80,
+        tabWidth: 2,
+        singleQuote: true,
+        trailingComma: 'all',
+        arrowParens: 'always',
+        semi: false,
+      },
     ],
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-        "ecmaVersion": 13,
-        "sourceType": "module"
-    },
-    "plugins": [
-        "@typescript-eslint"
+    'import/order': [
+      1,
+      {
+        groups: [
+          'external',
+          'builtin',
+          'internal',
+          'sibling',
+          'parent',
+          'index',
+        ],
+      },
     ],
-    "rules": {
-    }
-};
+  },
+  settings: {
+    'import/parsers': {
+      [require.resolve('@typescript-eslint/parser')]: ['.ts', '.tsx', '.d.ts'],
+    },
+  },
+}
