@@ -1,32 +1,39 @@
-import dotenv from "dotenv";
-import cors from "cors";
-import express, { Request, Response, NextFunction } from "express";
+import 'dotenv/config'
+import cors from 'cors'
+import express, { Request, Response, NextFunction } from 'express'
+import * as Sentry from '@sentry/node'
 
-import { routes } from "./routes";
-import { InternalError } from "./config/GenerateErros";
-import { exceptionHandler } from "./utils/exceptionHandler";
-import { Settings } from "luxon";
+import { Settings } from 'luxon'
+import { routes } from './routes'
+import { InternalError } from './config/GenerateErros'
+import { exceptionHandler } from './utils/exceptionHandler'
 
-Settings.defaultZone = "UTC";
+Settings.defaultZone = 'UTC'
 
-const app = express();
+Sentry.init({
+  dsn: process.env.SENTRY_DSN || '',
+})
 
-dotenv.config();
+const app = express()
 
-app.use(cors({ origin: "*" }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(Sentry.Handlers.requestHandler())
 
-app.use(routes);
+app.use(cors({ origin: '*' }))
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
+
+app.use(routes)
+
+app.use(Sentry.Handlers.errorHandler())
 
 app.use(
   (err: InternalError, req: Request, res: Response, next: NextFunction) => {
-    const { status, ...rest } = exceptionHandler(err);
+    const { status, ...rest } = exceptionHandler(err)
 
     if (err) {
-      res.status(status).json({ status, ...rest });
+      res.status(status).json({ status, ...rest })
     }
-  }
-);
+  },
+)
 
-export { app };
+export { app }
