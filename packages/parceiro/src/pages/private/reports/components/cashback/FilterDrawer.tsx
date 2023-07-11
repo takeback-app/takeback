@@ -56,7 +56,7 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
   )
 
   const { data: paymentMethods } = useSWR<PaymentMethods[]>(
-    'company/company-payment-methods'
+    'company/payment-methods'
   )
 
   function resetFilter() {
