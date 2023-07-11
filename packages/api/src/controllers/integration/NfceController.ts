@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client'
 import GetNfceUseCase from '../../useCases/integration/GetNfceUseCase'
 import { prisma } from '../../prisma'
 import { getNFCePaymentMethod } from '../../enum/NfcePaymentMethodEnum'
+import { logger } from '../../services/logger'
 
 class NfceController {
   async store(request: Request, response: Response) {
@@ -10,39 +11,45 @@ class NfceController {
 
     const { path, content } = request.body
 
-    const nfce = GetNfceUseCase.handle(content)
+    try {
+      const nfce = GetNfceUseCase.handle(content)
 
-    const issuedAt = new Date(nfce.nfeProc.NFe.infNFe.ide.dhEmi)
+      const issuedAt = new Date(nfce.nfeProc.NFe.infNFe.ide.dhEmi)
 
-    const detPag = nfce.nfeProc.NFe.infNFe.pag.detPag
+      const detPag = nfce.nfeProc.NFe.infNFe.pag.detPag
 
-    const vTroco = nfce.nfeProc.NFe.infNFe.pag.vTroco
+      const vTroco = nfce.nfeProc.NFe.infNFe.pag.vTroco
 
-    const manyDetPag = Array.isArray(detPag) ? detPag : [detPag]
+      const manyDetPag = Array.isArray(detPag) ? detPag : [detPag]
 
-    const nfcePayments: Prisma.NFCePaymentCreateManyNFCeInput[] =
-      manyDetPag.map(({ tPag, vPag }) => {
-        if (vTroco && tPag === 1) {
-          vPag -= vTroco
-        }
+      const nfcePayments: Prisma.NFCePaymentCreateManyNFCeInput[] =
+        manyDetPag.map(({ tPag, vPag }) => {
+          if (vTroco && tPag === 1) {
+            vPag -= vTroco
+          }
 
-        return {
-          value: vPag,
-          method: getNFCePaymentMethod(tPag),
-          tPag,
-        }
+          return {
+            value: vPag,
+            method: getNFCePaymentMethod(tPag),
+            tPag,
+          }
+        })
+
+      await prisma.nFCe.create({
+        data: {
+          path,
+          companyId,
+          nfcePayments: { createMany: { data: nfcePayments } },
+          issuedAt,
+        },
       })
 
-    await prisma.nFCe.create({
-      data: {
-        path,
-        companyId,
-        nfcePayments: { createMany: { data: nfcePayments } },
-        issuedAt,
-      },
-    })
+      return response.status(200).json({ message: 'ok' })
+    } catch (err) {
+      logger.error(request.body, `NFC-e Error: ${err.message}`)
 
-    return response.status(200).json({ message: 'ok' })
+      return response.status(204)
+    }
   }
 }
 
