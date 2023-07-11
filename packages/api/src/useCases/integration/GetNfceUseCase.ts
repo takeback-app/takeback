@@ -2,7 +2,6 @@ import { XMLParser } from 'fast-xml-parser'
 import jsonpath from 'jsonpath'
 
 import { Nfe } from '../../@types/Nfce'
-import { InternalError } from '../../config/GenerateErros'
 
 class GetNfceUseCase {
   handle(xmlContents: string): Nfe {
@@ -13,7 +12,7 @@ class GetNfceUseCase {
     const result = jsonpath.query(nfce, '$..NFe')
 
     if (!result.length) {
-      throw new InternalError('NFe not found', 401)
+      throw new Error('NFe not found')
     }
 
     return result[0] as Nfe
