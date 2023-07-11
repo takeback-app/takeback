@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 export const ItemSchema = z
   .object({
@@ -6,7 +6,7 @@ export const ItemSchema = z
     order: z.number().int().min(1),
     imageUrl: z.string().url(),
   })
-  .strict();
+  .strict()
 
 export const CreateRaffleRequest = z
   .object({
@@ -19,4 +19,4 @@ export const CreateRaffleRequest = z
     isOpenToEmployees: z.boolean(),
     items: ItemSchema.array(),
   })
-  .strict();
+  .strict()

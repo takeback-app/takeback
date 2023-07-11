@@ -28,8 +28,9 @@ import { CashbackReportController } from '../controllers/company/reports/Cashbac
 import { BirthdayNotificationController } from '../controllers/company/BirthdayNotificationController'
 import { TransactionStatusController } from '../controllers/company/TransactionStatusController'
 import { CompanyUserTypeController } from '../controllers/company/CompanyUserTypeController'
-import { CompanyPaymentMethodController } from '../controllers/company/CompanyPaymentMethodController'
+import { PaymentMethodController } from '../controllers/company/PaymentMethodController'
 import { LogoChangeRequestController } from '../controllers/company/logoChangeRequest/LogoChangeRequestController'
+import { CompanyPaymentMethodController } from '../controllers/company/CompanyPaymentMethodController'
 
 const auth = new AuthCompanyController()
 const reports = new ReportsController()
@@ -56,6 +57,7 @@ const companyUserReportController = new CompanyUserReportController()
 const cashbackReportController = new CashbackReportController()
 const transactionStatusController = new TransactionStatusController()
 const companyUserTypeController = new CompanyUserTypeController()
+const paymentMethodController = new PaymentMethodController()
 const companyPaymentMethodController = new CompanyPaymentMethodController()
 const logoChangeRequestController = new LogoChangeRequestController()
 
@@ -217,7 +219,8 @@ routes.get('/report/cashbacks/totalizer', cashbackReportController.totalizer)
 
 routes.get('/company-user-types', companyUserTypeController.index)
 routes.get('/transaction-status', transactionStatusController.index)
-routes.get('/company-payment-methods', companyPaymentMethodController.index)
+routes.get('/payment-methods', paymentMethodController.index)
+routes.get('/payment-methods/all', paymentMethodController.all)
 
 routes.get('/birthday-notifications', birthdayNotificationController.index)
 routes.post('/birthday-notifications', birthdayNotificationController.store)
@@ -225,5 +228,16 @@ routes.post('/birthday-notifications', birthdayNotificationController.store)
 routes.get('/logo-change-requests', logoChangeRequestController.index)
 routes.post('/logo-change-requests', logoChangeRequestController.store)
 routes.delete('/logo-change-requests/:id', logoChangeRequestController.delete)
+
+routes.get('/company-payment-methods', companyPaymentMethodController.index)
+routes.post('/company-payment-methods', companyPaymentMethodController.store)
+routes.delete(
+  '/company-payment-methods/:id/delete',
+  companyPaymentMethodController.delete,
+)
+routes.put(
+  '/company-payment-methods/:id',
+  companyPaymentMethodController.update,
+)
 
 export default routes
