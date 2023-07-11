@@ -86,6 +86,13 @@ export class CompanyPaymentMethodController {
       )
     }
 
+    if (!isActive && paymentMethod.initialPercentage) {
+      throw new InternalError(
+        'Não é possível desativar um método de pagamento padrão',
+        403,
+      )
+    }
+
     await prisma.companyPaymentMethod.update({
       where: { id },
       data: {
