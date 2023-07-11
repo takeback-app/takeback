@@ -7,13 +7,9 @@ class NfceController {
 
     const { path, content } = request.body
 
-    try {
-      await CreateNfceUseCase.handle(companyId, path, content)
+    await CreateNfceUseCase.handle(companyId, path, content)
 
-      return response.status(200).json({ message: 'ok' })
-    } catch (err) {
-      return response.status(204)
-    }
+    return response.status(200).json({ message: 'ok' })
   }
 }
 
