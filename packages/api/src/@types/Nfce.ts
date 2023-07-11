@@ -1,13 +1,4 @@
 /* eslint-disable no-use-before-define */
-export interface Nfce {
-  '?xml': string
-  nfeProc: NfeProc
-}
-
-export interface NfeProc {
-  NFe: Nfe
-  protNFe: ProtNfe
-}
 
 export interface Nfe {
   infNFe: InfNfe
