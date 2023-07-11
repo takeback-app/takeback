@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
 import CreateNfceUseCase from '../../useCases/integration/CreateNfceUseCase'
-import { logger } from '../../services/logger'
 
 class NfceController {
   async store(request: Request, response: Response) {
@@ -13,8 +12,6 @@ class NfceController {
 
       return response.status(200).json({ message: 'ok' })
     } catch (err) {
-      logger.error(err, 'NFC-e integration error')
-
       return response.status(204)
     }
   }
