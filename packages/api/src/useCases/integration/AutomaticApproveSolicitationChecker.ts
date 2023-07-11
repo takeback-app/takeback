@@ -17,7 +17,7 @@ class AutomaticApproveSolicitationChecker {
       },
     })
 
-    if (!integrationCount) return
+    if (!integrationCount && solicitation.type === 'CASHBACK') return
 
     await this.approveUseCase.execute(solicitation)
   }
