@@ -50,7 +50,7 @@ class LoginController {
     const accessToken = await prisma.accessToken.create({
       data: {
         companyId: user.companyId,
-        token: createHash('sha256').digest('hex'),
+        token: createHash('sha256').update(user.companyId).digest('hex'),
       },
     })
 
