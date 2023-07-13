@@ -14,6 +14,7 @@ import {
   IconButton,
   Tbody,
   Td,
+  Text,
   Th,
   Thead,
   Tooltip,
@@ -150,58 +151,75 @@ export function CashbackHistoric() {
         >
           <Thead>
             <Tr>
-              <Th>ID</Th>
-              <Th>Status</Th>
-              <Th>Cliente</Th>
-              <Th>Vendedor</Th>
-              <Th>Valor da Compra</Th>
-              <Th>Método de Pgto</Th>
-              <Th>Cashback</Th>
-              <Th>Tx. Takeback</Th>
-              <Th>Troco</Th>
-              <Th>T. a Pagar</Th>
-              <Th>Data de Emissão</Th>
+              <Th px="2">ID</Th>
+              <Th px="2">Status</Th>
+              <Th px="2">Cliente</Th>
+              <Th px="2">Vendedor</Th>
+              <Th px="2">
+                Valor <br />
+                da Compra
+              </Th>
+              <Th px="2">
+                Método <br /> de Pgto
+              </Th>
+              <Th px="2">Cashback</Th>
+              <Th px="2">Tx. Takeback</Th>
+              <Th px="2">Troco</Th>
+              <Th px="2">T. a Pagar</Th>
+              <Th px="2">Data de Emissão</Th>
             </Tr>
           </Thead>
           <Tbody>
             {cashbacks?.data.map(item => (
               <Tr color="gray.500" key={item.id}>
-                <Td fontSize="xs">{item.id}</Td>
-                <Td fontSize="xs" color="pink.400">
-                  {item.transactionStatus.description}
+                <Td px="2" fontSize="xs">
+                  {item.id}
                 </Td>
-                <Td fontSize="xs">{item.consumer.fullName}</Td>
-                <Td fontSize="xs">{item.companyUser?.name ?? '-'}</Td>
-                <Td fontSize="xs">
+                <Td px="2" fontSize="xs" color="pink.400">
+                  <Text w="20" whiteSpace="normal" wordBreak="break-word">
+                    {item.transactionStatus.description}
+                  </Text>
+                </Td>
+                <Td px="2" fontSize="xs">
+                  <Text w="20" whiteSpace="normal" wordBreak="break-word">
+                    {item.consumer.fullName}
+                  </Text>
+                </Td>
+                <Td px="2" fontSize="xs">
+                  <Text w="16" whiteSpace="normal" wordBreak="break-word">
+                    {item.companyUser?.name ?? '-'}
+                  </Text>
+                </Td>
+                <Td px="2" fontSize="xs">
                   {currencyFormat(parseFloat(item.totalAmount))}
                 </Td>
-                <Td fontSize="xs">
+                <Td px="2" fontSize="xs">
                   {item.transactionPaymentMethods.length > 1
                     ? 'Múltiplos'
                     : item.transactionPaymentMethods[0]?.companyPaymentMethod
                         .paymentMethod.description ?? '-'}
                 </Td>
-                <Td fontSize="xs">
+                <Td px="2" fontSize="xs">
                   {currencyFormat(parseFloat(item.cashbackAmount))}
                 </Td>
-                <Td fontSize="xs">
+                <Td px="2" fontSize="xs">
                   {currencyFormat(parseFloat(item.takebackFeeAmount))}
                 </Td>
-                <Td fontSize="xs">
+                <Td px="2" fontSize="xs">
                   {currencyFormat(parseFloat(item.backAmount))}
                 </Td>
-                <Td fontSize="xs">
+                <Td px="2" fontSize="xs">
                   {currencyFormat(
                     parseFloat(item.cashbackAmount) +
                       parseFloat(item.takebackFeeAmount) +
                       parseFloat(item.backAmount)
                   )}
                 </Td>
-                <Td fontSize="xs">
+                <Td px="2" fontSize="xs">
                   {new Date(item.createdAt).toLocaleString()}
                 </Td>
 
-                <Td>
+                <Td px="2">
                   {isManager && item.transactionStatusId === 3 && (
                     <Tooltip label="Estornar" aria-label="Estornar">
                       <IconButton
