@@ -1,9 +1,9 @@
-import { TransactionStatusEnum } from "../../enum/TransactionStatusEnum";
-import { prisma } from "../../prisma";
+import { TransactionStatusEnum } from '../../enum/TransactionStatusEnum'
+import { prisma } from '../../prisma'
 
 interface ExecuteDTO {
-  transactionId: number;
-  cancellationDescription: string;
+  transactionId: number
+  cancellationDescription: string
 }
 
 export class CancelTransactionUseCase {
@@ -11,7 +11,7 @@ export class CancelTransactionUseCase {
     return Promise.all([
       this.cancelTransaction(dto),
       this.cancelTickets(dto.transactionId),
-    ]);
+    ])
   }
 
   private async cancelTransaction({
@@ -20,7 +20,7 @@ export class CancelTransactionUseCase {
   }: ExecuteDTO) {
     const status = await prisma.transactionStatus.findFirst({
       where: { description: TransactionStatusEnum.CANCELED_BY_PARTNER },
-    });
+    })
 
     return prisma.transaction.update({
       where: { id: transactionId },
@@ -28,13 +28,13 @@ export class CancelTransactionUseCase {
         transactionStatusId: status.id,
         cancellationDescription,
       },
-    });
+    })
   }
 
   private async cancelTickets(transactionId: number) {
     return prisma.raffleTicket.updateMany({
       where: { transactionId: transactionId },
-      data: { status: "CANCELED" },
-    });
+      data: { status: 'CANCELED' },
+    })
   }
 }

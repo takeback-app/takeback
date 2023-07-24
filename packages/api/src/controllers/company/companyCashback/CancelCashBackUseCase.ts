@@ -34,54 +34,15 @@ class CancelCashBackUseCase {
     // Buscando todas as transações informadas pelo usuário
     const transactions = await prisma.transaction.findMany({
       where: { id: { in: transactionIDs } },
+      include: {
+        consumer: { select: { balance: true, blockedBalance: true } },
+      },
     })
 
-    // Agrupando as transações por usuário
-    const transactionsReduced = transactions.reduce(
-      (previousValue, currentValue) => {
-        previousValue[currentValue.consumersId] =
-          previousValue[currentValue.consumersId] || []
-        previousValue[currentValue.consumersId].push(currentValue)
-        return previousValue
-      },
-      Object.create(null),
-    )
-
-    // Alterando o formato do agrupamento para um formato compatível para mapeamento
-    const transactionGroupedPerConsumer = []
-
-    for (const [key, values] of Object.entries(transactionsReduced)) {
-      transactionGroupedPerConsumer.push({
-        consumerId: key,
-        transactions: values,
-      })
-    }
-
-    const consumersAndValuesToAdjustBalances = []
-    // Somando os valores das transações e agrupando por usuário
-
-    for (const item of transactionGroupedPerConsumer) {
-      let valueToSubtractBlockedBalance = 0
-      let valueToAddInBalance = 0
-
-      for (const transaction of item.transactions) {
-        valueToSubtractBlockedBalance =
-          valueToSubtractBlockedBalance +
-          parseFloat(transaction.cashbackAmount) +
-          parseFloat(transaction.backAmount)
-        valueToAddInBalance =
-          valueToAddInBalance +
-          parseFloat(transaction.amountPayWithTakebackBalance)
-      }
-
-      consumersAndValuesToAdjustBalances.push({
-        consumerId: item.consumerId,
-        valueToSubtractBlockedBalance,
-        valueToAddInBalance,
-      })
-    }
-
     const cancelUseCase = new CancelTransactionUseCase()
+
+    let valueToSubtractCompanyNegativeBalance = 0
+    let valueToSubtractCompanyPositiveBalance = 0
 
     // Percorrendo cada uma das transações localizadas
     for (const transaction of transactions) {
@@ -89,52 +50,43 @@ class CancelCashBackUseCase {
         transactionId: transaction.id,
         cancellationDescription,
       })
-    }
-
-    // Mapeando os usuários agrupados nas transações
-    let valueToSubtractCompanyPositiveBalance = 0
-
-    for (const item of consumersAndValuesToAdjustBalances) {
-      valueToSubtractCompanyPositiveBalance =
-        valueToSubtractCompanyPositiveBalance + item.valueToAddInBalance
-
-      const balanceOfConsumer = await prisma.consumer.findFirst({
-        where: { id: item.consumerId },
-      })
 
       await prisma.consumer.update({
-        where: { id: item.consumerId },
+        where: { id: transaction.consumersId },
         data: {
-          blockedBalance:
-            +balanceOfConsumer.blockedBalance -
-            item.valueToSubtractBlockedBalance,
-          balance: +balanceOfConsumer.balance + item.valueToAddInBalance,
+          blockedBalance: transaction.consumer.blockedBalance
+            .sub(transaction.cashbackAmount)
+            .sub(transaction.backAmount),
+          balance: transaction.consumer.balance.add(
+            transaction.amountPayWithTakebackBalance,
+          ),
         },
       })
+
+      valueToSubtractCompanyNegativeBalance += transaction.takebackFeeAmount
+        .add(transaction.cashbackAmount)
+        .add(transaction.backAmount)
+        .toNumber()
+
+      valueToSubtractCompanyPositiveBalance +=
+        transaction.amountPayWithTakebackBalance.toNumber()
     }
 
-    // Buscando a empresa para pegar o saldo da mesma
-    const companyBalance = await prisma.company.findFirst({
+    const company = await prisma.company.findFirst({
       where: { id: companyId },
+      select: { negativeBalance: true, positiveBalance: true },
     })
-
-    // Somando o valor total a ser descontado do saldo negativo da empresa
-    let valueToUpdateCompanyBalance = 0
-
-    for (const item of transactions) {
-      valueToUpdateCompanyBalance +=
-        +item.takebackFeeAmount + +item.cashbackAmount + +item.backAmount
-    }
 
     // Atualizando o saldo negativo da empresa
     await prisma.company.update({
       where: { id: companyId },
       data: {
-        negativeBalance:
-          +companyBalance.negativeBalance - valueToUpdateCompanyBalance,
-        positiveBalance:
-          +companyBalance.positiveBalance -
+        negativeBalance: company.negativeBalance.sub(
+          valueToSubtractCompanyNegativeBalance,
+        ),
+        positiveBalance: company.positiveBalance.sub(
           valueToSubtractCompanyPositiveBalance,
+        ),
       },
     })
 
