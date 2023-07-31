@@ -40,7 +40,7 @@ export function ProductItem({ product }: { product: Product }) {
   )
 
   function handlePress() {
-    if (isExpired) return
+    if (isExpired || !product.stock) return
 
     navigation.navigate('productDetail', { id: product.id })
   }
