@@ -42,9 +42,6 @@ export const PaymentOrderDetails: React.FC = () => {
       .then(response => {
         setTransactions(response.data)
       })
-      .catch(error => {
-        console.log(error)
-      })
       .finally(() => {
         setTransactionsLoader(false)
       })

@@ -84,6 +84,24 @@ export async function confirmDelivery(
   }
 }
 
+export async function confirmWithdrawal(
+  id: string,
+  data: { code: string }
+): Promise<ReturnApi> {
+  try {
+    await API.put(`company/store/orders/${id}`, data)
+
+    return [true, { message: 'Entrega confirmada!' }]
+  } catch (err) {
+    const error = err as AxiosError
+
+    return [
+      false,
+      { message: error.response?.data.message || 'Contate um administrador' }
+    ]
+  }
+}
+
 export async function updateRaffle(
   id: string,
   data: Partial<RaffleFormData>

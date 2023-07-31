@@ -17,9 +17,7 @@ export function useExpoUpdate() {
     try {
       await Updates.fetchUpdateAsync()
       await Updates.reloadAsync()
-    } catch (e) {
-      console.log(e)
-    }
+    } catch (e) {}
   }
 
   return { hasUpdate, handleUpdate, error }

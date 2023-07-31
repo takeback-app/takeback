@@ -1,4 +1,3 @@
-import { FaBell } from 'react-icons/fa'
 import {
   IoBagAdd,
   IoBagAddOutline,
@@ -36,6 +35,7 @@ import {
   IoWalletOutline
 } from 'react-icons/io5'
 import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
+import { AiFillShop, AiOutlineShop } from 'react-icons/ai'
 
 export const drawerNav = [
   {
@@ -134,8 +134,18 @@ export const drawerNav = [
     to: '/bonus',
     userBlocked: 0
   },
+
   {
     id: 5,
+    label: 'Ofertas',
+    activeIcon: AiFillShop,
+    inactiveIcon: AiOutlineShop,
+    isActive: false,
+    to: '/ofertas',
+    userBlocked: 0
+  },
+  {
+    id: 6,
     label: 'Notificações',
     activeIcon: IoNotifications,
     inactiveIcon: IoNotificationsOutline,
@@ -144,7 +154,7 @@ export const drawerNav = [
     userBlocked: 0
   },
   {
-    id: 6,
+    id: 7,
     label: 'Verificação Constante',
     activeIcon: IoRefresh,
     inactiveIcon: IoRefreshOutline,
@@ -190,7 +200,7 @@ export const drawerNav = [
     ]
   },
   {
-    id: 7,
+    id: 8,
     label: 'Relatórios',
     activeIcon: IoReader,
     inactiveIcon: IoReaderOutline,
@@ -199,7 +209,7 @@ export const drawerNav = [
     userBlocked: 0
   },
   {
-    id: 8,
+    id: 9,
     label: 'Configurações',
     activeIcon: IoSettings,
     inactiveIcon: IoSettingsOutline,

@@ -49,6 +49,8 @@ import { CreateRepresentative } from '../views/partners/representatives/create'
 import { LogoChangeRequest } from '../views/partners/logoChangeRequest'
 import FinancialReport from '../views/reports/financialReport/FinancialReport'
 import { Notifications } from '../views/notifications'
+import { StoreProductsList } from '../views/store'
+import { CreateStoreProduct } from '../views/store/create'
 
 interface Props {
   children: JSX.Element
@@ -340,6 +342,23 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <FinancialReport />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/ofertas"
+        element={
+          <PrivateRoute>
+            <StoreProductsList />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/ofertas/criar"
+        element={
+          <PrivateRoute>
+            <CreateStoreProduct />
           </PrivateRoute>
         }
       />

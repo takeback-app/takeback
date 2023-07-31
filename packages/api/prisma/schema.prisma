@@ -70,6 +70,7 @@ model Company {
   accessTokens                AccessToken[]
   integrationSettings         IntegrationSettings?
   NFCe                        NFCe[]
+  storeProducts               StoreProduct[]
 
   @@map("companies")
 }
@@ -222,6 +223,7 @@ model Consumer {
   monthlyIncome                 MonthlyIncome?            @relation(fields: [monthlyIncomeId], references: [id])
   referrals                     Referral[]
   fatherReferrals               Referral[]                @relation("ReferralConsumer")
+  storeOrders                   StoreOrder[]
 
   @@map("consumers")
 }
@@ -981,4 +983,42 @@ enum NFCePaymentMethod {
   CASHBACK
   NO_PAYMENT
   OTHER
+}
+
+model StoreProduct {
+  id                  String   @id @default(uuid()) @db.Uuid
+  name                String
+  imageUrl            String
+  companyId           String   @db.Uuid
+  buyPrice            Decimal? @default(0) @db.Decimal(10, 2)
+  sellPrice           Decimal? @default(0) @db.Decimal(10, 2)
+  defaultPrice        Decimal? @default(0) @db.Decimal(10, 2)
+  stock               Int
+  maxBuyPerConsumer   Int
+  dateLimit           DateTime
+  dateLimitWithdrawal DateTime
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  createdAt   DateTime     @default(now())
+  storeOrders StoreOrder[]
+
+  @@map("store_products")
+}
+
+model StoreOrder {
+  id             String  @id @default(uuid()) @db.Uuid
+  consumerId     String  @db.Uuid
+  storeProductId String  @db.Uuid
+  quantity       Int
+  value          Decimal @db.Decimal(10, 2)
+  validationCode String
+
+  product  StoreProduct @relation(fields: [storeProductId], references: [id])
+  consumer Consumer     @relation(fields: [consumerId], references: [id])
+
+  withdrawalAt DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@map("store_orders")
 }
