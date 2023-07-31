@@ -21,15 +21,23 @@ const cardsItems = [
     title: 'Indique e Ganhe',
     icon: 'megaphone-outline',
     comingSoon: false,
-    isNew: true,
+    isNew: false,
     to: 'referrals'
   },
   {
     id: 2,
-    title: 'Economias',
+    title: 'Economia',
     icon: 'rocket-outline',
     comingSoon: false,
     to: 'balanceSaved'
+  },
+  {
+    id: 4,
+    title: 'Lojinha',
+    icon: 'cart-outline',
+    comingSoon: false,
+    isNew: true,
+    to: 'storeProducts'
   },
   {
     id: 3,
@@ -40,7 +48,7 @@ const cardsItems = [
     to: 'raffles'
   },
   {
-    id: 4,
+    id: 5,
     title: 'Desconto Energia',
     icon: 'flash-outline',
     comingSoon: false,
@@ -48,7 +56,7 @@ const cardsItems = [
     to: 'electricDiscount'
   },
   {
-    id: 5,
+    id: 6,
     title: 'Transferir',
     icon: 'swap-horizontal',
     to: 'transferUser'

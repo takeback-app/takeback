@@ -58,6 +58,13 @@ export type PrivateRouteParam = {
   raffleDetail: {
     id: string
   }
+  storeProducts: undefined
+  productDetail: {
+    id: string
+  }
+  orderDetail: {
+    id: string
+  }
   transactionDetails: {
     id: number
   }

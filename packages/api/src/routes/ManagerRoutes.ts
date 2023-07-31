@@ -34,6 +34,7 @@ import { FinancialReportController } from '../controllers/manager/reports/Financ
 import { ReferralBonusController } from '../controllers/manager/ReferralBonusController'
 import { FileController } from '../controllers/company/FileController'
 import { NotificationController } from '../controllers/manager/notification/NotificationController'
+import { StoreProductController } from '../controllers/manager/store/StoreProductController'
 
 const paymentMethod = new PaymentMethodController()
 const managerAuth = new ManagerAuthController()
@@ -66,6 +67,8 @@ const raffleController = new RaffleController()
 const bonusController = new BonusController()
 const dashboardController = new DashboardController()
 const notificationController = new NotificationController()
+
+const storeProductController = new StoreProductController()
 
 const fileController = new FileController()
 
@@ -290,5 +293,9 @@ routes.put(
 
 routes.get('/referral-percentage', referralBonusController.index)
 routes.put('/referral-percentage', referralBonusController.update)
+
+routes.get('/store/products', storeProductController.index)
+routes.post('/store/products', storeProductController.store)
+routes.delete('/store/products/:id', storeProductController.delete)
 
 export default routes

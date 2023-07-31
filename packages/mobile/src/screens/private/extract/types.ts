@@ -52,19 +52,29 @@ export interface SolicitationData {
   text?: string
 }
 
+export interface StoreOrderData {
+  id: string
+  value: number
+  quantity: number
+  companyName: string
+  productName: string
+}
+
 type ExtractItemType =
   | { type: 'TRANSACTION'; data: TransactionData }
   | { type: 'TRANSFER'; data: TransferData }
   | { type: 'BALANCE_EXPIRATION'; data: BalanceExpirationData }
   | { type: 'BONUS'; data: BonusData }
   | { type: 'SOLICITATION'; data: SolicitationData }
+  | { type: 'STORE_ORDER'; data: StoreOrderData }
 
 export enum ExtractType {
   TRANSACTION = 'TRANSACTION',
   TRANSFER = 'TRANSFER',
   BALANCE_EXPIRATION = 'BALANCE_EXPIRATION',
   BONUS = 'BONUS',
-  SOLICITATION = 'SOLICITATION'
+  SOLICITATION = 'SOLICITATION',
+  STORE_ORDER = 'STORE_ORDER'
 }
 
 export type ExtractItem = ExtractItemType & {

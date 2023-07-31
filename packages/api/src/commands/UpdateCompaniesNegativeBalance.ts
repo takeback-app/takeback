@@ -1,6 +1,7 @@
 import 'dotenv/config'
 
 import { SingleBar, Presets } from 'cli-progress'
+import { Decimal } from '@prisma/client/runtime'
 import { prisma } from '../prisma'
 import { TransactionStatusEnum } from '../enum/TransactionStatusEnum'
 
@@ -32,12 +33,14 @@ async function main() {
       },
     })
 
-    const blockedBalance = +a._sum.cashbackAmount
+    const blockedBalance = a._sum.cashbackAmount || new Decimal(0)
 
-    await prisma.consumer.update({
-      where: { id: consumer.id },
-      data: { blockedBalance },
-    })
+    if (!blockedBalance.sub(consumer.blockedBalance).equals(0)) {
+      await prisma.consumer.update({
+        where: { id: consumer.id },
+        data: { blockedBalance },
+      })
+    }
 
     bar.increment()
   }

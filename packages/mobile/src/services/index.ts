@@ -3,7 +3,7 @@ import axios, { AxiosError } from 'axios'
 import { API } from './API'
 import { CreateAccountFormData } from '../screens/public/createAccount/state'
 
-type ReturnApi = [boolean, { [key: string]: any }]
+type ReturnApi<T = Record<string, any>> = [boolean, T]
 
 export async function checkPassword(password: string): Promise<ReturnApi> {
   try {
@@ -56,6 +56,30 @@ export async function createCashbackSolicitation(
     return [
       false,
       { message: error.response?.data.message || 'Contate um administrador' }
+    ]
+  }
+}
+
+interface CreateStoreOrderData {
+  productId: string
+  quantity: number
+}
+
+export async function createStoreOrder<T>(
+  form: CreateStoreOrderData
+): Promise<ReturnApi<T>> {
+  try {
+    const { data } = await API.post<T>('costumer/store/orders', form)
+
+    return [true, data]
+  } catch (err) {
+    const error = err as AxiosError
+
+    return [
+      false,
+      {
+        message: error.response?.data.message || 'Contate um administrador'
+      } as T
     ]
   }
 }
@@ -149,7 +173,6 @@ export async function createAccount(
 
     return [true, data]
   } catch (err) {
-    console.log(err)
     const error = err as AxiosError
 
     return [

@@ -39,6 +39,9 @@ import { useStorage } from '../hooks/useStorage'
 import { RaffleRules } from '../screens/private/raffles/RaffleRules'
 import { Referrals } from '../screens/private/consumerReferrals'
 import { CreateReferral } from '../screens/private/consumerReferrals/CreateReferral'
+import { StoreProductTabs } from '../screens/private/storeProducts/tabs'
+import { ProductDetailStack } from '../screens/private/storeProductDetail'
+import { OrderDetailStack } from '../screens/private/storeOrderDetail'
 
 export function PrivateRoutes() {
   const { isAccountUpdated } = useStorage()
@@ -91,10 +94,13 @@ export function PrivateRoutes() {
       <Group screenOptions={{ presentation: 'modal' }}>
         <Screen name="raffleRules" component={RaffleRules} />
       </Group>
+      <Screen name="storeProducts" component={StoreProductTabs} />
       <Screen name="balanceSaved" component={BalanceSaved} />
 
       <Group screenOptions={{ presentation: 'modal' }}>
         <Screen name="raffleDetail" component={RaffleDetailStack} />
+        <Screen name="productDetail" component={ProductDetailStack} />
+        <Screen name="orderDetail" component={OrderDetailStack} />
         <Screen name="transactionDetails" component={TransactionDetails} />
         <Screen name="transferDetails" component={TransferDetails} />
         <Screen name="electricDiscount" component={ElectricDiscount} />
