@@ -35,7 +35,7 @@ import {
   IoImageOutline
 } from 'react-icons/io5'
 import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
-import { FaCashRegister } from 'react-icons/fa'
+import { FaCashRegister, FaShoppingBag } from 'react-icons/fa'
 
 export const managerNav = [
   {
@@ -82,6 +82,14 @@ export const managerNav = [
   },
   {
     id: 5,
+    label: 'Retirada de Produtos',
+    activeIcon: FaShoppingBag,
+    inactiveIcon: FaShoppingBag,
+    isActive: false,
+    to: '/retirada-ofertas'
+  },
+  {
+    id: 6,
     label: 'Notificações',
     activeIcon: IoNotifications,
     inactiveIcon: IoNotificationsOutline,
@@ -107,7 +115,7 @@ export const managerNav = [
     ]
   },
   {
-    id: 6,
+    id: 7,
     label: 'Cashbacks',
     activeIcon: IoCash,
     inactiveIcon: IoCashOutline,
@@ -158,7 +166,7 @@ export const managerNav = [
     ]
   },
   {
-    id: 7,
+    id: 8,
     label: 'Relatórios',
     activeIcon: IoAlbumsOutline,
     inactiveIcon: IoAlbumsOutline,
@@ -196,7 +204,7 @@ export const managerNav = [
     ]
   },
   {
-    id: 8,
+    id: 9,
     label: 'Configurações',
     activeIcon: IoSettings,
     inactiveIcon: IoSettingsOutline,

@@ -36,12 +36,14 @@ export class StoreProductController {
 
     form.data.dateLimit = DateTime.fromISO(form.data.dateLimit)
       .endOf('day')
+      .plus({ hours: 3 })
       .toISO()
 
     form.data.dateLimitWithdrawal = DateTime.fromISO(
       form.data.dateLimitWithdrawal,
     )
       .endOf('day')
+      .plus({ hours: 3 })
       .toISO()
 
     await prisma.storeProduct.create({

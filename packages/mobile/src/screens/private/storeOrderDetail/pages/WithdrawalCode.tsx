@@ -7,16 +7,29 @@ import { Platform, Pressable } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { StatusBar } from 'expo-status-bar'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import useSWR from 'swr'
 
 export function WithdrawalCode({ navigation }) {
-  const { code } = useWithdrawal()
+  const { code, orderId, reset } = useWithdrawal()
   const { top: topHeight } = useSafeAreaInsets()
 
   function handleExit() {
     navigation.popToTop()
     navigation.goBack(null)
-    // reset()
+    reset()
   }
+
+  useSWR<{ wasWithdrawal: boolean }>(
+    `costumer/store/orders/${orderId}/withdrawal`,
+    {
+      refreshInterval: 2000,
+      onSuccess(data) {
+        if (!data.wasWithdrawal) return
+
+        handleExit()
+      }
+    }
+  )
 
   return (
     <Layout>

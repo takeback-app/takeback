@@ -41,6 +41,19 @@ export class StoreOrderController {
     return response.json(order)
   }
 
+  async withdrawal(request: Request, response: Response) {
+    const consumerId = request['tokenPayload'].id
+
+    const { id } = request.params
+
+    const order = await prisma.storeOrder.findFirst({
+      where: { id, consumerId },
+      select: { withdrawalAt: true },
+    })
+
+    return response.json({ wasWithdrawal: !!order.withdrawalAt })
+  }
+
   async store(request: Request, response: Response) {
     const consumerId = request['tokenPayload'].id
 

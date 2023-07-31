@@ -156,6 +156,7 @@ routes.get('/store/products/:id', storeProductController.show)
 
 routes.get('/store/orders', storeOrderController.index)
 routes.get('/store/orders/:id', storeOrderController.show)
+routes.get('/store/orders/:id/withdrawal', storeOrderController.withdrawal)
 routes.post('/store/orders', storeOrderController.store)
 
 export default routes

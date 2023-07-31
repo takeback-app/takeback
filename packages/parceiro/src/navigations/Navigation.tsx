@@ -34,6 +34,7 @@ import { NotificationCreate } from '../pages/private/createNotifications/createN
 import { BirthdayNotificationCreate } from '../pages/private/birthdayNotification'
 import { LogoChangeRequest } from '../pages/private/logoChangeRequest'
 import { TakebackPayments } from '../pages/private/takebackPayments'
+import { StoreOrders } from '../pages/private/store/StoreOrders'
 
 interface Props {
   children: JSX.Element
@@ -276,6 +277,14 @@ const Navigation: React.FC = () => {
         element={
           <PrivateRoute>
             <CashbackReport />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/retirada-ofertas"
+        element={
+          <PrivateRoute>
+            <StoreOrders />
           </PrivateRoute>
         }
       />

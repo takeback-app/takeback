@@ -31,6 +31,7 @@ import { CompanyUserTypeController } from '../controllers/company/CompanyUserTyp
 import { PaymentMethodController } from '../controllers/company/PaymentMethodController'
 import { LogoChangeRequestController } from '../controllers/company/logoChangeRequest/LogoChangeRequestController'
 import { CompanyPaymentMethodController } from '../controllers/company/CompanyPaymentMethodController'
+import { StoreOrderController } from '../controllers/company/store/StoreOrderController'
 
 const auth = new AuthCompanyController()
 const reports = new ReportsController()
@@ -62,6 +63,7 @@ const companyPaymentMethodController = new CompanyPaymentMethodController()
 const logoChangeRequestController = new LogoChangeRequestController()
 
 const birthdayNotificationController = new BirthdayNotificationController()
+const storeOrderController = new StoreOrderController()
 
 const fileController = new FileController()
 
@@ -239,5 +241,8 @@ routes.put(
   '/company-payment-methods/:id',
   companyPaymentMethodController.update,
 )
+
+routes.get('/store/orders', storeOrderController.index)
+routes.put('/store/orders/:id', storeOrderController.update)
 
 export default routes
