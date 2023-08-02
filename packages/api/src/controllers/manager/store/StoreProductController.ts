@@ -3,6 +3,8 @@ import { DateTime } from 'luxon'
 import { prisma } from '../../../prisma'
 import { CreateProductRequest } from '../../../requests/CreateProductRequest'
 import { InternalError } from '../../../config/GenerateErros'
+import { CompanyStatusEnum } from '../../../enum/CompanyStatusEnum'
+import { NotifyNewStoreProductUseCase } from '../../../useCases/raffle/NotifyNewStoreProductUseCase'
 
 const PER_PAGE = 25
 
@@ -46,9 +48,11 @@ export class StoreProductController {
       .plus({ hours: 3 })
       .toISO()
 
-    await prisma.storeProduct.create({
+    const storeProduct = await prisma.storeProduct.create({
       data: form.data as any,
     })
+
+    new NotifyNewStoreProductUseCase().execute(storeProduct)
 
     return response
       .status(201)
@@ -69,5 +73,16 @@ export class StoreProductController {
     await prisma.storeProduct.delete({ where: { id } })
 
     return response.status(204)
+  }
+
+  async listCompanies(request: Request, response: Response) {
+    const companies = await prisma.company.findMany({
+      where: {
+        companyStatus: { description: CompanyStatusEnum.ACTIVE },
+        paymentPlan: { canHaveStoreProducts: true },
+      },
+    })
+
+    return response.json(companies)
   }
 }

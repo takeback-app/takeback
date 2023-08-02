@@ -114,9 +114,20 @@ export function ProductDetail({ route, navigation }) {
           </Flex>
 
           <Stack space={2}>
-            <Text fontSize="lg" fontWeight="semibold">
-              {product.name}
-            </Text>
+            <Flex>
+              <Text fontSize="lg" fontWeight="semibold">
+                {product.name}
+              </Text>
+              <Text
+                fontSize="xs"
+                allowFontScaling={false}
+                color="gray.700"
+                fontWeight="medium"
+              >
+                ({product.unit})
+              </Text>
+            </Flex>
+
             <Flex>
               <Text
                 textDecorationLine="line-through"

@@ -90,7 +90,7 @@ export function OrderItem({ order }: { order: Order }) {
             lineHeight="xs"
             mb={2}
           >
-            {order.quantity}x {order.product.name}
+            {order.quantity} {order.product.unit} {order.product.name}
           </Text>
           <Text
             fontWeight="bold"

@@ -44,6 +44,7 @@ export function StoreOrders() {
             <Tr>
               <Th>Produto</Th>
               <Th>Qtd</Th>
+              <Th>Unidade</Th>
               <Th>Cliente</Th>
               <Th>Valor creditado</Th>
               <Th isNumeric></Th>
@@ -54,6 +55,7 @@ export function StoreOrders() {
               <Tr color="gray.500" key={order.id}>
                 <Td fontSize="xs">{order.product.name}</Td>
                 <Td fontSize="xs">{order.quantity}</Td>
+                <Td fontSize="xs">{order.product.unit}</Td>
                 <Td fontSize="xs">{order.consumer.fullName}</Td>
                 <Td fontSize="xs">
                   {currencyFormat(

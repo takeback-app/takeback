@@ -9,7 +9,7 @@ export class StoreOrderController {
     const orders = await prisma.storeOrder.findMany({
       where: { product: { companyId }, withdrawalAt: null },
       include: {
-        product: { select: { name: true, buyPrice: true } },
+        product: { select: { name: true, buyPrice: true, unit: true } },
         consumer: { select: { fullName: true } },
       },
     })

@@ -78,7 +78,7 @@ export function OrderDetail({ route, navigation }) {
 
           <Stack space={2}>
             <Text fontSize="lg" fontWeight="semibold">
-              {order.quantity}x {order.product.name}
+              {order.quantity} {order.product.unit} {order.product.name}
             </Text>
             <Flex>
               <Text

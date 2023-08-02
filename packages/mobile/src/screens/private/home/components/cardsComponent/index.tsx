@@ -14,30 +14,24 @@ const cardsItems = [
     id: 0,
     title: 'Pagar',
     icon: 'card-outline',
-    to: 'takebackPayment'
+    to: 'takebackPayment',
+    bold: true
   },
   {
     id: 1,
+    title: 'Ofertas',
+    icon: 'cart-outline',
+    comingSoon: false,
+    isNew: true,
+    to: 'storeProducts'
+  },
+  {
+    id: 2,
     title: 'Indique e Ganhe',
     icon: 'megaphone-outline',
     comingSoon: false,
     isNew: false,
     to: 'referrals'
-  },
-  {
-    id: 2,
-    title: 'Economia',
-    icon: 'rocket-outline',
-    comingSoon: false,
-    to: 'balanceSaved'
-  },
-  {
-    id: 4,
-    title: 'Lojinha',
-    icon: 'cart-outline',
-    comingSoon: false,
-    isNew: true,
-    to: 'storeProducts'
   },
   {
     id: 3,
@@ -46,6 +40,13 @@ const cardsItems = [
     comingSoon: false,
     isNew: false,
     to: 'raffles'
+  },
+  {
+    id: 4,
+    title: 'Economia',
+    icon: 'rocket-outline',
+    comingSoon: false,
+    to: 'balanceSaved'
   },
   {
     id: 5,
@@ -107,8 +108,8 @@ export function CardsComponent(props: CardsComponentProps) {
                 color={item.comingSoon ? 'gray.400' : 'blue.400'}
               />
               <Text
-                fontWeight="semibold"
-                fontSize="xs"
+                fontWeight={item.bold ? 'bold' : 'semibold'}
+                fontSize={item.bold ? 'sm' : 'xs'}
                 maxW={16}
                 textAlign="center"
                 color={item.comingSoon ? 'gray.400' : 'blue.400'}

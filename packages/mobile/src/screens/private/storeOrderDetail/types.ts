@@ -6,6 +6,7 @@ export interface Product {
   buyPrice: string
   sellPrice: string
   defaultPrice: string
+  unit: string
   stock: number
   maxBuyPerConsumer: number
   dateLimit: string

@@ -21,6 +21,7 @@ export interface StoreOrder {
 
 export interface Product {
   name: string
+  unit: string
   buyPrice: string
 }
 

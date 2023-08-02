@@ -328,6 +328,7 @@ model PaymentPlan {
   canSendBirthdayNotification              Boolean                 @default(false)
   canAccessClientReport                    Boolean                 @default(false)
   canUseIntegration                        Boolean                 @default(false)
+  canHaveStoreProducts                     Boolean                 @default(false)
   createdAt                                DateTime                @default(now()) @db.Timestamp(6)
   updatedAt                                DateTime                @default(now()) @db.Timestamp(6)
   companies                                Company[]
@@ -739,6 +740,8 @@ enum NotificationType {
   NEW_RAFFLE_TO_APPROVE
   NEW_REPRESENTATIVE_WITHDRAW_REQUEST
   NEW_PARTNER_WITHDRAW_REQUEST
+  NEW_STORE_PRODUCT
+  LAST_DAY_TO_WITHDRAWAL
 }
 
 model NotificationSolicitation {
@@ -997,6 +1000,7 @@ model StoreProduct {
   maxBuyPerConsumer   Int
   dateLimit           DateTime
   dateLimitWithdrawal DateTime
+  unit                String
 
   company Company @relation(fields: [companyId], references: [id])
 

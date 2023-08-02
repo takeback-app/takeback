@@ -35,6 +35,8 @@ const schema = z.object({
   companyId: z.string(),
   buyPrice: z.string(),
   sellPrice: z.string(),
+  defaultPrice: z.string(),
+  unit: z.string(),
   stock: z.string(),
   maxBuyPerConsumer: z.string(),
   dateLimit: z.string(),
@@ -46,8 +48,8 @@ type CreateStoreProductForm = z.infer<typeof schema>
 export function CreateStoreProduct() {
   const navigateTo = useNavigate()
 
-  const { data: companies } = useSWR<TCompany[]>([
-    `manager/companies/find`,
+  const { data: companies } = useSWR<{ id: string; fantasyName: string }[]>([
+    `manager/store/companies`,
     { limit: 9999 }
   ])
 
@@ -83,8 +85,10 @@ export function CreateStoreProduct() {
       name: data.name,
       imageUrl: imageData.url,
       companyId: data.companyId,
+      unit: data.unit,
       buyPrice: unMaskCurrency(data.buyPrice),
       sellPrice: unMaskCurrency(data.sellPrice),
+      defaultPrice: unMaskCurrency(data.defaultPrice),
       stock: parseInt(data.stock),
       maxBuyPerConsumer: parseInt(data.maxBuyPerConsumer),
       dateLimit: new Date(data.dateLimit).toISOString(),
@@ -149,12 +153,32 @@ export function CreateStoreProduct() {
                 placeholderOption="Nenhuma empresa selecionado"
                 options={
                   companies?.map(c => ({
-                    text: c.company_fantasyName,
-                    value: c.company_id
+                    text: c.fantasyName,
+                    value: c.id
                   })) || []
                 }
                 error={formState.errors.companyId?.message}
                 {...register('companyId')}
+              />
+
+              <ChakraInput
+                label="Unidade"
+                size="sm"
+                isRequired
+                error={formState.errors.unit?.message}
+                {...register('unit')}
+              />
+
+              <ChakraInput
+                label="Preço padrão"
+                isRequired
+                error={formState.errors.defaultPrice?.message}
+                size="sm"
+                {...register('defaultPrice', {
+                  onChange: e => {
+                    e.currentTarget.value = maskCurrency(e.currentTarget.value)
+                  }
+                })}
               />
 
               <ChakraInput

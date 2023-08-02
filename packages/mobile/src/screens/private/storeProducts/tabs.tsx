@@ -27,7 +27,7 @@ export function StoreProductTabs({ navigation }) {
         goBack={() => navigation.goBack()}
       />
 
-      <Tab.Navigator initialRouteName="Minhas compras">
+      <Tab.Navigator initialRouteName="Em andamento">
         <Tab.Screen
           name="Em andamento"
           component={StoreProducts}
