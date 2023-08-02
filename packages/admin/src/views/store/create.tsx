@@ -48,10 +48,9 @@ type CreateStoreProductForm = z.infer<typeof schema>
 export function CreateStoreProduct() {
   const navigateTo = useNavigate()
 
-  const { data: companies } = useSWR<{ id: string; fantasyName: string }[]>([
-    `manager/store/companies`,
-    { limit: 9999 }
-  ])
+  const { data: companies } = useSWR<{ id: string; fantasyName: string }[]>(
+    `manager/store/companies`
+  )
 
   const toast = useToast(chakraToastConfig)
 

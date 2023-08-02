@@ -294,9 +294,9 @@ routes.put(
 routes.get('/referral-percentage', referralBonusController.index)
 routes.put('/referral-percentage', referralBonusController.update)
 
+routes.get('/store/companies', storeProductController.listCompanies)
 routes.get('/store/products', storeProductController.index)
 routes.post('/store/products', storeProductController.store)
 routes.delete('/store/products/:id', storeProductController.delete)
-routes.delete('/store/companies', storeProductController.listCompanies)
 
 export default routes
