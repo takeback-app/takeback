@@ -3,6 +3,7 @@ import {
   // BsCashCoin,
   BsFillPiggyBankFill
 } from 'react-icons/bs'
+import { FaShoppingBag } from 'react-icons/fa'
 import { IoCart, IoCartOutline } from 'react-icons/io5'
 import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
 
@@ -24,6 +25,14 @@ export const cashierNav = [
   //   isActive: false,
   //   to: '/solicitações/pagamento'
   // },
+  {
+    id: 2,
+    label: 'Retirada de Produtos',
+    activeIcon: FaShoppingBag,
+    inactiveIcon: FaShoppingBag,
+    isActive: false,
+    to: '/retirada-ofertas'
+  },
   {
     id: 3,
     label: 'Autorizar Cashback',

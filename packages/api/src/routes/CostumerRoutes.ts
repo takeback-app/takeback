@@ -28,6 +28,8 @@ import { authorize } from '../controllers/costumer/costumerCashBack/AuthorizeCon
 import { NotificationController } from '../controllers/costumer/NotificationController'
 import { MissingFieldController } from '../controllers/costumer/MissingFieldController'
 import { ReferralController } from '../controllers/costumer/ReferralController'
+import { StoreProductsController } from '../controllers/costumer/store/StoreProductsController'
+import { StoreOrderController } from '../controllers/costumer/store/StoreOrderController'
 
 const costumerAuth = new ConstumerAuthenticationController()
 const costumerAccount = new CostumerAccountController()
@@ -45,6 +47,9 @@ const solicitationController = new SolicitationController()
 const notificationController = new NotificationController()
 const missingFieldController = new MissingFieldController()
 const referralController = new ReferralController()
+
+const storeProductController = new StoreProductsController()
+const storeOrderController = new StoreOrderController()
 
 const routes = Router()
 
@@ -144,5 +149,14 @@ routes.get(
 routes.get('/referrals', referralController.index)
 routes.post('/referrals', referralController.store)
 routes.delete('/referrals/:id', referralController.delete)
+
+routes.get('/store/products/ongoing', storeProductController.ongoing)
+routes.get('/store/products/finished', storeProductController.finished)
+routes.get('/store/products/:id', storeProductController.show)
+
+routes.get('/store/orders', storeOrderController.index)
+routes.get('/store/orders/:id', storeOrderController.show)
+routes.get('/store/orders/:id/withdrawal', storeOrderController.withdrawal)
+routes.post('/store/orders', storeOrderController.store)
 
 export default routes

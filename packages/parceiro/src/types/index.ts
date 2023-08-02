@@ -5,3 +5,26 @@ export interface Paginated<T> {
     total: number
   }
 }
+
+export interface StoreOrder {
+  id: string
+  consumerId: string
+  storeProductId: string
+  quantity: number
+  value: string
+  validationCode: string
+  withdrawalAt: string | null
+  createdAt: string
+  product: Product
+  consumer: Consumer
+}
+
+export interface Product {
+  name: string
+  unit: string
+  buyPrice: string
+}
+
+export interface Consumer {
+  fullName: string
+}

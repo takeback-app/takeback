@@ -47,7 +47,7 @@ export function getFormattedDate(dateIso: string) {
   }
 
   if (diff > 0) {
-    return diff === 1 ? 'Resta um dia' : `Restam ${diff} dias.`
+    return diff === 1 ? 'Resta um dia' : `Restam ${diff} dias`
   }
 
   if (

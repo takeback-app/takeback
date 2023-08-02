@@ -20,6 +20,7 @@ import { SolicitationItem } from './components/ExtractItem/SolicitationItem'
 import { useInfiniteSectionList } from '../../../hooks/useInfiniteSectionList'
 import { InfinityScrollFooter } from '../../../components/List/InfinityScrollFooter'
 import { SectionHeader } from './components/SectionHeader'
+import { StoreOrderItem } from './components/ExtractItem/StoreOrderItem'
 
 const renderItem: ListRenderItem<ExtractItem | undefined | string> = ({
   item
@@ -49,6 +50,10 @@ const renderItem: ListRenderItem<ExtractItem | undefined | string> = ({
     case ExtractType.SOLICITATION:
       return (
         <SolicitationItem {...item.data} referenceDate={item.referenceDate} />
+      )
+    case ExtractType.STORE_ORDER:
+      return (
+        <StoreOrderItem {...item.data} referenceDate={item.referenceDate} />
       )
     default:
       return null
