@@ -55,7 +55,7 @@ export class StoreProductsController {
     const { id } = request.params
 
     const boughtQuantity = await prisma.storeOrder.aggregate({
-      where: { storeProductId: id },
+      where: { storeProductId: id, consumerId },
       _sum: { quantity: true },
     })
 
