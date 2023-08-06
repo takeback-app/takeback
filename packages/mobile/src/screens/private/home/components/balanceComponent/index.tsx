@@ -25,6 +25,7 @@ import { ExpireBalanceInfoModal } from '../../../../../components/ExpireBalanceI
 
 interface BalanceComponentProps {
   balance?: number
+  blockedBalance?: number
   isLoading?: boolean
 }
 
@@ -60,7 +61,7 @@ export const BalanceComponent: React.FC<BalanceComponentProps> = props => {
 
   return (
     <>
-      <VStack w="full" p="4" rounded="xl" bgColor="blue.400">
+      <VStack w="full" p="4" pb="2" rounded="xl" bgColor="blue.400">
         <HStack justifyContent="space-between" alignItems="center">
           <HStack space="2">
             <Box w="6" h="6" p="1" rounded="md" bgColor="blue.300">
@@ -86,6 +87,7 @@ export const BalanceComponent: React.FC<BalanceComponentProps> = props => {
             <Text fontWeight="semibold" fontSize="md" color="white">
               Saldo disponível
             </Text>
+
             {balanceExpireDate && props.balance ? (
               <HStack direction="row" space={1} alignItems="center">
                 <Text fontWeight="normal" fontSize="xs" color="white">
@@ -137,6 +139,15 @@ export const BalanceComponent: React.FC<BalanceComponentProps> = props => {
             />
           </Pressable>
         </HStack>
+        <Text
+          fontWeight="medium"
+          textAlign="center"
+          fontSize="xs"
+          color="white"
+          mt={2}
+        >
+          Saldo pendente: {maskCurrency(props.blockedBalance || 0)}
+        </Text>
       </VStack>
 
       <ExpireBalanceInfoModal

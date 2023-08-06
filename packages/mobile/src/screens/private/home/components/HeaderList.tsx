@@ -41,7 +41,11 @@ export function HeaderList({ isLoading }: HeaderListProp) {
           isLoading={isLoading}
         />
         <Stack h="4" />
-        <BalanceComponent balance={balance} isLoading={isLoading} />
+        <BalanceComponent
+          balance={balance}
+          blockedBalance={userData.blockedBalance}
+          isLoading={isLoading}
+        />
         <Stack h="4" />
       </Stack>
 
