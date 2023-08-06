@@ -14,6 +14,7 @@ class PaymentPlanController {
       canSendBirthdayNotification,
       canAccessClientReport,
       canUseIntegration,
+      canHaveStoreProducts,
       newUserBonus,
     } = request.body
 
@@ -31,6 +32,7 @@ class PaymentPlanController {
       canSendBirthdayNotification,
       canAccessClientReport,
       canUseIntegration,
+      canHaveStoreProducts,
       newUserBonus: Number(newUserBonus),
     })
     const plans = await find.execute()
@@ -58,6 +60,7 @@ class PaymentPlanController {
       canSendBirthdayNotification,
       canAccessClientReport,
       canUseIntegration,
+      canHaveStoreProducts,
       newUserBonus,
     } = request.body
 
@@ -74,6 +77,7 @@ class PaymentPlanController {
       canSendBirthdayNotification,
       canAccessClientReport,
       canUseIntegration,
+      canHaveStoreProducts,
       newUserBonus: Number(newUserBonus),
     })
     const plans = await find.execute()

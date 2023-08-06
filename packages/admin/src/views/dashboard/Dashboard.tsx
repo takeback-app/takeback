@@ -50,8 +50,8 @@ export function Dashboard() {
   const { data: expireBalanceGraph, isLoading: isExpireBalanceGraphLoading } =
     useSWR<GraphResponse>('manager/dashboard/expire-balance-graph')
 
-  // const { data: expireForecastGraph, isLoading: isExpireForecastGraphLoading } =
-  //   useSWR<GraphResponse>('manager/dashboard/expire-balance-forecast-graph')
+  const { data: storeResultGraph, isLoading: isStoreResultGraphLoading } =
+    useSWR<GraphResponse>('manager/dashboard/store-result')
 
   return (
     <Layout title="Bem vindo!">
@@ -225,6 +225,7 @@ export function Dashboard() {
               }}
             />
           </LargeCard>
+
           {/* <LargeCard
             title="Faturamento Takeback"
             subtitle="Projeção do saldos expirados por mês"
@@ -252,7 +253,33 @@ export function Dashboard() {
             />
           </LargeCard> */}
         </S.LargeCardsWrapper2>
-        <S.LargeCardsWrapper>
+        <S.LargeCardsWrapper2>
+          <LargeCard
+            title="Faturamento Loja"
+            subtitle="Resultado por mês"
+            loading={isStoreResultGraphLoading}
+          >
+            <BarChart
+              data={{
+                labels: storeResultGraph?.labels,
+                datasets: [
+                  {
+                    data: storeResultGraph?.values || [],
+                    label: '',
+                    backgroundColor: [
+                      'rgba(255, 99, 132, 1)',
+                      'rgba(54, 162, 235, 1)',
+                      'rgba(255, 206, 86, 1)',
+                      'rgba(75, 192, 192, 1)',
+                      'rgba(153, 102, 255, 1)',
+                      'rgba(255, 159, 64, 1)'
+                    ],
+                    borderRadius: 4
+                  }
+                ]
+              }}
+            />
+          </LargeCard>
           <LargeCard
             subtitle="Taxas dos Cashbacks por mês"
             loading={isCashbackGraphLoading}
@@ -299,7 +326,7 @@ export function Dashboard() {
               }}
             />
           </LargeCard>
-        </S.LargeCardsWrapper>
+        </S.LargeCardsWrapper2>
       </S.Container>
     </Layout>
   )

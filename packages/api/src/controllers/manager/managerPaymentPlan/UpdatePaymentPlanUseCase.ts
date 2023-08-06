@@ -12,6 +12,7 @@ interface Props {
   canSendBirthdayNotification: boolean
   canAccessClientReport: boolean
   canUseIntegration: boolean
+  canHaveStoreProducts: boolean
   newUserBonus: number
 }
 

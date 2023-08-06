@@ -34,6 +34,7 @@ interface DataProps {
   newUserBonus: number
   canAccessClientReport: string | boolean
   canUseIntegration: string | boolean
+  canHaveStoreProducts: string | boolean
 }
 
 const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
@@ -57,6 +58,7 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
       canSendBirthdayNotification: item.canSendBirthdayNotification ? '1' : '0',
       canAccessClientReport: item.canAccessClientReport ? '1' : '0',
       canUseIntegration: item.canUseIntegration ? '1' : '0',
+      canHaveStoreProducts: item.canHaveStoreProducts ? '1' : 0,
       newUserBonus: item.newUserBonus
     })
 
@@ -96,6 +98,7 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
       data.canAccessClientReport = data.canAccessClientReport === '1'
 
       data.canUseIntegration = data.canUseIntegration === '1'
+      data.canHaveStoreProducts = data.canHaveStoreProducts === '1'
 
       await schema.validate(data, {
         abortEarly: false
@@ -161,6 +164,7 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
         canSendBirthdayNotification: data.canSendBirthdayNotification === '1',
         canAccessClientReport: data.canAccessClientReport === '1',
         canUseIntegration: data.canUseIntegration === '1',
+        canHaveStoreProducts: data.canHaveStoreProducts === '1',
         newUserBonus: Number(data.newUserBonus)
       })
         .then(response => {
@@ -237,6 +241,7 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
                 <S.Th>Gratificação por novo usuário</S.Th>
                 <S.Th>Notificação de aniversário</S.Th>
                 <S.Th>Integração NFC-e</S.Th>
+                <S.Th>Acesso a ofertas</S.Th>
                 <S.Th>Relatório de clientes</S.Th>
                 <S.Th>&nbsp;</S.Th>
               </S.Tr>
@@ -267,6 +272,7 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
                     {item.canSendBirthdayNotification ? 'Ativo' : 'Inativo'}
                   </S.Td>
                   <S.Td>{item.canUseIntegration ? 'Ativo' : 'Inativo'}</S.Td>
+                  <S.Td>{item.canHaveStoreProducts ? 'Ativo' : 'Inativo'}</S.Td>
                   <S.Td>
                     {item.canAccessClientReport ? 'Ativo' : 'Inativo'}
                   </S.Td>
@@ -331,6 +337,14 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
               <SelectInput
                 label="Integração NFC-e"
                 name="canUseIntegration"
+                options={[
+                  { id: 1, description: 'Ativo' },
+                  { id: 0, description: 'Inativo' }
+                ]}
+              />
+              <SelectInput
+                label="Acesso a ofertas"
+                name="canHaveStoreProducts"
                 options={[
                   { id: 1, description: 'Ativo' },
                   { id: 0, description: 'Inativo' }
@@ -403,6 +417,14 @@ const Plans: React.FC<React.PropsWithChildren<unknown>> = () => {
               <SelectInput
                 label="Integração NFC-e"
                 name="canUseIntegration"
+                options={[
+                  { id: 1, description: 'Ativo' },
+                  { id: 0, description: 'Inativo' }
+                ]}
+              />
+              <SelectInput
+                label="Acesso a Ofertas"
+                name="canHaveStoreProducts"
                 options={[
                   { id: 1, description: 'Ativo' },
                   { id: 0, description: 'Inativo' }

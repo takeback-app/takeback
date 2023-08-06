@@ -51,6 +51,7 @@ import FinancialReport from '../views/reports/financialReport/FinancialReport'
 import { Notifications } from '../views/notifications'
 import { StoreProductsList } from '../views/store'
 import { CreateStoreProduct } from '../views/store/create'
+import { StoreProductDetail } from '../views/store/show'
 
 interface Props {
   children: JSX.Element
@@ -359,6 +360,14 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <CreateStoreProduct />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/ofertas/:id"
+        element={
+          <PrivateRoute>
+            <StoreProductDetail />
           </PrivateRoute>
         }
       />

@@ -35,7 +35,7 @@ export function ProductItem({ product }: { product: Product }) {
   }, [product])
 
   const isExpired = useMemo(
-    () => moment(product.dateLimitWithdrawal).isBefore(new Date()),
+    () => moment(product.dateLimit).isBefore(new Date()),
     [product]
   )
 
