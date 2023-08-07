@@ -85,10 +85,16 @@ export function CashRegisterCheck() {
               {data.users.map(user => (
                 <Box key={user.id}>
                   <Text>
-                    Vendedor{' '}
-                    <Text as="span" fontWeight="bold">
-                      {user.name}
-                    </Text>
+                    {user.name ? (
+                      <>
+                        Vendedor{' '}
+                        <Text as="span" fontWeight="bold">
+                          {user.name}
+                        </Text>
+                      </>
+                    ) : (
+                      'Solicitações diretas no App'
+                    )}
                     :
                   </Text>
 

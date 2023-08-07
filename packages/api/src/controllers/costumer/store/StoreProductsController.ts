@@ -34,10 +34,7 @@ export class StoreProductsController {
 
     const products = await prisma.storeProduct.findMany({
       where: {
-        OR: [
-          { dateLimitWithdrawal: { lt: new Date() } },
-          { stock: { lte: 0 } },
-        ],
+        OR: [{ dateLimit: { lt: new Date() } }, { stock: { lte: 0 } }],
         company: { companyAddress: { cityId: consumerAddress.cityId } },
       },
       orderBy: { createdAt: 'desc' },

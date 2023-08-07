@@ -48,14 +48,14 @@ const cardsItems = [
     comingSoon: false,
     to: 'balanceSaved'
   },
-  {
-    id: 5,
-    title: 'Desconto Energia',
-    icon: 'flash-outline',
-    comingSoon: false,
-    isNew: false,
-    to: 'electricDiscount'
-  },
+  // {
+  //   id: 5,
+  //   title: 'Desconto Energia',
+  //   icon: 'flash-outline',
+  //   comingSoon: false,
+  //   isNew: false,
+  //   to: 'electricDiscount'
+  // },
   {
     id: 6,
     title: 'Transferir',

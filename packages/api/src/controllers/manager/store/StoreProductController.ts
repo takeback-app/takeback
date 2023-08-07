@@ -29,6 +29,20 @@ export class StoreProductController {
     })
   }
 
+  async show(request: Request, response: Response) {
+    const { id } = request.params
+
+    const product = await prisma.storeProduct.findUnique({
+      where: { id },
+      include: {
+        company: { select: { fantasyName: true } },
+        storeOrders: { include: { consumer: { select: { fullName: true } } } },
+      },
+    })
+
+    return response.json(product)
+  }
+
   async store(request: Request, response: Response) {
     const form = CreateProductRequest.safeParse(request.body)
 

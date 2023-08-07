@@ -8,6 +8,7 @@ export type TPlan = {
   canSendBirthdayNotification: boolean
   canAccessClientReport: boolean
   canUseIntegration: boolean
+  canHaveStoreProducts: boolean
   newUserBonus: number
   createdAt: string
   updatedAt: string

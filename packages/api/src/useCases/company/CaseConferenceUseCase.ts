@@ -1,31 +1,30 @@
-import { DateTime } from "luxon";
-import { TransactionStatusEnum } from "../../enum/TransactionStatusEnum";
-import { prisma } from "../../prisma";
-import { CashConferenceFilterTypeEnum } from "../../requests/CashConferenceRequest";
-import { CashConferenceCalculator } from "./CashConferenceCalculator";
+import { DateTime } from 'luxon'
+import { CashConferenceCalculator } from './CashConferenceCalculator'
+import { TransactionStatusEnum } from '../../enum/TransactionStatusEnum'
+import { prisma } from '../../prisma'
+import { CashConferenceFilterTypeEnum } from '../../requests/CashConferenceRequest'
 
 interface CaseConferenceUseCaseDto {
-  date: string;
-  type: CashConferenceFilterTypeEnum;
-  companyId: string;
+  date: string
+  type: CashConferenceFilterTypeEnum
+  companyId: string
 }
 
 export class CaseConferenceUseCase {
   async execute(dto: CaseConferenceUseCaseDto) {
-    const { date, type, companyId } = dto;
+    const { date, type, companyId } = dto
 
-    const transactionStatus = this.getTransactionStatusFromType(type);
+    const transactionStatus = this.getTransactionStatusFromType(type)
 
     const transactions = await prisma.transaction.findMany({
-      orderBy: { companyUsersId: "asc" },
+      orderBy: { companyUsersId: 'asc' },
       where: {
         companiesId: companyId,
         transactionStatus: { description: { in: transactionStatus } },
-        companyUsersId: { not: null },
         transactionPaymentMethods: { some: { amount: { gt: 0 } } },
         createdAt: {
-          gte: DateTime.fromISO(date).startOf("day").toJSDate(),
-          lte: DateTime.fromISO(date).endOf("day").toJSDate(),
+          gte: DateTime.fromISO(date).startOf('day').toJSDate(),
+          lte: DateTime.fromISO(date).endOf('day').toJSDate(),
         },
       },
       select: {
@@ -41,32 +40,32 @@ export class CaseConferenceUseCase {
           },
         },
       },
-    });
+    })
 
     const companyUsers = await prisma.companyUser.findMany({
       where: { companyId },
-    });
+    })
 
     return CashConferenceCalculator.make(companyUsers)
       .calculate(transactions)
-      .getData();
+      .getData()
   }
 
   private getTransactionStatusFromType(type: CashConferenceFilterTypeEnum) {
-    if (type === "approved") {
+    if (type === 'approved') {
       return [
         TransactionStatusEnum.APPROVED,
         TransactionStatusEnum.PAID_WITH_TAKEBACK,
-      ];
+      ]
     }
 
-    if (type === "pending") {
+    if (type === 'pending') {
       return [
         TransactionStatusEnum.NOT_PAID,
         TransactionStatusEnum.PENDING,
         TransactionStatusEnum.ON_DELAY,
         TransactionStatusEnum.PROCESSING,
-      ];
+      ]
     }
 
     return [
@@ -76,6 +75,6 @@ export class CaseConferenceUseCase {
       TransactionStatusEnum.PROCESSING,
       TransactionStatusEnum.APPROVED,
       TransactionStatusEnum.PAID_WITH_TAKEBACK,
-    ];
+    ]
   }
 }

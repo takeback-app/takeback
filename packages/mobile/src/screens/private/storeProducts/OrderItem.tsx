@@ -25,7 +25,7 @@ export function OrderItem({ order }: { order: Order }) {
     useNavigation<NativeStackNavigationProp<PrivateRouteParam>>()
 
   const dateInfo = useMemo(() => {
-    const dateFormatted = getFormattedDate(order.product.dateLimitWithdrawal)
+    const dateFormatted = getFormattedDate(order.product.dateLimit)
 
     return {
       dateFormatted,

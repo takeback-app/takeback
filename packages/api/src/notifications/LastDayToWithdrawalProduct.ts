@@ -14,7 +14,7 @@ export class LastDayToWithdrawalProduct extends Notification {
   public toRecord(): NotificationRecord {
     return {
       title: 'Hoje é o último dia para retirar seu pedido',
-      body: `Você tem até hoje para retirar sua compra no(a) ${this.companyName} e não perder. Corra que ainda dá tempo. Acesse o app para saber mais.`,
+      body: `Você tem até hoje para retirar sua compra no(a) ${this.companyName.toUpperCase()} e não perder. Corra que ainda dá tempo. Acesse o app para saber mais.`,
       data: { id: this.storeOrder.id },
     }
   }

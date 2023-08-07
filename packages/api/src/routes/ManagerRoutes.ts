@@ -255,6 +255,7 @@ routes.get(
   '/dashboard/expire-balance-forecast-graph',
   dashboardController.expireBalanceForecastGraph,
 )
+routes.get('/dashboard/store-result', dashboardController.storeResult)
 
 routes.get(
   '/notification-solicitations',
@@ -296,6 +297,7 @@ routes.put('/referral-percentage', referralBonusController.update)
 
 routes.get('/store/companies', storeProductController.listCompanies)
 routes.get('/store/products', storeProductController.index)
+routes.get('/store/products/:id', storeProductController.show)
 routes.post('/store/products', storeProductController.store)
 routes.delete('/store/products/:id', storeProductController.delete)
 
