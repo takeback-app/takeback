@@ -26,6 +26,7 @@ import { API } from '../../services/API'
 import { AppTable } from '../../components/tables'
 import { Pagination } from '../../components/tables/Pagination'
 import { currencyFormat } from '../../utils/currencytFormat'
+import { TextBreak } from '../../components/tables/TextBreak'
 
 export interface CashbackData {
   id: number
@@ -39,6 +40,8 @@ export interface CashbackData {
   paymentMethod: string
   isTakebackMethod: boolean
   companyTotalPay: number
+  companyName: string
+  companyUserName: string
 }
 
 export interface TotalizerData {
@@ -60,43 +63,38 @@ export interface TaxTakeback {
 export function CashbackReport() {
   const [page, setPage] = useState(1)
   const {
-    firstDate,
-    secondDate,
+    dateStart,
+    dateEnd,
+    cityId,
     order,
     orderBy,
-    paymentMethod,
-    statusTransaction
+    companyId,
+    companyStatusId,
+    companyUserId,
+    stateId
   } = useCashbackReport()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const filter = useMemo(
-    () => ({
-      page,
-      dateStart: new Date(firstDate).toISOString(),
-      dateEnd: new Date(secondDate).toISOString(),
-      paymentMethodType: paymentMethod,
-      cashbackStatus: statusTransaction,
-      order,
-      orderByColumn: orderBy
-    }),
-    [
-      firstDate,
-      secondDate,
-      order,
-      orderBy,
-      page,
-      paymentMethod,
-      statusTransaction
-    ]
-  )
+  const filter = {
+    page,
+    dateStart: new Date(dateStart).toISOString(),
+    dateEnd: new Date(dateEnd).toISOString(),
+    cityId,
+    companyId,
+    companyStatusId,
+    companyUserId,
+    stateId,
+    order,
+    orderByColumn: orderBy
+  }
 
   const { data: cashbacks, isLoading } = useSWR<Paginated<CashbackData>>([
-    'company/report/cashbacks',
+    'manager/report/cashbacks',
     filter
   ])
 
   const { data: totalizer } = useSWR<TotalizerData>([
-    'company/report/cashbacks/totalizer',
+    'manager/report/cashbacks/totalizer',
     filter
   ])
 
@@ -114,7 +112,7 @@ export function CashbackReport() {
     const link = document.createElement('a')
     link.target = '_blank'
     link.download = 'Relatório de Cashbacks.xlsx'
-    const { data } = await API.get(`company/report/cashbacks/excel`, {
+    const { data } = await API.get(`manager/report/cashbacks/excel`, {
       params: filter,
 
       responseType: 'blob'
@@ -128,7 +126,7 @@ export function CashbackReport() {
     const link = document.createElement('a')
     link.target = '_blank'
     link.download = 'Relatório de Cashbacks.pdf'
-    const { data } = await API.get(`company/report/cashbacks/pdf`, {
+    const { data } = await API.get(`manager/report/cashbacks/pdf`, {
       params: filter,
       responseType: 'blob'
     })
@@ -196,8 +194,10 @@ export function CashbackReport() {
             <Tr>
               <Th>Ordem</Th>
               <Th>Nome</Th>
+              <Th>Empresa</Th>
               <Th>Status</Th>
               <Th>F. de Pagamento</Th>
+              <Th>Vendedor</Th>
               <Th>V. da Compra</Th>
               <Th>Tx. Takeback</Th>
               <Th>Cashback</Th>
@@ -210,9 +210,19 @@ export function CashbackReport() {
             {cashbacks.data?.map(cashback => (
               <Tr color="gray.500" key={cashback.id}>
                 <Td fontSize="xs">{cashback.id}</Td>
-                <Td fontSize="xs">{cashback.fullName}</Td>
-                <Td fontSize="xs">{cashback.status}</Td>
+                <Td fontSize="xs">
+                  <TextBreak>{cashback.fullName}</TextBreak>
+                </Td>
+                <Td fontSize="xs">
+                  <TextBreak>{cashback.companyName}</TextBreak>
+                </Td>
+                <Td fontSize="xs">
+                  <TextBreak>{cashback.status}</TextBreak>
+                </Td>
                 <Td fontSize="xs">{cashback.paymentMethod}</Td>
+                <Td fontSize="xs">
+                  <TextBreak>{cashback.companyUserName || '-'}</TextBreak>
+                </Td>
                 <Td fontSize="xs">{currencyFormat(cashback.totalAmount)}</Td>
                 <Td fontSize="xs">
                   {currencyFormat(cashback.takebackFeeAmount)}
@@ -223,7 +233,7 @@ export function CashbackReport() {
                   {currencyFormat(cashback.companyTotalPay)}
                 </Td>
                 <Td fontSize="xs">
-                  {new Date(cashback.createdAt).toLocaleDateString()}
+                  {new Date(cashback.createdAt).toLocaleString()}
                 </Td>
               </Tr>
             ))}

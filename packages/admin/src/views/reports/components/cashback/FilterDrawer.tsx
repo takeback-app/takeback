@@ -13,19 +13,13 @@ import {
   Stack
 } from '@chakra-ui/react'
 import { Order, useCashbackReport } from './state'
-import useSWR from 'swr'
 import { ChakraInput } from '../../../../components/chakra/ChakraInput'
 import { ChakraSelect } from '../../../../components/chakra/ChakraSelect'
-
-export interface PaymentMethods {
-  id: number
-  description: string
-}
-
-interface CashbackStatuses {
-  id: number
-  description: string
-}
+import { StateFilter } from '../../../../components/filters/StateFilter'
+import { CityFilter } from '../../../../components/filters/CityFilter'
+import { CompanyStatusFilter } from '../../../../components/filters/CompanyStatusFilter'
+import { CompanyFilter } from '../../../../components/filters/CompanyFilter'
+import { CompanyUserFilter } from '../../../../components/filters/CompanyUserFilter'
 
 interface FilterDrawerProps {
   isOpen: boolean
@@ -33,53 +27,46 @@ interface FilterDrawerProps {
 }
 
 export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
-  const {
-    setForm,
-    firstDate,
-    secondDate,
-    order,
-    orderBy,
-    paymentMethod,
-    statusTransaction,
-    reset
-  } = useCashbackReport()
+  const { setForm, dateStart, dateEnd, order, orderBy, reset } =
+    useCashbackReport()
 
-  const [startDate, setStartDate] = useState(firstDate)
-  const [endDate, setEndDate] = useState(secondDate)
+  const [localDateStart, setDateStart] = useState(dateStart)
+  const [localDateEnd, setDateEnd] = useState(dateEnd)
   const [localOrderBy, setOrderBy] = useState(orderBy)
   const [localOrder, setOrder] = useState(order)
-  const [payment, setPaymentMethod] = useState(paymentMethod)
-  const [status, setStatusTransaction] = useState(statusTransaction)
-
-  const { data: cashbackStatuses } = useSWR<CashbackStatuses[]>(
-    'company/transaction-status'
-  )
-
-  const { data: paymentMethods } = useSWR<PaymentMethods[]>(
-    'company/payment-methods'
-  )
+  const [localStateId, setStateId] = useState(0)
+  const [localCityId, setCityId] = useState(0)
+  const [localCompanyStatusId, setCompanyStatusId] = useState(0)
+  const [localCompanyId, setCompanyId] = useState('')
+  const [localCompanyUserId, setCompanyUserId] = useState('')
 
   function resetFilter() {
     reset()
 
-    setStartDate(firstDate)
-    setEndDate(secondDate)
+    setDateStart(dateStart)
+    setDateEnd(dateEnd)
     setOrderBy(orderBy)
     setOrder(order)
-    setPaymentMethod(0)
-    setStatusTransaction(0)
+    setStateId(0)
+    setCityId(0)
+    setCompanyStatusId(0)
+    setCompanyId('')
+    setCompanyUserId('')
   }
 
   function handleSubmit() {
-    if (!startDate || !endDate) return
+    if (!localDateStart || !localDateEnd) return
 
     setForm({
-      firstDate: startDate,
-      secondDate: endDate,
+      dateStart: localDateStart,
+      dateEnd: localDateEnd,
       orderBy: localOrderBy,
       order: localOrder,
-      paymentMethod: payment ? Number(payment) : undefined,
-      statusTransaction: status ? Number(status) : undefined
+      cityId: localCityId || undefined,
+      stateId: localStateId || undefined,
+      companyStatusId: localCompanyStatusId || undefined,
+      companyId: localCompanyId || undefined,
+      companyUserId: localCompanyUserId || undefined
     })
 
     onClose()
@@ -95,24 +82,52 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
 
           <DrawerBody>
             <Stack spacing={6}>
+              <StateFilter value={localStateId} setValue={setStateId} />
+              <CityFilter
+                value={localCityId}
+                setValue={setCityId}
+                stateId={localStateId || undefined}
+                isDisabled={!localStateId}
+              />
+
+              <CompanyStatusFilter
+                value={localCompanyStatusId}
+                setValue={setCompanyStatusId}
+              />
+
+              <CompanyFilter
+                value={localCompanyId}
+                setValue={setCompanyId}
+                cityId={localCityId || undefined}
+                statusId={localCompanyStatusId || undefined}
+                stateId={localStateId || undefined}
+              />
+
+              <CompanyUserFilter
+                companyId={localCompanyId || undefined}
+                value={localCompanyUserId}
+                setValue={setCompanyUserId}
+                isDisabled={!localCompanyId}
+              />
+
               <ChakraInput
                 size="sm"
                 type="date"
                 label="Período inicial"
-                value={startDate}
-                onChange={e => setStartDate(e.target.value)}
+                value={localDateStart}
+                onChange={e => setDateStart(e.target.value)}
                 isRequired
               />
               <ChakraInput
                 size="sm"
                 type="date"
                 label="Período final"
-                value={endDate}
-                onChange={e => setEndDate(e.target.value)}
+                value={localDateEnd}
+                onChange={e => setDateEnd(e.target.value)}
                 isRequired
               />
 
-              {!!cashbackStatuses && (
+              {/* {!!cashbackStatuses && (
                 <ChakraSelect
                   options={[
                     { id: 0, description: 'Todos' },
@@ -142,13 +157,14 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
                   value={payment}
                   onChange={e => setPaymentMethod(Number(e.target.value))}
                 />
-              )}
+              )} */}
 
               <ChakraSelect
                 options={[
-                  { value: 'totalAmount', text: 'Total de compras' },
-                  { value: 'cashbackAmount', text: 'Valor de Cashback' },
-                  { value: 'takebackFeeAmount', text: 'Taxa de Takeback' }
+                  { value: 'totalAmount', text: 'Valor da Compra' },
+                  { value: 'cashbackAmount', text: 'Cashback' },
+                  { value: 'takebackFeeAmount', text: 'Taxa' },
+                  { value: 'createdAt', text: 'Data' }
                 ]}
                 label="Ordenar por"
                 name="orderBy"

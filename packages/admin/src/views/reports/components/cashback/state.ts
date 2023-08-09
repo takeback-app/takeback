@@ -4,32 +4,32 @@ import { create } from 'zustand'
 export type Order = 'asc' | 'desc'
 
 export interface FormData {
-  firstDate: string
-  secondDate: string
+  dateStart: string
+  dateEnd: string
   orderBy: string
   order: Order
-  paymentMethod?: number
-  statusTransaction?: number
+  stateId?: number
+  cityId?: number
+  companyStatusId?: number
+  companyId?: string
+  companyUserId?: string
 }
 
-type State = {
-  firstDate: string
-  secondDate: string
-  orderBy: string
-  order: Order
-  paymentMethod?: number
-  statusTransaction?: number
+interface State extends FormData {
   setForm: (formData: FormData) => void
   reset: () => void
 }
 
 const initialState = {
-  firstDate: moment().subtract(1, 'month').format('YYYY-MM-DD'),
-  secondDate: moment().format('YYYY-MM-DD'),
-  orderBy: 'totalAmount',
-  order: 'asc' as Order,
-  statusTransaction: undefined,
-  paymentMethod: undefined
+  dateStart: moment().subtract(1, 'month').format('YYYY-MM-DD'),
+  dateEnd: moment().format('YYYY-MM-DD'),
+  orderBy: 'createdAt',
+  order: 'desc' as Order,
+  stateId: undefined,
+  cityId: undefined,
+  companyStatusId: undefined,
+  companyId: undefined,
+  companyUserId: undefined
 }
 
 export const useCashbackReport = create<State>(set => ({

@@ -16,7 +16,6 @@ import { DashboardController as ManagerDashboardController } from '../controller
 import { PaymentPlanController } from '../controllers/manager/managerPaymentPlan/PaymentPlanController'
 import { PaymentOrderController } from '../controllers/manager/managerPaymentOrder/PaymentOrderController'
 import { ManagerCitiesController } from '../controllers/manager/managerCities/ManagerCitiesController'
-import { ReportsController } from '../controllers/manager/managerReports/ReportsController'
 import { ManagerCashbacksController } from '../controllers/manager/managerCashback/ManagerCashbacksController'
 import { ManagerSupportController } from '../controllers/manager/managerSupport/ManagerSupportController'
 import { ManagerCompanyPaymentMontlhyController } from '../controllers/manager/managerCompanyPaymentMontlhy/ManagerCompanyPaymentMontlhyController'
@@ -29,12 +28,12 @@ import { NotificationSolicitationController } from '../controllers/manager/Notif
 import { CompaniesReportController } from '../controllers/manager/managerReports/CompaniesReportController'
 import { RepresentativeController } from '../controllers/manager/RepresentativeController'
 import { LogoChangeRequestController } from '../controllers/manager/LogoChangeRequestController'
-import { SelersReportController } from '../controllers/manager/managerReports/SelersReportController'
-import { FinancialReportController } from '../controllers/manager/reports/FinancialReportController'
 import { ReferralBonusController } from '../controllers/manager/ReferralBonusController'
 import { FileController } from '../controllers/company/FileController'
 import { NotificationController } from '../controllers/manager/notification/NotificationController'
 import { StoreProductController } from '../controllers/manager/store/StoreProductController'
+import { CashbackReportController } from '../controllers/manager/reports/CashbackReportController'
+import { ReportFilterController } from '../controllers/manager/reports/ReportFilterController'
 
 const paymentMethod = new PaymentMethodController()
 const managerAuth = new ManagerAuthController()
@@ -47,7 +46,6 @@ const managerDashboard = new ManagerDashboardController()
 const managerPaymentPlan = new PaymentPlanController()
 const managerPaymentOrder = new PaymentOrderController()
 const managerCities = new ManagerCitiesController()
-const managerReports = new ReportsController()
 const managerCashback = new ManagerCashbacksController()
 const managerSupport = new ManagerSupportController()
 const managerCompanyMontlhy = new ManagerCompanyPaymentMontlhyController()
@@ -56,9 +54,9 @@ const managerCompaniesUsers = new UserCompaniesController()
 const withDrawController = new WithDrawController()
 const companiesReport = new CompaniesReportController()
 const logoChangeRequestController = new LogoChangeRequestController()
-const selersReport = new SelersReportController()
-const financialReport = new FinancialReportController()
 const referralBonusController = new ReferralBonusController()
+const cashbackReportController = new CashbackReportController()
+const reportFilterController = new ReportFilterController()
 
 const notificationSolicitationController =
   new NotificationSolicitationController()
@@ -197,25 +195,38 @@ routes.post('/support/register', managerSupport.registerSupportUser)
 routes.put('/support/update/:id', managerSupport.updateSupportUser)
 routes.get('/support/find/all', managerSupport.findAllSupportUsers)
 
-routes.get('/report/selers', selersReport.index)
-routes.get('/report/selers/pdf', selersReport.getPdf)
-routes.get('/report/selers/excel', selersReport.getExcel)
-routes.get('/report/selers/totalizer', selersReport.totalizer)
+// routes.get('/report/selers', selersReport.index)
+// routes.get('/report/selers/pdf', selersReport.getPdf)
+// routes.get('/report/selers/excel', selersReport.getExcel)
+// routes.get('/report/selers/totalizer', selersReport.totalizer)
 
-routes.get('/report/financial', financialReport.index)
-routes.get('/report/financial/pdf', financialReport.getPdf)
-routes.get('/report/financial/excel', financialReport.getExcel)
-routes.get('/report/financial/totalizer', financialReport.totalizer)
+// routes.get('/report/financial', financialReport.index)
+// routes.get('/report/financial/pdf', financialReport.getPdf)
+// routes.get('/report/financial/excel', financialReport.getExcel)
+// routes.get('/report/financial/totalizer', financialReport.totalizer)
 
-routes.get('/report/find/filters', managerReports.findFilterOptions)
-routes.get('/report/payment-order', managerReports.paymentOrderReport)
-routes.get('/report/monthly-payment', managerReports.monthlyReport)
-routes.get('/report/cashbacks', managerReports.CashbacksReport)
+// routes.get('/report/find/filters', managerReports.findFilterOptions)
+// routes.get('/report/payment-order', managerReports.paymentOrderReport)
+// routes.get('/report/monthly-payment', managerReports.monthlyReport)
+
+routes.get('/report/filters/states', reportFilterController.states)
+routes.get('/report/filters/cities', reportFilterController.cities)
+routes.get('/report/filters/companies', reportFilterController.companies)
+routes.get(
+  '/report/filters/companyStatus',
+  reportFilterController.companyStatus,
+)
+routes.get('/report/filters/companyUsers', reportFilterController.companyUsers)
 
 routes.get('/report/companies', companiesReport.index)
 routes.get('/report/companies/pdf', companiesReport.getPdf)
 routes.get('/report/companies/excel', companiesReport.getExcel)
 routes.get('/report/companies/totalizer', companiesReport.totalizer)
+
+routes.get('/report/cashbacks', cashbackReportController.index)
+routes.get('/report/cashbacks/pdf', cashbackReportController.getPdf)
+routes.get('/report/cashbacks/excel', cashbackReportController.getExcel)
+routes.get('/report/cashbacks/totalizer', cashbackReportController.totalizer)
 
 // routes.post("/representative/register", managerRepresentatives.register);
 // routes.get("/representative/find", managerRepresentatives.find);
