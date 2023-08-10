@@ -10,19 +10,19 @@ import { AutomaticCancelTransactionsUseCase } from '../useCases/integration/Auto
 async function main() {
   await new AutomaticCancelTransactionsUseCase().handle()
 
-  const yesterday = DateTime.now().minus({ day: 1 }).toJSDate()
+  const dateLimit = DateTime.now().minus({ minutes: 30 }).toJSDate()
 
   await prisma.transaction.updateMany({
     where: {
       transactionStatus: { description: TransactionStatusEnum.PENDING },
       nfceValidationStatus: NFCeValidationStatus.IN_PROGRESS,
-      createdAt: { lte: yesterday },
+      createdAt: { lt: dateLimit },
     },
     data: { nfceValidationStatus: NFCeValidationStatus.NOT_FOUND },
   })
 
   await prisma.nFCe.deleteMany({
-    where: { transaction: null, createdAt: { lte: yesterday } },
+    where: { transaction: null, createdAt: { lt: dateLimit } },
   })
 
   const transactions = await prisma.transaction.findMany({
@@ -47,7 +47,7 @@ async function main() {
     await prisma.nFCe.findMany({
       where: {
         transaction: null,
-        issuedAt: { gte: yesterday },
+        issuedAt: { gte: dateLimit },
       },
       select: {
         id: true,
