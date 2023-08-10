@@ -33,10 +33,11 @@ async function main() {
     },
     include: {
       transactionPaymentMethods: {
-        include: {
-          companyPaymentMethod: {
-            select: { paymentMethod: { select: { tPag: true } } },
-          },
+        select: {
+          amount: true,
+          // companyPaymentMethod: {
+          //     select: { paymentMethod: { select: { tPag: true } } },
+          //   },
         },
       },
     },
@@ -56,7 +57,7 @@ async function main() {
     })
   ).reduce((hashMap, nfce) => {
     const paymentKey = nfce.nfcePayments
-      .map((np) => `${np.tPag}-${np.value}`)
+      .map((np) => `${np.value}`)
       .sort()
       .join('/')
 
@@ -73,9 +74,7 @@ async function main() {
 
   for (const transaction of transactions) {
     const transactionPaymentKey = transaction.transactionPaymentMethods
-      .map(
-        (tpm) => `${tpm.companyPaymentMethod.paymentMethod.tPag}-${tpm.amount}`,
-      )
+      .map((tpm) => `${tpm.amount}`)
       .sort()
       .join('/')
 
