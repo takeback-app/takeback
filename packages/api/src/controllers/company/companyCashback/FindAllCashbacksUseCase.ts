@@ -25,19 +25,25 @@ class FindAllCashbacksUseCase {
     perPage = 20,
     order = 'desc',
   }: Props) {
+    let startDate: Date
+
+    if (filters.startDate) {
+      startDate = DateTime.fromISO(filters.startDate).toJSDate()
+    }
+
+    if (filters.cashierLimit === '1') {
+      startDate = DateTime.now().minus({ days: 1 }).toJSDate()
+    }
+
+    const endDate = filters.endDate
+      ? DateTime.fromISO(filters.endDate).endOf('day').toJSDate()
+      : undefined
     const where: Prisma.TransactionWhereInput = {
       transactionStatusId: filters.statusId
         ? Number(filters.statusId)
         : undefined,
       companiesId: companyId,
-      createdAt: {
-        gte: filters.startDate
-          ? DateTime.fromISO(filters.startDate).toJSDate()
-          : undefined,
-        lte: filters.endDate
-          ? DateTime.fromISO(filters.endDate).toJSDate()
-          : undefined,
-      },
+      createdAt: { gte: startDate, lte: endDate },
     }
 
     const cashbacks = await prisma.transaction.findMany({
