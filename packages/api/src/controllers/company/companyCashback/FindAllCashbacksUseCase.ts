@@ -5,6 +5,8 @@ import { prisma } from '../../../prisma'
 interface FilterProps {
   statusId?: string
   cashierLimit?: string
+  startDate?: string
+  endDate?: string
 }
 
 interface Props {
@@ -28,12 +30,14 @@ class FindAllCashbacksUseCase {
         ? Number(filters.statusId)
         : undefined,
       companiesId: companyId,
-      createdAt:
-        filters.cashierLimit === '1'
-          ? {
-              gte: DateTime.now().minus({ days: 1 }).toJSDate(),
-            }
+      createdAt: {
+        gte: filters.startDate
+          ? DateTime.fromISO(filters.startDate).toJSDate()
           : undefined,
+        lte: filters.endDate
+          ? DateTime.fromISO(filters.endDate).toJSDate()
+          : undefined,
+      },
     }
 
     const cashbacks = await prisma.transaction.findMany({
