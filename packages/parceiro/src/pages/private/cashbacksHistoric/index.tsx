@@ -25,7 +25,11 @@ import {
 import { AppTable } from '../../../components/table'
 import { Pagination } from '../../../components/table/Pagination'
 import { Paginated } from '../../../types'
-import { FilterDrawer } from './components/FilterDrawer'
+import {
+  FilterDrawer,
+  FilterProps,
+  formInitialData
+} from './components/FilterDrawer'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { chakraToastOptions } from '../../../components/ui/toast'
 import {
@@ -69,7 +73,7 @@ export function CashbackHistoric() {
   const { isManager } = useContext(AuthContext)
 
   const [page, setPage] = useState(1)
-  const [statusId, setStatusId] = useState('')
+  const [filters, setFilters] = useState<FilterProps>(formInitialData)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const {
     isOpen: isChargeBackOpen,
@@ -83,7 +87,12 @@ export function CashbackHistoric() {
     mutate
   } = useSWR<Paginated<Cashback>>([
     'company/cashbacks/find/all',
-    { page, statusId, cashierLimit: isManager ? undefined : '1' }
+    {
+      page,
+      ...filters,
+      statusId: filters.status !== '0' ? filters.status : undefined,
+      cashierLimit: isManager ? undefined : '1'
+    }
   ])
 
   function selectTransaction(transactionId: number) {
@@ -240,8 +249,8 @@ export function CashbackHistoric() {
       <FilterDrawer
         isOpen={isOpen}
         onClose={onClose}
-        setStatusId={setStatusId}
-        statusId={statusId}
+        filters={filters}
+        setFilters={setFilters}
       />
       <ChargebackModalButton
         isOpen={isChargeBackOpen}
