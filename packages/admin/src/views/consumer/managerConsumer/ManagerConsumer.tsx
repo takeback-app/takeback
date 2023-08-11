@@ -68,7 +68,7 @@ const ManagerConsumer: React.FC<React.PropsWithChildren<unknown>> = () => {
             />
           </S.SubHeader>
 
-          <Form ref={formRef} onSubmit={() => console.log('ok')}>
+          <Form ref={formRef} onSubmit={() => ({})}>
             <S.Content>
               <S.InfoTitle>Dados do usuário</S.InfoTitle>
               <S.InfoWrapper>
