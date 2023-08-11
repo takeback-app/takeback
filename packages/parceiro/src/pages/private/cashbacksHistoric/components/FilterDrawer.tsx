@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 
 import {
   Button,
@@ -19,6 +19,7 @@ import { ChakraInput } from '../../../../components/chakra/ChakraInput'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { AuthContext } from '../../../../contexts/AuthContext'
 
 interface FilterDrawerProps {
   isOpen: boolean
@@ -39,7 +40,7 @@ interface TransactionStatus {
 }
 
 export const formInitialData = {
-  status: '0',
+  status: '',
   startDate: undefined,
   endDate: undefined
 }
@@ -58,6 +59,8 @@ export function FilterDrawer({
   filters,
   setFilters
 }: FilterDrawerProps) {
+  const { isManager } = useContext(AuthContext)
+
   const { data: status } = useSWR<TransactionStatus[]>(
     'company/cashbacks/status'
   )
@@ -69,14 +72,14 @@ export function FilterDrawer({
 
   function onSubmit(data: FilterData) {
     setFilters({
-      status: data?.status === '0' ? undefined : data?.status,
-      startDate: data?.startDate ? data.startDate : undefined,
-      endDate: data?.endDate ? data.endDate : undefined
+      status: data.status ? data.status : undefined,
+      startDate: data.startDate ? data.startDate : undefined,
+      endDate: data.endDate ? data.endDate : undefined
     })
   }
 
   function resetFilters() {
-    setValue('status', '0')
+    setValue('status', '')
     setValue('startDate', '')
     setValue('endDate', '')
 
@@ -103,19 +106,23 @@ export function FilterDrawer({
               ]}
               {...register('status')}
             />
-            <ChakraInput
-              label="Período inicio"
-              size="sm"
-              type="date"
-              {...register('startDate')}
-            />
+            {isManager && (
+              <>
+                <ChakraInput
+                  label="Período inicio"
+                  size="sm"
+                  type="date"
+                  {...register('startDate')}
+                />
 
-            <ChakraInput
-              label="Período fim"
-              size="sm"
-              type="date"
-              {...register('endDate')}
-            />
+                <ChakraInput
+                  label="Período fim"
+                  size="sm"
+                  type="date"
+                  {...register('endDate')}
+                />
+              </>
+            )}
           </Stack>
         </DrawerBody>
 
