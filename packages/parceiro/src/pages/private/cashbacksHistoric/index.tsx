@@ -89,8 +89,9 @@ export function CashbackHistoric() {
     'company/cashbacks/find/all',
     {
       page,
-      ...filters,
       statusId: filters.status !== '0' ? filters.status : undefined,
+      startDate: filters.startDate,
+      endDate: filters.endDate,
       cashierLimit: isManager ? undefined : '1'
     }
   ])
