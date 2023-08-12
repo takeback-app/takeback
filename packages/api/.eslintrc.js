@@ -12,6 +12,8 @@ module.exports = {
   plugins: ['@typescript-eslint'],
   rules: {
     'dot-notation': 'off',
+    camelcase: 'off',
+    'no-useless-constructor': 'off',
     'prettier/prettier': [
       'error',
       {
