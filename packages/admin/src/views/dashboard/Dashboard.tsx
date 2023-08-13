@@ -12,7 +12,6 @@ import useSWR from 'swr'
 import Layout from '../../components/ui/Layout'
 import SmallCard from '../../components/cards/SmallCard'
 import LargeCard from '../../components/cards/LargeCard'
-import DoughnutChart from '../../components/charts/DoughnutChart'
 import LineChart from '../../components/charts/LineChart'
 import BarChart from '../../components/charts/BarChart'
 
@@ -32,6 +31,11 @@ interface TotalizerResponse {
   pendingFeeAmount: number
   consumerCount: number
   companyCount: number
+  activeCompanies: number
+  overdueCompanies: number
+  activeConsumers: number
+  inactiveConsumers: number
+  newConsumers: number
 }
 
 export function Dashboard() {
@@ -298,34 +302,43 @@ export function Dashboard() {
               }}
             />
           </LargeCard>
-          <LargeCard
-            title="Totalizador"
-            subtitle="Clientes x Empresas"
-            loading={isTotalizerLoading}
-          >
-            <DoughnutChart
-              data={{
-                labels: ['Empresas', 'Clientes'],
-                datasets: [
-                  {
-                    data: [
-                      totalizer?.companyCount || 0,
-                      totalizer?.consumerCount || 0
-                    ],
-                    backgroundColor: [
-                      'rgba(255, 99, 132, 0.2)',
-                      'rgba(54, 162, 235, 0.2)'
-                    ],
-                    borderColor: [
-                      'rgba(255, 99, 132, 1)',
-                      'rgba(54, 162, 235, 1)'
-                    ],
-                    borderWidth: 1
-                  }
-                ]
-              }}
+          <S.SmallCardsWrapper2>
+            <SmallCard
+              title="Clientes Ativos"
+              description={(totalizer?.activeConsumers || 0).toString()}
+              icon={IoPeopleOutline}
+              color="#00BF78"
+              loading={isTotalizerLoading}
             />
-          </LargeCard>
+            <SmallCard
+              title="Clientes Inativos"
+              description={(totalizer?.inactiveConsumers || 0).toString()}
+              icon={IoPeopleOutline}
+              color="#ff0000"
+              loading={isTotalizerLoading}
+            />
+            <SmallCard
+              title="Novos Clientes"
+              description={(totalizer?.newConsumers || 0).toString()}
+              icon={IoPeopleOutline}
+              color="#ff9f40"
+              loading={isTotalizerLoading}
+            />
+            <SmallCard
+              title="Empresas Ativas"
+              description={(totalizer?.activeCompanies || 0).toString()}
+              icon={IoStorefrontOutline}
+              color="#00BF78"
+              loading={isTotalizerLoading}
+            />
+            <SmallCard
+              title="Empresas Inadimplentes"
+              description={(totalizer?.overdueCompanies || 0).toString()}
+              icon={IoStorefrontOutline}
+              color="#ff0000"
+              loading={isTotalizerLoading}
+            />
+          </S.SmallCardsWrapper2>
         </S.LargeCardsWrapper2>
       </S.Container>
     </Layout>
