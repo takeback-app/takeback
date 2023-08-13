@@ -309,6 +309,7 @@ export function Dashboard() {
               icon={IoPeopleOutline}
               color="#00BF78"
               loading={isTotalizerLoading}
+              label="Clientes que usaram o app nos ultimos 4 meses"
             />
             <SmallCard
               title="Clientes Inativos"
@@ -316,6 +317,7 @@ export function Dashboard() {
               icon={IoPeopleOutline}
               color="#ff0000"
               loading={isTotalizerLoading}
+              label="Clientes que não usaram o app nos ultimos 4 meses"
             />
             <SmallCard
               title="Novos Clientes"
@@ -323,6 +325,7 @@ export function Dashboard() {
               icon={IoPeopleOutline}
               color="#ff9f40"
               loading={isTotalizerLoading}
+              label="Clientes que ainda não baixaram o app"
             />
             <SmallCard
               title="Empresas Ativas"
@@ -330,6 +333,7 @@ export function Dashboard() {
               icon={IoStorefrontOutline}
               color="#00BF78"
               loading={isTotalizerLoading}
+              label="Empresas com tudo em dia"
             />
             <SmallCard
               title="Empresas Inadimplentes"
@@ -337,6 +341,7 @@ export function Dashboard() {
               icon={IoStorefrontOutline}
               color="#ff0000"
               loading={isTotalizerLoading}
+              label="Empresas inadimplentes por cashback ou mensalidade"
             />
           </S.SmallCardsWrapper2>
         </S.LargeCardsWrapper2>
