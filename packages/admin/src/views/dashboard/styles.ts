@@ -25,11 +25,8 @@ export const SmallCardsWrapper = styled.div`
   }
 `
 
-export const SmallCardsWrapper2 = styled.div`
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 5px;
+export const SmallCardsWrapper2 = styled(SmallCardsWrapper)`
+  margin-top: 15px;
 `
 
 export const LargeCardsWrapper = styled.div`
