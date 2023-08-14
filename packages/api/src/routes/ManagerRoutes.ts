@@ -34,6 +34,7 @@ import { NotificationController } from '../controllers/manager/notification/Noti
 import { StoreProductController } from '../controllers/manager/store/StoreProductController'
 import { CashbackReportController } from '../controllers/manager/reports/CashbackReportController'
 import { ReportFilterController } from '../controllers/manager/reports/ReportFilterController'
+import { ClientReportController } from '../controllers/manager/reports/ClientReportController'
 
 const paymentMethod = new PaymentMethodController()
 const managerAuth = new ManagerAuthController()
@@ -56,6 +57,7 @@ const companiesReport = new CompaniesReportController()
 const logoChangeRequestController = new LogoChangeRequestController()
 const referralBonusController = new ReferralBonusController()
 const cashbackReportController = new CashbackReportController()
+const clientReportController = new ClientReportController()
 const reportFilterController = new ReportFilterController()
 
 const notificationSolicitationController =
@@ -217,6 +219,11 @@ routes.get(
   reportFilterController.companyStatus,
 )
 routes.get('/report/filters/companyUsers', reportFilterController.companyUsers)
+
+routes.get('/report/clients', clientReportController.index)
+routes.get('/report/clients/pdf', clientReportController.getPdf)
+routes.get('/report/clients/excel', clientReportController.getExcel)
+routes.get('/report/clients/totalizer', clientReportController.totalizer)
 
 routes.get('/report/companies', companiesReport.index)
 routes.get('/report/companies/pdf', companiesReport.getPdf)
