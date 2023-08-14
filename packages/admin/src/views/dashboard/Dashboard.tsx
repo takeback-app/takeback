@@ -12,7 +12,6 @@ import useSWR from 'swr'
 import Layout from '../../components/ui/Layout'
 import SmallCard from '../../components/cards/SmallCard'
 import LargeCard from '../../components/cards/LargeCard'
-import DoughnutChart from '../../components/charts/DoughnutChart'
 import LineChart from '../../components/charts/LineChart'
 import BarChart from '../../components/charts/BarChart'
 
@@ -32,6 +31,11 @@ interface TotalizerResponse {
   pendingFeeAmount: number
   consumerCount: number
   companyCount: number
+  activeCompanies: number
+  overdueCompanies: number
+  activeConsumers: number
+  inactiveConsumers: number
+  newConsumers: number
 }
 
 export function Dashboard() {
@@ -50,8 +54,11 @@ export function Dashboard() {
   const { data: expireBalanceGraph, isLoading: isExpireBalanceGraphLoading } =
     useSWR<GraphResponse>('manager/dashboard/expire-balance-graph')
 
-  const { data: storeResultGraph, isLoading: isStoreResultGraphLoading } =
-    useSWR<GraphResponse>('manager/dashboard/store-result')
+  const { data: storeValueGraph, isLoading: isStoreValueGraphLoading } =
+    useSWR<GraphResponse>('manager/dashboard/store-value')
+
+  const { data: storeCreditGraph, isLoading: isStoreCreditGraphLoading } =
+    useSWR<GraphResponse>('manager/dashboard/store-credit')
 
   return (
     <Layout title="Bem vindo!">
@@ -255,16 +262,16 @@ export function Dashboard() {
         </S.LargeCardsWrapper2>
         <S.LargeCardsWrapper2>
           <LargeCard
-            title="Faturamento Loja"
+            title="Despesa de Loja"
             subtitle="Resultado por mês"
-            loading={isStoreResultGraphLoading}
+            loading={isStoreValueGraphLoading}
           >
             <BarChart
               data={{
-                labels: storeResultGraph?.labels,
+                labels: storeValueGraph?.labels,
                 datasets: [
                   {
-                    data: storeResultGraph?.values || [],
+                    data: storeValueGraph?.values || [],
                     label: '',
                     backgroundColor: [
                       'rgba(255, 99, 132, 1)',
@@ -281,7 +288,33 @@ export function Dashboard() {
             />
           </LargeCard>
           <LargeCard
-            subtitle="Taxas dos Cashbacks por mês"
+            title="Crédito de Loja"
+            subtitle="Resultado por mês"
+            loading={isStoreCreditGraphLoading}
+          >
+            <BarChart
+              data={{
+                labels: storeCreditGraph?.labels,
+                datasets: [
+                  {
+                    data: storeCreditGraph?.values || [],
+                    label: '',
+                    backgroundColor: [
+                      'rgba(255, 99, 132, 1)',
+                      'rgba(54, 162, 235, 1)',
+                      'rgba(255, 206, 86, 1)',
+                      'rgba(75, 192, 192, 1)',
+                      'rgba(153, 102, 255, 1)',
+                      'rgba(255, 159, 64, 1)'
+                    ],
+                    borderRadius: 4
+                  }
+                ]
+              }}
+            />
+          </LargeCard>
+          <LargeCard
+            subtitle="Emissão de Cashbacks"
             loading={isCashbackGraphLoading}
           >
             <LineChart
@@ -298,35 +331,49 @@ export function Dashboard() {
               }}
             />
           </LargeCard>
-          <LargeCard
-            title="Totalizador"
-            subtitle="Clientes x Empresas"
-            loading={isTotalizerLoading}
-          >
-            <DoughnutChart
-              data={{
-                labels: ['Empresas', 'Clientes'],
-                datasets: [
-                  {
-                    data: [
-                      totalizer?.companyCount || 0,
-                      totalizer?.consumerCount || 0
-                    ],
-                    backgroundColor: [
-                      'rgba(255, 99, 132, 0.2)',
-                      'rgba(54, 162, 235, 0.2)'
-                    ],
-                    borderColor: [
-                      'rgba(255, 99, 132, 1)',
-                      'rgba(54, 162, 235, 1)'
-                    ],
-                    borderWidth: 1
-                  }
-                ]
-              }}
-            />
-          </LargeCard>
         </S.LargeCardsWrapper2>
+        <S.SmallCardsWrapper2>
+          <SmallCard
+            title="Clientes Ativos"
+            description={(totalizer?.activeConsumers || 0).toString()}
+            icon={IoPeopleOutline}
+            color="#00BF78"
+            loading={isTotalizerLoading}
+            label="Clientes que usaram o app nos ultimos 4 meses"
+          />
+          <SmallCard
+            title="Clientes Inativos"
+            description={(totalizer?.inactiveConsumers || 0).toString()}
+            icon={IoPeopleOutline}
+            color="#ff0000"
+            loading={isTotalizerLoading}
+            label="Clientes que não usaram o app nos ultimos 4 meses"
+          />
+          <SmallCard
+            title="Novos Clientes"
+            description={(totalizer?.newConsumers || 0).toString()}
+            icon={IoPeopleOutline}
+            color="#ff9f40"
+            loading={isTotalizerLoading}
+            label="Clientes que ainda não baixaram o app"
+          />
+          <SmallCard
+            title="Empresas Ativas"
+            description={(totalizer?.activeCompanies || 0).toString()}
+            icon={IoStorefrontOutline}
+            color="#00BF78"
+            loading={isTotalizerLoading}
+            label="Empresas com tudo em dia"
+          />
+          <SmallCard
+            title="Empresas Inadimplentes"
+            description={(totalizer?.overdueCompanies || 0).toString()}
+            icon={IoStorefrontOutline}
+            color="#ff0000"
+            loading={isTotalizerLoading}
+            label="Empresas inadimplentes por cashback ou mensalidade"
+          />
+        </S.SmallCardsWrapper2>
       </S.Container>
     </Layout>
   )
