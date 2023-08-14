@@ -255,7 +255,7 @@ routes.get(
   '/dashboard/expire-balance-forecast-graph',
   dashboardController.expireBalanceForecastGraph,
 )
-routes.get('/dashboard/store-result', dashboardController.storeResult)
+routes.get('/dashboard/store-value', dashboardController.storeValue)
 
 routes.get(
   '/notification-solicitations',
