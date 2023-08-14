@@ -1,19 +1,17 @@
-import { Request, Response } from "express";
-import { InternalError } from "../../../config/GenerateErros";
-import { CompanyUsersReport } from "../../../reports/CompanyUsersReport";
-import { CompanyUserReportRequest } from "../../../requests/reports/CompanyUserReportRequest";
-import { prisma } from "../../../prisma";
-import { DateTime } from "luxon";
-import { filterNumber } from "../../../utils";
+import { Request, Response } from 'express'
+import { DateTime } from 'luxon'
+import { UsersReport } from './../../../reports/manager/UsersReport'
+import { InternalError } from '../../../config/GenerateErros'
+import { CompanyUserReportRequest } from '../../../requests/reports/CompanyUserReportRequest'
+import { prisma } from '../../../prisma'
+import { filterNumber } from '../../../utils'
 
 export class CompanyUserReportController {
   async index(request: Request, response: Response) {
-    const { companyId } = request["tokenPayload"];
-
-    const form = CompanyUserReportRequest.safeParse(request.query);
+    const form = CompanyUserReportRequest.safeParse(request.query)
 
     if (!form.success) {
-      throw new InternalError("Existem erros nos filtros", 400);
+      throw new InternalError('Existem erros nos filtros', 400)
     }
 
     const {
@@ -24,9 +22,9 @@ export class CompanyUserReportController {
       page,
       office,
       transactionStatus,
-    } = form.data;
+    } = form.data
 
-    const report = new CompanyUsersReport(companyId);
+    const report = new UsersReport()
 
     const paginated = await report.getPaginated(
       { page: Number(page) },
@@ -37,19 +35,17 @@ export class CompanyUserReportController {
         orderByColumn,
         office: filterNumber(office),
         transactionStatus: filterNumber(transactionStatus),
-      }
-    );
+      },
+    )
 
-    return response.status(200).json(paginated);
+    return response.status(200).json(paginated)
   }
 
   async getExcel(request: Request, response: Response) {
-    const { companyId } = request["tokenPayload"];
-
-    const form = CompanyUserReportRequest.safeParse(request.query);
+    const form = CompanyUserReportRequest.safeParse(request.query)
 
     if (!form.success) {
-      throw new InternalError("Existem erros nos filtros", 400);
+      throw new InternalError('Existem erros nos filtros', 400)
     }
 
     const {
@@ -59,9 +55,9 @@ export class CompanyUserReportController {
       orderByColumn,
       office,
       transactionStatus,
-    } = form.data;
+    } = form.data
 
-    const report = new CompanyUsersReport(companyId);
+    const report = new UsersReport()
 
     const excel = await report.getExcel({
       dateEnd,
@@ -70,18 +66,16 @@ export class CompanyUserReportController {
       orderByColumn,
       office: filterNumber(office),
       transactionStatus: filterNumber(transactionStatus),
-    });
+    })
 
-    excel.write("Relatório de Vendedor.xlsx", response);
+    excel.write('Relatório de Vendedor.xlsx', response)
   }
 
   async getPdf(request: Request, response: Response) {
-    const { companyId } = request["tokenPayload"];
-
-    const form = CompanyUserReportRequest.safeParse(request.query);
+    const form = CompanyUserReportRequest.safeParse(request.query)
 
     if (!form.success) {
-      throw new InternalError("Existem erros nos filtros", 400);
+      throw new InternalError('Existem erros nos filtros', 400)
     }
 
     const {
@@ -91,9 +85,9 @@ export class CompanyUserReportController {
       orderByColumn,
       office,
       transactionStatus,
-    } = form.data;
+    } = form.data
 
-    const report = new CompanyUsersReport(companyId);
+    const report = new UsersReport()
 
     const pdf = await report.getPdf({
       dateEnd,
@@ -102,30 +96,30 @@ export class CompanyUserReportController {
       orderByColumn,
       office: filterNumber(office),
       transactionStatus: filterNumber(transactionStatus),
-    });
+    })
 
-    response.setHeader("Content-type", "application/pdf");
+    response.setHeader('Content-type', 'application/pdf')
     response.setHeader(
-      "Content-disposition",
-      'inline; filename="Relatório de Vendedor.pdf"'
-    );
+      'Content-disposition',
+      'inline; filename="Relatório de Vendedor.pdf"',
+    )
 
-    pdf.pipe(response);
-    pdf.end();
+    pdf.pipe(response)
+    pdf.end()
   }
 
   async totalizer(request: Request, response: Response) {
-    const { companyId } = request["tokenPayload"];
+    const { companyId } = request['tokenPayload']
 
     const { dateEnd, dateStart, office, transactionStatus } =
-      request.query as Record<string, string>;
+      request.query as Record<string, string>
 
     const startDate = dateStart
-      ? DateTime.fromISO(dateStart).startOf("day").toJSDate()
-      : undefined;
+      ? DateTime.fromISO(dateStart).startOf('day').toJSDate()
+      : undefined
     const endDate = dateEnd
-      ? DateTime.fromISO(dateEnd).startOf("day").toJSDate()
-      : undefined;
+      ? DateTime.fromISO(dateEnd).startOf('day').toJSDate()
+      : undefined
 
     const consumerCount = await prisma.companyUser.count({
       where: {
@@ -138,7 +132,7 @@ export class CompanyUserReportController {
           },
         },
       },
-    });
+    })
 
     const totalTransactions = await prisma.transaction.aggregate({
       where: {
@@ -153,11 +147,11 @@ export class CompanyUserReportController {
       _sum: {
         totalAmount: true,
       },
-    });
+    })
 
     const newClients = await prisma.bonus.count({
       where: {
-        type: "NEW_USER",
+        type: 'NEW_USER',
         transaction: {
           companiesId: companyId,
           createdAt: { gte: startDate, lte: endDate },
@@ -167,12 +161,12 @@ export class CompanyUserReportController {
           },
         },
       },
-    });
+    })
 
     return response.json({
       consumerCount,
       totalTransactions: totalTransactions._sum.totalAmount,
       newClients,
-    });
+    })
   }
 }

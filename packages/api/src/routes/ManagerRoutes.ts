@@ -35,6 +35,9 @@ import { StoreProductController } from '../controllers/manager/store/StoreProduc
 import { CashbackReportController } from '../controllers/manager/reports/CashbackReportController'
 import { ReportFilterController } from '../controllers/manager/reports/ReportFilterController'
 import { ClientReportController } from '../controllers/manager/reports/ClientReportController'
+import { CompanyUserReportController } from '../controllers/manager/reports/CompanyUserReportController'
+import { CompanyUserTypeController } from '../controllers/manager/CompanyUserTypeController'
+import { TransactionStatusController } from '../controllers/manager/TransactionStatusController'
 
 const paymentMethod = new PaymentMethodController()
 const managerAuth = new ManagerAuthController()
@@ -58,7 +61,10 @@ const logoChangeRequestController = new LogoChangeRequestController()
 const referralBonusController = new ReferralBonusController()
 const cashbackReportController = new CashbackReportController()
 const clientReportController = new ClientReportController()
+const companyUserReportController = new CompanyUserReportController()
 const reportFilterController = new ReportFilterController()
+const companyUserTypeController = new CompanyUserTypeController()
+const transactionStatusController = new TransactionStatusController()
 
 const notificationSolicitationController =
   new NotificationSolicitationController()
@@ -230,10 +236,21 @@ routes.get('/report/companies/pdf', companiesReport.getPdf)
 routes.get('/report/companies/excel', companiesReport.getExcel)
 routes.get('/report/companies/totalizer', companiesReport.totalizer)
 
+routes.get('/report/company-users', companyUserReportController.index)
+routes.get('/report/company-users/pdf', companyUserReportController.getPdf)
+routes.get('/report/company-users/excel', companyUserReportController.getExcel)
+routes.get(
+  '/report/company-users/totalizer',
+  companyUserReportController.totalizer,
+)
+
 routes.get('/report/cashbacks', cashbackReportController.index)
 routes.get('/report/cashbacks/pdf', cashbackReportController.getPdf)
 routes.get('/report/cashbacks/excel', cashbackReportController.getExcel)
 routes.get('/report/cashbacks/totalizer', cashbackReportController.totalizer)
+
+routes.get('/company-user-types', companyUserTypeController.index)
+routes.get('/transaction-status', transactionStatusController.index)
 
 // routes.post("/representative/register", managerRepresentatives.register);
 // routes.get("/representative/find", managerRepresentatives.find);
