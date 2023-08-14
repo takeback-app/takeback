@@ -8,6 +8,7 @@ import { ExpiredBalanceGraphUseCase } from '../../../useCases/graphs/ExpiredBala
 import { ExpiredBalanceForecastGraphUseCase } from '../../../useCases/graphs/ExpiredBalanceForecastGraphUseCase'
 import { CashbackGraphUseCase } from '../../../useCases/graphs/CashbackGraphUseCase'
 import { CalculateCommissionAmountPendingUseCase } from '../../../useCases/manager/CalculateCommissionAmountPendingUseCase'
+import { StoreCreditGraphUseCase } from '../../../useCases/graphs/StoreCreditGraphUseCase'
 import { StoreValueGraphUseCase } from '../../../useCases/graphs/StoreValueGraphUseCase'
 
 export class DashboardController {
@@ -152,6 +153,14 @@ export class DashboardController {
 
   async storeValue(_request: Request, response: Response) {
     const useCase = new StoreValueGraphUseCase()
+
+    const data = await useCase.execute(6)
+
+    return response.json(data)
+  }
+
+  async storeCredit(_request: Request, response: Response) {
+    const useCase = new StoreCreditGraphUseCase()
 
     const data = await useCase.execute(6)
 
