@@ -69,12 +69,12 @@ export function CompanyUserReport() {
   )
 
   const { data: companyUsers, isLoading } = useSWR<Paginated<CompanyUserData>>([
-    'company/report/company-users',
+    'manager/report/company-users',
     filter
   ])
 
   const { data: totalizer } = useSWR<TotalizerData>([
-    'company/report/company-users/totalizer',
+    'manager/report/company-users/totalizer',
     filter
   ])
 
@@ -92,7 +92,7 @@ export function CompanyUserReport() {
     const link = document.createElement('a')
     link.target = '_blank'
     link.download = 'Relatório de Vendedores.xlsx'
-    const { data } = await API.get(`company/report/company-users/excel`, {
+    const { data } = await API.get(`manager/report/company-users/excel`, {
       params: filter,
       responseType: 'blob'
     })
@@ -105,7 +105,7 @@ export function CompanyUserReport() {
     const link = document.createElement('a')
     link.target = '_blank'
     link.download = 'Relatório de Vendedores.pdf'
-    const { data } = await API.get(`company/report/company-users/pdf`, {
+    const { data } = await API.get(`manager/report/company-users/pdf`, {
       params: filter,
       responseType: 'blob'
     })

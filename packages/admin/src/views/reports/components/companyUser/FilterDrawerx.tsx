@@ -53,11 +53,11 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
   const [status, setStatusTransaction] = useState(statusTransaction)
 
   const { data: cashbackStatuses } = useSWR<CashbackStatuses[]>(
-    'company/transaction-status'
+    'manager/transaction-status'
   )
 
   const { data: companyUser } = useSWR<CompanyUser[]>(
-    'company/company-user-types'
+    'manager/company-user-types'
   )
 
   function resetFilter() {
