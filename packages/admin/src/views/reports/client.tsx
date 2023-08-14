@@ -64,12 +64,12 @@ export function ClientReport() {
   )
 
   const { data: customers, isLoading } = useSWR<Paginated<ClientData>>([
-    'company/report/clients',
+    'manager/report/clients',
     filter
   ])
 
   const { data: totalizer } = useSWR<TotalizerData>([
-    'company/report/clients/totalizer',
+    'manager/report/clients/totalizer',
     filter
   ])
 
@@ -87,7 +87,7 @@ export function ClientReport() {
     const link = document.createElement('a')
     link.target = '_blank'
     link.download = 'Relatório de Clientes.xlsx'
-    const { data } = await API.get(`company/report/clients/excel`, {
+    const { data } = await API.get(`manager/report/clients/excel`, {
       responseType: 'blob',
       params: filter
     })
@@ -100,7 +100,7 @@ export function ClientReport() {
     const link = document.createElement('a')
     link.target = '_blank'
     link.download = 'Relatório de Clientes.pdf'
-    const { data } = await API.get(`company/report/clients/pdf`, {
+    const { data } = await API.get(`manager/report/clients/pdf`, {
       responseType: 'blob',
       params: filter
     })
