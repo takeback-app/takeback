@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import { DateTime } from 'luxon'
 import { prisma } from '../../../prisma'
 import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
 import { FeeGraphUseCase } from '../../../useCases/graphs/FeeGraphUseCase'
@@ -11,9 +12,40 @@ import { StoreResultGraphUseCase } from '../../../useCases/graphs/StoreResultGra
 
 export class DashboardController {
   async totalizer(_request: Request, response: Response) {
+    const currentDate = DateTime.now()
+
     const consumers = await prisma.consumer.aggregate({
       _sum: { balance: true },
       _count: true,
+    })
+
+    const inactiveConsumers = await prisma.consumer.count({
+      where: {
+        OR: [
+          {
+            expireBalanceDate: {
+              lt: currentDate.toJSDate(),
+            },
+          },
+          {
+            expireBalanceDate: null,
+          },
+        ],
+      },
+    })
+
+    const activeConsumers = await prisma.consumer.count({
+      where: {
+        expireBalanceDate: {
+          gte: currentDate.toJSDate(),
+        },
+      },
+    })
+
+    const newConsumers = await prisma.consumer.count({
+      where: {
+        isPlaceholderConsumer: true,
+      },
     })
 
     const representatives = await prisma.representative.aggregate({
@@ -24,6 +56,18 @@ export class DashboardController {
     const companies = await prisma.company.aggregate({
       _sum: { positiveBalance: true },
       _count: true,
+    })
+
+    const activeCompanies = await prisma.company.count({
+      where: {
+        statusId: 1,
+      },
+    })
+
+    const overdueCompanies = await prisma.company.count({
+      where: {
+        statusId: { in: [7, 8] },
+      },
     })
 
     const pendingCashbacks = await prisma.transaction.aggregate({
@@ -58,6 +102,11 @@ export class DashboardController {
       representativeCount: +representatives._count,
       pendingCashbackAmount: +pendingCashbacks._sum.cashbackAmount,
       pendingFeeAmount: +pendingCashbacks._sum.takebackFeeAmount,
+      activeConsumers,
+      inactiveConsumers,
+      newConsumers,
+      activeCompanies,
+      overdueCompanies,
     })
   }
 

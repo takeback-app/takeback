@@ -33,11 +33,12 @@ const SmallCard: React.FC<React.PropsWithChildren<Props>> = props => {
           </S.IconWrapper>
         </S.RightWrapper>
       </S.TopWrapper>
-
-      <S.BottomWrapper>
-        <IoInformationCircleOutline style={{ color: '#94a3b8' }} />
-        <S.Label>{props.label}</S.Label>
-      </S.BottomWrapper>
+      {props.label && (
+        <S.BottomWrapper>
+          <IoInformationCircleOutline style={{ color: '#94a3b8' }} />
+          <S.Label>{props.label}</S.Label>
+        </S.BottomWrapper>
+      )}
     </S.Container>
   )
 }

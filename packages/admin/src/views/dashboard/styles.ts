@@ -24,6 +24,14 @@ export const SmallCardsWrapper = styled.div`
     grid-template-columns: repeat(1, 1fr);
   }
 `
+
+export const SmallCardsWrapper2 = styled.div`
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+`
+
 export const LargeCardsWrapper = styled.div`
   display: grid;
   grid-template-columns: 2fr 1fr;
