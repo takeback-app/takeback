@@ -91,4 +91,26 @@ export class ReportFilterController {
 
     return response.json(users)
   }
+
+  async transactionStatus(request: Request, response: Response) {
+    const status = await prisma.transactionStatus.findMany({
+      select: {
+        id: true,
+        description: true,
+      },
+    })
+
+    return response.json(status)
+  }
+
+  async paymentMethods(request: Request, response: Response) {
+    const paymentMethods = await prisma.paymentMethod.findMany({
+      select: {
+        id: true,
+        description: true,
+      },
+    })
+
+    return response.json(paymentMethods)
+  }
 }

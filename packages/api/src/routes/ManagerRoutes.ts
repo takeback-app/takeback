@@ -225,6 +225,14 @@ routes.get(
   reportFilterController.companyStatus,
 )
 routes.get('/report/filters/companyUsers', reportFilterController.companyUsers)
+routes.get(
+  '/report/filters/transactionStatus',
+  reportFilterController.transactionStatus,
+)
+routes.get(
+  '/report/filters/paymentMethods',
+  reportFilterController.paymentMethods,
+)
 
 routes.get('/report/clients', clientReportController.index)
 routes.get('/report/clients/pdf', clientReportController.getPdf)

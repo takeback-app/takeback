@@ -14,8 +14,13 @@ export enum OrderByColumn {
 interface Filter {
   dateStart?: string
   dateEnd?: string
-  cashbackStatus: number
-  paymentMethodType: number
+  stateId?: number
+  cityId?: number
+  companyStatusId?: number
+  companyId?: string
+  companyUserId?: string
+  transactionStatusId?: number
+  paymentMethodId?: number
 }
 
 interface ReportResponse {
@@ -83,8 +88,13 @@ export class CashbacksReport extends BaseReport<ReportResponse, Filter> {
       dateEnd,
       orderByColumn = OrderByColumn.TOTAL_AMOUNT,
       order = 'asc',
-      cashbackStatus,
-      paymentMethodType,
+      cityId,
+      companyId,
+      companyStatusId,
+      companyUserId,
+      stateId,
+      transactionStatusId,
+      paymentMethodId,
     } = dto
 
     const query = db
@@ -107,6 +117,8 @@ export class CashbacksReport extends BaseReport<ReportResponse, Filter> {
       .from('transactions')
       .join('consumers', 'transactions.consumersId', 'consumers.id')
       .join('companies', 'transactions.companiesId', 'companies.id')
+      .join('companies_address', 'companies.addressId', 'companies_address.id')
+      .join('city', 'companies_address.cityId', 'city.id')
       .leftJoin(
         'company_users',
         'transactions.companyUsersId',
@@ -141,6 +153,11 @@ export class CashbacksReport extends BaseReport<ReportResponse, Filter> {
       )
       .orderBy(orderByColumn, order)
 
+    /*
+      transactionStatusId: filterNumber(transactionStatusId),
+      paymentMethodId: filterNumber(paymentMethodId), 
+    */
+
     if (dateStart) {
       query.where(
         'transactions.createdAt',
@@ -157,12 +174,32 @@ export class CashbacksReport extends BaseReport<ReportResponse, Filter> {
       )
     }
 
-    if (cashbackStatus) {
-      query.where('transactions.transactionStatusId', cashbackStatus)
+    if (cityId) {
+      query.where('companies_address.cityId', cityId)
     }
 
-    if (paymentMethodType) {
-      query.where('payment_methods.id', paymentMethodType)
+    if (companyId) {
+      query.where('companies.id', companyId)
+    }
+
+    if (companyStatusId) {
+      query.where('companies.statusId', companyStatusId)
+    }
+
+    if (companyUserId) {
+      query.where('company_users.id', companyUserId)
+    }
+
+    if (stateId) {
+      query.where('city.stateId', stateId)
+    }
+
+    if (transactionStatusId) {
+      query.where('transaction.transactionStatusId', transactionStatusId)
+    }
+
+    if (paymentMethodId) {
+      query.where('payment_methods.id', paymentMethodId)
     }
 
     return query

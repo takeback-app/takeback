@@ -17,11 +17,16 @@ export class CashbackReportController {
     const {
       dateEnd,
       dateStart,
+      cityId,
+      companyId,
+      companyStatusId,
+      companyUserId,
+      stateId,
+      transactionStatusId,
+      paymentMethodId,
       order,
       orderByColumn,
       page,
-      cashbackStatus,
-      paymentMethodType,
     } = form.data
 
     const report = new CashbacksReport()
@@ -33,8 +38,13 @@ export class CashbackReportController {
         dateStart,
         order,
         orderByColumn,
-        cashbackStatus: filterNumber(cashbackStatus),
-        paymentMethodType: filterNumber(paymentMethodType),
+        cityId: filterNumber(cityId),
+        companyId,
+        companyStatusId: filterNumber(companyStatusId),
+        companyUserId,
+        stateId: filterNumber(stateId),
+        transactionStatusId: filterNumber(transactionStatusId),
+        paymentMethodId: filterNumber(paymentMethodId),
       },
     )
 
@@ -51,10 +61,15 @@ export class CashbackReportController {
     const {
       dateEnd,
       dateStart,
+      cityId,
+      companyId,
+      companyStatusId,
+      companyUserId,
+      stateId,
+      transactionStatusId,
+      paymentMethodId,
       order,
       orderByColumn,
-      paymentMethodType,
-      cashbackStatus,
     } = form.data
 
     const report = new CashbacksReport()
@@ -64,8 +79,13 @@ export class CashbackReportController {
       dateStart,
       order,
       orderByColumn,
-      paymentMethodType: filterNumber(paymentMethodType),
-      cashbackStatus: filterNumber(cashbackStatus),
+      cityId: filterNumber(cityId),
+      companyId,
+      companyStatusId: filterNumber(companyStatusId),
+      companyUserId,
+      stateId: filterNumber(stateId),
+      transactionStatusId: filterNumber(transactionStatusId),
+      paymentMethodId: filterNumber(paymentMethodId),
     })
 
     excel.write('Relatório de Vendedor.xlsx', response)
@@ -83,8 +103,13 @@ export class CashbackReportController {
       dateStart,
       order,
       orderByColumn,
-      paymentMethodType,
-      cashbackStatus,
+      cityId,
+      companyId,
+      companyStatusId,
+      companyUserId,
+      stateId,
+      transactionStatusId,
+      paymentMethodId,
     } = form.data
 
     const report = new CashbacksReport()
@@ -94,8 +119,13 @@ export class CashbackReportController {
       dateStart,
       order,
       orderByColumn,
-      paymentMethodType: filterNumber(paymentMethodType),
-      cashbackStatus: filterNumber(cashbackStatus),
+      cityId: filterNumber(cityId),
+      companyId,
+      companyStatusId: filterNumber(companyStatusId),
+      companyUserId,
+      stateId: filterNumber(stateId),
+      transactionStatusId: filterNumber(transactionStatusId),
+      paymentMethodId: filterNumber(paymentMethodId),
     })
 
     response.setHeader('Content-type', 'application/pdf')
@@ -109,8 +139,6 @@ export class CashbackReportController {
   }
 
   async totalizer(request: Request, response: Response) {
-    const { companyId } = request['tokenPayload']
-
     const { dateEnd, dateStart } = request.query as Record<string, string>
 
     const startDate = dateStart
@@ -122,14 +150,11 @@ export class CashbackReportController {
 
     const cashbacks = await prisma.transaction.aggregate({
       where: {
-        companiesId: companyId,
         createdAt: { gte: startDate, lte: endDate },
         // transactionStatusId: filterNumber(cashbackStatus),
         transactionPaymentMethods: {
           some: {
-            companyPaymentMethod: {
-              // paymentMethodId: filterNumber(paymentMethodType),
-            },
+            companyPaymentMethod: { isNot: undefined },
           },
         },
       },
