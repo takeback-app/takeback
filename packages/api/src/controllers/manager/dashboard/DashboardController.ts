@@ -12,7 +12,7 @@ import { StoreResultGraphUseCase } from '../../../useCases/graphs/StoreResultGra
 
 export class DashboardController {
   async totalizer(_request: Request, response: Response) {
-    const currentDate = DateTime.local()
+    const currentDate = DateTime.now()
 
     const consumers = await prisma.consumer.aggregate({
       _sum: { balance: true },
@@ -66,7 +66,7 @@ export class DashboardController {
 
     const overdueCompanies = await prisma.company.count({
       where: {
-        statusId: 7 || 8,
+        statusId: { in: [7, 8] },
       },
     })
 
