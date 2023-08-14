@@ -14,15 +14,15 @@ interface Props extends SelectProps {
   label?: string
 }
 
-export function CompanyStatusFilter({
+export function PaymentMethodFilter({
   value,
   setValue,
-  name = 'companyStatus',
-  label = 'Status da Empresa',
+  name = 'paymentMethod',
+  label = 'Forma de pagamento',
   ...rest
 }: Props) {
   const { data, isLoading } = useSWR<Data[]>(
-    'manager/report/filters/companyStatus'
+    'manager/report/filters/paymentMethods'
   )
 
   if (!data || isLoading) return <Spinner size="sm" color="blue.500" />

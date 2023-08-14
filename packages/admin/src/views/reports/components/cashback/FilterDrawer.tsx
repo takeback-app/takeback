@@ -20,6 +20,8 @@ import { CityFilter } from '../../../../components/filters/CityFilter'
 import { CompanyStatusFilter } from '../../../../components/filters/CompanyStatusFilter'
 import { CompanyFilter } from '../../../../components/filters/CompanyFilter'
 import { CompanyUserFilter } from '../../../../components/filters/CompanyUserFilter'
+import { TransactionStatusFilter } from '../../../../components/filters/TransactionStatusFilter'
+import { PaymentMethodFilter } from '../../../../components/filters/PaymentMethodFilter'
 
 interface FilterDrawerProps {
   isOpen: boolean
@@ -39,6 +41,8 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
   const [localCompanyStatusId, setCompanyStatusId] = useState(0)
   const [localCompanyId, setCompanyId] = useState('')
   const [localCompanyUserId, setCompanyUserId] = useState('')
+  const [localTransactionStatusId, setTransactionStatusId] = useState(0)
+  const [localPaymentMethodId, setPaymentMethodId] = useState(0)
 
   function resetFilter() {
     reset()
@@ -52,11 +56,12 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
     setCompanyStatusId(0)
     setCompanyId('')
     setCompanyUserId('')
+    setTransactionStatusId(0)
+    setPaymentMethodId(0)
   }
 
   function handleSubmit() {
     if (!localDateStart || !localDateEnd) return
-
     setForm({
       dateStart: localDateStart,
       dateEnd: localDateEnd,
@@ -66,7 +71,9 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
       stateId: localStateId || undefined,
       companyStatusId: localCompanyStatusId || undefined,
       companyId: localCompanyId || undefined,
-      companyUserId: localCompanyUserId || undefined
+      companyUserId: localCompanyUserId || undefined,
+      transactionStatusId: localTransactionStatusId || undefined,
+      paymentMethodId: localPaymentMethodId || undefined
     })
 
     onClose()
@@ -91,6 +98,8 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
               />
 
               <CompanyStatusFilter
+                name="status-empresa"
+                label="Status da Empresa"
                 value={localCompanyStatusId}
                 setValue={setCompanyStatusId}
               />
@@ -127,39 +136,18 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
                 isRequired
               />
 
-              {/* {!!cashbackStatuses && (
-                <ChakraSelect
-                  options={[
-                    { id: 0, description: 'Todos' },
-                    ...cashbackStatuses
-                  ].map(status => ({
-                    text: status.description,
-                    value: status.id
-                  }))}
-                  label="Filtrar por Status"
-                  name="orderBy"
-                  value={status}
-                  onChange={e => setStatusTransaction(Number(e.target.value))}
-                />
-              )}
+              <TransactionStatusFilter
+                value={localTransactionStatusId}
+                setValue={setTransactionStatusId}
+              />
 
-              {!!paymentMethods && (
-                <ChakraSelect
-                  options={[
-                    { id: 0, description: 'Todos' },
-                    ...paymentMethods
-                  ].map(method => ({
-                    text: method.description,
-                    value: method.id
-                  }))}
-                  label="Filtrar por Método de Pagamento"
-                  name="orderBy"
-                  value={payment}
-                  onChange={e => setPaymentMethod(Number(e.target.value))}
-                />
-              )} */}
+              <PaymentMethodFilter
+                value={localPaymentMethodId}
+                setValue={setPaymentMethodId}
+              />
 
               <ChakraSelect
+                size="sm"
                 options={[
                   { value: 'totalAmount', text: 'Valor da Compra' },
                   { value: 'cashbackAmount', text: 'Cashback' },
@@ -173,6 +161,7 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
               />
 
               <ChakraSelect
+                size="sm"
                 options={[
                   { value: 'asc', text: 'Crescente' },
                   { value: 'desc', text: 'Decrescente' }

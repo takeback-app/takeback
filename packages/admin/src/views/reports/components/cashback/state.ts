@@ -13,6 +13,8 @@ export interface FormData {
   companyStatusId?: number
   companyId?: string
   companyUserId?: string
+  transactionStatusId?: number
+  paymentMethodId?: number
 }
 
 interface State extends FormData {
@@ -29,7 +31,9 @@ const initialState = {
   cityId: undefined,
   companyStatusId: undefined,
   companyId: undefined,
-  companyUserId: undefined
+  companyUserId: undefined,
+  transactionStatusId: undefined,
+  paymentMethodId: undefined
 }
 
 export const useCashbackReport = create<State>(set => ({

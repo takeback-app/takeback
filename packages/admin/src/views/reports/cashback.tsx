@@ -71,7 +71,9 @@ export function CashbackReport() {
     companyId,
     companyStatusId,
     companyUserId,
-    stateId
+    stateId,
+    transactionStatusId,
+    paymentMethodId
   } = useCashbackReport()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
@@ -84,6 +86,8 @@ export function CashbackReport() {
     companyStatusId,
     companyUserId,
     stateId,
+    transactionStatusId,
+    paymentMethodId,
     order,
     orderByColumn: orderBy
   }
@@ -97,16 +101,6 @@ export function CashbackReport() {
     'manager/report/cashbacks/totalizer',
     filter
   ])
-
-  if (!cashbacks || isLoading || !totalizer) {
-    return (
-      <Layout title="Cashbacks">
-        <Flex w="full" h="70vh" align="center" justify="center">
-          <Loader color="rgba(54, 162, 235, 1)" />
-        </Flex>
-      </Layout>
-    )
-  }
 
   async function exportExcel() {
     const link = document.createElement('a')
@@ -139,7 +133,16 @@ export function CashbackReport() {
 
   return (
     <Layout title="Cashbacks">
-      <Box p={4} overflow="hidden">
+      <Flex
+        w="full"
+        h="70vh"
+        align="center"
+        justify="center"
+        display={isLoading ? 'flex' : 'none'}
+      >
+        <Loader color="rgba(54, 162, 235, 1)" />
+      </Flex>
+      <Box p={4} overflow="hidden" display={isLoading ? 'none' : 'block'}>
         <Flex align="center" justify="space-between">
           <ButtonGroup>
             <Tooltip label="Filtrar">
@@ -177,7 +180,7 @@ export function CashbackReport() {
           </ButtonGroup>
         </Flex>
         <AppTable
-          dataLength={cashbacks.data.length}
+          dataLength={cashbacks?.data.length}
           noDataMessage="Nenhum cashback"
           mt={4}
           overflowY="scroll"
@@ -186,7 +189,7 @@ export function CashbackReport() {
             <Pagination
               page={page}
               setPage={setPage}
-              lastPage={cashbacks.meta.lastPage}
+              lastPage={cashbacks?.meta.lastPage || 0}
             />
           }
         >
@@ -207,7 +210,7 @@ export function CashbackReport() {
             </Tr>
           </Thead>
           <Tbody>
-            {cashbacks.data?.map(cashback => (
+            {cashbacks?.data.map(cashback => (
               <Tr color="gray.500" key={cashback.id}>
                 <Td fontSize="xs">{cashback.id}</Td>
                 <Td fontSize="xs">
@@ -239,7 +242,7 @@ export function CashbackReport() {
             ))}
           </Tbody>
         </AppTable>
-        {cashbacks.data.length && !!totalizer ? (
+        {cashbacks?.data.length && !!totalizer ? (
           <SimpleGrid columns={[2, 2, 6]} spacing="4" mt="6">
             <Box>
               <Text fontWeight="bold">Qtd. de Cashbacks:</Text>
