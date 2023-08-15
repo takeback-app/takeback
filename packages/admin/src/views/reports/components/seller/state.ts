@@ -4,35 +4,35 @@ import { create } from 'zustand'
 export type Order = 'asc' | 'desc'
 
 export interface FormData {
-  firstDate: string
-  secondDate: string
+  dateStart: string
+  dateEnd: string
   orderBy: string
   order: Order
   officeJob?: number
   statusTransaction?: number
+  companyId?: string
+  stateId?: number
+  cityId?: number
 }
 
-type State = {
-  firstDate: string
-  secondDate: string
-  orderBy: string
-  order: Order
-  officeJob?: number
-  statusTransaction?: number
+interface State extends FormData {
   setForm: (formData: FormData) => void
   reset: () => void
 }
 
 const initialState = {
-  firstDate: moment().subtract(1, 'month').format('YYYY-MM-DD'),
-  secondDate: moment().format('YYYY-MM-DD'),
+  dateStart: moment().subtract(1, 'month').format('YYYY-MM-DD'),
+  dateEnd: moment().format('YYYY-MM-DD'),
   orderBy: 'sellerName',
   order: 'asc' as Order,
   statusTransaction: undefined,
-  officeJob: undefined
+  officeJob: undefined,
+  stateId: undefined,
+  cityId: undefined,
+  companyId: undefined
 }
 
-export const useCompanyUserReport = create<State>(set => ({
+export const useSellerReport = create<State>(set => ({
   ...initialState,
   setForm: (form: FormData) => set(form),
   reset: () => set(initialState)

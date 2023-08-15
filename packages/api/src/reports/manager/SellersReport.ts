@@ -16,6 +16,9 @@ interface Filter {
   dateEnd?: string
   office?: number
   transactionStatus?: number
+  stateId?: number
+  cityId?: number
+  companyId?: string
 }
 
 interface ReportResponse {
@@ -24,6 +27,7 @@ interface ReportResponse {
   description: string
   totalAmount: number
   newClients: number
+  companyName: string
 }
 
 const NEW_USER_BONUS_TYPE = 'NEW_USER'
@@ -32,11 +36,12 @@ const HEADERS = [
   'Nome',
   'Cargo',
   'CPF',
+  'Empresa',
   'Total em Vendas',
   'Novos Clientes Indicados',
 ]
 
-export class UsersReport extends BaseReport<ReportResponse, Filter> {
+export class SellersReport extends BaseReport<ReportResponse, Filter> {
   constructor() {
     super(HEADERS)
   }
@@ -46,6 +51,7 @@ export class UsersReport extends BaseReport<ReportResponse, Filter> {
       sellerName: record.sellerName,
       description: record.description,
       cpf: record.cpf,
+      fantasyName: record.companyName,
       totalAmount: currency(record.totalAmount),
       newClients: String(record.newClients),
     }
@@ -61,6 +67,9 @@ export class UsersReport extends BaseReport<ReportResponse, Filter> {
       office,
       dateStart,
       dateEnd,
+      cityId,
+      companyId,
+      stateId,
       orderByColumn = OrderByColumn.SELLER_NAME,
       order = 'asc',
     } = dto ?? {}
@@ -68,9 +77,10 @@ export class UsersReport extends BaseReport<ReportResponse, Filter> {
     const query = db
       .select(
         'company_users.id',
-        'name as sellerName',
-        'cpf',
+        'company_users.name as sellerName',
+        'company_users.cpf',
         'company_user_types.description',
+        'companies.fantasyName as companyName',
         db.raw('sum("totalAmount") as "totalAmount"'),
         db.raw(
           'count("bonus"."transactionId") filter (where "bonus"."type" = ?) as "newClients"',
@@ -83,6 +93,9 @@ export class UsersReport extends BaseReport<ReportResponse, Filter> {
         'company_user_types.id',
         'company_users.companyUserTypesId',
       )
+      .join('companies', 'company_users.companyId', 'companies.id')
+      .join('companies_address', 'companies.addressId', 'companies_address.id')
+      .join('city', 'companies_address.cityId', 'city.id')
       .join('transactions', 'transactions.companyUsersId', 'company_users.id')
       .leftJoin('bonus', 'bonus.transactionId', 'transactions.id')
       .join(
@@ -90,7 +103,11 @@ export class UsersReport extends BaseReport<ReportResponse, Filter> {
         'transactions.transactionStatusId',
         'transaction_status.id',
       )
-      .groupBy('company_users.id', 'company_user_types.id')
+      .groupBy(
+        'company_users.id',
+        'company_user_types.id',
+        'companies.fantasyName',
+      )
       .orderBy(orderByColumn, order)
 
     if (dateStart) {
@@ -115,6 +132,18 @@ export class UsersReport extends BaseReport<ReportResponse, Filter> {
 
     if (transactionStatus) {
       query.where('transaction_status.id', transactionStatus)
+    }
+
+    if (cityId) {
+      query.where('companies_address.cityId', cityId)
+    }
+
+    if (companyId) {
+      query.where('companies.id', companyId)
+    }
+
+    if (stateId) {
+      query.where('city.stateId', stateId)
     }
 
     return query

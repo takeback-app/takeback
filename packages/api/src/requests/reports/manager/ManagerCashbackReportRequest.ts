@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { OrderByColumn } from '../../reports/manager/CashbacksReport'
+import { OrderByColumn } from '../../../reports/manager/CashbacksReport'
 
 export const ManagerCashbackReportRequest = z
   .object({

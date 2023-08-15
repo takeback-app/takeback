@@ -1,14 +1,14 @@
 import { Request, Response } from 'express'
 import { DateTime } from 'luxon'
-import { UsersReport } from './../../../reports/manager/UsersReport'
+import { SellersReport } from '../../../reports/manager/SellersReport'
 import { InternalError } from '../../../config/GenerateErros'
-import { CompanyUserReportRequest } from '../../../requests/reports/CompanyUserReportRequest'
 import { prisma } from '../../../prisma'
 import { filterNumber } from '../../../utils'
+import { ManagerSellerReportRequest } from '../../../requests/reports/manager/ManagerSellerReportRequest'
 
-export class CompanyUserReportController {
+export class SellerReportController {
   async index(request: Request, response: Response) {
-    const form = CompanyUserReportRequest.safeParse(request.query)
+    const form = ManagerSellerReportRequest.safeParse(request.query)
 
     if (!form.success) {
       throw new InternalError('Existem erros nos filtros', 400)
@@ -22,9 +22,12 @@ export class CompanyUserReportController {
       page,
       office,
       transactionStatus,
+      cityId,
+      companyId,
+      stateId,
     } = form.data
 
-    const report = new UsersReport()
+    const report = new SellersReport()
 
     const paginated = await report.getPaginated(
       { page: Number(page) },
@@ -35,6 +38,9 @@ export class CompanyUserReportController {
         orderByColumn,
         office: filterNumber(office),
         transactionStatus: filterNumber(transactionStatus),
+        cityId: filterNumber(cityId),
+        companyId,
+        stateId: filterNumber(stateId),
       },
     )
 
@@ -42,7 +48,7 @@ export class CompanyUserReportController {
   }
 
   async getExcel(request: Request, response: Response) {
-    const form = CompanyUserReportRequest.safeParse(request.query)
+    const form = ManagerSellerReportRequest.safeParse(request.query)
 
     if (!form.success) {
       throw new InternalError('Existem erros nos filtros', 400)
@@ -57,7 +63,7 @@ export class CompanyUserReportController {
       transactionStatus,
     } = form.data
 
-    const report = new UsersReport()
+    const report = new SellersReport()
 
     const excel = await report.getExcel({
       dateEnd,
@@ -72,7 +78,7 @@ export class CompanyUserReportController {
   }
 
   async getPdf(request: Request, response: Response) {
-    const form = CompanyUserReportRequest.safeParse(request.query)
+    const form = ManagerSellerReportRequest.safeParse(request.query)
 
     if (!form.success) {
       throw new InternalError('Existem erros nos filtros', 400)
@@ -87,7 +93,7 @@ export class CompanyUserReportController {
       transactionStatus,
     } = form.data
 
-    const report = new UsersReport()
+    const report = new SellersReport()
 
     const pdf = await report.getPdf({
       dateEnd,
