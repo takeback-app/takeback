@@ -15,17 +15,21 @@ export enum OrderByColumn {
 interface Filter {
   dateStart?: string
   dateEnd?: string
+  stateId?: number
+  cityId?: number
 }
 
 interface ReportResponse {
   id: string
   fullName: string
+  cpf: string
   phone: string
   city: string
   state: string
   totalAmount: number
   cashbackApproved: number
-  transactionCount: number
+  balance: number
+  blockedBalance: number
   lastTransactionDate: Date
 }
 
@@ -34,11 +38,13 @@ const APPROVED_TRANSACTION_STATUS_ID = 2
 const HEADERS = [
   'Nome',
   'Telefone',
+  'CPF',
   'Cidade',
   'Estado',
   'Total de Compras',
   'Total de Cashback Ganho',
-  'Quantidade de Visitas',
+  'Saldo Pendente',
+  'Saldo Atual',
   'Data da Última Transação',
 ]
 
@@ -51,11 +57,13 @@ export class ClientsReport extends BaseReport<ReportResponse, Filter> {
     return {
       fullName: record.fullName,
       phone: record.phone.trim() ? maskPhone(record.phone) : '-',
+      cpf: record.cpf,
       city: record.city,
       state: record.state,
       totalAmount: currency(record.totalAmount),
       cashbackApproved: currency(record.cashbackApproved),
-      transactionCount: String(record.transactionCount),
+      balance: currency(record.balance),
+      blockedBalance: currency(record.blockedBalance),
       lastTransactionDate: DateTime.fromJSDate(
         record.lastTransactionDate,
       ).toFormat('dd/MM/yyyy'),
@@ -70,15 +78,17 @@ export class ClientsReport extends BaseReport<ReportResponse, Filter> {
     const {
       dateEnd,
       dateStart,
+      cityId,
+      stateId,
       orderByColumn = OrderByColumn.FULL_NAME,
       order = 'asc',
     } = dto ?? {}
-
     const query = db
       .select(
         'consumers.id as id',
         'fullName',
         'phone',
+        'cpf',
         'city.name as city',
         'state.name as state',
         db.raw('sum("totalAmount") as "totalAmount"'),
@@ -86,7 +96,8 @@ export class ClientsReport extends BaseReport<ReportResponse, Filter> {
           'sum(case when transactions."transactionStatusId" = ? then transactions."cashbackAmount" else 0 end) as "cashbackApproved"',
           [APPROVED_TRANSACTION_STATUS_ID],
         ),
-        db.raw('count(transactions.id) as "transactionCount"'),
+        'blockedBalance',
+        'balance',
         db.raw('max(transactions."createdAt") as "lastTransactionDate"'),
       )
       .from('consumers')
@@ -111,6 +122,14 @@ export class ClientsReport extends BaseReport<ReportResponse, Filter> {
         '<=',
         DateTime.fromISO(dateEnd).startOf('day').toString(),
       )
+    }
+
+    if (cityId) {
+      query.where('consumer_address.cityId', cityId)
+    }
+
+    if (stateId) {
+      query.where('city.stateId', stateId)
     }
 
     return query

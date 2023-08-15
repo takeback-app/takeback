@@ -5,6 +5,7 @@ import { CompanyClientReportRequest } from '../../../requests/reports/CompanyCli
 import { InternalError } from '../../../config/GenerateErros'
 import { prisma } from '../../../prisma'
 import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
+import { filterNumber } from '../../../utils'
 
 export class ClientReportController {
   async index(request: Request, response: Response) {
@@ -14,13 +15,21 @@ export class ClientReportController {
       throw new InternalError('Existem erros nos filtros', 400)
     }
 
-    const { dateEnd, dateStart, order, orderByColumn, page } = form.data
+    const { dateEnd, dateStart, cityId, stateId, order, orderByColumn, page } =
+      form.data
 
     const report = new ClientsReport()
 
     const paginated = await report.getPaginated(
       { page: Number(page) },
-      { dateEnd, dateStart, order, orderByColumn },
+      {
+        dateEnd,
+        dateStart,
+        cityId: filterNumber(cityId),
+        order,
+        orderByColumn,
+        stateId: filterNumber(stateId),
+      },
     )
 
     return response.status(200).json(paginated)
@@ -33,15 +42,18 @@ export class ClientReportController {
       throw new InternalError('Existem erros nos filtros', 400)
     }
 
-    const { dateEnd, dateStart, order, orderByColumn } = form.data
+    const { dateEnd, dateStart, cityId, stateId, order, orderByColumn } =
+      form.data
 
     const report = new ClientsReport()
 
     const excel = await report.getExcel({
       dateEnd,
       dateStart,
+      cityId: filterNumber(cityId),
       order,
       orderByColumn,
+      stateId: filterNumber(stateId),
     })
 
     excel.write('Relatório de Cliente.xlsx', response)
@@ -54,15 +66,18 @@ export class ClientReportController {
       throw new InternalError('Existem erros nos filtros', 400)
     }
 
-    const { dateEnd, dateStart, order, orderByColumn } = form.data
+    const { dateEnd, dateStart, cityId, stateId, order, orderByColumn } =
+      form.data
 
     const report = new ClientsReport()
 
     const pdf = await report.getPdf({
       dateEnd,
       dateStart,
+      cityId: filterNumber(cityId),
       order,
       orderByColumn,
+      stateId: filterNumber(stateId),
     })
 
     response.setHeader('Content-type', 'application/pdf')
@@ -78,8 +93,12 @@ export class ClientReportController {
   async totalizer(request: Request, response: Response) {
     const { dateEnd, dateStart } = request.query as Record<string, string>
 
-    const startDate = DateTime.fromISO(dateStart).startOf('day').toJSDate()
-    const endDate = DateTime.fromISO(dateEnd).startOf('day').toJSDate()
+    const startDate = dateStart
+      ? DateTime.fromISO(dateStart).startOf('day').toJSDate()
+      : undefined
+    const endDate = dateEnd
+      ? DateTime.fromISO(dateEnd).startOf('day').toJSDate()
+      : undefined
 
     const consumerCount = await prisma.consumer.count({
       where: {
@@ -114,9 +133,10 @@ export class ClientReportController {
       },
     })
 
-    const totalVisits = await prisma.transaction.count({
-      where: {
-        createdAt: { gte: startDate, lte: endDate },
+    const totalBalance = await prisma.consumer.aggregate({
+      _sum: {
+        blockedBalance: true,
+        balance: true,
       },
     })
 
@@ -124,7 +144,8 @@ export class ClientReportController {
       consumerCount,
       totalShoppingValue: totalShoppingValue._sum.totalAmount,
       totalApprovedCashback: totalApprovedCashback._sum.cashbackAmount,
-      totalVisits,
+      pendingAmount: totalBalance._sum.blockedBalance,
+      balanceAmount: totalBalance._sum.balance,
     })
   }
 }
