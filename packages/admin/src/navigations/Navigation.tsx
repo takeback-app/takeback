@@ -46,7 +46,7 @@ import { StoreProductsList } from '../views/store'
 import { CreateStoreProduct } from '../views/store/create'
 import { StoreProductDetail } from '../views/store/show'
 import { ClientReport } from '../views/reports/client'
-import { CompanyUserReport } from '../views/reports/companyUser'
+import { SellerReport } from '../views/reports/seller'
 import { CashbackReport } from '../views/reports/cashback'
 
 interface Props {
@@ -325,7 +325,7 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         path="/relatorios/venda"
         element={
           <PrivateRoute>
-            <CompanyUserReport />
+            <SellerReport />
           </PrivateRoute>
         }
       />
