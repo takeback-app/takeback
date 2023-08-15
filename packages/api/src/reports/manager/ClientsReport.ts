@@ -6,10 +6,11 @@ import { db } from '../../knex'
 import { currency, maskPhone } from '../../utils/Masks'
 
 export enum OrderByColumn {
-  FULL_NAME = 'consumers.fullName',
   TOTAL_AMOUNT = 'totalAmount',
+  FULL_NAME = 'consumers.fullName',
   CASHBACK_APPROVED = 'cashbackApproved',
-  TRANSACTION_COUNT = 'transactionCount',
+  BALANCE = 'balance',
+  BLOCKED_BALANCE = 'blockedBalance',
 }
 
 interface Filter {
