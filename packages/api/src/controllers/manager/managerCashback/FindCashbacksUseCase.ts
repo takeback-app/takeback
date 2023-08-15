@@ -1,17 +1,17 @@
-import { DateTime } from "luxon";
-import { prisma } from "../../../prisma";
-import { Prisma } from "@prisma/client";
+import { DateTime } from 'luxon'
+import { Prisma } from '@prisma/client'
+import { prisma } from '../../../prisma'
 
 interface Props {
-  company?: string;
-  consumer?: string;
-  status?: string;
-  startDate?: string;
-  endDate?: string;
-  page?: number;
+  company?: string
+  consumer?: string
+  status?: string
+  startDate?: string
+  endDate?: string
+  page?: number
 }
 
-const PER_PAGE = 25;
+const PER_PAGE = 25
 
 class FindCashbacksUseCase {
   async execute({
@@ -31,7 +31,7 @@ class FindCashbacksUseCase {
       consumer: consumer
         ? {
             OR: [
-              { fullName: { contains: consumer, mode: "insensitive" } },
+              { fullName: { contains: consumer, mode: 'insensitive' } },
               { cpf: { startsWith: consumer } },
             ],
           }
@@ -39,12 +39,12 @@ class FindCashbacksUseCase {
       company: company
         ? {
             OR: [
-              { fantasyName: { contains: company, mode: "insensitive" } },
+              { fantasyName: { contains: company, mode: 'insensitive' } },
               { registeredNumber: { startsWith: company } },
             ],
           }
         : undefined,
-    };
+    }
 
     const cashbacks = await prisma.transaction.findMany({
       select: {
@@ -74,18 +74,18 @@ class FindCashbacksUseCase {
         transactionStatus: { select: { description: true } },
       },
       where,
-      orderBy: { id: "desc" },
+      orderBy: { id: 'desc' },
       take: PER_PAGE,
       skip: (page - 1) * PER_PAGE,
-    });
+    })
 
-    const count = await prisma.transaction.count({ where });
+    const count = await prisma.transaction.count({ where })
 
     return {
       data: cashbacks,
       meta: { lastPage: Math.ceil(count / PER_PAGE) },
-    };
+    }
   }
 }
 
-export { FindCashbacksUseCase };
+export { FindCashbacksUseCase }

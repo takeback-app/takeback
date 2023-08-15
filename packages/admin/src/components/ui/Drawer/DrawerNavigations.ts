@@ -1,4 +1,6 @@
 import {
+  IoAlbumsOutline,
+  IoArrowUndoCircleOutline,
   IoBagAdd,
   IoBagAddOutline,
   IoBagRemove,
@@ -17,10 +19,9 @@ import {
   IoIdCardOutline,
   IoNotifications,
   IoNotificationsOutline,
+  IoPeopleOutline,
   IoPerson,
   IoPersonOutline,
-  IoReader,
-  IoReaderOutline,
   IoRefresh,
   IoRefreshOutline,
   IoRocket,
@@ -202,11 +203,40 @@ export const drawerNav = [
   {
     id: 8,
     label: 'Relatórios',
-    activeIcon: IoReader,
-    inactiveIcon: IoReaderOutline,
+    activeIcon: IoAlbumsOutline,
+    inactiveIcon: IoAlbumsOutline,
     isActive: false,
+    isOpened: false,
     to: '/relatorios',
-    userBlocked: 0
+    pages: [
+      {
+        id: 0,
+        label: 'Clientes',
+        activeIcon: IoPeopleOutline,
+        inactiveIcon: IoPeopleOutline,
+        isActive: false,
+        to: '/relatorios/cliente',
+        userBlocked: 0
+      },
+      {
+        id: 1,
+        label: 'Vendedores',
+        activeIcon: IoStorefrontOutline,
+        inactiveIcon: IoStorefrontOutline,
+        isActive: false,
+        to: '/relatorios/venda',
+        userBlocked: 0
+      },
+      {
+        id: 2,
+        label: 'Cashback',
+        activeIcon: IoArrowUndoCircleOutline,
+        inactiveIcon: IoArrowUndoCircleOutline,
+        isActive: false,
+        to: '/relatorios/cashback',
+        userBlocked: 0
+      }
+    ]
   },
   {
     id: 9,

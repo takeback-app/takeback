@@ -27,14 +27,8 @@ import Users from '../views/settings/users/users'
 import PaymentMethods from '../views/settings/paymentMethods'
 import Plans from '../views/settings/plans'
 import NotFound from '../views/notFound'
-import Reports from '../views/reports/reports'
-import MonthlyPaymentReport from '../views/reports/monthlyPaymentReport'
-import PaymentsOrderReport from '../views/reports/paymentsOrderReport'
-import CompaniesReport from '../views/reports/companiesReport/CompaniesReport'
 import ResetPassword from '../views/auth/ResetPassword'
 import ForgotPassword from '../views/auth/ForgotPassword'
-import CashbackReport from '../views/reports/cashbackReport'
-import SelersReport from '../views/reports/salersReport/SalersReport'
 import { WithdrawOrderDetails } from '../views/cashbacks/cashbacksToPay/details'
 import { Raffles } from '../views/partners/raffles'
 import { RaffleDetail } from '../views/partners/raffles/RaffleDetail'
@@ -47,11 +41,13 @@ import { Representatives } from '../views/partners/representatives'
 import { EditRepresentative } from '../views/partners/representatives/edit'
 import { CreateRepresentative } from '../views/partners/representatives/create'
 import { LogoChangeRequest } from '../views/partners/logoChangeRequest'
-import FinancialReport from '../views/reports/financialReport/FinancialReport'
 import { Notifications } from '../views/notifications'
 import { StoreProductsList } from '../views/store'
 import { CreateStoreProduct } from '../views/store/create'
 import { StoreProductDetail } from '../views/store/show'
+import { ClientReport } from '../views/reports/client'
+import { CompanyUserReport } from '../views/reports/companyUser'
+import { CashbackReport } from '../views/reports/cashback'
 
 interface Props {
   children: JSX.Element
@@ -290,62 +286,7 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
           </PrivateRoute>
         }
       />
-      <Route
-        path="/relatorios"
-        element={
-          <PrivateRoute>
-            <Reports />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/relatorios/ordem-de-pagamento"
-        element={
-          <PrivateRoute>
-            <PaymentsOrderReport />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/relatorios/mensalidades"
-        element={
-          <PrivateRoute>
-            <MonthlyPaymentReport />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/relatorios/empresas"
-        element={
-          <PrivateRoute>
-            <CompaniesReport />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/relatorios/cashbacks"
-        element={
-          <PrivateRoute>
-            <CashbackReport />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/relatorios/vendedores"
-        element={
-          <PrivateRoute>
-            <SelersReport />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/relatorios/financeiro"
-        element={
-          <PrivateRoute>
-            <FinancialReport />
-          </PrivateRoute>
-        }
-      />
+
       <Route
         path="/ofertas"
         element={
@@ -368,6 +309,31 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <StoreProductDetail />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/relatorios/cliente"
+        element={
+          <PrivateRoute>
+            <ClientReport />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/relatorios/venda"
+        element={
+          <PrivateRoute>
+            <CompanyUserReport />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/relatorios/cashback"
+        element={
+          <PrivateRoute>
+            <CashbackReport />
           </PrivateRoute>
         }
       />
