@@ -1,15 +1,15 @@
 import { Request, Response } from 'express'
 import { DateTime } from 'luxon'
 import { ClientsReport } from './../../../reports/manager/ClientsReport'
-import { CompanyClientReportRequest } from '../../../requests/reports/CompanyClientReportRequest'
 import { InternalError } from '../../../config/GenerateErros'
 import { prisma } from '../../../prisma'
 import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
 import { filterNumber } from '../../../utils'
+import { ManagerClientReportRequest } from '../../../requests/reports/ManagerClientReportRequest'
 
 export class ClientReportController {
   async index(request: Request, response: Response) {
-    const form = CompanyClientReportRequest.safeParse(request.query)
+    const form = ManagerClientReportRequest.safeParse(request.query)
 
     if (!form.success) {
       throw new InternalError('Existem erros nos filtros', 400)
@@ -36,7 +36,7 @@ export class ClientReportController {
   }
 
   async getExcel(request: Request, response: Response) {
-    const form = CompanyClientReportRequest.safeParse(request.query)
+    const form = ManagerClientReportRequest.safeParse(request.query)
 
     if (!form.success) {
       throw new InternalError('Existem erros nos filtros', 400)
@@ -60,7 +60,7 @@ export class ClientReportController {
   }
 
   async getPdf(request: Request, response: Response) {
-    const form = CompanyClientReportRequest.safeParse(request.query)
+    const form = ManagerClientReportRequest.safeParse(request.query)
 
     if (!form.success) {
       throw new InternalError('Existem erros nos filtros', 400)
