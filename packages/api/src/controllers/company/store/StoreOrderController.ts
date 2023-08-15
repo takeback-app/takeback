@@ -54,12 +54,10 @@ export class StoreOrderController {
       where: { id: companyId },
     })
 
-    const credit = order.product.buyPrice.times(order.quantity)
-
     await prisma.company.update({
       where: { id: companyId },
       data: {
-        positiveBalance: company.positiveBalance.add(credit),
+        positiveBalance: company.positiveBalance.add(order.companyCreditValue),
       },
     })
 

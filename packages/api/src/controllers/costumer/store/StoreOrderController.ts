@@ -67,6 +67,7 @@ export class StoreOrderController {
         stock: true,
         dateLimit: true,
         sellPrice: true,
+        buyPrice: true,
         company: { select: { fantasyName: true } },
       },
     })
@@ -122,6 +123,7 @@ export class StoreOrderController {
         value: orderValue,
         storeProductId: productId,
         validationCode: String(generateCode()),
+        companyCreditValue: product.buyPrice.times(quantity),
       },
     })
 
