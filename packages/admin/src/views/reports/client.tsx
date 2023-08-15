@@ -25,18 +25,20 @@ import { API } from '../../services/API'
 import Layout from '../../components/ui/Layout'
 import { AppTable } from '../../components/tables'
 import { Pagination } from '../../components/tables/Pagination'
-import { maskPhone } from '../../utils/masks'
+import { maskCPF, maskPhone } from '../../utils/masks'
 import { currencyFormat } from '../../utils/currencytFormat'
 
 export interface ClientData {
   id: string
   fullName: string
+  cpf: string
   phone: string
   city: string
   state: string
   totalAmount: number
   cashbackApproved: number
-  transactionCount: number
+  blockedBalance: number
+  balance: number
   lastTransactionDate: string
 }
 
@@ -44,24 +46,25 @@ export interface TotalizerData {
   consumerCount: number
   totalShoppingValue: number
   totalApprovedCashback: number
-  totalVisits: number
+  pendingAmount: number
+  balanceAmount: number
 }
 
 export function ClientReport() {
   const [page, setPage] = useState(1)
-  const { firstDate, secondDate, order, orderBy } = useClientReport()
+  const { dateStart, dateEnd, order, orderBy, stateId, cityId } =
+    useClientReport()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const filter = useMemo(
-    () => ({
-      page,
-      dateStart: new Date(firstDate).toISOString(),
-      dateEnd: new Date(secondDate).toISOString(),
-      order,
-      orderByColumn: orderBy
-    }),
-    [firstDate, secondDate, order, orderBy, page]
-  )
+  const filter = {
+    page,
+    dateStart: new Date(dateStart).toISOString(),
+    dateEnd: new Date(dateEnd).toISOString(),
+    order,
+    orderByColumn: orderBy,
+    stateId,
+    cityId
+  }
 
   const { data: customers, isLoading } = useSWR<Paginated<ClientData>>([
     'manager/report/clients',
@@ -72,16 +75,6 @@ export function ClientReport() {
     'manager/report/clients/totalizer',
     filter
   ])
-
-  if (!customers || isLoading) {
-    return (
-      <Layout title="Clientes">
-        <Flex w="full" h="70vh" align="center" justify="center">
-          <Loader color="rgba(54, 162, 235, 1)" />
-        </Flex>
-      </Layout>
-    )
-  }
 
   async function exportExcel() {
     const link = document.createElement('a')
@@ -113,7 +106,16 @@ export function ClientReport() {
 
   return (
     <Layout title="Clientes">
-      <Box p={4} overflow="hidden">
+      <Flex
+        w="full"
+        h="70vh"
+        align="center"
+        justify="center"
+        display={isLoading ? 'flex' : 'none'}
+      >
+        <Loader color="rgba(54, 162, 235, 1)" />
+      </Flex>
+      <Box p={4} overflow="hidden" display={isLoading ? 'none' : 'block'}>
         <Flex align="center" justify="space-between">
           <ButtonGroup>
             <Tooltip label="Filtrar">
@@ -151,7 +153,7 @@ export function ClientReport() {
           </ButtonGroup>
         </Flex>
         <AppTable
-          dataLength={customers.data.length}
+          dataLength={customers?.data.length}
           noDataMessage="Nenhum cliente"
           mt={4}
           overflowY="scroll"
@@ -160,7 +162,7 @@ export function ClientReport() {
             <Pagination
               page={page}
               setPage={setPage}
-              lastPage={customers.meta.lastPage}
+              lastPage={customers?.meta.lastPage || 0}
             />
           }
         >
@@ -168,22 +170,27 @@ export function ClientReport() {
             <Tr>
               <Th>Nome</Th>
               <Th>Telefone</Th>
+              <Th>CPF</Th>
               <Th>Cidade</Th>
               <Th>Estado</Th>
               <Th>T. Compras</Th>
               <Th>T. Cashback Ganho</Th>
-              <Th>Qtd. de Visitas</Th>
+              <Th>Saldo pendente</Th>
+              <Th>Saldo atual</Th>
               <Th>Ult. Transação</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {customers.data.map((customer: ClientData) => (
+            {customers?.data.map((customer: ClientData) => (
               <Tr color="gray.500" key={customer?.id}>
                 <Td fontSize="xs">{customer?.fullName}</Td>
                 <Td fontSize="xs">
                   {customer?.phone && customer?.phone !== ' '
                     ? maskPhone(customer?.phone)
                     : 'Sem telefone'}
+                </Td>
+                <Td fontSize="xs">
+                  {customer?.cpf ? maskCPF(customer?.cpf) : 'Sem cpf'}
                 </Td>
                 <Td fontSize="xs">{customer?.city ?? 'Sem cidade'}</Td>
                 <Td fontSize="xs">{customer?.state ?? 'Sem estado'}</Td>
@@ -197,7 +204,10 @@ export function ClientReport() {
                     ? currencyFormat(customer?.cashbackApproved)
                     : 'Sem cashback'}
                 </Td>
-                <Td fontSize="xs">{customer?.transactionCount}</Td>
+                <Td fontSize="xs">
+                  {currencyFormat(customer?.blockedBalance)}
+                </Td>
+                <Td fontSize="xs">{currencyFormat(customer?.balance)}</Td>
                 <Td fontSize="xs">
                   {customer?.lastTransactionDate
                     ? new Date(
@@ -209,8 +219,8 @@ export function ClientReport() {
             ))}
           </Tbody>
         </AppTable>
-        {customers.data.length ? (
-          <SimpleGrid columns={[2, 2, 4]} spacing="4" mt="6">
+        {customers?.data.length ? (
+          <SimpleGrid columns={[2, 3, 5]} spacing="4" mt="6">
             <Box>
               <Text fontWeight="bold">Total de clientes:</Text>
               <Text>{totalizer?.consumerCount}</Text>
@@ -232,8 +242,20 @@ export function ClientReport() {
               </Text>
             </Box>
             <Box>
-              <Text fontWeight="bold">Total de visitas:</Text>
-              <Text>{totalizer?.totalVisits}</Text>
+              <Text fontWeight="bold">Total de saldos pendentes:</Text>
+              <Text>
+                {totalizer?.pendingAmount
+                  ? currencyFormat(totalizer?.pendingAmount)
+                  : '-'}
+              </Text>
+            </Box>
+            <Box>
+              <Text fontWeight="bold">Total de saldos atuais:</Text>
+              <Text>
+                {totalizer?.balanceAmount
+                  ? currencyFormat(totalizer?.balanceAmount)
+                  : '-'}
+              </Text>
             </Box>
           </SimpleGrid>
         ) : null}

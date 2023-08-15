@@ -15,6 +15,8 @@ import {
 import { Order, useClientReport } from './state'
 import { ChakraInput } from '../../../../components/chakra/ChakraInput'
 import { ChakraSelect } from '../../../../components/chakra/ChakraSelect'
+import { CityFilter } from '../../../../components/filters/CityFilter'
+import { StateFilter } from '../../../../components/filters/StateFilter'
 
 interface FilterDrawerProps {
   isOpen: boolean
@@ -22,31 +24,37 @@ interface FilterDrawerProps {
 }
 
 export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
-  const { setForm, firstDate, secondDate, order, orderBy, reset } =
+  const { setForm, dateStart, dateEnd, order, orderBy, reset } =
     useClientReport()
 
-  const [startDate, setStartDate] = useState(firstDate)
-  const [endDate, setEndDate] = useState(secondDate)
+  const [localDateStart, setDateStart] = useState(dateStart)
+  const [localDateEnd, setDateEnd] = useState(dateEnd)
   const [localOrderBy, setOrderBy] = useState(orderBy)
   const [localOrder, setOrder] = useState(order)
+  const [localStateId, setStateId] = useState(0)
+  const [localCityId, setCityId] = useState(0)
 
   function resetFilter() {
     reset()
 
-    setStartDate(firstDate)
-    setEndDate(secondDate)
+    setDateStart(dateStart)
+    setDateEnd(dateEnd)
     setOrderBy(orderBy)
     setOrder(order)
+    setStateId(0)
+    setCityId(0)
   }
 
   function handleSubmit() {
-    if (!startDate || !endDate) return
+    if (!localDateStart || !localDateEnd) return
 
     setForm({
-      firstDate: startDate,
-      secondDate: endDate,
+      dateStart: localDateStart,
+      dateEnd: localDateEnd,
       orderBy: localOrderBy,
-      order: localOrder
+      order: localOrder,
+      cityId: localCityId || undefined,
+      stateId: localStateId || undefined
     })
 
     onClose()
@@ -61,24 +69,32 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
 
         <DrawerBody>
           <Stack spacing={6}>
+            <StateFilter value={localStateId} setValue={setStateId} />
+            <CityFilter
+              value={localCityId}
+              setValue={setCityId}
+              stateId={localStateId || undefined}
+              isDisabled={!localStateId}
+            />
             <ChakraInput
               size="sm"
               type="date"
               label="Período inicial"
-              value={startDate}
-              onChange={e => setStartDate(e.target.value)}
+              value={localDateStart}
+              onChange={e => setDateStart(e.target.value)}
               isRequired
             />
             <ChakraInput
               size="sm"
               type="date"
               label="Período final"
-              value={endDate}
-              onChange={e => setEndDate(e.target.value)}
+              value={localDateEnd}
+              onChange={e => setDateEnd(e.target.value)}
               isRequired
             />
 
             <ChakraSelect
+              size="sm"
               options={[
                 { value: 'totalAmount', text: 'Total de compras' },
                 { value: 'consumers.fullName', text: 'Nome do cliente' },
@@ -92,6 +108,7 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
             />
 
             <ChakraSelect
+              size="sm"
               options={[
                 { value: 'asc', text: 'Crescente' },
                 { value: 'desc', text: 'Decrescente' }
