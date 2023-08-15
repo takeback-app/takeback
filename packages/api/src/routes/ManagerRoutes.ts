@@ -35,7 +35,7 @@ import { StoreProductController } from '../controllers/manager/store/StoreProduc
 import { CashbackReportController } from '../controllers/manager/reports/CashbackReportController'
 import { ReportFilterController } from '../controllers/manager/reports/ReportFilterController'
 import { ClientReportController } from '../controllers/manager/reports/ClientReportController'
-import { CompanyUserReportController } from '../controllers/manager/reports/CompanyUserReportController'
+import { SellerReportController } from '../controllers/manager/reports/SellerReportController'
 import { CompanyUserTypeController } from '../controllers/manager/CompanyUserTypeController'
 import { TransactionStatusController } from '../controllers/manager/TransactionStatusController'
 
@@ -61,7 +61,7 @@ const logoChangeRequestController = new LogoChangeRequestController()
 const referralBonusController = new ReferralBonusController()
 const cashbackReportController = new CashbackReportController()
 const clientReportController = new ClientReportController()
-const companyUserReportController = new CompanyUserReportController()
+const sellerReportController = new SellerReportController()
 const reportFilterController = new ReportFilterController()
 const companyUserTypeController = new CompanyUserTypeController()
 const transactionStatusController = new TransactionStatusController()
@@ -244,13 +244,10 @@ routes.get('/report/companies/pdf', companiesReport.getPdf)
 routes.get('/report/companies/excel', companiesReport.getExcel)
 routes.get('/report/companies/totalizer', companiesReport.totalizer)
 
-routes.get('/report/company-users', companyUserReportController.index)
-routes.get('/report/company-users/pdf', companyUserReportController.getPdf)
-routes.get('/report/company-users/excel', companyUserReportController.getExcel)
-routes.get(
-  '/report/company-users/totalizer',
-  companyUserReportController.totalizer,
-)
+routes.get('/report/seller', sellerReportController.index)
+routes.get('/report/seller/pdf', sellerReportController.getPdf)
+routes.get('/report/seller/excel', sellerReportController.getExcel)
+routes.get('/report/seller/totalizer', sellerReportController.totalizer)
 
 routes.get('/report/cashbacks', cashbackReportController.index)
 routes.get('/report/cashbacks/pdf', cashbackReportController.getPdf)

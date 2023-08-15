@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { DateTime } from 'luxon'
-import { ManagerCashbackReportRequest } from '../../../requests/reports/ManagerCashbackReportRequest'
+import { ManagerCashbackReportRequest } from '../../../requests/reports/manager/ManagerCashbackReportRequest'
 import { InternalError } from '../../../config/GenerateErros'
 import { prisma } from '../../../prisma'
 import { filterNumber } from '../../../utils'

@@ -5,7 +5,7 @@ import { InternalError } from '../../../config/GenerateErros'
 import { prisma } from '../../../prisma'
 import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
 import { filterNumber } from '../../../utils'
-import { ManagerClientReportRequest } from '../../../requests/reports/ManagerClientReportRequest'
+import { ManagerClientReportRequest } from '../../../requests/reports/manager/ManagerClientReportRequest'
 
 export class ClientReportController {
   async index(request: Request, response: Response) {
