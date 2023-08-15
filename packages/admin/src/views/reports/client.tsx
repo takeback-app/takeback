@@ -194,15 +194,9 @@ export function ClientReport() {
                 </Td>
                 <Td fontSize="xs">{customer?.city ?? 'Sem cidade'}</Td>
                 <Td fontSize="xs">{customer?.state ?? 'Sem estado'}</Td>
+                <Td fontSize="xs">{currencyFormat(customer?.totalAmount)}</Td>
                 <Td fontSize="xs">
-                  {customer?.totalAmount
-                    ? currencyFormat(customer?.totalAmount)
-                    : 'Sem compras'}
-                </Td>
-                <Td fontSize="xs">
-                  {customer?.cashbackApproved
-                    ? currencyFormat(customer?.cashbackApproved)
-                    : 'Sem cashback'}
+                  {currencyFormat(customer?.cashbackApproved)}
                 </Td>
                 <Td fontSize="xs">
                   {currencyFormat(customer?.blockedBalance)}

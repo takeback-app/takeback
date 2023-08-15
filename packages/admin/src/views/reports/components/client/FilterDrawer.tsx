@@ -98,8 +98,9 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
               options={[
                 { value: 'totalAmount', text: 'Total de compras' },
                 { value: 'consumers.fullName', text: 'Nome do cliente' },
-                { value: 'cashbackApproved', text: 'Cashbacks Aprovados' },
-                { value: 'transactionCount', text: 'Quantidade de Visitas' }
+                { value: 'balance', text: 'Saldo atual' },
+                { value: 'blockedBalance', text: 'Saldo pendente' },
+                { value: 'cashbackApproved', text: 'Cashbacks Aprovados' }
               ]}
               label="Ordenar por"
               name="orderBy"
