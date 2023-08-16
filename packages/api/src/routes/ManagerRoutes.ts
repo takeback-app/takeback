@@ -38,6 +38,7 @@ import { ClientReportController } from '../controllers/manager/reports/ClientRep
 import { SellerReportController } from '../controllers/manager/reports/SellerReportController'
 import { CompanyUserTypeController } from '../controllers/manager/CompanyUserTypeController'
 import { TransactionStatusController } from '../controllers/manager/TransactionStatusController'
+import { CompanyReportController } from '../controllers/manager/reports/CompanyReportController'
 
 const paymentMethod = new PaymentMethodController()
 const managerAuth = new ManagerAuthController()
@@ -62,6 +63,7 @@ const referralBonusController = new ReferralBonusController()
 const cashbackReportController = new CashbackReportController()
 const clientReportController = new ClientReportController()
 const sellerReportController = new SellerReportController()
+const companyReportController = new CompanyReportController()
 const reportFilterController = new ReportFilterController()
 const companyUserTypeController = new CompanyUserTypeController()
 const transactionStatusController = new TransactionStatusController()
@@ -253,6 +255,11 @@ routes.get('/report/cashbacks', cashbackReportController.index)
 routes.get('/report/cashbacks/pdf', cashbackReportController.getPdf)
 routes.get('/report/cashbacks/excel', cashbackReportController.getExcel)
 routes.get('/report/cashbacks/totalizer', cashbackReportController.totalizer)
+
+routes.get('/report/company', companyReportController.index)
+routes.get('/report/company/pdf', companyReportController.getPdf)
+routes.get('/report/company/excel', companyReportController.getExcel)
+routes.get('/report/company/totalizer', companyReportController.totalizer)
 
 routes.get('/company-user-types', companyUserTypeController.index)
 routes.get('/transaction-status', transactionStatusController.index)
