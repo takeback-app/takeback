@@ -121,7 +121,14 @@ export class CompanyReportController {
   }
 
   async totalizer(request: Request, response: Response) {
-    const { dateEnd, dateStart } = request.query as Record<string, string>
+    const {
+      dateEnd,
+      dateStart,
+      cityId,
+      stateId,
+      companyStatusId,
+      transactionStatusId,
+    } = request.query as Record<string, string>
 
     const startDate = dateStart
       ? DateTime.fromISO(dateStart).startOf('day').toJSDate()
@@ -130,15 +137,41 @@ export class CompanyReportController {
       ? DateTime.fromISO(dateEnd).startOf('day').toJSDate()
       : undefined
 
+    let companyAddress
+
+    if (cityId && stateId) {
+      companyAddress = {
+        AND: [
+          { cityId: filterNumber(cityId) },
+          { city: { stateId: filterNumber(stateId) } },
+        ],
+      }
+    }
+
+    if (cityId || stateId) {
+      companyAddress = {
+        OR: [
+          { cityId: filterNumber(cityId) },
+          { city: { stateId: filterNumber(stateId) } },
+        ],
+      }
+    }
+
+    if (!cityId && !stateId) {
+      companyAddress = undefined
+    }
+
     const companiesCount = await prisma.company.count({
       where: {
-        createdAt: { gte: startDate, lte: endDate },
+        companyAddress,
+        statusId: filterNumber(companyStatusId),
       },
     })
 
     const positiveBalances = await prisma.company.aggregate({
       where: {
-        createdAt: { gte: startDate, lte: endDate },
+        companyAddress,
+        statusId: filterNumber(companyStatusId),
       },
       _sum: {
         positiveBalance: true,
@@ -148,6 +181,11 @@ export class CompanyReportController {
     const cashbacks = await prisma.transaction.aggregate({
       where: {
         createdAt: { gte: startDate, lte: endDate },
+        transactionStatusId: filterNumber(transactionStatusId),
+        company: {
+          companyAddress,
+          statusId: filterNumber(companyStatusId),
+        },
       },
       _sum: {
         totalAmount: true,

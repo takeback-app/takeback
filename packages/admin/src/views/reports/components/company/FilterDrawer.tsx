@@ -12,7 +12,7 @@ import {
   DrawerOverlay,
   Stack
 } from '@chakra-ui/react'
-import { Order, useCompanyReport } from './state'
+import { Order, TransactionStatusTypes, useCompanyReport } from './state'
 import { ChakraInput } from '../../../../components/chakra/ChakraInput'
 import { ChakraSelect } from '../../../../components/chakra/ChakraSelect'
 import { CityFilter } from '../../../../components/filters/CityFilter'
@@ -36,7 +36,9 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
   const [localStateId, setStateId] = useState(0)
   const [localCityId, setCityId] = useState(0)
   const [localCompanyStatusId, setCompanyStatusId] = useState(0)
-  const [localTransactionStatusId, setTransactionStatusId] = useState(0)
+  const [localTransactionStatusId, setTransactionStatusId] = useState(
+    TransactionStatusTypes.APPROVED
+  )
 
   function resetFilter() {
     reset()
@@ -47,7 +49,7 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
     setOrder(order)
     setStateId(0)
     setCityId(0)
-    setTransactionStatusId(0)
+    setTransactionStatusId(TransactionStatusTypes.APPROVED)
     setCompanyStatusId(0)
   }
 

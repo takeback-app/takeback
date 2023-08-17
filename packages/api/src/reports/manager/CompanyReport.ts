@@ -13,6 +13,19 @@ export enum OrderByColumn {
   POSITIVE_BALANCE = 'positiveBalance',
 }
 
+export enum TransactionStatusTypes {
+  PENDING = 1,
+  APPROVED = 2,
+  PAID_WITH_TAKEBACK = 3,
+  WAITING = 4,
+  CANCELED_BY_PARTNER = 5,
+  CANCELED_BY_CUSTOMER = 6,
+  PROCESSING = 7,
+  OVERDUE = 8,
+  NOT_PAID_BY_PARTNER = 9,
+  TAKEBACK_BONUS = 10,
+}
+
 interface Filter {
   dateStart?: string
   dateEnd?: string
@@ -80,9 +93,9 @@ export class CompanyReport extends BaseReport<ReportResponse, Filter> {
       stateId,
       cityId,
       companyStatusId,
-      transactionStatusId,
-      orderByColumn = OrderByColumn.COMPANY_NAME,
-      order = 'asc',
+      transactionStatusId = TransactionStatusTypes.APPROVED,
+      orderByColumn = OrderByColumn.TOTAL_AMOUNT,
+      order = 'desc',
     } = dto ?? {}
     const query = db
       .select(
@@ -91,11 +104,11 @@ export class CompanyReport extends BaseReport<ReportResponse, Filter> {
         'companies.registeredNumber',
         'city.name as city',
         'state.name as state',
-        'transaction_status.description as status',
+        'company_status.description as status',
         'industries.description as industry',
-        db.raw('sum("totalAmount") as "totalAmount"'),
-        db.raw('sum("cashbackAmount") as "cashbackAmount"'),
-        db.raw('sum("takebackFeeAmount") as "takebackFeeAmount"'),
+        db.raw('coalesce(sum("totalAmount"), 0) as "totalAmount"'),
+        db.raw('coalesce(sum("cashbackAmount"), 0) as "cashbackAmount"'),
+        db.raw('coalesce(sum("takebackFeeAmount"), 0) as "takebackFeeAmount"'),
         'companies.positiveBalance',
       )
       .from('companies')
@@ -103,39 +116,47 @@ export class CompanyReport extends BaseReport<ReportResponse, Filter> {
       .join('industries', 'companies.industryId', 'industries.id')
       .join('city', 'companies_address.cityId', 'city.id')
       .join('state', 'city.stateId', 'state.id')
-      .join('transactions', 'companies.id', 'transactions.companiesId')
-      .join(
-        'transaction_status',
-        'transactions.transactionStatusId',
-        'transaction_status.id',
-      )
+      .join('company_status', 'companies.statusId', 'company_status.id')
+      .leftJoin('transactions', function () {
+        this.on('companies.id', '=', 'transactions.companiesId')
+
+        if (dateStart) {
+          this.andOn(
+            'transactions.createdAt',
+            '>=',
+            db.raw('?', [
+              DateTime.fromISO(dateStart).startOf('day').toString(),
+            ]),
+          )
+        }
+
+        if (dateEnd) {
+          this.andOn(
+            'transactions.createdAt',
+            '<=',
+            db.raw('?', [DateTime.fromISO(dateEnd).startOf('day').toString()]),
+          )
+        }
+
+        if (transactionStatusId) {
+          this.andOn(
+            'transactions.transactionStatusId',
+            '=',
+            db.raw('?', [transactionStatusId]),
+          )
+        }
+      })
       .groupBy(
         'companies.id',
         'city.id',
         'state.id',
-        'transaction_status.description',
         'industries.description',
+        'company_status.description',
       )
       .orderBy(orderByColumn, order)
 
-    if (dateStart) {
-      query.where(
-        'transactions.createdAt',
-        '>=',
-        DateTime.fromISO(dateStart).startOf('day').toString(),
-      )
-    }
-
-    if (dateEnd) {
-      query.where(
-        'transactions.createdAt',
-        '<=',
-        DateTime.fromISO(dateEnd).startOf('day').toString(),
-      )
-    }
-
     if (cityId) {
-      query.where('consumer_address.cityId', cityId)
+      query.where('companies_address.cityId', cityId)
     }
 
     if (stateId) {
@@ -144,10 +165,6 @@ export class CompanyReport extends BaseReport<ReportResponse, Filter> {
 
     if (companyStatusId) {
       query.where('companies.statusId', companyStatusId)
-    }
-
-    if (transactionStatusId) {
-      query.where('transaction.transactionStatusId', transactionStatusId)
     }
 
     return query
