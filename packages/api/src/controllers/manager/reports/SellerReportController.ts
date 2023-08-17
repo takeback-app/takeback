@@ -117,7 +117,7 @@ export class SellerReportController {
   async totalizer(request: Request, response: Response) {
     const { companyId } = request['tokenPayload']
 
-    const { dateEnd, dateStart, office, transactionStatus } =
+    const { dateEnd, dateStart, office, transactionStatus, cityId, stateId } =
       request.query as Record<string, string>
 
     const startDate = dateStart
@@ -127,10 +127,37 @@ export class SellerReportController {
       ? DateTime.fromISO(dateEnd).startOf('day').toJSDate()
       : undefined
 
+    let companyAddress
+
+    if (cityId && stateId) {
+      companyAddress = {
+        AND: [
+          { cityId: filterNumber(cityId) },
+          { city: { stateId: filterNumber(stateId) } },
+        ],
+      }
+    }
+
+    if (cityId || stateId) {
+      companyAddress = {
+        OR: [
+          { cityId: filterNumber(cityId) },
+          { city: { stateId: filterNumber(stateId) } },
+        ],
+      }
+    }
+
+    if (!cityId && !stateId) {
+      companyAddress = undefined
+    }
+
     const consumerCount = await prisma.companyUser.count({
       where: {
-        companyId: companyId,
         companyUserTypesId: filterNumber(office),
+        company: {
+          id: companyId,
+          companyAddress,
+        },
         transactions: {
           some: {
             createdAt: { gte: startDate, lte: endDate },
@@ -142,11 +169,14 @@ export class SellerReportController {
 
     const totalTransactions = await prisma.transaction.aggregate({
       where: {
-        companiesId: companyId,
         createdAt: { gte: startDate, lte: endDate },
         companyUsersId: { not: null },
         companyUser: {
           companyUserTypesId: filterNumber(office),
+        },
+        companiesId: companyId,
+        company: {
+          companyAddress,
         },
         transactionStatusId: filterNumber(transactionStatus),
       },
@@ -159,7 +189,10 @@ export class SellerReportController {
       where: {
         type: 'NEW_USER',
         transaction: {
-          companiesId: companyId,
+          companyUsersId: companyId,
+          company: {
+            companyAddress,
+          },
           createdAt: { gte: startDate, lte: endDate },
           transactionStatusId: filterNumber(transactionStatus),
           companyUser: {
