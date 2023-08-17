@@ -91,7 +91,10 @@ export class ClientReportController {
   }
 
   async totalizer(request: Request, response: Response) {
-    const { dateEnd, dateStart } = request.query as Record<string, string>
+    const { dateEnd, dateStart, cityId, stateId } = request.query as Record<
+      string,
+      string
+    >
 
     const startDate = dateStart
       ? DateTime.fromISO(dateStart).startOf('day').toJSDate()
@@ -100,6 +103,30 @@ export class ClientReportController {
       ? DateTime.fromISO(dateEnd).startOf('day').toJSDate()
       : undefined
 
+    let consumerAddress
+
+    if (cityId && stateId) {
+      consumerAddress = {
+        AND: [
+          { cityId: filterNumber(cityId) },
+          { city: { stateId: filterNumber(stateId) } },
+        ],
+      }
+    }
+
+    if (cityId || stateId) {
+      consumerAddress = {
+        OR: [
+          { cityId: filterNumber(cityId) },
+          { city: { stateId: filterNumber(stateId) } },
+        ],
+      }
+    }
+
+    if (!cityId && !stateId) {
+      consumerAddress = undefined
+    }
+
     const consumerCount = await prisma.consumer.count({
       where: {
         transactions: {
@@ -107,12 +134,16 @@ export class ClientReportController {
             createdAt: { gte: startDate, lte: endDate },
           },
         },
+        consumerAddress,
       },
     })
 
     const totalShoppingValue = await prisma.transaction.aggregate({
       where: {
         createdAt: { gte: startDate, lte: endDate },
+        consumer: {
+          consumerAddress,
+        },
       },
       _sum: {
         totalAmount: true,
@@ -127,6 +158,9 @@ export class ClientReportController {
             in: [TransactionStatusEnum.APPROVED],
           },
         },
+        consumer: {
+          consumerAddress,
+        },
       },
       _sum: {
         cashbackAmount: true,
@@ -134,6 +168,9 @@ export class ClientReportController {
     })
 
     const totalBalance = await prisma.consumer.aggregate({
+      where: {
+        consumerAddress,
+      },
       _sum: {
         blockedBalance: true,
         balance: true,
