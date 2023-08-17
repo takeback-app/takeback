@@ -139,7 +139,8 @@ export class CashbackReportController {
   }
 
   async totalizer(request: Request, response: Response) {
-    const { dateEnd, dateStart } = request.query as Record<string, string>
+    const { dateEnd, dateStart, stateId, cityId, companyStatusId } =
+      request.query as Record<string, string>
 
     const startDate = dateStart
       ? DateTime.fromISO(dateStart).startOf('day').toJSDate()
@@ -148,10 +149,37 @@ export class CashbackReportController {
       ? DateTime.fromISO(dateEnd).startOf('day').toJSDate()
       : undefined
 
+    let companyAddress
+
+    if (cityId && stateId) {
+      companyAddress = {
+        AND: [
+          { cityId: filterNumber(cityId) },
+          { city: { stateId: filterNumber(stateId) } },
+        ],
+      }
+    }
+
+    if (cityId || stateId) {
+      companyAddress = {
+        OR: [
+          { cityId: filterNumber(cityId) },
+          { city: { stateId: filterNumber(stateId) } },
+        ],
+      }
+    }
+
+    if (!cityId && !stateId) {
+      companyAddress = undefined
+    }
+
     const cashbacks = await prisma.transaction.aggregate({
       where: {
         createdAt: { gte: startDate, lte: endDate },
-        // transactionStatusId: filterNumber(cashbackStatus),
+        company: {
+          companyAddress,
+          statusId: filterNumber(companyStatusId),
+        },
         transactionPaymentMethods: {
           some: {
             companyPaymentMethod: { isNot: undefined },
@@ -166,6 +194,12 @@ export class CashbackReportController {
         cashbackAmount: true,
       },
     })
+
+    console.log(
+      cashbacks._sum.cashbackAmount,
+      cashbacks._sum.takebackFeeAmount,
+      cashbacks._sum.backAmount,
+    )
 
     const totalToPay =
       +cashbacks._sum.cashbackAmount +
