@@ -2,7 +2,7 @@
 import { DateTime } from 'luxon'
 import { BaseQueryDto, BaseReport } from '../BaseReport'
 import { db } from '../../knex'
-import { currency } from '../../utils/Masks'
+import { parseNumberToExcelString } from '../../utils'
 
 export enum OrderByColumn {
   TOTAL_AMOUNT = 'totalAmount',
@@ -36,7 +36,6 @@ interface ReportResponse {
   status: string
   paymentMethod: string
   isTakebackMethod: boolean
-  companyTotalPay: number
 }
 
 const HEADERS = [
@@ -61,17 +60,19 @@ export class CashbacksReport extends BaseReport<ReportResponse, Filter> {
 
   protected excelRow(record: ReportResponse) {
     return {
-      id: record.id,
+      id: String(record.id),
       fullName: record.fullName,
       companyName: record.companyName,
-      companyUserName: record.companyUserName,
       status: record.status,
       paymentMethod: record.paymentMethod,
-      totalAmount: currency(record.totalAmount),
-      takebackFeeAmount: currency(record.takebackFeeAmount),
-      cashbackAmount: currency(record.cashbackAmount),
-      backAmount: currency(record.backAmount),
-      companyTotalPay: currency(record.companyTotalPay),
+      companyUserName: record.companyUserName,
+      totalAmount: parseNumberToExcelString(record.totalAmount),
+      takebackFeeAmount: parseNumberToExcelString(record.takebackFeeAmount),
+      cashbackAmount: parseNumberToExcelString(record.cashbackAmount),
+      backAmount: parseNumberToExcelString(record.backAmount),
+      companyTotalPay: parseNumberToExcelString(
+        record.cashbackAmount + record.takebackFeeAmount + record.backAmount,
+      ),
       createdAt: DateTime.fromJSDate(record.createdAt).toFormat('dd/MM/yyyy'),
     }
   }
@@ -110,9 +111,9 @@ export class CashbacksReport extends BaseReport<ReportResponse, Filter> {
         'company_users.name as companyUserName',
         'transaction_status.description as status',
         db.raw('max(payment_methods.description) as "paymentMethod"'),
-        db.raw(
-          'sum("cashbackAmount" + "takebackFeeAmount" + "backAmount") as "companyTotalPay"',
-        ),
+        /* db.raw(
+          'sum(transactions."cashbackAmount" + transactions."takebackFeeAmount" + transactions."backAmount") as "companyTotalPay"',
+        ), */
       )
       .from('transactions')
       .join('consumers', 'transactions.consumersId', 'consumers.id')
@@ -134,18 +135,19 @@ export class CashbacksReport extends BaseReport<ReportResponse, Filter> {
         'transactions.id',
         'transaction_payment_methods.transactionsId',
       )
-      .leftJoin(
+      .join(
         'company_payment_methods',
         'transaction_payment_methods.paymentMethodId',
         'company_payment_methods.id',
       )
-      .leftJoin(
+      .join(
         'payment_methods',
         'company_payment_methods.paymentMethodId',
         'payment_methods.id',
       )
       .groupBy(
         'transactions.id',
+        'transaction_payment_methods.transactionsId',
         'transaction_status.id',
         'consumers.id',
         'companies.id',
@@ -162,7 +164,7 @@ export class CashbacksReport extends BaseReport<ReportResponse, Filter> {
       query.where(
         'transactions.createdAt',
         '>=',
-        DateTime.fromISO(dateStart).startOf('day').toJSDate(),
+        db.raw('?', [DateTime.fromISO(dateStart).startOf('day').toJSDate()]),
       )
     }
 
@@ -170,7 +172,7 @@ export class CashbacksReport extends BaseReport<ReportResponse, Filter> {
       query.where(
         'transactions.createdAt',
         '<=',
-        DateTime.fromISO(dateEnd).startOf('day').toJSDate(),
+        db.raw('?', [DateTime.fromISO(dateEnd).endOf('day').toJSDate()]),
       )
     }
 

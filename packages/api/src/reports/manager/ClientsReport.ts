@@ -3,7 +3,8 @@ import { DateTime } from 'luxon'
 
 import { BaseQueryDto, BaseReport } from '../BaseReport'
 import { db } from '../../knex'
-import { currency, maskPhone } from '../../utils/Masks'
+import { maskPhone } from '../../utils/Masks'
+import { parseNumberToExcelString } from '../../utils'
 
 export enum OrderByColumn {
   TOTAL_AMOUNT = 'totalAmount',
@@ -34,7 +35,7 @@ interface ReportResponse {
   lastTransactionDate: Date
 }
 
-const APPROVED_TRANSACTION_STATUS_ID = 2
+export const APPROVED_TRANSACTION_STATUS_ID = 2
 
 const HEADERS = [
   'Nome',
@@ -61,10 +62,10 @@ export class ClientsReport extends BaseReport<ReportResponse, Filter> {
       cpf: record.cpf,
       city: record.city,
       state: record.state,
-      totalAmount: currency(record.totalAmount),
-      cashbackApproved: currency(record.cashbackApproved),
-      balance: currency(record.balance),
-      blockedBalance: currency(record.blockedBalance),
+      totalAmount: parseNumberToExcelString(record.totalAmount),
+      cashbackApproved: parseNumberToExcelString(record.cashbackApproved),
+      blockedBalance: parseNumberToExcelString(record.blockedBalance),
+      balance: parseNumberToExcelString(record.balance),
       lastTransactionDate: DateTime.fromJSDate(
         record.lastTransactionDate,
       ).toFormat('dd/MM/yyyy'),

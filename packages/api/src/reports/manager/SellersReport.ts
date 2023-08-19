@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 
 import { BaseQueryDto, BaseReport } from '../BaseReport'
 import { db } from '../../knex'
-import { currency } from '../../utils/Masks'
+import { parseNumberToExcelString } from '../../utils'
 
 export enum OrderByColumn {
   SELLER_NAME = 'sellerName',
@@ -52,7 +52,7 @@ export class SellersReport extends BaseReport<ReportResponse, Filter> {
       description: record.description,
       cpf: record.cpf,
       fantasyName: record.companyName,
-      totalAmount: currency(record.totalAmount),
+      totalAmount: parseNumberToExcelString(record.totalAmount),
       newClients: String(record.newClients),
     }
   }

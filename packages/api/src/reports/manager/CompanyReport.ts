@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 
 import { BaseQueryDto, BaseReport } from '../BaseReport'
 import { db } from '../../knex'
-import { currency, maskPhone } from '../../utils/Masks'
+import { parseNumberToExcelString } from '../../utils'
 
 export enum OrderByColumn {
   TOTAL_AMOUNT = 'totalAmount',
@@ -75,10 +75,10 @@ export class CompanyReport extends BaseReport<ReportResponse, Filter> {
       state: record.state,
       status: record.status,
       industry: record.industry,
-      totalAmount: currency(record.totalAmount),
-      cashbackAmount: currency(record.cashbackAmount),
-      takebackFeeAmount: currency(record.takebackFeeAmount),
-      positiveBalance: currency(record.positiveBalance),
+      totalAmount: parseNumberToExcelString(record.totalAmount),
+      cashbackAmount: parseNumberToExcelString(record.cashbackAmount),
+      takebackFeeAmount: parseNumberToExcelString(record.takebackFeeAmount),
+      positiveBalance: parseNumberToExcelString(record.positiveBalance),
     }
   }
 
