@@ -6,6 +6,11 @@ export function filterNumber(value?: number | string) {
   return value ? Number(value) : undefined
 }
 
+export function parseNumberToExcelString(value?: number | string) {
+  const newValue = value ?? 0
+  return String(newValue).replace('.', ',')
+}
+
 export function partition<T>(
   array: T[],
   callback: (element: T, index: number, array: T[]) => boolean,
