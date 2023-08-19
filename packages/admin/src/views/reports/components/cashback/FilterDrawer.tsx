@@ -22,6 +22,7 @@ import { CompanyFilter } from '../../../../components/filters/CompanyFilter'
 import { CompanyUserFilter } from '../../../../components/filters/CompanyUserFilter'
 import { TransactionStatusFilter } from '../../../../components/filters/TransactionStatusFilter'
 import { PaymentMethodFilter } from '../../../../components/filters/PaymentMethodFilter'
+import moment from 'moment'
 
 interface FilterDrawerProps {
   isOpen: boolean
@@ -29,7 +30,7 @@ interface FilterDrawerProps {
 }
 
 export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
-  const { setForm, dateStart, dateEnd, order, orderBy, reset } =
+  const { setForm, dateStart, dateEnd, order, orderBy, reset, cityId } =
     useCashbackReport()
 
   const [localDateStart, setDateStart] = useState(dateStart)
@@ -45,12 +46,14 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
   const [localPaymentMethodId, setPaymentMethodId] = useState(0)
 
   function resetFilter() {
+    const resetDateStart = moment().subtract(1, 'month').format('YYYY-MM-DD')
+    const resetDateEnd = moment().format('YYYY-MM-DD')
     reset()
 
-    setDateStart(dateStart)
-    setDateEnd(dateEnd)
-    setOrderBy(orderBy)
-    setOrder(order)
+    setDateStart(resetDateStart)
+    setDateEnd(resetDateEnd)
+    setOrderBy('createdAt')
+    setOrder('desc')
     setStateId(0)
     setCityId(0)
     setCompanyStatusId(0)

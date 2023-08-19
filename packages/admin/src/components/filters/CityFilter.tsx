@@ -21,8 +21,8 @@ export function CityFilter({ setValue, stateId, value, ...rest }: Props) {
   ])
 
   useEffect(() => {
-    setValue(0)
-  }, [stateId, setValue])
+    setValue(value || 0)
+  }, [stateId, value, setValue])
 
   if (!data || isLoading) return <Spinner size="sm" color="blue.500" />
 

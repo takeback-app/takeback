@@ -26,8 +26,8 @@ export function CompanyUserFilter({
   ])
 
   useEffect(() => {
-    setValue('')
-  }, [companyId, setValue])
+    setValue(value || '')
+  }, [companyId, value, setValue])
 
   if (!data || isLoading) return <Spinner size="sm" color="blue.500" />
 

@@ -76,7 +76,6 @@ export function CashbackReport() {
     paymentMethodId
   } = useCashbackReport()
   const { isOpen, onOpen, onClose } = useDisclosure()
-
   const filter = {
     page,
     dateStart: new Date(dateStart).toISOString(),
@@ -233,7 +232,11 @@ export function CashbackReport() {
                 <Td fontSize="xs">{currencyFormat(cashback.cashbackAmount)}</Td>
                 <Td fontSize="xs">{currencyFormat(cashback.backAmount)}</Td>
                 <Td fontSize="xs">
-                  {currencyFormat(cashback.companyTotalPay)}
+                  {currencyFormat(
+                    cashback.cashbackAmount +
+                      cashback.takebackFeeAmount +
+                      cashback.backAmount
+                  )}
                 </Td>
                 <Td fontSize="xs">
                   {new Date(cashback.createdAt).toLocaleString()}

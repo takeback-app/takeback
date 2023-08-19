@@ -30,8 +30,8 @@ export function CompanyFilter({
   ])
 
   useEffect(() => {
-    setValue('')
-  }, [cityId, statusId, setValue])
+    setValue(value || '')
+  }, [cityId, statusId, value, setValue])
 
   if (!data || isLoading) return <Spinner size="sm" color="blue.500" />
 
