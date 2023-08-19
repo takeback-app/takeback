@@ -1,9 +1,11 @@
 import { Request, Response } from 'express'
 import { DateTime } from 'luxon'
-import { ClientsReport } from './../../../reports/manager/ClientsReport'
+import {
+  APPROVED_TRANSACTION_STATUS_ID,
+  ClientsReport,
+} from './../../../reports/manager/ClientsReport'
 import { InternalError } from '../../../config/GenerateErros'
 import { prisma } from '../../../prisma'
-import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
 import { filterNumber } from '../../../utils'
 import { ManagerClientReportRequest } from '../../../requests/reports/manager/ManagerClientReportRequest'
 
@@ -97,34 +99,20 @@ export class ClientReportController {
     >
 
     const startDate = dateStart
-      ? DateTime.fromISO(dateStart).startOf('day').toJSDate()
+      ? DateTime.fromISO(dateStart)
+          .minus({ hours: 3 })
+          .startOf('day')
+          .toJSDate()
       : undefined
     const endDate = dateEnd
-      ? DateTime.fromISO(dateEnd).startOf('day').toJSDate()
+      ? DateTime.fromISO(dateEnd).minus({ hours: 3 }).startOf('day').toJSDate()
       : undefined
 
-    let consumerAddress
-
-    if (cityId && stateId) {
-      consumerAddress = {
-        AND: [
-          { cityId: filterNumber(cityId) },
-          { city: { stateId: filterNumber(stateId) } },
-        ],
-      }
-    }
-
-    if (cityId || stateId) {
-      consumerAddress = {
-        OR: [
-          { cityId: filterNumber(cityId) },
-          { city: { stateId: filterNumber(stateId) } },
-        ],
-      }
-    }
-
-    if (!cityId && !stateId) {
-      consumerAddress = undefined
+    const consumerAddress = {
+      AND: [
+        { cityId: filterNumber(cityId) },
+        { city: { stateId: filterNumber(stateId) } },
+      ],
     }
 
     const consumerCount = await prisma.consumer.count({
@@ -153,11 +141,7 @@ export class ClientReportController {
     const totalApprovedCashback = await prisma.transaction.aggregate({
       where: {
         createdAt: { gte: startDate, lte: endDate },
-        transactionStatus: {
-          description: {
-            in: [TransactionStatusEnum.APPROVED],
-          },
-        },
+        transactionStatusId: APPROVED_TRANSACTION_STATUS_ID,
         consumer: {
           consumerAddress,
         },
@@ -169,6 +153,7 @@ export class ClientReportController {
 
     const totalBalance = await prisma.consumer.aggregate({
       where: {
+        createdAt: { gte: startDate, lte: endDate },
         consumerAddress,
       },
       _sum: {

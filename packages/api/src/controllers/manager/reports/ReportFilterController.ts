@@ -54,33 +54,14 @@ export class ReportFilterController {
       string
     >
 
-    let companyAddress
-
-    if (cityId && stateId) {
-      companyAddress = {
-        AND: [
-          { cityId: filterNumber(cityId) },
-          { city: { stateId: filterNumber(stateId) } },
-        ],
-      }
-    }
-
-    if (cityId || stateId) {
-      companyAddress = {
-        OR: [
-          { cityId: filterNumber(cityId) },
-          { city: { stateId: filterNumber(stateId) } },
-        ],
-      }
-    }
-
-    if (!cityId && !stateId) {
-      companyAddress = undefined
-    }
-
     const companies = await prisma.company.findMany({
       where: {
-        companyAddress,
+        companyAddress: {
+          AND: [
+            { cityId: filterNumber(cityId) },
+            { city: { stateId: filterNumber(stateId) } },
+          ],
+        },
         statusId: filterNumber(statusId),
       },
       select: {
