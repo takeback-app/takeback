@@ -49,6 +49,7 @@ import { ClientReport } from '../views/reports/client'
 import { SellerReport } from '../views/reports/seller'
 import { CashbackReport } from '../views/reports/cashback'
 import { CompanyReport } from '../views/reports/company'
+import { FinancialReport } from '../views/reports/financial'
 
 interface Props {
   children: JSX.Element
@@ -343,6 +344,14 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <CompanyReport />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/relatorios/financeiro"
+        element={
+          <PrivateRoute>
+            <FinancialReport />
           </PrivateRoute>
         }
       />
