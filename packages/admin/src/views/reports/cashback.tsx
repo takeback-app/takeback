@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import {
   Box,
   ButtonGroup,
@@ -26,6 +26,7 @@ import { API } from '../../services/API'
 import { AppTable } from '../../components/tables'
 import { Pagination } from '../../components/tables/Pagination'
 import { currencyFormat } from '../../utils/currencytFormat'
+import { TextBreak } from '../../components/tables/TextBreak'
 
 export interface CashbackData {
   id: number
@@ -39,6 +40,8 @@ export interface CashbackData {
   paymentMethod: string
   isTakebackMethod: boolean
   companyTotalPay: number
+  companyName: string
+  companyUserName: string
 }
 
 export interface TotalizerData {
@@ -60,61 +63,49 @@ export interface TaxTakeback {
 export function CashbackReport() {
   const [page, setPage] = useState(1)
   const {
-    firstDate,
-    secondDate,
+    dateStart,
+    dateEnd,
+    cityId,
     order,
     orderBy,
-    paymentMethod,
-    statusTransaction
+    companyId,
+    companyStatusId,
+    companyUserId,
+    stateId,
+    transactionStatusId,
+    paymentMethodId
   } = useCashbackReport()
   const { isOpen, onOpen, onClose } = useDisclosure()
-
-  const filter = useMemo(
-    () => ({
-      page,
-      dateStart: new Date(firstDate).toISOString(),
-      dateEnd: new Date(secondDate).toISOString(),
-      paymentMethodType: paymentMethod,
-      cashbackStatus: statusTransaction,
-      order,
-      orderByColumn: orderBy
-    }),
-    [
-      firstDate,
-      secondDate,
-      order,
-      orderBy,
-      page,
-      paymentMethod,
-      statusTransaction
-    ]
-  )
+  const filter = {
+    page,
+    dateStart: new Date(dateStart).toISOString(),
+    dateEnd: new Date(dateEnd).toISOString(),
+    cityId,
+    companyId,
+    companyStatusId,
+    companyUserId,
+    stateId,
+    transactionStatusId,
+    paymentMethodId,
+    order,
+    orderByColumn: orderBy
+  }
 
   const { data: cashbacks, isLoading } = useSWR<Paginated<CashbackData>>([
-    'company/report/cashbacks',
+    'manager/report/cashbacks',
     filter
   ])
 
   const { data: totalizer } = useSWR<TotalizerData>([
-    'company/report/cashbacks/totalizer',
+    'manager/report/cashbacks/totalizer',
     filter
   ])
-
-  if (!cashbacks || isLoading || !totalizer) {
-    return (
-      <Layout title="Cashbacks">
-        <Flex w="full" h="70vh" align="center" justify="center">
-          <Loader color="rgba(54, 162, 235, 1)" />
-        </Flex>
-      </Layout>
-    )
-  }
 
   async function exportExcel() {
     const link = document.createElement('a')
     link.target = '_blank'
     link.download = 'Relatório de Cashbacks.xlsx'
-    const { data } = await API.get(`company/report/cashbacks/excel`, {
+    const { data } = await API.get(`manager/report/cashbacks/excel`, {
       params: filter,
 
       responseType: 'blob'
@@ -128,7 +119,7 @@ export function CashbackReport() {
     const link = document.createElement('a')
     link.target = '_blank'
     link.download = 'Relatório de Cashbacks.pdf'
-    const { data } = await API.get(`company/report/cashbacks/pdf`, {
+    const { data } = await API.get(`manager/report/cashbacks/pdf`, {
       params: filter,
       responseType: 'blob'
     })
@@ -141,7 +132,16 @@ export function CashbackReport() {
 
   return (
     <Layout title="Cashbacks">
-      <Box p={4} overflow="hidden">
+      <Flex
+        w="full"
+        h="70vh"
+        align="center"
+        justify="center"
+        display={isLoading ? 'flex' : 'none'}
+      >
+        <Loader color="rgba(54, 162, 235, 1)" />
+      </Flex>
+      <Box p={4} overflow="hidden" display={isLoading ? 'none' : 'block'}>
         <Flex align="center" justify="space-between">
           <ButtonGroup>
             <Tooltip label="Filtrar">
@@ -179,7 +179,7 @@ export function CashbackReport() {
           </ButtonGroup>
         </Flex>
         <AppTable
-          dataLength={cashbacks.data.length}
+          dataLength={cashbacks?.data.length}
           noDataMessage="Nenhum cashback"
           mt={4}
           overflowY="scroll"
@@ -188,7 +188,7 @@ export function CashbackReport() {
             <Pagination
               page={page}
               setPage={setPage}
-              lastPage={cashbacks.meta.lastPage}
+              lastPage={cashbacks?.meta.lastPage || 0}
             />
           }
         >
@@ -196,8 +196,10 @@ export function CashbackReport() {
             <Tr>
               <Th>Ordem</Th>
               <Th>Nome</Th>
+              <Th>Empresa</Th>
               <Th>Status</Th>
               <Th>F. de Pagamento</Th>
+              <Th>Vendedor</Th>
               <Th>V. da Compra</Th>
               <Th>Tx. Takeback</Th>
               <Th>Cashback</Th>
@@ -207,12 +209,22 @@ export function CashbackReport() {
             </Tr>
           </Thead>
           <Tbody>
-            {cashbacks.data?.map(cashback => (
+            {cashbacks?.data.map(cashback => (
               <Tr color="gray.500" key={cashback.id}>
                 <Td fontSize="xs">{cashback.id}</Td>
-                <Td fontSize="xs">{cashback.fullName}</Td>
-                <Td fontSize="xs">{cashback.status}</Td>
+                <Td fontSize="xs">
+                  <TextBreak>{cashback.fullName}</TextBreak>
+                </Td>
+                <Td fontSize="xs">
+                  <TextBreak>{cashback.companyName}</TextBreak>
+                </Td>
+                <Td fontSize="xs">
+                  <TextBreak>{cashback.status}</TextBreak>
+                </Td>
                 <Td fontSize="xs">{cashback.paymentMethod}</Td>
+                <Td fontSize="xs">
+                  <TextBreak>{cashback.companyUserName || '-'}</TextBreak>
+                </Td>
                 <Td fontSize="xs">{currencyFormat(cashback.totalAmount)}</Td>
                 <Td fontSize="xs">
                   {currencyFormat(cashback.takebackFeeAmount)}
@@ -220,16 +232,20 @@ export function CashbackReport() {
                 <Td fontSize="xs">{currencyFormat(cashback.cashbackAmount)}</Td>
                 <Td fontSize="xs">{currencyFormat(cashback.backAmount)}</Td>
                 <Td fontSize="xs">
-                  {currencyFormat(cashback.companyTotalPay)}
+                  {currencyFormat(
+                    cashback.cashbackAmount +
+                      cashback.takebackFeeAmount +
+                      cashback.backAmount
+                  )}
                 </Td>
                 <Td fontSize="xs">
-                  {new Date(cashback.createdAt).toLocaleDateString()}
+                  {new Date(cashback.createdAt).toLocaleString()}
                 </Td>
               </Tr>
             ))}
           </Tbody>
         </AppTable>
-        {cashbacks.data.length && !!totalizer ? (
+        {cashbacks?.data.length && !!totalizer ? (
           <SimpleGrid columns={[2, 2, 6]} spacing="4" mt="6">
             <Box>
               <Text fontWeight="bold">Qtd. de Cashbacks:</Text>

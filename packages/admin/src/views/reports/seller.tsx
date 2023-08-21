@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import {
   Box,
   ButtonGroup,
@@ -18,23 +18,24 @@ import useSWR from 'swr'
 import { IoAttachOutline, IoFilterSharp } from 'react-icons/io5'
 import { RiFileExcel2Line } from 'react-icons/ri'
 import Loader from 'react-spinners/PulseLoader'
-import { useCompanyUserReport } from './components/companyUser/state'
 import { Paginated } from '../../types/index'
-import { FilterDrawer } from './components/companyUser/FilterDrawerx'
+import { FilterDrawer } from './components/seller/FilterDrawerx'
 import { maskCPF } from '../../utils/masks'
 import { API } from '../../services/API'
 import Layout from '../../components/ui/Layout'
 import { AppTable } from '../../components/tables'
 import { Pagination } from '../../components/tables/Pagination'
 import { currencyFormat } from '../../utils/currencytFormat'
+import { useSellerReport } from './components/seller/state'
 
-export interface CompanyUserData {
+export interface SellersData {
   id: string
   sellerName: string
   cpf: string
   description: string
   totalAmount: number
   newClients: number
+  companyName: string
 }
 
 interface TotalizerData {
@@ -43,56 +44,49 @@ interface TotalizerData {
   newClients: number
 }
 
-export function CompanyUserReport() {
+export function SellerReport() {
   const [page, setPage] = useState(1)
   const {
-    firstDate,
-    secondDate,
+    dateStart,
+    dateEnd,
+    stateId,
+    cityId,
+    companyId,
     order,
     orderBy,
     officeJob,
     statusTransaction
-  } = useCompanyUserReport()
+  } = useSellerReport()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const filter = useMemo(
-    () => ({
-      page,
-      dateStart: new Date(firstDate).toISOString(),
-      dateEnd: new Date(secondDate).toISOString(),
-      office: officeJob,
-      transactionStatus: statusTransaction,
-      order,
-      orderByColumn: orderBy
-    }),
-    [firstDate, secondDate, order, orderBy, page, officeJob, statusTransaction]
-  )
+  const filter = {
+    page,
+    dateStart: new Date(dateStart).toISOString(),
+    dateEnd: new Date(dateEnd).toISOString(),
+    cityId,
+    companyId,
+    stateId,
+    office: officeJob,
+    transactionStatus: statusTransaction,
+    order,
+    orderByColumn: orderBy
+  }
 
-  const { data: companyUsers, isLoading } = useSWR<Paginated<CompanyUserData>>([
-    'company/report/company-users',
+  const { data: sellers, isLoading } = useSWR<Paginated<SellersData>>([
+    'manager/report/seller',
     filter
   ])
 
   const { data: totalizer } = useSWR<TotalizerData>([
-    'company/report/company-users/totalizer',
+    'manager/report/seller/totalizer',
     filter
   ])
-
-  if (!companyUsers || isLoading) {
-    return (
-      <Layout title="Vendedores">
-        <Flex w="full" h="70vh" align="center" justify="center">
-          <Loader color="rgba(54, 162, 235, 1)" />
-        </Flex>
-      </Layout>
-    )
-  }
 
   async function exportExcel() {
     const link = document.createElement('a')
     link.target = '_blank'
     link.download = 'Relatório de Vendedores.xlsx'
-    const { data } = await API.get(`company/report/company-users/excel`, {
+    const { data } = await API.get(`manager/report/seller/excel`, {
       params: filter,
       responseType: 'blob'
     })
@@ -105,7 +99,7 @@ export function CompanyUserReport() {
     const link = document.createElement('a')
     link.target = '_blank'
     link.download = 'Relatório de Vendedores.pdf'
-    const { data } = await API.get(`company/report/company-users/pdf`, {
+    const { data } = await API.get(`manager/report/seller/pdf`, {
       params: filter,
       responseType: 'blob'
     })
@@ -118,7 +112,16 @@ export function CompanyUserReport() {
 
   return (
     <Layout title="Vendedores">
-      <Box p={4} overflow="hidden">
+      <Flex
+        w="full"
+        h="70vh"
+        align="center"
+        justify="center"
+        display={isLoading ? 'flex' : 'none'}
+      >
+        <Loader color="rgba(54, 162, 235, 1)" />
+      </Flex>
+      <Box p={4} overflow="hidden" display={isLoading ? 'none' : 'block'}>
         <Flex align="center" justify="space-between">
           <ButtonGroup>
             <Tooltip label="Filtrar">
@@ -156,7 +159,7 @@ export function CompanyUserReport() {
           </ButtonGroup>
         </Flex>
         <AppTable
-          dataLength={companyUsers.data.length}
+          dataLength={sellers?.data.length}
           noDataMessage="Nenhum vendedor"
           mt={4}
           overflowY="scroll"
@@ -165,7 +168,7 @@ export function CompanyUserReport() {
             <Pagination
               page={page}
               setPage={setPage}
-              lastPage={companyUsers.meta.lastPage}
+              lastPage={sellers?.meta.lastPage || 0}
             />
           }
         >
@@ -174,25 +177,27 @@ export function CompanyUserReport() {
               <Th>Nome</Th>
               <Th>Cargo</Th>
               <Th>CPF</Th>
+              <Th>Empresa</Th>
               <Th>T. em Vendas</Th>
               <Th>Clientes Indicados</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {companyUsers.data?.map(companyUser => (
+            {sellers?.data?.map(companyUser => (
               <Tr color="gray.500" key={companyUser.id}>
                 <Td fontSize="xs">{companyUser.sellerName}</Td>
                 <Td fontSize="xs">{companyUser.description}</Td>
                 <Td fontSize="xs">
                   {companyUser.cpf ? maskCPF(companyUser.cpf) : '-'}
                 </Td>
+                <Td fontSize="xs">{companyUser.companyName}</Td>
                 <Td fontSize="xs">{currencyFormat(companyUser.totalAmount)}</Td>
                 <Td fontSize="xs">{companyUser.newClients}</Td>
               </Tr>
             ))}
           </Tbody>
         </AppTable>
-        {companyUsers.data.length && totalizer ? (
+        {sellers?.data.length && totalizer ? (
           <SimpleGrid columns={[2, 2, 4]} spacing="4" mt="6">
             <Box>
               <Text fontWeight="bold">Total de vendedores:</Text>

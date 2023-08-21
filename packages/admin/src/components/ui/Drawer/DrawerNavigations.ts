@@ -235,6 +235,24 @@ export const drawerNav = [
         isActive: false,
         to: '/relatorios/cashback',
         userBlocked: 0
+      },
+      {
+        id: 3,
+        label: 'Empresas',
+        activeIcon: IoStorefrontOutline,
+        inactiveIcon: IoStorefrontOutline,
+        isActive: false,
+        to: '/relatorios/empresas',
+        userBlocked: 0
+      },
+      {
+        id: 4,
+        label: 'Financeiro',
+        activeIcon: IoBagAdd,
+        inactiveIcon: IoBagAddOutline,
+        isActive: false,
+        to: '/relatorios/financeiro',
+        userBlocked: 0
       }
     ]
   },
