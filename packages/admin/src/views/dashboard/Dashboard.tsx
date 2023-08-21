@@ -73,7 +73,8 @@ export function Dashboard() {
               minimumFractionDigits: 2
             }).format(
               (totalizer?.companyBalance || 0) +
-                (totalizer?.consumerBalance || 0)
+                (totalizer?.consumerBalance || 0) +
+                (totalizer?.representativeBalance || 0)
             )}
             icon={IoWalletOutline}
             color="#00BF78"
