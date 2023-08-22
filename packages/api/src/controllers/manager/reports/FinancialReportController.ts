@@ -1,190 +1,216 @@
-import { Request, Response } from "express";
-import { ManagerFinancialReportRequest } from "../../../requests/reports/ManagerFinancialReportRequest";
-import { InternalError } from "../../../config/GenerateErros";
-import { ManagerFinancialReport } from "../../company/reports/ManagerFinancialReport";
+import { Request, Response } from 'express'
+import { DateTime } from 'luxon'
+import { InternalError } from '../../../config/GenerateErros'
+import { prisma } from '../../../prisma'
+import { filterNumber } from '../../../utils'
+import { FinancialReport } from '../../../reports/manager/FinancialReport'
+import { ManagerFinancialReportRequest } from '../../../requests/reports/manager/ManagerFinancialReportRequest'
 
 export class FinancialReportController {
   async index(request: Request, response: Response) {
-    const form = ManagerFinancialReportRequest.safeParse(request.query);
+    const form = ManagerFinancialReportRequest.safeParse(request.query)
 
     if (!form.success) {
-      throw new InternalError("Existem erros nos filtros", 400);
+      throw new InternalError('Existem erros nos filtros', 400)
     }
 
     const {
-      page,
-      dateStart,
       dateEnd,
-      citiesIds,
-      statesIds,
-      transactionStatus,
-      monthlyPaymentStatus,
-      sort,
-    } = form.data;
+      dateStart,
+      transactionStatusId,
+      monthlyPayment,
+      order,
+      orderByColumn,
+      page,
+    } = form.data
 
-    const report = new ManagerFinancialReport();
+    const report = new FinancialReport()
 
     const paginated = await report.getPaginated(
       { page: Number(page) },
       {
         dateEnd,
         dateStart,
-        citiesIds:
-          citiesIds && citiesIds.length
-            ? citiesIds.map((id) => Number(id))
-            : undefined,
-        statesIds:
-          statesIds && statesIds.length
-            ? statesIds.map((id) => Number(id))
-            : undefined,
-        monthlyPaymentStatus: Number(monthlyPaymentStatus),
-        transactionStatus: Number(transactionStatus),
-        sort,
-      }
-    );
+        order,
+        orderByColumn,
+        monthlyPayment: monthlyPayment === 'true',
+        transactionStatusId: filterNumber(transactionStatusId),
+      },
+    )
 
-    return response.status(200).json(paginated);
+    return response.status(200).json(paginated)
   }
 
   async getExcel(request: Request, response: Response) {
-    const form = ManagerFinancialReportRequest.safeParse(request.query);
+    const form = ManagerFinancialReportRequest.safeParse(request.query)
 
     if (!form.success) {
-      throw new InternalError("Existem erros nos filtros", 400);
+      throw new InternalError('Existem erros nos filtros', 400)
     }
 
     const {
-      dateStart,
       dateEnd,
-      citiesIds,
-      statesIds,
-      transactionStatus,
-      monthlyPaymentStatus,
-      sort,
-    } = form.data;
+      dateStart,
+      transactionStatusId,
+      monthlyPayment,
+      order,
+      orderByColumn,
+    } = form.data
 
-    const report = new ManagerFinancialReport();
+    const report = new FinancialReport()
 
     const excel = await report.getExcel({
       dateEnd,
       dateStart,
-      citiesIds:
-        citiesIds && citiesIds.length
-          ? citiesIds.map((id) => Number(id))
-          : undefined,
-      statesIds:
-        statesIds && statesIds.length
-          ? statesIds.map((id) => Number(id))
-          : undefined,
-      monthlyPaymentStatus: Number(monthlyPaymentStatus),
-      transactionStatus: Number(transactionStatus),
-      sort,
-    });
+      order,
+      orderByColumn,
+      monthlyPayment: monthlyPayment === 'true',
+      transactionStatusId: filterNumber(transactionStatusId),
+    })
 
-    excel.write("Relatório Financeiro.xlsx", response);
+    excel.write('Relatório de Cliente.xlsx', response)
   }
 
   async getPdf(request: Request, response: Response) {
-    const form = ManagerFinancialReportRequest.safeParse(request.query);
+    const form = ManagerFinancialReportRequest.safeParse(request.query)
 
     if (!form.success) {
-      throw new InternalError("Existem erros nos filtros", 400);
+      throw new InternalError('Existem erros nos filtros', 400)
     }
 
     const {
-      dateStart,
       dateEnd,
-      citiesIds,
-      statesIds,
-      transactionStatus,
-      monthlyPaymentStatus,
-      sort,
-    } = form.data;
+      dateStart,
+      transactionStatusId,
+      monthlyPayment,
+      order,
+      orderByColumn,
+    } = form.data
 
-    const report = new ManagerFinancialReport();
+    const report = new FinancialReport()
 
     const pdf = await report.getPdf({
       dateEnd,
       dateStart,
-      citiesIds:
-        citiesIds && citiesIds.length
-          ? citiesIds.map((id) => Number(id))
-          : undefined,
-      statesIds:
-        statesIds && statesIds.length
-          ? statesIds.map((id) => Number(id))
-          : undefined,
-      monthlyPaymentStatus: Number(monthlyPaymentStatus),
-      transactionStatus: Number(transactionStatus),
-      sort,
-    });
+      order,
+      orderByColumn,
+      monthlyPayment: monthlyPayment === 'true',
+      transactionStatusId: filterNumber(transactionStatusId),
+    })
 
-    response.setHeader("Content-type", "application/pdf");
+    response.setHeader('Content-type', 'application/pdf')
     response.setHeader(
-      "Content-disposition",
-      'inline; filename="Relatório Financeiro.pdf"'
-    );
+      'Content-disposition',
+      'inline; filename="Relatório de Cliente.pdf"',
+    )
 
-    pdf.pipe(response);
-    pdf.end();
+    pdf.pipe(response)
+    pdf.end()
   }
 
   async totalizer(request: Request, response: Response) {
-    const form = ManagerFinancialReportRequest.safeParse(request.query);
+    const { dateEnd, dateStart, transactionStatusId, monthlyPayment } =
+      request.query as Record<string, string>
 
-    if (!form.success) {
-      throw new InternalError("Existem erros nos filtros", 400);
-    }
+    const startDate = dateStart
+      ? DateTime.fromISO(dateStart).startOf('day').toJSDate()
+      : undefined
+    const endDate = dateEnd
+      ? DateTime.fromISO(dateEnd).startOf('day').toJSDate()
+      : undefined
 
-    const {
-      dateStart,
-      dateEnd,
-      citiesIds,
-      statesIds,
-      transactionStatus,
-      monthlyPaymentStatus,
-      sort,
-    } = form.data;
+    const takebackFeeAmount = await prisma.transaction.aggregate({
+      where: {
+        createdAt: { gte: startDate, lte: endDate },
+        transactionStatusId: filterNumber(transactionStatusId),
+      },
+      _sum: {
+        takebackFeeAmount: true,
+      },
+    })
 
-    const report = new ManagerFinancialReport();
+    const sellBonusAmount = await prisma.bonus.aggregate({
+      where: {
+        createdAt: { gte: startDate, lte: endDate },
+        type: { equals: 'SELL' },
+      },
+      _sum: {
+        value: true,
+      },
+    })
 
-    const result = await report.getQuery({
-      dateEnd,
-      dateStart,
-      citiesIds:
-        citiesIds && citiesIds.length
-          ? citiesIds.map((id) => Number(id))
-          : undefined,
-      statesIds:
-        statesIds && statesIds.length
-          ? statesIds.map((id) => Number(id))
-          : undefined,
-      monthlyPaymentStatus: Number(monthlyPaymentStatus),
-      transactionStatus: Number(transactionStatus),
-      sort,
-    });
+    const newUserBonusAmount = await prisma.bonus.aggregate({
+      where: {
+        createdAt: { gte: startDate, lte: endDate },
+        type: { equals: 'NEW_USER' },
+      },
+      _sum: {
+        value: true,
+      },
+    })
 
-    const totalMonthlyPaymentBilling = result.reduce((acc, cur) => {
-      return acc + cur.monthlyPaymentBilling;
-    }, 0);
+    const consultantBonusAmount = await prisma.bonus.aggregate({
+      where: {
+        createdAt: { gte: startDate, lte: endDate },
+        type: { equals: 'CONSULTANT' },
+      },
+      _sum: {
+        value: true,
+      },
+    })
 
-    const totalFeeBilling = result.reduce((acc, cur) => {
-      return acc + cur.feeBilling;
-    }, 0);
+    const referralBonusAmount = await prisma.bonus.aggregate({
+      where: {
+        createdAt: { gte: startDate, lte: endDate },
+        type: { equals: 'REFERRAL' },
+      },
+      _sum: {
+        value: true,
+      },
+    })
 
-    const totalNewClientsTotalValue = result.reduce((acc, cur) => {
-      return acc + cur.newClientsTotalValue;
-    }, 0);
+    const companyMonthlyPaymentsAmount =
+      await prisma.companyMonthlyPayment.aggregate({
+        where: {
+          createdAt: { gte: startDate, lte: endDate },
+          isPaid: monthlyPayment === 'true',
+        },
+        _sum: {
+          amountPaid: true,
+        },
+      })
 
-    const totalPurchasesTotalValue = result.reduce((acc, cur) => {
-      return acc + cur.purchasesTotalValue;
-    }, 0);
+    const storeOrders = await prisma.storeOrder.aggregate({
+      where: {
+        createdAt: { gte: startDate, lte: endDate },
+      },
+      _sum: {
+        value: true,
+        companyCreditValue: true,
+      },
+    })
+
+    const balanceAmount =
+      +takebackFeeAmount._sum.takebackFeeAmount +
+      +companyMonthlyPaymentsAmount._sum.amountPaid +
+      +storeOrders._sum.value -
+      +sellBonusAmount._sum.value -
+      +newUserBonusAmount._sum.value -
+      +consultantBonusAmount._sum.value -
+      +referralBonusAmount._sum.value -
+      +storeOrders._sum.companyCreditValue
 
     return response.status(200).json({
-      totalMonthlyPaymentBilling,
-      totalFeeBilling,
-      totalNewClientsTotalValue,
-      totalPurchasesTotalValue,
-    });
+      totalTakebackFeeAmount: +takebackFeeAmount._sum.takebackFeeAmount,
+      companyMonthlyPaymentsAmount:
+        +companyMonthlyPaymentsAmount._sum.amountPaid,
+      totalStoreBuyValue: +storeOrders._sum.value,
+      totalStoreSellValue: +storeOrders._sum.companyCreditValue,
+      sellBonusAmount: +sellBonusAmount._sum.value,
+      newUserBonusAmount: +newUserBonusAmount._sum.value,
+      consultantBonusAmount: +consultantBonusAmount._sum.value,
+      referralBonusAmount: +referralBonusAmount._sum.value,
+      balanceAmount,
+    })
   }
 }

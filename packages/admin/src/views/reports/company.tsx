@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import {
   Thead,
   Tbody,
@@ -19,41 +19,49 @@ import useSWR from 'swr'
 import Loader from 'react-spinners/PulseLoader'
 import { RiFileExcel2Line } from 'react-icons/ri'
 import { Paginated } from '../../types'
-import { FilterDrawer } from './components/client/FilterDrawer'
-import { useClientReport } from './components/client/state'
+import { FilterDrawer } from './components/company/FilterDrawer'
 import { API } from '../../services/API'
 import Layout from '../../components/ui/Layout'
 import { AppTable } from '../../components/tables'
 import { Pagination } from '../../components/tables/Pagination'
-import { maskCPF, maskPhone } from '../../utils/masks'
+import { maskCNPJ } from '../../utils/masks'
 import { currencyFormat } from '../../utils/currencytFormat'
+import { useCompanyReport } from './components/company/state'
 
-export interface ClientData {
+export interface CompanyData {
   id: string
-  fullName: string
-  cpf: string
-  phone: string
+  companyName: string
+  registeredNumber: string
   city: string
   state: string
+  status: string
+  industry: string
   totalAmount: number
-  cashbackApproved: number
-  blockedBalance: number
-  balance: number
-  lastTransactionDate: string
+  cashbackAmount: number
+  takebackFeeAmount: number
+  positiveBalance: number
 }
 
 export interface TotalizerData {
-  consumerCount: number
-  totalShoppingValue: number
-  totalApprovedCashback: number
-  pendingAmount: number
-  balanceAmount: number
+  companiesCount: number
+  totalAmount: number
+  totalCashbackAmount: number
+  totalTakebackFeeAmount: number
+  totalPositiveBalances: number
 }
 
-export function ClientReport() {
+export function CompanyReport() {
   const [page, setPage] = useState(1)
-  const { dateStart, dateEnd, order, orderBy, stateId, cityId } =
-    useClientReport()
+  const {
+    dateStart,
+    dateEnd,
+    order,
+    companyStatusId,
+    transactionStatusId,
+    orderBy,
+    stateId,
+    cityId
+  } = useCompanyReport()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const filter = {
@@ -63,24 +71,26 @@ export function ClientReport() {
     order,
     orderByColumn: orderBy,
     stateId,
-    cityId
+    cityId,
+    companyStatusId,
+    transactionStatusId
   }
 
-  const { data: customers, isLoading } = useSWR<Paginated<ClientData>>([
-    'manager/report/clients',
+  const { data: companies, isLoading } = useSWR<Paginated<CompanyData>>([
+    'manager/report/company',
     filter
   ])
 
   const { data: totalizer } = useSWR<TotalizerData>([
-    'manager/report/clients/totalizer',
+    'manager/report/company/totalizer',
     filter
   ])
 
   async function exportExcel() {
     const link = document.createElement('a')
     link.target = '_blank'
-    link.download = 'Relatório de Clientes.xlsx'
-    const { data } = await API.get(`manager/report/clients/excel`, {
+    link.download = 'Relatório de Empresas.xlsx'
+    const { data } = await API.get(`manager/report/company/excel`, {
       responseType: 'blob',
       params: filter
     })
@@ -92,8 +102,8 @@ export function ClientReport() {
   async function exportPdf() {
     const link = document.createElement('a')
     link.target = '_blank'
-    link.download = 'Relatório de Clientes.pdf'
-    const { data } = await API.get(`manager/report/clients/pdf`, {
+    link.download = 'Relatório de Empresas.pdf'
+    const { data } = await API.get(`manager/report/company/pdf`, {
       responseType: 'blob',
       params: filter
     })
@@ -105,7 +115,7 @@ export function ClientReport() {
   }
 
   return (
-    <Layout title="Clientes">
+    <Layout title="Empresas">
       <Flex
         w="full"
         h="70vh"
@@ -153,8 +163,8 @@ export function ClientReport() {
           </ButtonGroup>
         </Flex>
         <AppTable
-          dataLength={customers?.data.length}
-          noDataMessage="Nenhum cliente"
+          dataLength={companies?.data.length}
+          noDataMessage="Nenhuma empresa"
           mt={4}
           overflowY="scroll"
           maxH="650px"
@@ -162,92 +172,84 @@ export function ClientReport() {
             <Pagination
               page={page}
               setPage={setPage}
-              lastPage={customers?.meta.lastPage || 0}
+              lastPage={companies?.meta.lastPage || 0}
             />
           }
         >
           <Thead>
             <Tr>
-              <Th>Nome</Th>
-              <Th>Telefone</Th>
-              <Th>CPF</Th>
+              <Th>Empresa</Th>
+              <Th>CNPJ</Th>
               <Th>Cidade</Th>
               <Th>Estado</Th>
-              <Th>T. Compras</Th>
-              <Th>T. Cashback Ganho</Th>
-              <Th>Saldo pendente</Th>
-              <Th>Saldo atual</Th>
-              <Th>Ult. Transação</Th>
+              <Th>Status</Th>
+              <Th>Ramo de atividade</Th>
+              <Th>T. de faturamento</Th>
+              <Th>T. de Cashbacks</Th>
+              <Th>Taxas</Th>
+              <Th>Saldo Atual</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {customers?.data.map((customer: ClientData) => (
-              <Tr color="gray.500" key={customer?.id}>
-                <Td fontSize="xs">{customer?.fullName}</Td>
+            {companies?.data.map((company: CompanyData) => (
+              <Tr color="gray.500" key={company?.id}>
+                <Td fontSize="xs">{company?.companyName}</Td>
                 <Td fontSize="xs">
-                  {customer?.phone && customer?.phone !== ' '
-                    ? maskPhone(customer?.phone)
-                    : 'Sem telefone'}
+                  {company?.registeredNumber
+                    ? maskCNPJ(company?.registeredNumber)
+                    : 'Sem CNPJ'}
+                </Td>
+                <Td fontSize="xs">{company?.city ?? 'Sem cidade'}</Td>
+                <Td fontSize="xs">{company?.state ?? 'Sem estado'}</Td>
+                <Td fontSize="xs">{company?.status}</Td>
+                <Td fontSize="xs">{company?.industry}</Td>
+                <Td fontSize="xs">{currencyFormat(company?.totalAmount)}</Td>
+                <Td fontSize="xs">{currencyFormat(company?.cashbackAmount)}</Td>
+                <Td fontSize="xs">
+                  {currencyFormat(company?.takebackFeeAmount)}
                 </Td>
                 <Td fontSize="xs">
-                  {customer?.cpf ? maskCPF(customer?.cpf) : 'Sem cpf'}
-                </Td>
-                <Td fontSize="xs">{customer?.city ?? 'Sem cidade'}</Td>
-                <Td fontSize="xs">{customer?.state ?? 'Sem estado'}</Td>
-                <Td fontSize="xs">{currencyFormat(customer?.totalAmount)}</Td>
-                <Td fontSize="xs">
-                  {currencyFormat(customer?.cashbackApproved)}
-                </Td>
-                <Td fontSize="xs">
-                  {currencyFormat(customer?.blockedBalance)}
-                </Td>
-                <Td fontSize="xs">{currencyFormat(customer?.balance)}</Td>
-                <Td fontSize="xs">
-                  {customer?.lastTransactionDate
-                    ? new Date(
-                        customer?.lastTransactionDate
-                      ).toLocaleDateString()
-                    : 'Sem transação'}
+                  {currencyFormat(company?.positiveBalance)}
                 </Td>
               </Tr>
             ))}
           </Tbody>
         </AppTable>
-        {customers?.data.length ? (
+        {companies?.data.length ? (
           <SimpleGrid columns={[2, 3, 5]} spacing="4" mt="6">
             <Box>
-              <Text fontWeight="bold">Total de clientes:</Text>
-              <Text>{totalizer?.consumerCount}</Text>
+              <Text fontWeight="bold">Total de empresas:</Text>
+              <Text>{totalizer?.companiesCount}</Text>
             </Box>
             <Box>
-              <Text fontWeight="bold">Valor total de compras:</Text>
+              <Text fontWeight="bold">Total em faturamento:</Text>
               <Text>
-                {totalizer?.totalShoppingValue
-                  ? currencyFormat(totalizer?.totalShoppingValue)
+                {totalizer?.totalAmount
+                  ? currencyFormat(totalizer?.totalAmount)
                   : '-'}
               </Text>
             </Box>
             <Box>
-              <Text fontWeight="bold">Total de cashback aprovado:</Text>
+              <Text fontWeight="bold">Total de cashbacks:</Text>
               <Text>
-                {totalizer?.totalApprovedCashback
-                  ? currencyFormat(totalizer?.totalApprovedCashback)
+                {totalizer?.totalCashbackAmount
+                  ? currencyFormat(totalizer?.totalCashbackAmount)
                   : '-'}
               </Text>
             </Box>
             <Box>
-              <Text fontWeight="bold">Total de saldos pendentes:</Text>
+              <Text fontWeight="bold">Total em Taxas:</Text>
               <Text>
-                {totalizer?.pendingAmount
-                  ? currencyFormat(totalizer?.pendingAmount)
+                {totalizer?.totalTakebackFeeAmount
+                  ? currencyFormat(totalizer?.totalTakebackFeeAmount)
                   : '-'}
               </Text>
             </Box>
             <Box>
-              <Text fontWeight="bold">Total de saldos atuais:</Text>
+              <Text fontWeight="bold">Total de saldos:</Text>
               <Text>
-                {totalizer?.balanceAmount
-                  ? currencyFormat(totalizer?.balanceAmount)
+                {totalizer?.totalPositiveBalances
+                  ? currencyFormat(totalizer?.totalPositiveBalances)
                   : '-'}
               </Text>
             </Box>

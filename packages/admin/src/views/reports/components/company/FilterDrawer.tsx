@@ -12,11 +12,13 @@ import {
   DrawerOverlay,
   Stack
 } from '@chakra-ui/react'
-import { Order, useClientReport } from './state'
+import { Order, TransactionStatusTypes, useCompanyReport } from './state'
 import { ChakraInput } from '../../../../components/chakra/ChakraInput'
 import { ChakraSelect } from '../../../../components/chakra/ChakraSelect'
 import { CityFilter } from '../../../../components/filters/CityFilter'
 import { StateFilter } from '../../../../components/filters/StateFilter'
+import { TransactionStatusFilter } from '../../../../components/filters/TransactionStatusFilter'
+import { CompanyStatusFilter } from '../../../../components/filters/CompanyStatusFilter'
 
 interface FilterDrawerProps {
   isOpen: boolean
@@ -25,7 +27,7 @@ interface FilterDrawerProps {
 
 export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
   const { setForm, dateStart, dateEnd, order, orderBy, reset } =
-    useClientReport()
+    useCompanyReport()
 
   const [localDateStart, setDateStart] = useState(dateStart)
   const [localDateEnd, setDateEnd] = useState(dateEnd)
@@ -33,6 +35,10 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
   const [localOrder, setOrder] = useState(order)
   const [localStateId, setStateId] = useState(0)
   const [localCityId, setCityId] = useState(0)
+  const [localCompanyStatusId, setCompanyStatusId] = useState(0)
+  const [localTransactionStatusId, setTransactionStatusId] = useState(
+    TransactionStatusTypes.APPROVED
+  )
 
   function resetFilter() {
     reset()
@@ -43,6 +49,8 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
     setOrder(order)
     setStateId(0)
     setCityId(0)
+    setTransactionStatusId(TransactionStatusTypes.APPROVED)
+    setCompanyStatusId(0)
   }
 
   function handleSubmit() {
@@ -54,7 +62,9 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
       orderBy: localOrderBy,
       order: localOrder,
       cityId: localCityId || undefined,
-      stateId: localStateId || undefined
+      stateId: localStateId || undefined,
+      transactionStatusId: localTransactionStatusId || undefined,
+      companyStatusId: localCompanyStatusId || undefined
     })
 
     onClose()
@@ -76,6 +86,12 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
               stateId={localStateId || undefined}
               isDisabled={!localStateId}
             />
+            <CompanyStatusFilter
+              name="status-empresa"
+              label="Status da Empresa"
+              value={localCompanyStatusId}
+              setValue={setCompanyStatusId}
+            />
             <ChakraInput
               size="sm"
               type="date"
@@ -92,15 +108,18 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
               onChange={e => setDateEnd(e.target.value)}
               isRequired
             />
-
+            <TransactionStatusFilter
+              value={localTransactionStatusId}
+              setValue={setTransactionStatusId}
+            />
             <ChakraSelect
               size="sm"
               options={[
-                { value: 'totalAmount', text: 'Total de compras' },
-                { value: 'consumers.fullName', text: 'Nome do cliente' },
-                { value: 'balance', text: 'Saldo atual' },
-                { value: 'blockedBalance', text: 'Saldo pendente' },
-                { value: 'cashbackApproved', text: 'Cashbacks Aprovados' }
+                { value: 'totalAmount', text: 'Total de faturamento' },
+                { value: 'fantasyName', text: 'Nome da empresa' },
+                { value: 'takebackFeeAmount', text: 'Taxa' },
+                { value: 'cashbackAmount', text: 'Total de cashback' },
+                { value: 'positiveBalance', text: 'Total de saldo' }
               ]}
               label="Ordenar por"
               name="orderBy"

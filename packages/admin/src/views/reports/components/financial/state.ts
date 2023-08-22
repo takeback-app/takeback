@@ -3,18 +3,19 @@ import { create } from 'zustand'
 
 export type Order = 'asc' | 'desc'
 
+export enum OrderByColumn {
+  TAKEBACK_FEE_VALUE = 'takebackFeeAmount',
+  MONTHLY_PAYMENT = 'monthlyPayment',
+  CITY_NAME = 'city.name'
+}
+
 export interface FormData {
   dateStart: string
   dateEnd: string
   orderBy: string
   order: Order
-  stateId?: number
-  cityId?: number
-  companyStatusId?: number
-  companyId?: string
-  companyUserId?: string
+  monthlyPayment?: boolean
   transactionStatusId?: number
-  paymentMethodId?: number
 }
 
 interface State extends FormData {
@@ -25,18 +26,13 @@ interface State extends FormData {
 const initialState = {
   dateStart: moment().subtract(1, 'month').format('YYYY-MM-DD'),
   dateEnd: moment().format('YYYY-MM-DD'),
-  orderBy: 'createdAt',
+  orderBy: OrderByColumn.CITY_NAME,
   order: 'desc' as Order,
-  stateId: undefined,
-  cityId: undefined,
-  companyStatusId: undefined,
-  companyId: undefined,
-  companyUserId: undefined,
   transactionStatusId: undefined,
-  paymentMethodId: undefined
+  monthlyPayment: true
 }
 
-export const useCashbackReport = create<State>(set => ({
+export const useFinancialReport = create<State>(set => ({
   ...initialState,
   setForm: (form: FormData) => set(form),
   reset: () => set(initialState)
