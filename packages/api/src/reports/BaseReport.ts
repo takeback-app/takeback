@@ -1,4 +1,4 @@
-import { Knex, db } from 'knex'
+import { Knex } from 'knex'
 import { Excel } from '../services/files/excel'
 import { Pdf } from '../services/files/pdf'
 
