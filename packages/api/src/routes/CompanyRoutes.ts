@@ -32,6 +32,7 @@ import { PaymentMethodController } from '../controllers/company/PaymentMethodCon
 import { LogoChangeRequestController } from '../controllers/company/logoChangeRequest/LogoChangeRequestController'
 import { CompanyPaymentMethodController } from '../controllers/company/CompanyPaymentMethodController'
 import { StoreOrderController } from '../controllers/company/store/StoreOrderController'
+import { ExtractController } from '../controllers/company/extract/ExtractController'
 
 const auth = new AuthCompanyController()
 const reports = new ReportsController()
@@ -61,6 +62,7 @@ const companyUserTypeController = new CompanyUserTypeController()
 const paymentMethodController = new PaymentMethodController()
 const companyPaymentMethodController = new CompanyPaymentMethodController()
 const logoChangeRequestController = new LogoChangeRequestController()
+const extractController = new ExtractController()
 
 const birthdayNotificationController = new BirthdayNotificationController()
 const storeOrderController = new StoreOrderController()
@@ -244,5 +246,8 @@ routes.put(
 
 routes.get('/store/orders', storeOrderController.index)
 routes.put('/store/orders/:id', storeOrderController.update)
+
+routes.get('/extract', extractController.index)
+routes.get('/extract/paginated', extractController.paginated)
 
 export default routes
