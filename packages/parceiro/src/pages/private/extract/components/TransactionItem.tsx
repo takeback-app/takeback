@@ -18,13 +18,13 @@ export function TransactionItem(props: TransactionItemProps) {
         {new Date(referenceDate).toLocaleString()}
       </Td>
       <Td px="2" fontSize="xs">
-        <Text w="20">{type}</Text>
+        <Text>{type}</Text>
       </Td>
       <Td px="2" fontSize="xs">
-        <Text w="20">Pago com Takeback</Text>
+        <Text>Pago com Takeback</Text>
       </Td>
       <Td px="2" fontSize="xs">
-        <Text w="16" fontWeight="semibold" color="green.600">
+        <Text fontWeight="semibold" color="green.600">
           +{currencyFormat(data.totalAmount)}
         </Text>
       </Td>

@@ -25,30 +25,30 @@ export function PaymentOrdersItem(props: PaymentOrdersItemProps) {
         {new Date(referenceDate).toLocaleString()}
       </Td>
       <Td px="2" fontSize="xs">
-        <Text w="20">{type}</Text>
+        <Text>{type}</Text>
       </Td>
       <Td px="2" fontSize="xs">
-        <Text w="20">Venda de oferta</Text>
+        <Text>Pagamento de cashbacks</Text>
       </Td>
       <Td px="2" fontSize="xs">
         {(() => {
           switch (data.paymentOrderStatus) {
             case PaymentOrderStatusEnum.AUTHORIZED:
               return (
-                <Text w="16" fontWeight="semibold" color="red.500">
+                <Text fontWeight="semibold" color="red.500">
                   -{currencyFormat(data.value)}
                 </Text>
               )
             case PaymentOrderStatusEnum.REQUESTED_PAYMENT ||
               PaymentOrderStatusEnum.WAITING_CONFIRMATION:
               return (
-                <Text w="16" fontWeight="semibold" color="amber.500">
+                <Text fontWeight="semibold" color="amber.500">
                   -{currencyFormat(data.value)}
                 </Text>
               )
             case PaymentOrderStatusEnum.CANCELED:
               return (
-                <Text w="16" fontWeight="semibold" color="black">
+                <Text fontWeight="semibold" color="black">
                   -{currencyFormat(data.value)}
                 </Text>
               )

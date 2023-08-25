@@ -18,13 +18,13 @@ export function MonthlyPaymentItem(props: MonthlyPaymentItemProps) {
         {new Date(referenceDate).toLocaleString()}
       </Td>
       <Td px="2" fontSize="xs">
-        <Text w="20">{type}</Text>
+        <Text>{type}</Text>
       </Td>
       <Td px="2" fontSize="xs">
-        <Text w="20">Mensalidade</Text>
+        <Text>Mensalidade</Text>
       </Td>
       <Td px="2" fontSize="xs">
-        <Text w="16" fontWeight="semibold" color="red.600">
+        <Text fontWeight="semibold" color="red.600">
           -{currencyFormat(data.amountPaid)}
         </Text>
       </Td>

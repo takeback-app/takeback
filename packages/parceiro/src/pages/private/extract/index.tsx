@@ -5,7 +5,7 @@ import { Layout } from '../../../components/ui/layout'
 import useSWR from 'swr'
 
 import { Box, Tbody, Th, Thead, Tr } from '@chakra-ui/react'
-import { AppTable } from '../../../components/table'
+import { AppTable } from './components/table'
 import { Pagination } from '../../../components/table/Pagination'
 import { MonthTitle } from './styles'
 import { PaymentOrdersItem } from './components/PaymentOrderItem'
@@ -27,7 +27,7 @@ export interface MonthlyPaymentsData {
 
 export interface StoreOrderData {
   id: string
-  buyValue: number
+  companyCreditValue: number
   quantity: number
   productName: string
 }
@@ -72,7 +72,7 @@ enum ExtractDescriptionTypes {
   PAYMENT_ORDERS = 'Ordens de Pagamento',
   STORE_ORDER = 'Ofertas',
   MONTHLY_PAYMENTS = 'Mensalidades',
-  TRANSACTION = 'Pago com Takeback',
+  TRANSACTION = 'Venda',
   WITHDRAW_ORDER = 'Saque'
 }
 
@@ -87,9 +87,9 @@ export function Extract() {
   ])
 
   return (
-    <Layout title="Histórico de Lançamentos">
+    <Layout title="Extrato">
       <Box p={4} overflow="hidden">
-        <MonthTitle>{extract?.title}</MonthTitle>
+        <MonthTitle>Extrato de {extract?.title}</MonthTitle>
         <AppTable
           dataLength={extract?.data.length}
           noDataMessage="Não há transações"

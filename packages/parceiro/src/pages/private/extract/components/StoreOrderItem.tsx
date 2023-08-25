@@ -18,14 +18,14 @@ export function StoreOrderItem(props: StoreOrderItemProps) {
         {new Date(referenceDate).toLocaleString()}
       </Td>
       <Td px="2" fontSize="xs">
-        <Text w="20">{type}</Text>
+        <Text>{type}</Text>
       </Td>
       <Td px="2" fontSize="xs">
-        <Text w="20">{data.productName}</Text>
+        <Text>{data.productName}</Text>
       </Td>
       <Td px="2" fontSize="xs">
-        <Text w="16" fontWeight="semibold" color="green.600">
-          +{currencyFormat(data.buyValue * data.quantity)}
+        <Text fontWeight="semibold" color="green.600">
+          +{currencyFormat(data.companyCreditValue * data.quantity)}
         </Text>
       </Td>
     </Tr>

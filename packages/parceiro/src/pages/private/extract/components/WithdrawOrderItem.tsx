@@ -24,29 +24,29 @@ export function WithdrawOrderItem(props: WithdrawOrderItemProps) {
         {new Date(referenceDate).toLocaleString()}
       </Td>
       <Td px="2" fontSize="xs">
-        <Text w="20">{type}</Text>
+        <Text>{type}</Text>
       </Td>
       <Td px="2" fontSize="xs">
-        <Text w="20">Saque</Text>
+        <Text>Saque do saldo Takeback</Text>
       </Td>
       <Td px="2" fontSize="xs">
         {(() => {
           switch (data.status) {
             case WithdrawOrderStatusEnum.PAID:
               return (
-                <Text w="16" fontWeight="semibold" color="red.500">
+                <Text fontWeight="semibold" color="red.500">
                   -{currencyFormat(data.value)}
                 </Text>
               )
             case WithdrawOrderStatusEnum.REQUESTED_WITHDRAW:
               return (
-                <Text w="16" fontWeight="semibold" color="amber.500">
+                <Text fontWeight="semibold" color="amber.500">
                   -{currencyFormat(data.value)}
                 </Text>
               )
             case WithdrawOrderStatusEnum.CANCELED:
               return (
-                <Text w="16" fontWeight="semibold" color="black">
+                <Text fontWeight="semibold" color="black">
                   -{currencyFormat(data.value)}
                 </Text>
               )
