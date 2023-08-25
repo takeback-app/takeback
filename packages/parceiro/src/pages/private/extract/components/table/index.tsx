@@ -21,6 +21,19 @@ export function AppTable({
   pagination,
   ...rest
 }: AppTableProps) {
+  function getTableContent() {
+    if (dataLength !== 0) {
+      return children
+    }
+    return (
+      <Flex w="full" align="center" justify="center" h="10vh">
+        <Heading size="sm" color="gray.500">
+          {noDataMessage}
+        </Heading>
+      </Flex>
+    )
+  }
+
   return (
     <TableContainer
       display="flex"
@@ -30,25 +43,10 @@ export function AppTable({
       rounded="lg"
       {...rest}
     >
-      {dataLength !== 0 ? (
-        <>
-          <Table size="sm" mb={0} variant="simple">
-            {children}
-          </Table>
-          {pagination}
-        </>
-      ) : (
-        <>
-          <Table size="sm" mb={0} variant="simple">
-            <Flex w="full" align="center" justify="center" h="10vh">
-              <Heading size="sm" color="gray.500">
-                {noDataMessage}
-              </Heading>
-            </Flex>
-          </Table>
-          {pagination}
-        </>
-      )}
+      <Table size="sm" mb={0} variant="simple">
+        {getTableContent()}
+      </Table>
+      {pagination}
     </TableContainer>
   )
 }
