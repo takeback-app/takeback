@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* import { BonusType, SolicitationStatus, SolicitationType } from '@prisma/client' */
 import { DateTime } from 'luxon'
 import { randomUUID } from 'crypto'
@@ -17,7 +18,7 @@ interface MonthlyPaymentsData {
 
 interface StoreOrderData {
   id: string
-  buyValue: number
+  companyCreditValue: number
   quantity: number
   productName: string
 }
@@ -43,6 +44,12 @@ type ExtractItemType =
 type ExtractItem = ExtractItemType & {
   id: string
   referenceDate: Date
+}
+
+enum PaymentOrderMethodsType {
+  TAKEBACK_BALANCE = 'Saldo Takeback',
+  PIX = 'PIX',
+  BOLETO = 'Boleto',
 }
 
 export class GetCompanyExtractUseCase {
@@ -81,13 +88,12 @@ export class GetCompanyExtractUseCase {
 
   async execute(): Promise<ExtractItem[]> {
     const paymentOrders = await this.paymentOrders()
-    const monthlyPayments = await this.monthlyPayments()
     const storeOrders = await this.storeOrders()
     const transactions = await this.transactions()
     const withdrawOrders = await this.withdrawOrders()
 
     return paymentOrders
-      .concat(monthlyPayments, storeOrders, transactions, withdrawOrders)
+      .concat(storeOrders, transactions, withdrawOrders)
       .sort((a, b) => b.referenceDate.getTime() - a.referenceDate.getTime())
   }
 
@@ -96,6 +102,9 @@ export class GetCompanyExtractUseCase {
       where: {
         companyId: this.companyId,
         createdAt: { gte: this.startPageDate, lte: this.endPageDate },
+        paymentOrderMethod: {
+          description: PaymentOrderMethodsType.TAKEBACK_BALANCE,
+        },
       },
       select: {
         id: true,
@@ -117,6 +126,8 @@ export class GetCompanyExtractUseCase {
     }))
   }
 
+  // Ainda não há diferenciação de pagamento por takeback e outros no banco
+  /* 
   async monthlyPayments(): Promise<ExtractItem[]> {
     const monthlyPayments = await prisma.companyMonthlyPayment.findMany({
       where: {
@@ -141,6 +152,7 @@ export class GetCompanyExtractUseCase {
       referenceDate: monthlyPayment.createdAt,
     }))
   }
+ */
 
   async storeOrders(): Promise<ExtractItem[]> {
     const storeOrders = await prisma.storeOrder.findMany({
@@ -148,13 +160,16 @@ export class GetCompanyExtractUseCase {
         product: {
           companyId: this.companyId,
         },
-        createdAt: { gte: this.startPageDate, lte: this.endPageDate },
+        withdrawalAt: {
+          not: null,
+          gte: this.startPageDate,
+          lte: this.endPageDate,
+        },
       },
       include: {
         product: {
           select: {
             name: true,
-            buyPrice: true,
           },
         },
       },
@@ -166,11 +181,11 @@ export class GetCompanyExtractUseCase {
         type: 'STORE_ORDER',
         data: {
           id: storeOrder.id,
-          buyValue: +storeOrder.product.buyPrice,
+          companyCreditValue: +storeOrder.companyCreditValue,
           quantity: +storeOrder.quantity,
           productName: storeOrder.product.name,
         },
-        referenceDate: storeOrder.createdAt,
+        referenceDate: storeOrder.withdrawalAt,
       }
     })
   }
