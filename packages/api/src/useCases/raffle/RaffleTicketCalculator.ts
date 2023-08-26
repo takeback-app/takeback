@@ -1,75 +1,71 @@
-import { RaffleTicketStatus } from "@prisma/client";
-import { Decimal } from "@prisma/client/runtime";
-import { prisma } from "../../prisma";
+import { RaffleTicketStatus } from '@prisma/client'
+import { Decimal } from '@prisma/client/runtime'
+import { prisma } from '../../prisma'
 
 interface MakeData {
-  consumerId: string;
-  purchaseAmount: number;
-  transactionId: number;
+  consumerId: string
+  purchaseAmount: number
+  transactionId: number
 }
 
 interface TicketData {
-  number: number;
-  raffleId: string;
-  transactionId: number;
-  consumerId: string;
-  status: RaffleTicketStatus;
+  number: number
+  raffleId: string
+  transactionId: number
+  consumerId: string
+  status: RaffleTicketStatus
 }
 
 type Raffle = {
-  id: string;
-  companyId: string;
-  isOpenToEmployees: boolean;
-  ticketValue: Decimal;
-  tickets: { number: number }[];
-};
+  id: string
+  companyId: string
+  isOpenToEmployees: boolean
+  ticketValue: Decimal
+  tickets: { number: number }[]
+}
 
 export class RaffleTicketCalculator {
   constructor(
     private consumerId: string,
     private purchaseAmount: number,
-    private transactionId: number
+    private transactionId: number,
   ) {}
 
   public static make({ consumerId, purchaseAmount, transactionId }: MakeData) {
-    return new RaffleTicketCalculator(
-      consumerId,
-      purchaseAmount,
-      transactionId
-    );
+    return new RaffleTicketCalculator(consumerId, purchaseAmount, transactionId)
   }
 
   private async verifyConsumerCanGetTickets(raffle: Raffle) {
-    if (raffle.isOpenToEmployees) return true;
+    if (raffle.isOpenToEmployees) return true
 
     const consumer = await prisma.consumer.findUnique({
       where: { id: this.consumerId },
-    });
+    })
 
     const employee = await prisma.companyUser.findFirst({
       where: {
-        companyId: raffle.companyId,
+        company: { transactions: { some: { id: this.transactionId } } },
         cpf: consumer.cpf,
       },
-    });
+    })
 
-    if (!employee) return true;
+    if (!employee) return true
 
-    return false;
+    return false
   }
 
   public async generateTicketsData(raffle: Raffle, status: RaffleTicketStatus) {
-    const canGetTickets = await this.verifyConsumerCanGetTickets(raffle);
+    const canGetTickets = await this.verifyConsumerCanGetTickets(raffle)
 
-    if (!canGetTickets) return [];
+    if (!canGetTickets) return []
 
     const newTicketsQtd = Math.floor(
-      this.purchaseAmount / raffle.ticketValue.toNumber()
-    );
+      this.purchaseAmount / raffle.ticketValue.toNumber(),
+    )
 
-    let lastNumber = raffle.tickets[0]?.number || 0;
+    const lastNumber = raffle.tickets[0]?.number || 0
 
-    const tickets: TicketData[] = [];
+    const tickets: TicketData[] = []
 
     for (let i = 1; i <= newTicketsQtd; i++) {
       tickets.push({
@@ -78,9 +74,9 @@ export class RaffleTicketCalculator {
         raffleId: raffle.id,
         transactionId: this.transactionId,
         status,
-      });
+      })
     }
 
-    return tickets;
+    return tickets
   }
 }
