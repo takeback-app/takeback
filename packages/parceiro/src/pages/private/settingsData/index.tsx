@@ -162,15 +162,15 @@ export const Company: React.FC = () => {
             <Styles.SmallCardContent>
               {companyOriginalData?.customIndustryFeeActive
                 ? percentFormat(
-                  parseFloat(
-                    JSON.stringify(companyOriginalData?.customIndustryFee)
+                    parseFloat(
+                      JSON.stringify(companyOriginalData?.customIndustryFee)
+                    )
                   )
-                )
                 : percentFormat(
-                  parseFloat(
-                    JSON.stringify(companyOriginalData?.industry.industryFee)
-                  )
-                )}
+                    parseFloat(
+                      JSON.stringify(companyOriginalData?.industry.industryFee)
+                    )
+                  )}
             </Styles.SmallCardContent>
           </Styles.SmallCard>
 
