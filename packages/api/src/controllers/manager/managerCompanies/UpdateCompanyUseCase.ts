@@ -18,6 +18,8 @@ interface UpdateProps {
   street: string;
   number: string;
   district: string;
+  longitude: string;
+  latitude: string;
   contactPhone: string;
 }
 
@@ -57,6 +59,8 @@ class UpdateCompanyUseCase {
         district: props.district,
         number: props.number,
         street: props.street,
+        longitude: props.longitude,
+        latitude: props.latitude,
       }
     );
 
