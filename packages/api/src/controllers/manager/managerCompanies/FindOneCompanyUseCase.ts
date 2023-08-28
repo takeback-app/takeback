@@ -39,6 +39,8 @@ class FindOneCompanyUseCase {
         "address.street",
         "address.district",
         "address.number",
+        "address.longitude",
+        "address.latitude",
         "city.id",
         "city.name",
         "plan.id",
