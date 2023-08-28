@@ -134,7 +134,7 @@ export class CompanyReport extends BaseReport<ReportResponse, Filter> {
           this.andOn(
             'transactions.createdAt',
             '<=',
-            db.raw('?', [DateTime.fromISO(dateEnd).startOf('day').toString()]),
+            db.raw('?', [DateTime.fromISO(dateEnd).endOf('day').toString()]),
           )
         }
 

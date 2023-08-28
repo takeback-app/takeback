@@ -122,7 +122,7 @@ export class SellersReport extends BaseReport<ReportResponse, Filter> {
       query.where(
         'transactions.createdAt',
         '<=',
-        DateTime.fromISO(dateEnd).startOf('day').toString(),
+        DateTime.fromISO(dateEnd).endOf('day').toString(),
       )
     }
 

@@ -105,7 +105,7 @@ export class ClientReportController {
           .toJSDate()
       : undefined
     const endDate = dateEnd
-      ? DateTime.fromISO(dateEnd).minus({ hours: 3 }).startOf('day').toJSDate()
+      ? DateTime.fromISO(dateEnd).minus({ hours: 3 }).endOf('day').toJSDate()
       : undefined
 
     const consumerAddress = {

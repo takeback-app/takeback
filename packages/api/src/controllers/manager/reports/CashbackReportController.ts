@@ -146,7 +146,7 @@ export class CashbackReportController {
       ? DateTime.fromISO(dateStart).startOf('day').toJSDate()
       : undefined
     const endDate = dateEnd
-      ? DateTime.fromISO(dateEnd).startOf('day').toJSDate()
+      ? DateTime.fromISO(dateEnd).endOf('day').toJSDate()
       : undefined
 
     const cashbacks = await prisma.transaction.aggregate({
