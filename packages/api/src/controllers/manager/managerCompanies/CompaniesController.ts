@@ -84,6 +84,8 @@ class CompaniesController {
       district: props.district,
       number: props.number,
       street: props.street,
+      longitude: props.longitude,
+      latitude: props.latitude,
       contactPhone: props.contactPhone,
     })
 

@@ -8,7 +8,7 @@ interface Props {
 class FindCompanyDataUseCase {
   async execute({ companyId }: Props) {
     const company = await getRepository(Companies).findOne(companyId, {
-      relations: ["industry", "paymentPlan", "status"],
+      relations: ["industry", "paymentPlan", "status", "address"],
     });
 
     return company;
