@@ -14,7 +14,7 @@ export enum OrderByColumn {
 interface Filter {
   dateStart?: string
   dateEnd?: string
-  monthlyPayment?: boolean
+  monthlyPayment?: string
   transactionStatusId?: number
 }
 
@@ -35,13 +35,13 @@ const HEADERS = [
   'Cidade',
   'Taxas',
   'Mensalidades',
-  'Ofertas',
-  'Grati. compra',
+  'Loja de Ofertas',
+  'Grati. por compra',
   'Grati. novo usuário',
-  'Grati. repre.',
+  'Grati. represen.',
   'Grati. indicação',
   'Custo Ofertas',
-  'Saldo',
+  'Lucro Bruto',
 ]
 
 export class FinancialReport extends BaseReport<ReportResponse, Filter> {
@@ -123,7 +123,7 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
   private getMonthlyPaymentsQuery(
     dateStart: string,
     dateEnd: string,
-    monthlyPayment: boolean,
+    monthlyPayment: string,
   ) {
     const monthlyPaymentsQuery = db
       .select(
@@ -159,7 +159,6 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
         db.raw('?', [monthlyPayment]),
       )
     }
-
     return monthlyPaymentsQuery
   }
 
@@ -201,8 +200,12 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
     const storeOrdersQuery = db
       .select(
         'companies_address.cityId',
-        db.raw('sum(store_orders."value") as "sellValue"'),
-        db.raw('sum(store_orders."companyCreditValue") as "buyValue"'),
+        db.raw(
+          'sum(store_orders."value" * store_orders."quantity") as "sellValue"',
+        ),
+        db.raw(
+          'sum(store_orders."companyCreditValue" * store_orders."quantity") as "buyValue"',
+        ),
       )
       .from('store_orders')
       .join(
@@ -249,7 +252,7 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
       : undefined
 
     const formatedDateEnd = dateEnd
-      ? DateTime.fromISO(dateEnd).startOf('day').toString()
+      ? DateTime.fromISO(dateEnd).endOf('day').toString()
       : undefined
 
     const feeAmountQuery = this.getFeeAmountQuery(

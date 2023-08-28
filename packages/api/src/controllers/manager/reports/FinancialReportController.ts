@@ -33,7 +33,7 @@ export class FinancialReportController {
         dateStart,
         order,
         orderByColumn,
-        monthlyPayment: monthlyPayment === 'true',
+        monthlyPayment,
         transactionStatusId: filterNumber(transactionStatusId),
       },
     )
@@ -64,7 +64,7 @@ export class FinancialReportController {
       dateStart,
       order,
       orderByColumn,
-      monthlyPayment: monthlyPayment === 'true',
+      monthlyPayment,
       transactionStatusId: filterNumber(transactionStatusId),
     })
 
@@ -94,7 +94,7 @@ export class FinancialReportController {
       dateStart,
       order,
       orderByColumn,
-      monthlyPayment: monthlyPayment === 'true',
+      monthlyPayment,
       transactionStatusId: filterNumber(transactionStatusId),
     })
 
@@ -116,7 +116,7 @@ export class FinancialReportController {
       ? DateTime.fromISO(dateStart).startOf('day').toJSDate()
       : undefined
     const endDate = dateEnd
-      ? DateTime.fromISO(dateEnd).startOf('day').toJSDate()
+      ? DateTime.fromISO(dateEnd).endOf('day').toJSDate()
       : undefined
 
     const takebackFeeAmount = await prisma.transaction.aggregate({
@@ -180,32 +180,42 @@ export class FinancialReportController {
         },
       })
 
-    const storeOrders = await prisma.storeOrder.aggregate({
+    const storeOrders = await prisma.storeOrder.findMany({
+      select: {
+        companyCreditValue: true,
+        quantity: true,
+        value: true,
+      },
       where: {
         createdAt: { gte: startDate, lte: endDate },
       },
-      _sum: {
-        value: true,
-        companyCreditValue: true,
-      },
     })
+
+    const { totalStoreBuyValue, totalStoreSellValue } = storeOrders.reduce(
+      (acc, { companyCreditValue, value, quantity }) => {
+        acc.totalStoreBuyValue += Number(companyCreditValue) * Number(quantity)
+        acc.totalStoreSellValue += Number(value) * Number(quantity)
+        return acc
+      },
+      { totalStoreBuyValue: 0, totalStoreSellValue: 0 },
+    )
 
     const balanceAmount =
       +takebackFeeAmount._sum.takebackFeeAmount +
       +companyMonthlyPaymentsAmount._sum.amountPaid +
-      +storeOrders._sum.value -
+      totalStoreSellValue -
       +sellBonusAmount._sum.value -
       +newUserBonusAmount._sum.value -
       +consultantBonusAmount._sum.value -
       +referralBonusAmount._sum.value -
-      +storeOrders._sum.companyCreditValue
+      totalStoreBuyValue
 
     return response.status(200).json({
       totalTakebackFeeAmount: +takebackFeeAmount._sum.takebackFeeAmount,
       companyMonthlyPaymentsAmount:
         +companyMonthlyPaymentsAmount._sum.amountPaid,
-      totalStoreBuyValue: +storeOrders._sum.value,
-      totalStoreSellValue: +storeOrders._sum.companyCreditValue,
+      totalStoreSellValue,
+      totalStoreBuyValue,
       sellBonusAmount: +sellBonusAmount._sum.value,
       newUserBonusAmount: +newUserBonusAmount._sum.value,
       consultantBonusAmount: +consultantBonusAmount._sum.value,

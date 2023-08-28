@@ -14,7 +14,7 @@ export interface FormData {
   dateEnd: string
   orderBy: string
   order: Order
-  monthlyPayment?: boolean
+  monthlyPayment?: string
   transactionStatusId?: number
 }
 
@@ -29,7 +29,7 @@ const initialState = {
   orderBy: OrderByColumn.CITY_NAME,
   order: 'desc' as Order,
   transactionStatusId: undefined,
-  monthlyPayment: true
+  monthlyPayment: ''
 }
 
 export const useFinancialReport = create<State>(set => ({
