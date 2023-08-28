@@ -25,8 +25,16 @@ const cardsItems = [
     isNew: true,
     to: 'storeProducts'
   },
+  // {
+  //   id: 2,
+  //   title: 'QRCode',
+  //   icon: 'qr-code',
+  //   comingSoon: false,
+  //   isNew: true,
+  //   to: 'qrcode'
+  // },
   {
-    id: 2,
+    id: 3,
     title: 'Indique e Ganhe',
     icon: 'megaphone-outline',
     comingSoon: false,
@@ -34,7 +42,7 @@ const cardsItems = [
     to: 'referrals'
   },
   {
-    id: 3,
+    id: 4,
     title: 'Sorteios',
     icon: 'gift-outline',
     comingSoon: false,
@@ -42,7 +50,7 @@ const cardsItems = [
     to: 'raffles'
   },
   {
-    id: 4,
+    id: 5,
     title: 'Economia',
     icon: 'rocket-outline',
     comingSoon: false,

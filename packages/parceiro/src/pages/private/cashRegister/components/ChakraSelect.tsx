@@ -2,6 +2,7 @@ import React from 'react'
 
 import {
   FormControl,
+  FormErrorMessage,
   FormLabel,
   InputGroup,
   InputRightElement,
@@ -19,7 +20,9 @@ interface ChakraSelectProps extends SelectProps {
   isRequired?: boolean
   isLoading?: boolean
   label: string
+  error?: string
   children?: React.ReactNode
+
   options: Option[]
 }
 
@@ -42,6 +45,7 @@ const ChakraSelect = React.forwardRef<HTMLSelectElement, ChakraSelectProps>(
         gridColumnStart={gridColumnStart}
         gridColumnEnd={gridColumnEnd}
         isRequired={isRequired}
+        isInvalid={!!rest.error}
       >
         <FormLabel fontSize="xs" fontWeight="semibold" color="gray.600">
           {label}
@@ -68,6 +72,7 @@ const ChakraSelect = React.forwardRef<HTMLSelectElement, ChakraSelectProps>(
             </InputRightElement>
           ) : null}
         </InputGroup>
+        <FormErrorMessage>{rest.error}</FormErrorMessage>
         {children}
       </FormControl>
     )

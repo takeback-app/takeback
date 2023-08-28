@@ -24,6 +24,7 @@ export type PrivateRouteParam = {
   extract: undefined
   extractDetails: undefined
   paymentValue: undefined
+  qrcode: undefined
   paymentPassword: {
     value?: number
   }
