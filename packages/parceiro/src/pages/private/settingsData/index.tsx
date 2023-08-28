@@ -54,6 +54,8 @@ export const Company: React.FC = () => {
           email: response.data.email,
           industry: response.data.industry.description,
           zipCode: response.data.zipCode,
+          longitude: response.data.address.longitude,
+          latitude: response.data.address.latitude,
           acceptanceTerm: response.data.acceptanceTerm,
           balance: response.data.balance,
           blockedBalance: response.data.blockedBalance,
@@ -160,15 +162,15 @@ export const Company: React.FC = () => {
             <Styles.SmallCardContent>
               {companyOriginalData?.customIndustryFeeActive
                 ? percentFormat(
-                    parseFloat(
-                      JSON.stringify(companyOriginalData?.customIndustryFee)
-                    )
+                  parseFloat(
+                    JSON.stringify(companyOriginalData?.customIndustryFee)
                   )
+                )
                 : percentFormat(
-                    parseFloat(
-                      JSON.stringify(companyOriginalData?.industry.industryFee)
-                    )
-                  )}
+                  parseFloat(
+                    JSON.stringify(companyOriginalData?.industry.industryFee)
+                  )
+                )}
             </Styles.SmallCardContent>
           </Styles.SmallCard>
 
@@ -200,6 +202,8 @@ export const Company: React.FC = () => {
                 name="industry"
                 disabled
               />
+              <TertiaryInput name="longitude" label="Longitude" disabled />
+              <TertiaryInput name="latitude" label="Latitude" disabled />
               <div>
                 <input
                   type="checkbox"
@@ -209,12 +213,12 @@ export const Company: React.FC = () => {
                 <Styles.Label>Usar troco como cashback</Styles.Label>
               </div>
               <div />
+            </Styles.CardMain>
+            <Styles.CardFooter>
               <Styles.industryLabel>
                 *Para alteração do CNPJ ou do ramo de atividade entre em contato
                 com a Takeback.
               </Styles.industryLabel>
-            </Styles.CardMain>
-            <Styles.CardFooter>
               <OutlinedButton type="submit" color={theme.colors['blue-600']}>
                 <IoCheckmarkSharp />
                 <span>Atualizar dados</span>
