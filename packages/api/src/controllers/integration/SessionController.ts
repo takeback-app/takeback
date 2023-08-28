@@ -12,12 +12,19 @@ class SessionController {
         id: true,
         fantasyName: true,
         registeredNumber: true,
-        integrationSettings: { select: { url: true } },
+        integrationSettings: { select: { url: true, type: true } },
       },
     })
 
     if (!company.integrationSettings) {
       throw new InternalError('Integração não configurada', 403)
+    }
+
+    if (company.integrationSettings.type !== 'DESKTOP') {
+      throw new InternalError(
+        'Integração não configurada para esse tipo de aplicação',
+        403,
+      )
     }
 
     return response.status(200).json(company)

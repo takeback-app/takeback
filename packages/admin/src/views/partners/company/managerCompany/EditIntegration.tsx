@@ -21,6 +21,7 @@ import useSWR from 'swr'
 import Loader from 'react-spinners/PulseLoader'
 import { updateIntegration } from '../../../../services/integrationApi'
 import { RemoveIntegrationButton } from './RemoveIntegrationButton'
+import { ChakraSelect } from '../../../../components/chakra/ChakraSelect'
 
 interface Props {
   companyId: string
@@ -29,12 +30,14 @@ interface Props {
 interface IntegrationResponse {
   id: string
   url: string
+  type: 'DESKTOP' | 'QRCODE'
   folderPath: string
 }
 
 const schema = z.object({
   folderPath: z.string().optional(),
-  url: z.string().nonempty()
+  url: z.string().optional(),
+  type: z.enum(['DESKTOP', 'QRCODE'])
 })
 
 export type IntegrationData = z.infer<typeof schema>
@@ -53,6 +56,7 @@ export function EditIntegration({ companyId }: Props) {
       onSuccess(data) {
         setValue('url', data.url)
         setValue('folderPath', data.folderPath)
+        setValue('type', data.type)
       }
     }
   )
@@ -61,10 +65,13 @@ export function EditIntegration({ companyId }: Props) {
     handleSubmit,
     formState: { errors, isSubmitting },
     setValue,
-    register
+    register,
+    watch
   } = useForm<IntegrationData>({
     resolver: zodResolver(schema)
   })
+
+  const type = watch('type')
 
   async function onSubmit(data: IntegrationData) {
     if (!companyId) return
@@ -84,6 +91,8 @@ export function EditIntegration({ companyId }: Props) {
       description: response.message,
       status: 'success'
     })
+
+    mutate()
   }
 
   if (isValidating) {
@@ -95,8 +104,6 @@ export function EditIntegration({ companyId }: Props) {
   }
 
   if (error) {
-    console.log(error.response)
-
     return (
       <Flex w="full" pt={2} align="center" justify="center">
         <Alert status="warning">
@@ -112,18 +119,35 @@ export function EditIntegration({ companyId }: Props) {
   return (
     <Stack mt={4} spacing={4}>
       <SimpleGrid columns={[1, 2, 3, 4]} gap={8}>
-        <ChakraInput
-          label="URL"
+        <ChakraSelect
+          label="Tipo"
           size="sm"
-          {...register('url')}
-          error={errors.url?.message}
+          isRequired
+          {...register('type')}
+          error={errors.type?.message}
+          options={[
+            { text: 'Desktop', value: 'DESKTOP' },
+            { text: 'QRCode', value: 'QRCODE' }
+          ]}
         />
-        <ChakraInput
-          label="Localização da pasta"
-          size="sm"
-          {...register('folderPath')}
-          error={errors.folderPath?.message}
-        />
+
+        {type === 'DESKTOP' && (
+          <>
+            <ChakraInput
+              label="URL"
+              size="sm"
+              isRequired
+              {...register('url')}
+              error={errors.url?.message}
+            />
+            <ChakraInput
+              label="Localização da pasta"
+              size="sm"
+              {...register('folderPath')}
+              error={errors.folderPath?.message}
+            />
+          </>
+        )}
       </SimpleGrid>
       <Flex align="center" justify="flex-end">
         <ButtonGroup>

@@ -16,6 +16,7 @@ class LoginController {
         company: {
           select: {
             paymentPlan: { select: { canUseIntegration: true } },
+            integrationSettings: true,
           },
         },
       },
@@ -31,6 +32,17 @@ class LoginController {
 
     if (!user.company.paymentPlan.canUseIntegration) {
       throw new InternalError('Plano de pagamento não autorizado', 401)
+    }
+
+    if (!user.company.integrationSettings) {
+      throw new InternalError('Integração não configurada', 403)
+    }
+
+    if (user.company.integrationSettings.type !== 'DESKTOP') {
+      throw new InternalError(
+        'Integração não configurada para esse tipo de aplicação',
+        403,
+      )
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password)

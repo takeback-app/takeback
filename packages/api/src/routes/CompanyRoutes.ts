@@ -33,6 +33,7 @@ import { LogoChangeRequestController } from '../controllers/company/logoChangeRe
 import { CompanyPaymentMethodController } from '../controllers/company/CompanyPaymentMethodController'
 import { StoreOrderController } from '../controllers/company/store/StoreOrderController'
 import { ExtractController } from '../controllers/company/extract/ExtractController'
+import { IntegrationController } from '../controllers/company/IntegrationController'
 
 const auth = new AuthCompanyController()
 const reports = new ReportsController()
@@ -66,6 +67,7 @@ const extractController = new ExtractController()
 
 const birthdayNotificationController = new BirthdayNotificationController()
 const storeOrderController = new StoreOrderController()
+const integrationController = new IntegrationController()
 
 const fileController = new FileController()
 
@@ -244,10 +246,17 @@ routes.put(
   companyPaymentMethodController.update,
 )
 
+routes.put(
+  '/company-payment-methods/:id/tPag',
+  companyPaymentMethodController.updateTPag,
+)
+
 routes.get('/store/orders', storeOrderController.index)
 routes.put('/store/orders/:id', storeOrderController.update)
 
 routes.get('/extract', extractController.index)
 routes.get('/extract/paginated', extractController.paginated)
+
+routes.get('/integrations/type', integrationController.getIntegrationType)
 
 export default routes

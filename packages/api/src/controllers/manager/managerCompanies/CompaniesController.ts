@@ -205,14 +205,16 @@ class CompaniesController {
   async updateIntegration(request: Request, response: Response) {
     const { id } = request.params
 
-    const url = request.body.url
+    const url = request.body.url || 'QRCODE'
 
     const folderPath = request.body.folderPath || null
 
+    const type = request.body.type || null
+
     await prisma.integrationSettings.upsert({
       where: { companyId: id },
-      update: { url, folderPath },
-      create: { url, folderPath, companyId: id },
+      update: { url, folderPath, type },
+      create: { url, folderPath, companyId: id, type },
     })
 
     return response.json({ message: 'Integração atualizada com sucesso' })

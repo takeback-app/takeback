@@ -18,19 +18,21 @@ import {
 import useSWR from 'swr'
 
 import { AppTable } from '../../../components/table'
-import { IoPencil, IoTrash } from 'react-icons/io5'
+import { IoBarcodeOutline, IoPencil, IoTrash } from 'react-icons/io5'
 import { percentFormat } from '../../../utils/percentFormat'
 import Loader from 'react-spinners/PulseLoader'
 import { z } from 'zod'
 import { EditModal } from './components/EditModal'
 import { DeleteModal } from './components/DeleteModal'
 import { CreateModal } from './components/CreateModal'
+import { EditIntegrationModal } from './components/EditIntegrationModal'
 
 export interface CompanyPaymentMethod {
   id: number
   paymentMethod: {
     description: string
   }
+  tPag: number
   isActive: boolean
   cashbackPercentage: number
 }
@@ -45,6 +47,7 @@ export type PaymentMethodData = z.infer<typeof schema>
 export function PaymentMethods() {
   const editDisclosure = useDisclosure()
   const createDisclosure = useDisclosure()
+  const editIntegrationDisclosure = useDisclosure()
   const deleteDisclosure = useDisclosure()
 
   const [companyPaymentMethod, setCompanyPaymentMethod] =
@@ -55,6 +58,10 @@ export function PaymentMethods() {
     isLoading,
     mutate
   } = useSWR<CompanyPaymentMethod[]>('company/company-payment-methods')
+
+  const { data: integrationData } = useSWR<{ integrationType: string }>(
+    'company/integrations/type'
+  )
 
   if (isLoading || !companyPaymentMethods) {
     return (
@@ -123,6 +130,21 @@ export function PaymentMethods() {
                         }}
                       />
                     </Tooltip>
+
+                    {integrationData?.integrationType !== 'NONE' && (
+                      <Tooltip label="Editar Equivalência na integração">
+                        <IconButton
+                          size="sm"
+                          colorScheme="orange"
+                          aria-label="edit-integration"
+                          icon={<IoBarcodeOutline />}
+                          onClick={() => {
+                            setCompanyPaymentMethod(item)
+                            editIntegrationDisclosure.onOpen()
+                          }}
+                        />
+                      </Tooltip>
+                    )}
                   </ButtonGroup>
                 </Td>
               </Tr>
@@ -149,6 +171,13 @@ export function PaymentMethods() {
           <EditModal
             isOpen={editDisclosure.isOpen}
             onClose={editDisclosure.onClose}
+            onEdited={mutate}
+            companyPaymentMethod={companyPaymentMethod}
+          />
+
+          <EditIntegrationModal
+            isOpen={editIntegrationDisclosure.isOpen}
+            onClose={editIntegrationDisclosure.onClose}
             onEdited={mutate}
             companyPaymentMethod={companyPaymentMethod}
           />

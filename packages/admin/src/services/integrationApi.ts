@@ -4,7 +4,7 @@ import { API } from './API'
 type ReturnApi = [boolean, { message?: string }]
 
 interface IntegrationData {
-  url: string
+  url?: string
   folderPath?: string
 }
 

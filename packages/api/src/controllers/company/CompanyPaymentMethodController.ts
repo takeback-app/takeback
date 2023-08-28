@@ -14,6 +14,7 @@ export class CompanyPaymentMethodController {
         paymentMethod: { id: { not: TAKEBACK_PAYMENT_METHOD_ID } },
       },
       include: { paymentMethod: { select: { description: true } } },
+      orderBy: { id: 'asc' },
     })
 
     return response.json(companyPaymentMethods)
@@ -57,6 +58,7 @@ export class CompanyPaymentMethodController {
         paymentMethodId,
         cashbackPercentage,
         isActive: true,
+        tPag: paymentMethod.tPag,
       },
     })
 
@@ -99,6 +101,21 @@ export class CompanyPaymentMethodController {
         cashbackPercentage,
         isActive,
       },
+    })
+
+    return response.json({
+      message: 'Método de pagamento atualizado com sucesso',
+    })
+  }
+
+  async updateTPag(request: Request, response: Response) {
+    const id = Number(request.params.id)
+
+    const tPag = Number(request.body.tPag)
+
+    await prisma.companyPaymentMethod.update({
+      where: { id },
+      data: { tPag },
     })
 
     return response.json({

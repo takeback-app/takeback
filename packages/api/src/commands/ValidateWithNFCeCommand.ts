@@ -29,13 +29,13 @@ async function main() {
     where: {
       transactionStatus: { description: TransactionStatusEnum.PENDING },
       nfceValidationStatus: NFCeValidationStatus.IN_PROGRESS,
-      company: { integrationSettings: { isNot: null } },
+      company: { integrationSettings: { type: 'DESKTOP' } },
     },
     include: {
       transactionPaymentMethods: {
         include: {
           companyPaymentMethod: {
-            select: { paymentMethod: { select: { tPag: true } } },
+            select: { tPag: true },
           },
         },
       },
@@ -73,9 +73,7 @@ async function main() {
 
   for (const transaction of transactions) {
     const transactionPaymentKey = transaction.transactionPaymentMethods
-      .map(
-        (tpm) => `${tpm.companyPaymentMethod.paymentMethod.tPag}-${tpm.amount}`,
-      )
+      .map((tpm) => `${tpm.companyPaymentMethod.tPag}-${tpm.amount}`)
       .sort()
       .join('/')
 
