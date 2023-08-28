@@ -19,6 +19,8 @@ export type TCompany = {
   address_street: string
   address_district: string
   address_number: number
+  address_longitude: string
+  address_latitude: string
   city_name: string
   plan_id: number
   plan_description: string

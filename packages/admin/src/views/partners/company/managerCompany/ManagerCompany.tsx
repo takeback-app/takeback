@@ -102,6 +102,8 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
           district: response.data.company.address_district,
           street: response.data.company.address_street,
           number: response.data.company.address_number,
+          longitude: response.data.company.address_longitude,
+          latitude: response.data.company.address_latitude,
           industry: response.data.company.industry_id,
           feeDescription: response.data.company.plan_description,
           feeValue: response.data.company.plan_value,
@@ -133,6 +135,8 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
       district: data.district,
       street: data.street,
       number: data.number,
+      longitude: data.longitude,
+      latitude: data.latitude,
       contactPhone: data.contactPhone
     })
       .then(response => {
@@ -291,6 +295,8 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
               <TertiaryInput label="Bairro" name="district" />
               <TertiaryInput label="Rua" name="street" />
               <TertiaryInput label="Número" name="number" />
+              <TertiaryInput label="Longitude" name="longitude" />
+              <TertiaryInput label="Latitude" name="latitude" />
             </S.InfoWrapper>
 
             <S.InfoTitle>Taxas e planos</S.InfoTitle>
