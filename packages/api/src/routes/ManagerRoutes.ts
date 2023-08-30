@@ -242,7 +242,7 @@ routes.get(
 routes.get('/report/clients', clientReportController.index)
 routes.get('/report/clients/pdf', clientReportController.getPdf)
 routes.get('/report/clients/excel', clientReportController.getExcel)
-routes.get('/report/clients/totalizer', clientReportController.totalizer)
+routes.get('/report/clients/totalizer', clientReportController.getTotalizer)
 
 routes.get('/report/companies', companiesReport.index)
 routes.get('/report/companies/pdf', companiesReport.getPdf)
