@@ -127,11 +127,23 @@ export class SellerReportController {
       ? DateTime.fromISO(dateEnd).endOf('day').toJSDate()
       : undefined
 
-    const companyAddress = {
-      AND: [
-        { cityId: filterNumber(cityId) },
-        { city: { stateId: filterNumber(stateId) } },
-      ],
+    let companyAddress
+
+    if (cityId && stateId) {
+      companyAddress = {
+        AND: [
+          { cityId: filterNumber(cityId) },
+          {
+            city: { stateId: filterNumber(stateId) },
+          },
+        ],
+      }
+    }
+
+    if (!cityId && stateId) {
+      companyAddress = {
+        city: { stateId: filterNumber(stateId) },
+      }
     }
 
     const consumerCount = await prisma.companyUser.count({

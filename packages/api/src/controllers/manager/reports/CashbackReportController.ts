@@ -149,16 +149,30 @@ export class CashbackReportController {
       ? DateTime.fromISO(dateEnd).endOf('day').toJSDate()
       : undefined
 
+    let companyAddress
+
+    if (cityId && stateId) {
+      companyAddress = {
+        AND: [
+          { cityId: filterNumber(cityId) },
+          {
+            city: { stateId: filterNumber(stateId) },
+          },
+        ],
+      }
+    }
+
+    if (!cityId && stateId) {
+      companyAddress = {
+        city: { stateId: filterNumber(stateId) },
+      }
+    }
+
     const cashbacks = await prisma.transaction.aggregate({
       where: {
         createdAt: { gte: startDate, lte: endDate },
         company: {
-          companyAddress: {
-            AND: [
-              { cityId: filterNumber(cityId) },
-              { city: { stateId: filterNumber(stateId) } },
-            ],
-          },
+          companyAddress,
           statusId: filterNumber(companyStatusId),
         },
         transactionPaymentMethods: {

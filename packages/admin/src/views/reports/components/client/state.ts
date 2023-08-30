@@ -3,11 +3,14 @@ import { create } from 'zustand'
 
 export type Order = 'asc' | 'desc'
 
+export type HaveTransactions = 'true' | 'false'
+
 export interface FormData {
   dateStart: string
   dateEnd: string
   orderBy: string
   order: Order
+  haveTransactions: HaveTransactions
   stateId?: number
   cityId?: number
 }
@@ -22,6 +25,7 @@ const initialState = {
   dateEnd: moment().format('YYYY-MM-DD'),
   orderBy: 'consumers.fullName',
   order: 'asc' as Order,
+  haveTransactions: 'true' as HaveTransactions,
   stateId: undefined,
   cityId: undefined
 }

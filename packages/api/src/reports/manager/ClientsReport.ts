@@ -19,6 +19,7 @@ interface Filter {
   dateEnd?: string
   stateId?: number
   cityId?: number
+  haveTransactions: boolean
 }
 
 interface ReportResponse {
@@ -33,6 +34,7 @@ interface ReportResponse {
   balance: number
   blockedBalance: number
   lastTransactionDate: Date
+  createdAt: Date
 }
 
 export const APPROVED_TRANSACTION_STATUS_ID = 2
@@ -48,6 +50,7 @@ const HEADERS = [
   'Saldo Pendente',
   'Saldo Atual',
   'Data da Última Transação',
+  'Data de Cadastro',
 ]
 
 export class ClientsReport extends BaseReport<ReportResponse, Filter> {
@@ -58,7 +61,7 @@ export class ClientsReport extends BaseReport<ReportResponse, Filter> {
   protected excelRow(record: ReportResponse) {
     return {
       fullName: record.fullName,
-      phone: record.phone.trim() ? maskPhone(record.phone) : '-',
+      phone: record.phone?.trim() ? maskPhone(record.phone) : '-',
       cpf: record.cpf,
       city: record.city,
       state: record.state,
@@ -69,6 +72,7 @@ export class ClientsReport extends BaseReport<ReportResponse, Filter> {
       lastTransactionDate: DateTime.fromJSDate(
         record.lastTransactionDate,
       ).toFormat('dd/MM/yyyy'),
+      createdAt: DateTime.fromJSDate(record.createdAt).toFormat('dd/MM/yyyy'),
     }
   }
 
@@ -82,6 +86,7 @@ export class ClientsReport extends BaseReport<ReportResponse, Filter> {
       dateStart,
       cityId,
       stateId,
+      haveTransactions,
       orderByColumn = OrderByColumn.FULL_NAME,
       order = 'asc',
     } = dto ?? {}
@@ -101,29 +106,52 @@ export class ClientsReport extends BaseReport<ReportResponse, Filter> {
         'blockedBalance',
         'balance',
         db.raw('max(transactions."createdAt") as "lastTransactionDate"'),
+        'consumers.createdAt',
       )
       .from('consumers')
       .join('consumer_address', 'consumers.addressId', 'consumer_address.id')
       .join('city', 'consumer_address.cityId', 'city.id')
       .join('state', 'city.stateId', 'state.id')
-      .join('transactions', 'consumers.id', 'transactions.consumersId')
+      .leftJoin('transactions', 'consumers.id', 'transactions.consumersId')
       .groupBy('consumers.id', 'city.id', 'state.id')
       .orderBy(orderByColumn, order)
 
-    if (dateStart) {
-      query.where(
-        'transactions.createdAt',
-        '>=',
-        DateTime.fromISO(dateStart).startOf('day').toString(),
-      )
-    }
+    if (haveTransactions) {
+      query.whereNotNull('transactions.id')
 
-    if (dateEnd) {
-      query.where(
-        'transactions.createdAt',
-        '<=',
-        DateTime.fromISO(dateEnd).endOf('day').toString(),
-      )
+      if (dateStart) {
+        query.where(
+          'transactions.createdAt',
+          '>=',
+          DateTime.fromISO(dateStart).startOf('day').toString(),
+        )
+      }
+
+      if (dateEnd) {
+        query.where(
+          'transactions.createdAt',
+          '<=',
+          DateTime.fromISO(dateEnd).endOf('day').toString(),
+        )
+      }
+    } else {
+      query.whereNull('transactions.id')
+
+      if (dateStart) {
+        query.where(
+          'consumers.createdAt',
+          '>=',
+          DateTime.fromISO(dateStart).startOf('day').toString(),
+        )
+      }
+
+      if (dateEnd) {
+        query.where(
+          'consumers.createdAt',
+          '<=',
+          DateTime.fromISO(dateEnd).endOf('day').toString(),
+        )
+      }
     }
 
     if (cityId) {

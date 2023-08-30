@@ -29,6 +29,7 @@ interface ReportResponse {
   consultantBonus: number
   referralBonus: number
   storeBuyValue: number
+  commissionValue: number
 }
 
 const HEADERS = [
@@ -57,7 +58,9 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
       storeSellValue: parseNumberToExcelString(record.storeSellValue),
       sellBonus: parseNumberToExcelString(record.sellBonus),
       newUserBonus: parseNumberToExcelString(record.newUserBonus),
-      consultantBonus: parseNumberToExcelString(record.consultantBonus),
+      consultantBonus: parseNumberToExcelString(
+        record.consultantBonus + record.commissionValue,
+      ),
       referralBonus: parseNumberToExcelString(record.referralBonus),
       storeBuyValue: parseNumberToExcelString(record.storeBuyValue),
       totalBalance: parseNumberToExcelString(
@@ -67,6 +70,7 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
           record.newUserBonus -
           record.sellBonus -
           record.consultantBonus -
+          record.commissionValue -
           record.referralBonus -
           record.storeBuyValue,
       ),
@@ -237,6 +241,45 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
     return storeOrdersQuery
   }
 
+  private getCommissions(dateStart: string, dateEnd: string) {
+    const commissionsQuery = db
+      .select(
+        'representative_addresses.cityId',
+        db.raw('sum(commissions."value") as "commissionValue"'),
+      )
+      .from('commissions')
+      .join(
+        'representatives',
+        'commissions.representativeId',
+        'representatives.id',
+      )
+      .join(
+        'representative_addresses',
+        'representatives.representativeAddressId',
+        'representative_addresses.id',
+      )
+      .groupBy('representative_addresses.cityId')
+      .as('commissions')
+
+    if (dateStart) {
+      commissionsQuery.where(
+        'commissions.createdAt',
+        '>=',
+        db.raw('?', [dateStart]),
+      )
+    }
+
+    if (dateEnd) {
+      commissionsQuery.where(
+        'commissions.createdAt',
+        '<=',
+        db.raw('?', [dateEnd]),
+      )
+    }
+
+    return commissionsQuery
+  }
+
   protected getQuery(dto: Filter & BaseQueryDto) {
     const {
       dateStart,
@@ -274,6 +317,11 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
       formatedDateEnd,
     )
 
+    const commissionsQuery = this.getCommissions(
+      formatedDateStart,
+      formatedDateEnd,
+    )
+
     const query = db
       .select(
         'city.id',
@@ -290,6 +338,9 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
         db.raw('coalesce(bonus."referralBonus", 0) as "referralBonus"'),
         db.raw('coalesce(store_orders."buyValue", 0) as "storeBuyValue"'),
         db.raw('coalesce(store_orders."sellValue", 0) as "storeSellValue"'),
+        db.raw(
+          'coalesce(commissions."commissionValue", 0) as "commissionValue"',
+        ),
       )
       .from('city')
       .leftJoin(feeAmountQuery, function () {
@@ -304,6 +355,9 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
       .leftJoin(storeOrdersQuery, function () {
         this.on('store_orders.cityId', '=', 'city.id')
       })
+      .leftJoin(commissionsQuery, function () {
+        this.on('commissions.cityId', '=', 'city.id')
+      })
       .where(function () {
         this.where('takebackFeeAmount', '>', 0)
           .orWhere('amountPaid', '>', 0)
@@ -313,6 +367,7 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
           .orWhere('referralBonus', '>', 0)
           .orWhere('buyValue', '>', 0)
           .orWhere('sellValue', '>', 0)
+          .orWhere('commissionValue', '>', 0)
       })
       .groupBy(
         'city.id',
@@ -324,6 +379,7 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
         'referralBonus',
         'buyValue',
         'sellValue',
+        'commissionValue',
       )
       .orderBy(orderByColumn, order)
 

@@ -39,6 +39,7 @@ export interface FinancialData {
   consultantBonus: number
   referralBonus: number
   storeBuyValue: number
+  commissionValue: number
 }
 
 export interface TotalizerData {
@@ -237,7 +238,9 @@ export function FinancialReport() {
                 </Td>
                 <Td fontSize="xs">
                   <Text color="red.500">
-                    {currencyFormat(financial?.consultantBonus)}
+                    {currencyFormat(
+                      financial?.consultantBonus + financial?.commissionValue
+                    )}
                   </Text>
                 </Td>
                 <Td fontSize="xs">
@@ -259,6 +262,7 @@ export function FinancialReport() {
                         financial?.newUserBonus -
                         financial?.sellBonus -
                         financial?.consultantBonus -
+                        financial?.commissionValue -
                         financial?.referralBonus -
                         financial?.storeBuyValue
                     )}

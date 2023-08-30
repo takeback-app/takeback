@@ -17,8 +17,16 @@ export class ClientReportController {
       throw new InternalError('Existem erros nos filtros', 400)
     }
 
-    const { dateEnd, dateStart, cityId, stateId, order, orderByColumn, page } =
-      form.data
+    const {
+      dateEnd,
+      dateStart,
+      cityId,
+      stateId,
+      order,
+      orderByColumn,
+      haveTransactions,
+      page,
+    } = form.data
 
     const report = new ClientsReport()
 
@@ -31,6 +39,7 @@ export class ClientReportController {
         order,
         orderByColumn,
         stateId: filterNumber(stateId),
+        haveTransactions: haveTransactions === 'true',
       },
     )
 
@@ -44,8 +53,15 @@ export class ClientReportController {
       throw new InternalError('Existem erros nos filtros', 400)
     }
 
-    const { dateEnd, dateStart, cityId, stateId, order, orderByColumn } =
-      form.data
+    const {
+      dateEnd,
+      dateStart,
+      cityId,
+      stateId,
+      haveTransactions,
+      order,
+      orderByColumn,
+    } = form.data
 
     const report = new ClientsReport()
 
@@ -56,6 +72,7 @@ export class ClientReportController {
       order,
       orderByColumn,
       stateId: filterNumber(stateId),
+      haveTransactions: haveTransactions === 'true',
     })
 
     excel.write('Relatório de Cliente.xlsx', response)
@@ -68,8 +85,15 @@ export class ClientReportController {
       throw new InternalError('Existem erros nos filtros', 400)
     }
 
-    const { dateEnd, dateStart, cityId, stateId, order, orderByColumn } =
-      form.data
+    const {
+      dateEnd,
+      dateStart,
+      cityId,
+      stateId,
+      haveTransactions,
+      order,
+      orderByColumn,
+    } = form.data
 
     const report = new ClientsReport()
 
@@ -80,6 +104,7 @@ export class ClientReportController {
       order,
       orderByColumn,
       stateId: filterNumber(stateId),
+      haveTransactions: haveTransactions === 'true',
     })
 
     response.setHeader('Content-type', 'application/pdf')
@@ -93,10 +118,8 @@ export class ClientReportController {
   }
 
   async totalizer(request: Request, response: Response) {
-    const { dateEnd, dateStart, cityId, stateId } = request.query as Record<
-      string,
-      string
-    >
+    const { dateEnd, dateStart, cityId, stateId, haveTransactions } =
+      request.query as Record<string, string>
 
     const startDate = dateStart
       ? DateTime.fromISO(dateStart)
@@ -108,22 +131,45 @@ export class ClientReportController {
       ? DateTime.fromISO(dateEnd).minus({ hours: 3 }).endOf('day').toJSDate()
       : undefined
 
-    const consumerAddress = {
-      AND: [
-        { cityId: filterNumber(cityId) },
-        { city: { stateId: filterNumber(stateId) } },
-      ],
+    let consumerAddress
+
+    if (cityId && stateId) {
+      consumerAddress = {
+        AND: [
+          { cityId: filterNumber(cityId) },
+          {
+            city: { stateId: filterNumber(stateId) },
+          },
+        ],
+      }
+    }
+
+    if (!cityId && stateId) {
+      consumerAddress = {
+        city: { stateId: filterNumber(stateId) },
+      }
     }
 
     const consumerCount = await prisma.consumer.count({
-      where: {
-        transactions: {
-          some: {
-            createdAt: { gte: startDate, lte: endDate },
-          },
-        },
-        consumerAddress,
-      },
+      where:
+        haveTransactions === 'true'
+          ? {
+              transactions: {
+                some: {
+                  createdAt: { gte: startDate, lte: endDate },
+                },
+              },
+              consumerAddress,
+              isPlaceholderConsumer: false,
+            }
+          : {
+              transactions: {
+                none: {},
+              },
+              createdAt: { gte: startDate, lte: endDate },
+              consumerAddress,
+              isPlaceholderConsumer: false,
+            },
     })
 
     const totalShoppingValue = await prisma.transaction.aggregate({
@@ -151,23 +197,49 @@ export class ClientReportController {
       },
     })
 
-    const totalBalance = await prisma.consumer.aggregate({
-      where: {
-        createdAt: { gte: startDate, lte: endDate },
-        consumerAddress,
-      },
+    const consumers = await prisma.consumer.aggregate({
+      where:
+        haveTransactions === 'true'
+          ? {
+              transactions: {
+                some: {
+                  createdAt: { gte: startDate, lte: endDate },
+                },
+              },
+              consumerAddress,
+            }
+          : {
+              transactions: {
+                none: {},
+              },
+              createdAt: { gte: startDate, lte: endDate },
+              consumerAddress,
+            },
       _sum: {
         blockedBalance: true,
         balance: true,
       },
     })
 
+    const registeredConsumers = await prisma.consumer.count({
+      where: {
+        createdAt: { gte: startDate, lte: endDate },
+        isPlaceholderConsumer: false,
+        consumerAddress,
+      },
+    })
+
     return response.status(200).json({
       consumerCount,
-      totalShoppingValue: totalShoppingValue._sum.totalAmount,
-      totalApprovedCashback: totalApprovedCashback._sum.cashbackAmount,
-      pendingAmount: totalBalance._sum.blockedBalance,
-      balanceAmount: totalBalance._sum.balance,
+      totalShoppingValue:
+        haveTransactions === 'true' ? +totalShoppingValue._sum.totalAmount : 0,
+      totalApprovedCashback:
+        haveTransactions === 'true'
+          ? +totalApprovedCashback._sum.cashbackAmount
+          : 0,
+      pendingAmount: +consumers._sum.blockedBalance,
+      balanceAmount: +consumers._sum.balance,
+      registeredConsumers,
     })
   }
 }
