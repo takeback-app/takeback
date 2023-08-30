@@ -20,6 +20,7 @@ interface Filter {
   stateId?: number
   cityId?: number
   haveTransactions: boolean
+  isPlaceholder?: boolean
 }
 
 interface ReportResponse {
@@ -80,16 +81,47 @@ export class ClientsReport extends BaseReport<ReportResponse, Filter> {
     return Object.values(this.excelRow(record))
   }
 
-  protected getQuery(dto: Filter & BaseQueryDto) {
-    const {
-      dateEnd,
-      dateStart,
-      cityId,
-      stateId,
-      haveTransactions,
-      orderByColumn = OrderByColumn.FULL_NAME,
-      order = 'asc',
-    } = dto ?? {}
+  private withIsPlaceholderQuery(orderByColumn: string, order: string) {
+    const query = db
+      .select(
+        'consumers.id as id',
+        'fullName',
+        'phone',
+        'cpf',
+        'city.name as city',
+        'state.name as state',
+        db.raw('sum("totalAmount") as "totalAmount"'),
+        db.raw(
+          'sum(case when transactions."transactionStatusId" = ? then transactions."cashbackAmount" else 0 end) as "cashbackApproved"',
+          [APPROVED_TRANSACTION_STATUS_ID],
+        ),
+        'blockedBalance',
+        'balance',
+        db.raw('max(transactions."createdAt") as "lastTransactionDate"'),
+        'consumers.createdAt',
+      )
+      .from('consumers')
+      .leftJoin(
+        'consumer_address',
+        'consumers.addressId',
+        'consumer_address.id',
+      )
+      .leftJoin('city', 'consumer_address.cityId', 'city.id')
+      .leftJoin('state', 'city.stateId', 'state.id')
+      .leftJoin('transactions', 'consumers.id', 'transactions.consumersId')
+      .groupBy('consumers.id', 'city.id', 'state.id')
+      .orderBy(orderByColumn, order)
+
+    query.where('consumers.isPlaceholderConsumer', '=', true)
+
+    return query
+  }
+
+  private withoutIsPlaceholderQuery(
+    isPlaceholder: '' | 'true' | 'false',
+    orderByColumn: string,
+    order: string,
+  ) {
     const query = db
       .select(
         'consumers.id as id',
@@ -116,42 +148,110 @@ export class ClientsReport extends BaseReport<ReportResponse, Filter> {
       .groupBy('consumers.id', 'city.id', 'state.id')
       .orderBy(orderByColumn, order)
 
+    if (isPlaceholder) {
+      query.where('consumers.isPlaceholderConsumer', '=', false)
+    }
+
+    return query
+  }
+
+  protected getQuery(dto: Filter & BaseQueryDto) {
+    const {
+      dateEnd,
+      dateStart,
+      cityId,
+      stateId,
+      haveTransactions,
+      isPlaceholder,
+      orderByColumn = OrderByColumn.FULL_NAME,
+      order = 'asc',
+    } = dto ?? {}
+    /*     const query =
+      isPlaceholder === 'true'
+        ? this.withIsPlaceholderQuery(orderByColumn, order)
+        : this.withoutIsPlaceholderQuery(isPlaceholder, orderByColumn, order) */
+    const query = db
+      .select(
+        'consumers.id as id',
+        'fullName',
+        'phone',
+        'cpf',
+        'city.name as city',
+        'state.name as state',
+        db.raw('sum("totalAmount") as "totalAmount"'),
+        db.raw(
+          'sum(case when transactions."transactionStatusId" = ? then transactions."cashbackAmount" else 0 end) as "cashbackApproved"',
+          [APPROVED_TRANSACTION_STATUS_ID],
+        ),
+        'blockedBalance',
+        'balance',
+        db.raw('max(transactions."createdAt") as "lastTransactionDate"'),
+        'consumers.createdAt',
+      )
+      .from('consumers')
+      .leftJoin(
+        'consumer_address',
+        'consumers.addressId',
+        'consumer_address.id',
+      )
+      .leftJoin('city', 'consumer_address.cityId', 'city.id')
+      .leftJoin('state', 'city.stateId', 'state.id')
+      .leftJoin('transactions', 'consumers.id', 'transactions.consumersId')
+      .groupBy('consumers.id', 'city.id', 'state.id')
+      .orderBy(orderByColumn, order)
+
+    if (isPlaceholder === true) {
+      query.whereNull('consumers.addressId')
+      query.where('consumers.isPlaceholderConsumer', '=', true)
+    }
+    if (isPlaceholder === false) {
+      query.whereNotNull('consumers.addressId')
+      query.where('consumers.isPlaceholderConsumer', '=', false)
+    }
+
     if (haveTransactions) {
       query.whereNotNull('transactions.id')
+    }
 
-      if (dateStart) {
-        query.where(
-          'transactions.createdAt',
-          '>=',
-          DateTime.fromISO(dateStart).startOf('day').toString(),
-        )
-      }
+    if (haveTransactions && dateStart) {
+      query.where(
+        'transactions.createdAt',
+        '>=',
+        DateTime.fromISO(dateStart)
+          .minus({ hours: 3 })
+          .startOf('day')
+          .toJSDate(),
+      )
+    }
 
-      if (dateEnd) {
-        query.where(
-          'transactions.createdAt',
-          '<=',
-          DateTime.fromISO(dateEnd).endOf('day').toString(),
-        )
-      }
-    } else {
+    if (haveTransactions && dateEnd) {
+      query.where(
+        'transactions.createdAt',
+        '<=',
+        DateTime.fromISO(dateEnd).minus({ hours: 3 }).endOf('day').toJSDate(),
+      )
+    }
+    if (!haveTransactions) {
       query.whereNull('transactions.id')
+    }
 
-      if (dateStart) {
-        query.where(
-          'consumers.createdAt',
-          '>=',
-          DateTime.fromISO(dateStart).startOf('day').toString(),
-        )
-      }
+    if (!haveTransactions && dateStart) {
+      query.where(
+        'consumers.createdAt',
+        '>=',
+        DateTime.fromISO(dateStart)
+          .minus({ hours: 3 })
+          .startOf('day')
+          .toJSDate(),
+      )
+    }
 
-      if (dateEnd) {
-        query.where(
-          'consumers.createdAt',
-          '<=',
-          DateTime.fromISO(dateEnd).endOf('day').toString(),
-        )
-      }
+    if (!haveTransactions && dateEnd) {
+      query.where(
+        'consumers.createdAt',
+        '<=',
+        DateTime.fromISO(dateEnd).minus({ hours: 3 }).endOf('day').toJSDate(),
+      )
     }
 
     if (cityId) {

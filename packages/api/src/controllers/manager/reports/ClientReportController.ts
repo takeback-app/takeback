@@ -25,6 +25,7 @@ export class ClientReportController {
       order,
       orderByColumn,
       haveTransactions,
+      isPlaceholder,
       page,
     } = form.data
 
@@ -40,6 +41,7 @@ export class ClientReportController {
         orderByColumn,
         stateId: filterNumber(stateId),
         haveTransactions: haveTransactions === 'true',
+        isPlaceholder: isPlaceholder ? isPlaceholder === 'true' : undefined,
       },
     )
 
@@ -61,6 +63,7 @@ export class ClientReportController {
       haveTransactions,
       order,
       orderByColumn,
+      isPlaceholder,
     } = form.data
 
     const report = new ClientsReport()
@@ -73,6 +76,7 @@ export class ClientReportController {
       orderByColumn,
       stateId: filterNumber(stateId),
       haveTransactions: haveTransactions === 'true',
+      isPlaceholder: isPlaceholder ? isPlaceholder === 'true' : undefined,
     })
 
     excel.write('Relatório de Cliente.xlsx', response)
@@ -93,6 +97,7 @@ export class ClientReportController {
       haveTransactions,
       order,
       orderByColumn,
+      isPlaceholder,
     } = form.data
 
     const report = new ClientsReport()
@@ -105,6 +110,7 @@ export class ClientReportController {
       orderByColumn,
       stateId: filterNumber(stateId),
       haveTransactions: haveTransactions === 'true',
+      isPlaceholder: isPlaceholder ? isPlaceholder === 'true' : undefined,
     })
 
     response.setHeader('Content-type', 'application/pdf')
@@ -118,8 +124,19 @@ export class ClientReportController {
   }
 
   async totalizer(request: Request, response: Response) {
-    const { dateEnd, dateStart, cityId, stateId, haveTransactions } =
-      request.query as Record<string, string>
+    const {
+      dateEnd,
+      dateStart,
+      cityId,
+      stateId,
+      haveTransactions,
+      isPlaceholder,
+    } = request.query as Record<string, string>
+
+    const hasIsPlaceholderConsumer = !!isPlaceholder
+
+    const parsedIsPlaceholder = isPlaceholder === 'true'
+    const parsedHaveTransactions = haveTransactions === 'true'
 
     const startDate = dateStart
       ? DateTime.fromISO(dateStart)
@@ -150,33 +167,14 @@ export class ClientReportController {
       }
     }
 
-    const consumerCount = await prisma.consumer.count({
-      where:
-        haveTransactions === 'true'
-          ? {
-              transactions: {
-                some: {
-                  createdAt: { gte: startDate, lte: endDate },
-                },
-              },
-              consumerAddress,
-              isPlaceholderConsumer: false,
-            }
-          : {
-              transactions: {
-                none: {},
-              },
-              createdAt: { gte: startDate, lte: endDate },
-              consumerAddress,
-              isPlaceholderConsumer: false,
-            },
-    })
-
     const totalShoppingValue = await prisma.transaction.aggregate({
       where: {
         createdAt: { gte: startDate, lte: endDate },
         consumer: {
           consumerAddress,
+          isPlaceholderConsumer: hasIsPlaceholderConsumer
+            ? parsedIsPlaceholder
+            : undefined,
         },
       },
       _sum: {
@@ -190,6 +188,9 @@ export class ClientReportController {
         transactionStatusId: APPROVED_TRANSACTION_STATUS_ID,
         consumer: {
           consumerAddress,
+          isPlaceholderConsumer: hasIsPlaceholderConsumer
+            ? parsedIsPlaceholder
+            : undefined,
         },
       },
       _sum: {
@@ -198,45 +199,49 @@ export class ClientReportController {
     })
 
     const consumers = await prisma.consumer.aggregate({
-      where:
-        haveTransactions === 'true'
+      where: {
+        transactions: parsedHaveTransactions
           ? {
-              transactions: {
-                some: {
-                  createdAt: { gte: startDate, lte: endDate },
-                },
+              some: {
+                createdAt: { gte: startDate, lte: endDate },
               },
-              consumerAddress,
             }
           : {
-              transactions: {
-                none: {},
-              },
-              createdAt: { gte: startDate, lte: endDate },
-              consumerAddress,
+              none: {},
             },
+        createdAt: !parsedHaveTransactions
+          ? { gte: startDate, lte: endDate }
+          : undefined,
+        consumerAddress,
+        isPlaceholderConsumer: hasIsPlaceholderConsumer
+          ? parsedIsPlaceholder
+          : undefined,
+      },
       _sum: {
         blockedBalance: true,
         balance: true,
       },
+      _count: true,
     })
 
     const registeredConsumers = await prisma.consumer.count({
       where: {
         createdAt: { gte: startDate, lte: endDate },
-        isPlaceholderConsumer: false,
+        isPlaceholderConsumer: hasIsPlaceholderConsumer
+          ? parsedIsPlaceholder
+          : undefined,
         consumerAddress,
       },
     })
 
     return response.status(200).json({
-      consumerCount,
-      totalShoppingValue:
-        haveTransactions === 'true' ? +totalShoppingValue._sum.totalAmount : 0,
-      totalApprovedCashback:
-        haveTransactions === 'true'
-          ? +totalApprovedCashback._sum.cashbackAmount
-          : 0,
+      consumerCount: consumers._count,
+      totalShoppingValue: parsedHaveTransactions
+        ? +totalShoppingValue._sum.totalAmount
+        : 0,
+      totalApprovedCashback: parsedHaveTransactions
+        ? +totalApprovedCashback._sum.cashbackAmount
+        : 0,
       pendingAmount: +consumers._sum.blockedBalance,
       balanceAmount: +consumers._sum.balance,
       registeredConsumers,

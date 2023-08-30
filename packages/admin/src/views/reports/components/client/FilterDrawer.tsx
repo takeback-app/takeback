@@ -40,6 +40,7 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
   const [localOrder, setOrder] = useState(order)
   const [localHaveTransactions, setHaveTransactions] =
     useState(haveTransactions)
+  const [localIsPlaceholder, setIsPlaceholder] = useState('')
   const [localStateId, setStateId] = useState(0)
   const [localCityId, setCityId] = useState(0)
 
@@ -52,6 +53,8 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
     setOrder(order)
     setStateId(0)
     setCityId(0)
+    setIsPlaceholder('')
+    setHaveTransactions(haveTransactions)
   }
 
   function handleSubmit() {
@@ -63,6 +66,7 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
       orderBy: localOrderBy,
       order: localOrder,
       haveTransactions: localHaveTransactions,
+      isPlaceholder: localIsPlaceholder || undefined,
       cityId: localCityId || undefined,
       stateId: localStateId || undefined
     })
@@ -79,6 +83,18 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
 
         <DrawerBody>
           <Stack spacing={6}>
+            <ChakraSelect
+              size="sm"
+              options={[
+                { value: '', text: 'Todos' },
+                { value: 'false', text: 'Usuários Cadastrados' },
+                { value: 'true', text: 'Usuários Não Cadastrados' }
+              ]}
+              label="Tipo de Usuário"
+              name="isPlaceholder"
+              value={localIsPlaceholder}
+              onChange={e => setIsPlaceholder(e.target.value as string)}
+            />
             <ChakraSelect
               size="sm"
               options={[

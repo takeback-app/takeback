@@ -13,6 +13,7 @@ export interface FormData {
   haveTransactions: HaveTransactions
   stateId?: number
   cityId?: number
+  isPlaceholder?: string
 }
 
 interface State extends FormData {
@@ -26,6 +27,7 @@ const initialState = {
   orderBy: 'consumers.fullName',
   order: 'asc' as Order,
   haveTransactions: 'true' as HaveTransactions,
+  isPlaceholder: undefined,
   stateId: undefined,
   cityId: undefined
 }

@@ -61,6 +61,7 @@ export function ClientReport() {
     orderBy,
     stateId,
     cityId,
+    isPlaceholder,
     haveTransactions
   } = useClientReport()
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -73,6 +74,7 @@ export function ClientReport() {
     orderByColumn: orderBy,
     stateId,
     cityId,
+    isPlaceholder,
     haveTransactions
   }
 
