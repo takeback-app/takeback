@@ -207,6 +207,7 @@ model Consumer {
   isPlaceholderConsumer         Boolean                   @default(false)
   createdAt                     DateTime                  @default(now()) @db.Timestamp(6)
   updatedAt                     DateTime                  @default(now()) @db.Timestamp(6)
+  activatedAt                   DateTime?                 @db.Timestamp(6)
   expireBalanceDate             DateTime?                 @db.Timestamp(6)
   addressId                     Int?                      @unique(map: "REL_3ffc911cff52ac729e01188ea1")
   resetPasswordToken            String?                   @db.VarChar

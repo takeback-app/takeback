@@ -142,6 +142,8 @@ class RegisterCostumerUseCase {
       monthlyIncomeId: monthlyIncomeId ? Number(monthlyIncomeId) : undefined,
       schooling: schooling as Schooling,
       maritalStatus: maritalStatus as MaritalStatus,
+      activatedAt: DateTime.now().setZone('America/Sao_Paulo').toJSDate(),
+    }
 
     const newClient = await prisma.consumer.upsert({
       where: { cpf },
