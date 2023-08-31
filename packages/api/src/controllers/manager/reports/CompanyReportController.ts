@@ -1,10 +1,16 @@
 import { Request, Response } from 'express'
-import { DateTime } from 'luxon'
 import { InternalError } from '../../../config/GenerateErros'
-import { prisma } from '../../../prisma'
 import { filterNumber } from '../../../utils'
 import { ManagerCompanyReportRequest } from '../../../requests/reports/manager/ManagerCompanyReportRequest'
 import { CompanyReport } from '../../../reports/manager/CompanyReport'
+
+export interface CompanyTotalizer {
+  companiesCount: number
+  totalAmount: number
+  totalCashbackAmount: number
+  totalTakebackFeeAmount: number
+  totalPositiveBalances: number
+}
 
 export class CompanyReportController {
   async index(request: Request, response: Response) {
@@ -120,69 +126,46 @@ export class CompanyReportController {
     pdf.end()
   }
 
-  async totalizer(request: Request, response: Response) {
+  async getTotalizer(request: Request, response: Response) {
+    const form = ManagerCompanyReportRequest.safeParse(request.query)
+
+    if (!form.success) {
+      throw new InternalError('Existem erros nos filtros', 400)
+    }
+
     const {
       dateEnd,
       dateStart,
-      cityId,
-      stateId,
       companyStatusId,
       transactionStatusId,
-    } = request.query as Record<string, string>
+      cityId,
+      stateId,
+      order,
+      orderByColumn,
+    } = form.data
 
-    const startDate = dateStart
-      ? DateTime.fromISO(dateStart).startOf('day').toJSDate()
-      : undefined
-    const endDate = dateEnd
-      ? DateTime.fromISO(dateEnd).startOf('day').toJSDate()
-      : undefined
+    const report = new CompanyReport()
 
-    const companyAddress = {
-      AND: [
-        { cityId: filterNumber(cityId) },
-        { city: { stateId: filterNumber(stateId) } },
-      ],
-    }
-
-    const companiesCount = await prisma.company.count({
-      where: {
-        companyAddress,
-        statusId: filterNumber(companyStatusId),
-      },
+    const totalizer = await report.getTotalizer<CompanyTotalizer>({
+      dateEnd,
+      dateStart,
+      cityId: filterNumber(cityId),
+      order,
+      orderByColumn,
+      stateId: filterNumber(stateId),
+      companyStatusId: filterNumber(companyStatusId),
+      transactionStatusId: filterNumber(transactionStatusId),
     })
 
-    const positiveBalances = await prisma.company.aggregate({
-      where: {
-        companyAddress,
-        statusId: filterNumber(companyStatusId),
-      },
-      _sum: {
-        positiveBalance: true,
-      },
+    const sumTotalizer = totalizer.reduce((acc, curr) => {
+      acc.companiesCount += curr.companiesCount
+      acc.totalAmount += curr.totalAmount
+      acc.totalCashbackAmount += curr.totalCashbackAmount
+      acc.totalPositiveBalances += curr.totalPositiveBalances
+      acc.totalTakebackFeeAmount += curr.totalTakebackFeeAmount
+      return acc
     })
 
-    const cashbacks = await prisma.transaction.aggregate({
-      where: {
-        createdAt: { gte: startDate, lte: endDate },
-        transactionStatusId: filterNumber(transactionStatusId),
-        company: {
-          companyAddress,
-          statusId: filterNumber(companyStatusId),
-        },
-      },
-      _sum: {
-        totalAmount: true,
-        takebackFeeAmount: true,
-        cashbackAmount: true,
-      },
-    })
-
-    return response.status(200).json({
-      companiesCount,
-      totalAmount: cashbacks._sum.totalAmount,
-      totalCashbackAmount: cashbacks._sum.cashbackAmount,
-      totalTakebackFeeAmount: cashbacks._sum.takebackFeeAmount,
-      totalPositiveBalances: positiveBalances._sum.positiveBalance,
-    })
+    return response.status(200).json(sumTotalizer)
   }
 }

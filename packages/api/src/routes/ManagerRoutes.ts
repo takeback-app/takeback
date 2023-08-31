@@ -242,7 +242,7 @@ routes.get(
 routes.get('/report/clients', clientReportController.index)
 routes.get('/report/clients/pdf', clientReportController.getPdf)
 routes.get('/report/clients/excel', clientReportController.getExcel)
-routes.get('/report/clients/totalizer', clientReportController.totalizer)
+routes.get('/report/clients/totalizer', clientReportController.getTotalizer)
 
 routes.get('/report/companies', companiesReport.index)
 routes.get('/report/companies/pdf', companiesReport.getPdf)
@@ -252,22 +252,25 @@ routes.get('/report/companies/totalizer', companiesReport.totalizer)
 routes.get('/report/seller', sellerReportController.index)
 routes.get('/report/seller/pdf', sellerReportController.getPdf)
 routes.get('/report/seller/excel', sellerReportController.getExcel)
-routes.get('/report/seller/totalizer', sellerReportController.totalizer)
+routes.get('/report/seller/totalizer', sellerReportController.getTotalizer)
 
 routes.get('/report/cashbacks', cashbackReportController.index)
 routes.get('/report/cashbacks/pdf', cashbackReportController.getPdf)
 routes.get('/report/cashbacks/excel', cashbackReportController.getExcel)
-routes.get('/report/cashbacks/totalizer', cashbackReportController.totalizer)
+routes.get('/report/cashbacks/totalizer', cashbackReportController.getTotalizer)
 
 routes.get('/report/company', companyReportController.index)
 routes.get('/report/company/pdf', companyReportController.getPdf)
 routes.get('/report/company/excel', companyReportController.getExcel)
-routes.get('/report/company/totalizer', companyReportController.totalizer)
+routes.get('/report/company/totalizer', companyReportController.getTotalizer)
 
 routes.get('/report/financial', financialReportController.index)
 routes.get('/report/financial/pdf', financialReportController.getPdf)
 routes.get('/report/financial/excel', financialReportController.getExcel)
-routes.get('/report/financial/totalizer', financialReportController.totalizer)
+routes.get(
+  '/report/financial/totalizer',
+  financialReportController.getTotalizer,
+)
 
 routes.get('/company-user-types', companyUserTypeController.index)
 routes.get('/transaction-status', transactionStatusController.index)

@@ -61,7 +61,7 @@ export class SellersReport extends BaseReport<ReportResponse, Filter> {
     return Object.values(this.excelRow(record))
   }
 
-  protected getQuery(dto: Filter & BaseQueryDto) {
+  private baseQuery(dto: Filter & BaseQueryDto) {
     const {
       transactionStatus,
       office,
@@ -70,23 +70,9 @@ export class SellersReport extends BaseReport<ReportResponse, Filter> {
       cityId,
       companyId,
       stateId,
-      orderByColumn = OrderByColumn.SELLER_NAME,
-      order = 'asc',
     } = dto ?? {}
 
     const query = db
-      .select(
-        'company_users.id',
-        'company_users.name as sellerName',
-        'company_users.cpf',
-        'company_user_types.description',
-        'companies.fantasyName as companyName',
-        db.raw('sum("totalAmount") as "totalAmount"'),
-        db.raw(
-          'count("bonus"."transactionId") filter (where "bonus"."type" = ?) as "newClients"',
-          [NEW_USER_BONUS_TYPE],
-        ),
-      )
       .from('company_users')
       .join(
         'company_user_types',
@@ -103,12 +89,6 @@ export class SellersReport extends BaseReport<ReportResponse, Filter> {
         'transactions.transactionStatusId',
         'transaction_status.id',
       )
-      .groupBy(
-        'company_users.id',
-        'company_user_types.id',
-        'companies.fantasyName',
-      )
-      .orderBy(orderByColumn, order)
 
     if (dateStart) {
       query.where(
@@ -122,7 +102,7 @@ export class SellersReport extends BaseReport<ReportResponse, Filter> {
       query.where(
         'transactions.createdAt',
         '<=',
-        DateTime.fromISO(dateEnd).startOf('day').toString(),
+        DateTime.fromISO(dateEnd).endOf('day').toString(),
       )
     }
 
@@ -145,6 +125,48 @@ export class SellersReport extends BaseReport<ReportResponse, Filter> {
     if (stateId) {
       query.where('city.stateId', stateId)
     }
+
+    return query
+  }
+
+  protected getQuery(dto: Filter & BaseQueryDto) {
+    const { orderByColumn = OrderByColumn.SELLER_NAME, order = 'asc' } =
+      dto ?? {}
+
+    const query = this.baseQuery(dto)
+      .select(
+        'company_users.id',
+        'company_users.name as sellerName',
+        'company_users.cpf',
+        'company_user_types.description',
+        'companies.fantasyName as companyName',
+        db.raw('sum("totalAmount") as "totalAmount"'),
+        db.raw(
+          'count("bonus"."transactionId") filter (where "bonus"."type" = ?) as "newClients"',
+          [NEW_USER_BONUS_TYPE],
+        ),
+      )
+      .groupBy(
+        'company_users.id',
+        'company_user_types.id',
+        'companies.fantasyName',
+      )
+      .orderBy(orderByColumn, order)
+
+    return query
+  }
+
+  protected getTotalizerQuery(dto: Filter & BaseQueryDto) {
+    const query = this.baseQuery(dto)
+      .select(
+        db.raw('company_users.id as "companyCount"'),
+        db.raw('sum("totalAmount") as "totalTransactions"'),
+        db.raw(
+          'count("bonus"."transactionId") filter (where "bonus"."type" = ?) as "newClients"',
+          [NEW_USER_BONUS_TYPE],
+        ),
+      )
+      .groupBy('company_users.id')
 
     return query
   }

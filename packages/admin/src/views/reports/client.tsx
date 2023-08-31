@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import {
   Thead,
   Tbody,
@@ -40,6 +40,7 @@ export interface ClientData {
   blockedBalance: number
   balance: number
   lastTransactionDate: string
+  createdAt: string
 }
 
 export interface TotalizerData {
@@ -48,12 +49,21 @@ export interface TotalizerData {
   totalApprovedCashback: number
   pendingAmount: number
   balanceAmount: number
+  registeredConsumers: number
 }
 
 export function ClientReport() {
   const [page, setPage] = useState(1)
-  const { dateStart, dateEnd, order, orderBy, stateId, cityId } =
-    useClientReport()
+  const {
+    dateStart,
+    dateEnd,
+    order,
+    orderBy,
+    stateId,
+    cityId,
+    isPlaceholder,
+    haveTransactions
+  } = useClientReport()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const filter = {
@@ -63,7 +73,9 @@ export function ClientReport() {
     order,
     orderByColumn: orderBy,
     stateId,
-    cityId
+    cityId,
+    isPlaceholder,
+    haveTransactions
   }
 
   const { data: customers, isLoading } = useSWR<Paginated<ClientData>>([
@@ -174,10 +186,19 @@ export function ClientReport() {
               <Th>Cidade</Th>
               <Th>Estado</Th>
               <Th>T. Compras</Th>
-              <Th>T. Cashback Ganho</Th>
-              <Th>Saldo pendente</Th>
+              <Th>
+                T. Cashback <br /> Ganho
+              </Th>
+              <Th>
+                Saldo <br /> pendente
+              </Th>
               <Th>Saldo atual</Th>
-              <Th>Ult. Transação</Th>
+              <Th>
+                Ultima <br /> Transação
+              </Th>
+              <Th>
+                Data de <br /> Cadastro
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -209,12 +230,15 @@ export function ClientReport() {
                       ).toLocaleDateString()
                     : 'Sem transação'}
                 </Td>
+                <Td fontSize="xs">
+                  {new Date(customer?.createdAt).toLocaleDateString()}
+                </Td>
               </Tr>
             ))}
           </Tbody>
         </AppTable>
         {customers?.data.length ? (
-          <SimpleGrid columns={[2, 3, 5]} spacing="4" mt="6">
+          <SimpleGrid columns={[2, 3, 6]} spacing="4" mt="6">
             <Box>
               <Text fontWeight="bold">Total de clientes:</Text>
               <Text>{totalizer?.consumerCount}</Text>
@@ -250,6 +274,10 @@ export function ClientReport() {
                   ? currencyFormat(totalizer?.balanceAmount)
                   : '-'}
               </Text>
+            </Box>
+            <Box>
+              <Text fontWeight="bold">Total Clientes Cadastrados:</Text>
+              <Text>{totalizer?.registeredConsumers}</Text>
             </Box>
           </SimpleGrid>
         ) : null}

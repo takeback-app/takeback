@@ -8,6 +8,8 @@ export const ManagerClientReportRequest = z
     dateEnd: z.string().datetime().optional(),
     cityId: z.string().optional(),
     stateId: z.string().optional(),
+    isPlaceholder: z.string().optional(),
+    haveTransactions: z.enum(['true', 'false']).optional().default('true'),
     orderByColumn: z.nativeEnum(OrderByColumn).optional(),
     order: z.enum(['desc', 'asc']).optional().default('asc'),
   })

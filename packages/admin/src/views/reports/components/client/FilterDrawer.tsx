@@ -12,7 +12,7 @@ import {
   DrawerOverlay,
   Stack
 } from '@chakra-ui/react'
-import { Order, useClientReport } from './state'
+import { Order, HaveTransactions, useClientReport } from './state'
 import { ChakraInput } from '../../../../components/chakra/ChakraInput'
 import { ChakraSelect } from '../../../../components/chakra/ChakraSelect'
 import { CityFilter } from '../../../../components/filters/CityFilter'
@@ -24,13 +24,23 @@ interface FilterDrawerProps {
 }
 
 export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
-  const { setForm, dateStart, dateEnd, order, orderBy, reset } =
-    useClientReport()
+  const {
+    setForm,
+    dateStart,
+    dateEnd,
+    order,
+    haveTransactions,
+    orderBy,
+    reset
+  } = useClientReport()
 
   const [localDateStart, setDateStart] = useState(dateStart)
   const [localDateEnd, setDateEnd] = useState(dateEnd)
   const [localOrderBy, setOrderBy] = useState(orderBy)
   const [localOrder, setOrder] = useState(order)
+  const [localHaveTransactions, setHaveTransactions] =
+    useState(haveTransactions)
+  const [localIsPlaceholder, setIsPlaceholder] = useState('')
   const [localStateId, setStateId] = useState(0)
   const [localCityId, setCityId] = useState(0)
 
@@ -43,6 +53,8 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
     setOrder(order)
     setStateId(0)
     setCityId(0)
+    setIsPlaceholder('')
+    setHaveTransactions(haveTransactions)
   }
 
   function handleSubmit() {
@@ -53,6 +65,8 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
       dateEnd: localDateEnd,
       orderBy: localOrderBy,
       order: localOrder,
+      haveTransactions: localHaveTransactions,
+      isPlaceholder: localIsPlaceholder || undefined,
       cityId: localCityId || undefined,
       stateId: localStateId || undefined
     })
@@ -69,12 +83,44 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
 
         <DrawerBody>
           <Stack spacing={6}>
-            <StateFilter value={localStateId} setValue={setStateId} />
+            <ChakraSelect
+              size="sm"
+              options={[
+                { value: '', text: 'Todos' },
+                { value: 'false', text: 'Usuários Cadastrados' },
+                { value: 'true', text: 'Usuários Não Cadastrados' }
+              ]}
+              label="Tipo de Usuário"
+              name="isPlaceholder"
+              value={localIsPlaceholder}
+              onChange={e => setIsPlaceholder(e.target.value as string)}
+            />
+            <ChakraSelect
+              size="sm"
+              options={[
+                { value: 'true', text: 'Com Movimentações' },
+                { value: 'false', text: 'Sem Movimentações' }
+              ]}
+              label="Movimentações"
+              name="transactions"
+              value={localHaveTransactions}
+              onChange={e =>
+                setHaveTransactions(e.target.value as HaveTransactions)
+              }
+            />
+            <StateFilter
+              value={localStateId}
+              setValue={setStateId}
+              haveTransactions={localHaveTransactions}
+              isDisabled={!localHaveTransactions}
+              filterType="consumerStates"
+            />
             <CityFilter
               value={localCityId}
               setValue={setCityId}
               stateId={localStateId || undefined}
               isDisabled={!localStateId}
+              filterType="consumerCities"
             />
             <ChakraInput
               size="sm"

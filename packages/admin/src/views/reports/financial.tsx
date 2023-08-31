@@ -39,6 +39,7 @@ export interface FinancialData {
   consultantBonus: number
   referralBonus: number
   storeBuyValue: number
+  commissionValue: number
 }
 
 export interface TotalizerData {
@@ -46,11 +47,11 @@ export interface TotalizerData {
   sellBonusAmount: number
   newUserBonusAmount: number
   companyMonthlyPaymentsAmount: number
-  balanceAmount: number
   totalStoreBuyValue: number
   totalStoreSellValue: number
   consultantBonusAmount: number
   referralBonusAmount: number
+  commissionValueAmount: number
 }
 
 export function FinancialReport() {
@@ -180,14 +181,28 @@ export function FinancialReport() {
             <Tr>
               <Th>Cidade</Th>
               <Th>Taxas</Th>
-              <Th>Mensalidades</Th>
-              <Th>Ofertas</Th>
-              <Th>Grati. compra</Th>
-              <Th>Grati. novo usuário</Th>
-              <Th>Grati. repre.</Th>
-              <Th>Grati. indicação</Th>
-              <Th>Custo ofertas</Th>
-              <Th>Saldo</Th>
+              <Th>Mensali.</Th>
+              <Th>
+                Loja de <br /> Ofertas
+              </Th>
+              <Th>
+                Grati. por <br /> compra
+              </Th>
+              <Th>
+                Grati. novo <br /> usuário
+              </Th>
+              <Th>
+                Grati. <br /> represen.
+              </Th>
+              <Th>
+                Grati. <br /> indicação
+              </Th>
+              <Th>
+                Custo <br /> ofertas
+              </Th>
+              <Th>
+                Lucro <br /> Bruto
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -197,88 +212,154 @@ export function FinancialReport() {
                   <TextBreak>{financial?.city}</TextBreak>
                 </Td>
                 <Td fontSize="xs">
-                  <TextBreak>
+                  <Text color="green.500">
                     {currencyFormat(financial?.takebackFeeAmount)}
-                  </TextBreak>
+                  </Text>
                 </Td>
                 <Td fontSize="xs">
-                  <TextBreak>
+                  <Text color="green.500">
                     {currencyFormat(financial?.monthlyPayment)}
-                  </TextBreak>
+                  </Text>
                 </Td>
                 <Td fontSize="xs">
-                  {currencyFormat(financial?.storeSellValue)}
+                  <Text color="green.500">
+                    {currencyFormat(financial?.storeSellValue)}
+                  </Text>
                 </Td>
-                <Td fontSize="xs">{currencyFormat(financial?.sellBonus)}</Td>
                 <Td fontSize="xs">
-                  <TextBreak>
+                  <Text color="red.500">
+                    {currencyFormat(financial?.sellBonus)}
+                  </Text>
+                </Td>
+                <Td fontSize="xs">
+                  <Text color="red.500">
                     {currencyFormat(financial?.newUserBonus)}
-                  </TextBreak>
+                  </Text>
                 </Td>
                 <Td fontSize="xs">
-                  {currencyFormat(financial?.consultantBonus)}
+                  <Text color="red.500">
+                    {currencyFormat(
+                      financial?.consultantBonus + financial?.commissionValue
+                    )}
+                  </Text>
                 </Td>
                 <Td fontSize="xs">
-                  {currencyFormat(financial?.referralBonus)}
+                  <Text color="red.500">
+                    {currencyFormat(financial?.referralBonus)}
+                  </Text>
                 </Td>
                 <Td fontSize="xs">
-                  {currencyFormat(financial?.storeBuyValue)}
+                  <Text color="red.500">
+                    {currencyFormat(financial?.storeBuyValue)}
+                  </Text>
                 </Td>
                 <Td fontSize="xs">
-                  {currencyFormat(
-                    financial?.takebackFeeAmount +
-                      financial?.monthlyPayment +
-                      financial?.storeSellValue -
-                      financial?.newUserBonus -
-                      financial?.sellBonus -
-                      financial?.consultantBonus -
-                      financial?.referralBonus -
-                      financial?.storeBuyValue
-                  )}
+                  <Text color="blue.500">
+                    {currencyFormat(
+                      financial?.takebackFeeAmount +
+                        financial?.monthlyPayment +
+                        financial?.storeSellValue -
+                        financial?.newUserBonus -
+                        financial?.sellBonus -
+                        financial?.consultantBonus -
+                        financial?.commissionValue -
+                        financial?.referralBonus -
+                        financial?.storeBuyValue
+                    )}
+                  </Text>
                 </Td>
               </Tr>
             ))}
           </Tbody>
         </AppTable>
         {financials?.data.length && !!totalizer ? (
-          <SimpleGrid columns={[4, 6, 5]} spacing="4" mt="6">
+          <SimpleGrid columns={[4, 5, 9]} spacing="4" mt="6">
             <Box>
-              <Text fontWeight="bold">Total Fatu. Taxas:</Text>
-              <Text>{currencyFormat(totalizer.totalTakebackFeeAmount)}</Text>
+              <Text fontSize="md" fontWeight="bold">
+                T. Fatura. <br /> Taxas:
+              </Text>
+              <Text fontSize="sm">
+                {currencyFormat(totalizer.totalTakebackFeeAmount)}
+              </Text>
             </Box>
             <Box>
-              <Text fontWeight="bold">T. Mensalidade:</Text>
-              <Text>
+              <Text fontSize="md" fontWeight="bold">
+                T. Mensa-
+                <br />
+                lidade:
+              </Text>
+              <Text fontSize="sm">
                 {currencyFormat(totalizer.companyMonthlyPaymentsAmount)}
               </Text>
             </Box>
             <Box>
-              <Text fontWeight="bold">T. Ofertas:</Text>
-              <Text>{currencyFormat(totalizer.totalStoreSellValue)}</Text>
+              <Text fontSize="md" fontWeight="bold">
+                T. Loja de <br /> Ofertas:
+              </Text>
+              <Text fontSize="sm">
+                {currencyFormat(totalizer.totalStoreSellValue)}
+              </Text>
             </Box>
             <Box>
-              <Text fontWeight="bold">T. Grati. por compra:</Text>
-              <Text>{currencyFormat(totalizer.sellBonusAmount)}</Text>
+              <Text fontSize="md" fontWeight="bold">
+                T. Grati. <br /> por compra:
+              </Text>
+              <Text fontSize="sm">
+                {currencyFormat(totalizer.sellBonusAmount)}
+              </Text>
             </Box>
             <Box>
-              <Text fontWeight="bold">T. Grati. novo usuário:</Text>
-              <Text>{currencyFormat(totalizer.newUserBonusAmount)}</Text>
+              <Text fontSize="md" fontWeight="bold">
+                T. Grati. <br /> novo usuário:
+              </Text>
+              <Text fontSize="sm">
+                {currencyFormat(totalizer.newUserBonusAmount)}
+              </Text>
             </Box>
             <Box>
-              <Text fontWeight="bold">T. Grati. repre:</Text>
-              <Text>{currencyFormat(totalizer.consultantBonusAmount)}</Text>
+              <Text fontSize="md" fontWeight="bold">
+                T. Grati. <br /> represen:
+              </Text>
+              <Text fontSize="sm">
+                {currencyFormat(
+                  totalizer.consultantBonusAmount +
+                    totalizer.commissionValueAmount
+                )}
+              </Text>
             </Box>
             <Box>
-              <Text fontWeight="bold">T. Grati. indicação:</Text>
-              <Text>{currencyFormat(totalizer.referralBonusAmount)}</Text>
+              <Text fontSize="md" fontWeight="bold">
+                T. Grati. <br /> indicação:
+              </Text>
+              <Text fontSize="sm">
+                {currencyFormat(totalizer.referralBonusAmount)}
+              </Text>
             </Box>
             <Box>
-              <Text fontWeight="bold">T. Custo ofertas:</Text>
-              <Text>{currencyFormat(totalizer.totalStoreBuyValue)}</Text>
+              <Text fontSize="md" fontWeight="bold">
+                T. Custo <br /> ofertas:
+              </Text>
+              <Text fontSize="sm">
+                {currencyFormat(totalizer.totalStoreBuyValue)}
+              </Text>
             </Box>
             <Box>
-              <Text fontWeight="bold">Saldo Total:</Text>
-              <Text>{currencyFormat(totalizer.balanceAmount)}</Text>
+              <Text fontSize="md" fontWeight="bold">
+                T. Lucro <br /> Bruto:
+              </Text>
+              <Text fontSize="sm">
+                {currencyFormat(
+                  totalizer.totalTakebackFeeAmount +
+                    totalizer.companyMonthlyPaymentsAmount +
+                    totalizer.totalStoreSellValue -
+                    totalizer.sellBonusAmount -
+                    totalizer.newUserBonusAmount -
+                    totalizer.consultantBonusAmount -
+                    totalizer.commissionValueAmount -
+                    totalizer.referralBonusAmount -
+                    totalizer.totalStoreBuyValue
+                )}
+              </Text>
             </Box>
           </SimpleGrid>
         ) : null}

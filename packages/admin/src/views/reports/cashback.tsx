@@ -50,7 +50,6 @@ export interface TotalizerData {
   totalTakebackFeeAmount: number
   totalBackAmount: number
   totalCashbackAmount: number
-  totalToPay: number
 }
 
 export interface TaxTakeback {
@@ -269,7 +268,13 @@ export function CashbackReport() {
             </Box>
             <Box>
               <Text fontWeight="bold">V. pago:</Text>
-              <Text>{currencyFormat(totalizer.totalToPay)}</Text>
+              <Text>
+                {currencyFormat(
+                  totalizer.totalTakebackFeeAmount +
+                    totalizer.totalCashbackAmount +
+                    totalizer.totalBackAmount
+                )}
+              </Text>
             </Box>
           </SimpleGrid>
         ) : null}

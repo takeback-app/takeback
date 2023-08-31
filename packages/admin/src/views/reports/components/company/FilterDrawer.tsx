@@ -79,12 +79,17 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
 
         <DrawerBody>
           <Stack spacing={6}>
-            <StateFilter value={localStateId} setValue={setStateId} />
+            <StateFilter
+              value={localStateId}
+              setValue={setStateId}
+              filterType="companyStates"
+            />
             <CityFilter
               value={localCityId}
               setValue={setCityId}
               stateId={localStateId || undefined}
               isDisabled={!localStateId}
+              filterType="companyCities"
             />
             <CompanyStatusFilter
               name="status-empresa"

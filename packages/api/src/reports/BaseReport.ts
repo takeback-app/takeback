@@ -57,10 +57,20 @@ export abstract class BaseReport<
     )
   }
 
+  public async getTotalizer<T>(filter?: FilterType & BaseQueryDto) {
+    const queryData = (await this.getTotalizerQuery(filter)) as T[]
+
+    return queryData
+  }
+
   protected abstract excelRow(row: ResultType): Record<string, any>
   protected abstract pdfRow(row: ResultType): string[]
 
   protected abstract getQuery(
     dto?: FilterType & BaseQueryDto,
   ): Knex.QueryBuilder<ResultType, ResultType[]>
+
+  protected abstract getTotalizerQuery(
+    dto?: FilterType & BaseQueryDto,
+  ): Knex.QueryBuilder<ResultType>
 }

@@ -1,10 +1,20 @@
 import { Request, Response } from 'express'
-import { DateTime } from 'luxon'
 import { InternalError } from '../../../config/GenerateErros'
-import { prisma } from '../../../prisma'
 import { filterNumber } from '../../../utils'
 import { FinancialReport } from '../../../reports/manager/FinancialReport'
 import { ManagerFinancialReportRequest } from '../../../requests/reports/manager/ManagerFinancialReportRequest'
+
+export interface FinancialTotalizer {
+  totalTakebackFeeAmount: number
+  companyMonthlyPaymentsAmount: number
+  totalStoreSellValue: number
+  totalStoreBuyValue: number
+  sellBonusAmount: number
+  newUserBonusAmount: number
+  consultantBonusAmount: number
+  referralBonusAmount: number
+  commissionValueAmount: number
+}
 
 export class FinancialReportController {
   async index(request: Request, response: Response) {
@@ -33,7 +43,7 @@ export class FinancialReportController {
         dateStart,
         order,
         orderByColumn,
-        monthlyPayment: monthlyPayment === 'true',
+        monthlyPayment,
         transactionStatusId: filterNumber(transactionStatusId),
       },
     )
@@ -64,7 +74,7 @@ export class FinancialReportController {
       dateStart,
       order,
       orderByColumn,
-      monthlyPayment: monthlyPayment === 'true',
+      monthlyPayment,
       transactionStatusId: filterNumber(transactionStatusId),
     })
 
@@ -94,7 +104,7 @@ export class FinancialReportController {
       dateStart,
       order,
       orderByColumn,
-      monthlyPayment: monthlyPayment === 'true',
+      monthlyPayment,
       transactionStatusId: filterNumber(transactionStatusId),
     })
 
@@ -108,109 +118,33 @@ export class FinancialReportController {
     pdf.end()
   }
 
-  async totalizer(request: Request, response: Response) {
-    const { dateEnd, dateStart, transactionStatusId, monthlyPayment } =
-      request.query as Record<string, string>
+  async getTotalizer(request: Request, response: Response) {
+    const form = ManagerFinancialReportRequest.safeParse(request.query)
 
-    const startDate = dateStart
-      ? DateTime.fromISO(dateStart).startOf('day').toJSDate()
-      : undefined
-    const endDate = dateEnd
-      ? DateTime.fromISO(dateEnd).startOf('day').toJSDate()
-      : undefined
+    if (!form.success) {
+      throw new InternalError('Existem erros nos filtros', 400)
+    }
 
-    const takebackFeeAmount = await prisma.transaction.aggregate({
-      where: {
-        createdAt: { gte: startDate, lte: endDate },
-        transactionStatusId: filterNumber(transactionStatusId),
-      },
-      _sum: {
-        takebackFeeAmount: true,
-      },
+    const {
+      dateEnd,
+      dateStart,
+      transactionStatusId,
+      monthlyPayment,
+      order,
+      orderByColumn,
+    } = form.data
+
+    const report = new FinancialReport()
+
+    const [totalizer] = await report.getTotalizer<FinancialTotalizer>({
+      dateEnd,
+      dateStart,
+      order,
+      orderByColumn,
+      monthlyPayment,
+      transactionStatusId: filterNumber(transactionStatusId),
     })
 
-    const sellBonusAmount = await prisma.bonus.aggregate({
-      where: {
-        createdAt: { gte: startDate, lte: endDate },
-        type: { equals: 'SELL' },
-      },
-      _sum: {
-        value: true,
-      },
-    })
-
-    const newUserBonusAmount = await prisma.bonus.aggregate({
-      where: {
-        createdAt: { gte: startDate, lte: endDate },
-        type: { equals: 'NEW_USER' },
-      },
-      _sum: {
-        value: true,
-      },
-    })
-
-    const consultantBonusAmount = await prisma.bonus.aggregate({
-      where: {
-        createdAt: { gte: startDate, lte: endDate },
-        type: { equals: 'CONSULTANT' },
-      },
-      _sum: {
-        value: true,
-      },
-    })
-
-    const referralBonusAmount = await prisma.bonus.aggregate({
-      where: {
-        createdAt: { gte: startDate, lte: endDate },
-        type: { equals: 'REFERRAL' },
-      },
-      _sum: {
-        value: true,
-      },
-    })
-
-    const companyMonthlyPaymentsAmount =
-      await prisma.companyMonthlyPayment.aggregate({
-        where: {
-          createdAt: { gte: startDate, lte: endDate },
-          isPaid: monthlyPayment === 'true',
-        },
-        _sum: {
-          amountPaid: true,
-        },
-      })
-
-    const storeOrders = await prisma.storeOrder.aggregate({
-      where: {
-        createdAt: { gte: startDate, lte: endDate },
-      },
-      _sum: {
-        value: true,
-        companyCreditValue: true,
-      },
-    })
-
-    const balanceAmount =
-      +takebackFeeAmount._sum.takebackFeeAmount +
-      +companyMonthlyPaymentsAmount._sum.amountPaid +
-      +storeOrders._sum.value -
-      +sellBonusAmount._sum.value -
-      +newUserBonusAmount._sum.value -
-      +consultantBonusAmount._sum.value -
-      +referralBonusAmount._sum.value -
-      +storeOrders._sum.companyCreditValue
-
-    return response.status(200).json({
-      totalTakebackFeeAmount: +takebackFeeAmount._sum.takebackFeeAmount,
-      companyMonthlyPaymentsAmount:
-        +companyMonthlyPaymentsAmount._sum.amountPaid,
-      totalStoreBuyValue: +storeOrders._sum.value,
-      totalStoreSellValue: +storeOrders._sum.companyCreditValue,
-      sellBonusAmount: +sellBonusAmount._sum.value,
-      newUserBonusAmount: +newUserBonusAmount._sum.value,
-      consultantBonusAmount: +consultantBonusAmount._sum.value,
-      referralBonusAmount: +referralBonusAmount._sum.value,
-      balanceAmount,
-    })
+    return response.status(200).json(totalizer)
   }
 }
