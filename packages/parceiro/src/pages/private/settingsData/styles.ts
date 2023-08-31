@@ -26,6 +26,7 @@ export const CardHeader = styled.div`
 export const CardMain = styled.div`
   width: 100%;
   display: grid;
+  align-items: center;
   grid-template-columns: repeat(2, 1fr);
   gap: 0.7rem 1rem;
   padding: 0.5rem 1.5rem;
@@ -50,7 +51,7 @@ export const CardTitle = styled.h5`
 `
 export const CardFooter = styled.footer`
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   padding: 0.5rem 1.5rem;
   margin-bottom: 3rem;

@@ -81,6 +81,8 @@ model CompanyAddress {
   district   String?  @db.VarChar
   number     String?  @db.VarChar
   complement String?  @db.VarChar
+  longitude  String?  @db.VarChar
+  latitude   String?  @db.VarChar
   cityId     Int?
   zipCode    String?  @db.VarChar
   company    Company?
