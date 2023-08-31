@@ -39,7 +39,7 @@ export interface SellersData {
 }
 
 interface TotalizerData {
-  consumerCount: number
+  companyCount: number
   totalTransactions: number
   newClients: number
 }
@@ -201,7 +201,7 @@ export function SellerReport() {
           <SimpleGrid columns={[2, 2, 4]} spacing="4" mt="6">
             <Box>
               <Text fontWeight="bold">Total de vendedores:</Text>
-              <Text>{totalizer.consumerCount}</Text>
+              <Text>{totalizer.companyCount}</Text>
             </Box>
             <Box>
               <Text fontWeight="bold">Total de vendas:</Text>

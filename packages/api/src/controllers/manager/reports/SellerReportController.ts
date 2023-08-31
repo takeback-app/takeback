@@ -1,10 +1,14 @@
 import { Request, Response } from 'express'
-import { DateTime } from 'luxon'
 import { SellersReport } from '../../../reports/manager/SellersReport'
 import { InternalError } from '../../../config/GenerateErros'
-import { prisma } from '../../../prisma'
 import { filterNumber } from '../../../utils'
 import { ManagerSellerReportRequest } from '../../../requests/reports/manager/ManagerSellerReportRequest'
+
+export interface SellerTotalizer {
+  companyCount: number
+  newClients: number
+  totalTransactions: number
+}
 
 export class SellerReportController {
   async index(request: Request, response: Response) {
@@ -61,6 +65,9 @@ export class SellerReportController {
       orderByColumn,
       office,
       transactionStatus,
+      cityId,
+      companyId,
+      stateId,
     } = form.data
 
     const report = new SellersReport()
@@ -72,6 +79,9 @@ export class SellerReportController {
       orderByColumn,
       office: filterNumber(office),
       transactionStatus: filterNumber(transactionStatus),
+      cityId: filterNumber(cityId),
+      companyId,
+      stateId: filterNumber(stateId),
     })
 
     excel.write('Relatório de Vendedor.xlsx', response)
@@ -91,6 +101,9 @@ export class SellerReportController {
       orderByColumn,
       office,
       transactionStatus,
+      cityId,
+      companyId,
+      stateId,
     } = form.data
 
     const report = new SellersReport()
@@ -102,6 +115,9 @@ export class SellerReportController {
       orderByColumn,
       office: filterNumber(office),
       transactionStatus: filterNumber(transactionStatus),
+      cityId: filterNumber(cityId),
+      companyId,
+      stateId: filterNumber(stateId),
     })
 
     response.setHeader('Content-type', 'application/pdf')
@@ -114,93 +130,53 @@ export class SellerReportController {
     pdf.end()
   }
 
-  async totalizer(request: Request, response: Response) {
-    const { companyId } = request['tokenPayload']
+  async getTotalizer(request: Request, response: Response) {
+    const form = ManagerSellerReportRequest.safeParse(request.query)
 
-    const { dateEnd, dateStart, office, transactionStatus, cityId, stateId } =
-      request.query as Record<string, string>
-
-    const startDate = dateStart
-      ? DateTime.fromISO(dateStart).startOf('day').toJSDate()
-      : undefined
-    const endDate = dateEnd
-      ? DateTime.fromISO(dateEnd).endOf('day').toJSDate()
-      : undefined
-
-    let companyAddress
-
-    if (cityId && stateId) {
-      companyAddress = {
-        AND: [
-          { cityId: filterNumber(cityId) },
-          {
-            city: { stateId: filterNumber(stateId) },
-          },
-        ],
-      }
+    if (!form.success) {
+      throw new InternalError('Existem erros nos filtros', 400)
     }
 
-    if (!cityId && stateId) {
-      companyAddress = {
-        city: { stateId: filterNumber(stateId) },
-      }
-    }
+    const {
+      dateEnd,
+      dateStart,
+      order,
+      orderByColumn,
+      office,
+      transactionStatus,
+      cityId,
+      companyId,
+      stateId,
+    } = form.data
 
-    const consumerCount = await prisma.companyUser.count({
-      where: {
-        companyUserTypesId: filterNumber(office),
-        company: {
-          id: companyId,
-          companyAddress,
-        },
-        transactions: {
-          some: {
-            createdAt: { gte: startDate, lte: endDate },
-            transactionStatusId: filterNumber(transactionStatus),
-          },
-        },
-      },
+    const report = new SellersReport()
+
+    const totalizer = await report.getTotalizer<SellerTotalizer>({
+      dateEnd,
+      dateStart,
+      order,
+      orderByColumn,
+      office: filterNumber(office),
+      transactionStatus: filterNumber(transactionStatus),
+      cityId: filterNumber(cityId),
+      companyId,
+      stateId: filterNumber(stateId),
     })
 
-    const totalTransactions = await prisma.transaction.aggregate({
-      where: {
-        createdAt: { gte: startDate, lte: endDate },
-        companyUsersId: { not: null },
-        companyUser: {
-          companyUserTypesId: filterNumber(office),
-        },
-        companiesId: companyId,
-        company: {
-          companyAddress,
-        },
-        transactionStatusId: filterNumber(transactionStatus),
+    const sumTotalizer = totalizer.reduce(
+      (acc, curr) => {
+        acc.companyCount += 1
+        acc.newClients += curr.newClients
+        acc.totalTransactions += curr.totalTransactions
+        return acc
       },
-      _sum: {
-        totalAmount: true,
+      {
+        companyCount: 0,
+        newClients: 0,
+        totalTransactions: 0,
       },
-    })
+    )
 
-    const newClients = await prisma.bonus.count({
-      where: {
-        type: 'NEW_USER',
-        transaction: {
-          companyUsersId: companyId,
-          company: {
-            companyAddress,
-          },
-          createdAt: { gte: startDate, lte: endDate },
-          transactionStatusId: filterNumber(transactionStatus),
-          companyUser: {
-            companyUserTypesId: filterNumber(office),
-          },
-        },
-      },
-    })
-
-    return response.json({
-      consumerCount,
-      totalTransactions: totalTransactions._sum.totalAmount,
-      newClients,
-    })
+    return response.status(200).json(sumTotalizer)
   }
 }

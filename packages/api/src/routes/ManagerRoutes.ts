@@ -252,7 +252,7 @@ routes.get('/report/companies/totalizer', companiesReport.totalizer)
 routes.get('/report/seller', sellerReportController.index)
 routes.get('/report/seller/pdf', sellerReportController.getPdf)
 routes.get('/report/seller/excel', sellerReportController.getExcel)
-routes.get('/report/seller/totalizer', sellerReportController.totalizer)
+routes.get('/report/seller/totalizer', sellerReportController.getTotalizer)
 
 routes.get('/report/cashbacks', cashbackReportController.index)
 routes.get('/report/cashbacks/pdf', cashbackReportController.getPdf)
