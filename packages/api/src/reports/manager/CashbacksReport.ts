@@ -83,12 +83,10 @@ export class CashbacksReport extends BaseReport<ReportResponse, Filter> {
     return Object.values(excelRow).map((value) => String(value))
   }
 
-  protected getQuery(dto: Filter & BaseQueryDto) {
+  private baseQuery(dto: Filter & BaseQueryDto) {
     const {
       dateStart,
       dateEnd,
-      orderByColumn = OrderByColumn.TOTAL_AMOUNT,
-      order = 'asc',
       cityId,
       companyId,
       companyStatusId,
@@ -99,22 +97,6 @@ export class CashbacksReport extends BaseReport<ReportResponse, Filter> {
     } = dto
 
     const query = db
-      .select(
-        'transactions.id',
-        'transactions.totalAmount',
-        'transactions.cashbackAmount',
-        'transactions.takebackFeeAmount',
-        'transactions.backAmount',
-        'transactions.createdAt',
-        'consumers.fullName',
-        'companies.fantasyName as companyName',
-        'company_users.name as companyUserName',
-        'transaction_status.description as status',
-        db.raw('max(payment_methods.description) as "paymentMethod"'),
-        /* db.raw(
-          'sum(transactions."cashbackAmount" + transactions."takebackFeeAmount" + transactions."backAmount") as "companyTotalPay"',
-        ), */
-      )
       .from('transactions')
       .join('consumers', 'transactions.consumersId', 'consumers.id')
       .join('companies', 'transactions.companiesId', 'companies.id')
@@ -145,20 +127,6 @@ export class CashbacksReport extends BaseReport<ReportResponse, Filter> {
         'company_payment_methods.paymentMethodId',
         'payment_methods.id',
       )
-      .groupBy(
-        'transactions.id',
-        'transaction_payment_methods.transactionsId',
-        'transaction_status.id',
-        'consumers.id',
-        'companies.id',
-        'company_users.id',
-      )
-      .orderBy(orderByColumn, order)
-
-    /*
-      transactionStatusId: filterNumber(transactionStatusId),
-      paymentMethodId: filterNumber(paymentMethodId), 
-    */
 
     if (dateStart) {
       query.where(
@@ -203,6 +171,57 @@ export class CashbacksReport extends BaseReport<ReportResponse, Filter> {
     if (paymentMethodId) {
       query.where('payment_methods.id', paymentMethodId)
     }
+
+    return query
+  }
+
+  protected getQuery(dto: Filter & BaseQueryDto) {
+    const { orderByColumn = OrderByColumn.TOTAL_AMOUNT, order = 'asc' } = dto
+
+    const query = this.baseQuery(dto)
+      .select(
+        'transactions.id',
+        'transactions.totalAmount',
+        'transactions.cashbackAmount',
+        'transactions.takebackFeeAmount',
+        'transactions.backAmount',
+        'transactions.createdAt',
+        'consumers.fullName',
+        'companies.fantasyName as companyName',
+        'company_users.name as companyUserName',
+        'transaction_status.description as status',
+        db.raw('max(payment_methods.description) as "paymentMethod"'),
+      )
+      .groupBy(
+        'transactions.id',
+        'transaction_payment_methods.transactionsId',
+        'transaction_status.id',
+        'consumers.id',
+        'companies.id',
+        'company_users.id',
+      )
+      .orderBy(orderByColumn, order)
+
+    return query
+  }
+
+  protected getTotalizerQuery(dto: Filter & BaseQueryDto) {
+    const query = this.baseQuery(dto)
+      .select(
+        db.raw('count(DISTINCT transactions."id") as "totalCashbackCount"'),
+        db.raw('transactions."totalAmount" as "totalAmount"'),
+        db.raw('transactions."cashbackAmount" as "totalCashbackAmount"'),
+        db.raw('transactions."takebackFeeAmount" as "totalTakebackFeeAmount"'),
+        db.raw('transactions."backAmount" as "totalBackAmount"'),
+      )
+      .groupBy(
+        'transactions.id',
+        'transaction_payment_methods.transactionsId',
+        'transaction_status.id',
+        'consumers.id',
+        'companies.id',
+        'company_users.id',
+      )
 
     return query
   }
