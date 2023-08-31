@@ -127,6 +127,14 @@ export class CashbacksReport extends BaseReport<ReportResponse, Filter> {
         'company_payment_methods.paymentMethodId',
         'payment_methods.id',
       )
+      .groupBy(
+        'transactions.id',
+        'transaction_payment_methods.transactionsId',
+        'transaction_status.id',
+        'consumers.id',
+        'companies.id',
+        'company_users.id',
+      )
 
     if (dateStart) {
       query.where(
@@ -192,36 +200,19 @@ export class CashbacksReport extends BaseReport<ReportResponse, Filter> {
         'transaction_status.description as status',
         db.raw('max(payment_methods.description) as "paymentMethod"'),
       )
-      .groupBy(
-        'transactions.id',
-        'transaction_payment_methods.transactionsId',
-        'transaction_status.id',
-        'consumers.id',
-        'companies.id',
-        'company_users.id',
-      )
       .orderBy(orderByColumn, order)
 
     return query
   }
 
   protected getTotalizerQuery(dto: Filter & BaseQueryDto) {
-    const query = this.baseQuery(dto)
-      .select(
-        db.raw('count(DISTINCT transactions."id") as "totalCashbackCount"'),
-        db.raw('transactions."totalAmount" as "totalAmount"'),
-        db.raw('transactions."cashbackAmount" as "totalCashbackAmount"'),
-        db.raw('transactions."takebackFeeAmount" as "totalTakebackFeeAmount"'),
-        db.raw('transactions."backAmount" as "totalBackAmount"'),
-      )
-      .groupBy(
-        'transactions.id',
-        'transaction_payment_methods.transactionsId',
-        'transaction_status.id',
-        'consumers.id',
-        'companies.id',
-        'company_users.id',
-      )
+    const query = this.baseQuery(dto).select(
+      db.raw('count(DISTINCT transactions."id") as "totalCashbackCount"'),
+      db.raw('transactions."totalAmount" as "totalAmount"'),
+      db.raw('transactions."cashbackAmount" as "totalCashbackAmount"'),
+      db.raw('transactions."takebackFeeAmount" as "totalTakebackFeeAmount"'),
+      db.raw('transactions."backAmount" as "totalBackAmount"'),
+    )
 
     return query
   }

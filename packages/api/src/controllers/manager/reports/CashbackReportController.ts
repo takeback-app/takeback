@@ -188,7 +188,6 @@ export class CashbackReportController {
         acc.totalTakebackFeeAmount += curr.totalTakebackFeeAmount
         acc.totalBackAmount += curr.totalBackAmount
         acc.totalCashbackAmount += curr.totalCashbackAmount
-        acc.totalToPay += curr.totalToPay
 
         return acc
       },
@@ -198,7 +197,6 @@ export class CashbackReportController {
         totalTakebackFeeAmount: 0,
         totalBackAmount: 0,
         totalCashbackAmount: 0,
-        totalToPay: 0,
       },
     )
 

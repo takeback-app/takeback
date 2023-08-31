@@ -6,6 +6,14 @@ import { filterNumber } from '../../../utils'
 import { ManagerCompanyReportRequest } from '../../../requests/reports/manager/ManagerCompanyReportRequest'
 import { CompanyReport } from '../../../reports/manager/CompanyReport'
 
+export interface CompanyTotalizer {
+  companiesCount: number
+  totalAmount: number
+  totalCashbackAmount: number
+  totalTakebackFeeAmount: number
+  totalPositiveBalances: number
+}
+
 export class CompanyReportController {
   async index(request: Request, response: Response) {
     const form = ManagerCompanyReportRequest.safeParse(request.query)
@@ -118,6 +126,49 @@ export class CompanyReportController {
 
     pdf.pipe(response)
     pdf.end()
+  }
+
+  async getTotalizer(request: Request, response: Response) {
+    const form = ManagerCompanyReportRequest.safeParse(request.query)
+
+    if (!form.success) {
+      throw new InternalError('Existem erros nos filtros', 400)
+    }
+
+    const {
+      dateEnd,
+      dateStart,
+      companyStatusId,
+      transactionStatusId,
+      cityId,
+      stateId,
+      order,
+      orderByColumn,
+    } = form.data
+
+    const report = new CompanyReport()
+
+    const totalizer = await report.getTotalizer<CompanyTotalizer>({
+      dateEnd,
+      dateStart,
+      cityId: filterNumber(cityId),
+      order,
+      orderByColumn,
+      stateId: filterNumber(stateId),
+      companyStatusId: filterNumber(companyStatusId),
+      transactionStatusId: filterNumber(transactionStatusId),
+    })
+
+    const sumTotalizer = totalizer.reduce((acc, curr) => {
+      acc.companiesCount += curr.companiesCount
+      acc.totalAmount += curr.totalAmount
+      acc.totalCashbackAmount += curr.totalCashbackAmount
+      acc.totalPositiveBalances += curr.totalPositiveBalances
+      acc.totalTakebackFeeAmount += curr.totalTakebackFeeAmount
+      return acc
+    })
+
+    return response.status(200).json(sumTotalizer)
   }
 
   async totalizer(request: Request, response: Response) {
