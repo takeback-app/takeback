@@ -280,7 +280,7 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
     return commissionsQuery
   }
 
-  protected getQuery(dto: Filter & BaseQueryDto) {
+  private baseQuery(dto: Filter & BaseQueryDto) {
     const {
       dateStart,
       dateEnd,
@@ -321,27 +321,7 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
       formatedDateStart,
       formatedDateEnd,
     )
-
     const query = db
-      .select(
-        'city.id',
-        'city.name as city',
-        db.raw(
-          'coalesce(transactions."takebackFeeAmount", 0) as "takebackFeeAmount"',
-        ),
-        db.raw(
-          'coalesce(company_monthly_payment."amountPaid", 0) as "monthlyPayment"',
-        ),
-        db.raw('coalesce(bonus."sellBonus", 0) as "sellBonus"'),
-        db.raw('coalesce(bonus."newUserBonus", 0) as "newUserBonus"'),
-        db.raw('coalesce(bonus."consultantBonus", 0) as "consultantBonus"'),
-        db.raw('coalesce(bonus."referralBonus", 0) as "referralBonus"'),
-        db.raw('coalesce(store_orders."buyValue", 0) as "storeBuyValue"'),
-        db.raw('coalesce(store_orders."sellValue", 0) as "storeSellValue"'),
-        db.raw(
-          'coalesce(commissions."commissionValue", 0) as "commissionValue"',
-        ),
-      )
       .from('city')
       .leftJoin(feeAmountQuery, function () {
         this.on('transactions.cityId', '=', 'city.id')
@@ -369,6 +349,33 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
           .orWhere('sellValue', '>', 0)
           .orWhere('commissionValue', '>', 0)
       })
+
+    return query
+  }
+
+  protected getQuery(dto: Filter & BaseQueryDto) {
+    const { orderByColumn = OrderByColumn.CITY_NAME, order = 'asc' } = dto ?? {}
+
+    const query = this.baseQuery(dto)
+      .select(
+        'city.id',
+        'city.name as city',
+        db.raw(
+          'coalesce(transactions."takebackFeeAmount", 0) as "takebackFeeAmount"',
+        ),
+        db.raw(
+          'coalesce(company_monthly_payment."amountPaid", 0) as "monthlyPayment"',
+        ),
+        db.raw('coalesce(bonus."sellBonus", 0) as "sellBonus"'),
+        db.raw('coalesce(bonus."newUserBonus", 0) as "newUserBonus"'),
+        db.raw('coalesce(bonus."consultantBonus", 0) as "consultantBonus"'),
+        db.raw('coalesce(bonus."referralBonus", 0) as "referralBonus"'),
+        db.raw('coalesce(store_orders."buyValue", 0) as "storeBuyValue"'),
+        db.raw('coalesce(store_orders."sellValue", 0) as "storeSellValue"'),
+        db.raw(
+          'coalesce(commissions."commissionValue", 0) as "commissionValue"',
+        ),
+      )
       .groupBy(
         'city.id',
         'takebackFeeAmount',
@@ -382,6 +389,36 @@ export class FinancialReport extends BaseReport<ReportResponse, Filter> {
         'commissionValue',
       )
       .orderBy(orderByColumn, order)
+
+    return query
+  }
+
+  protected getTotalizerQuery(dto: Filter & BaseQueryDto) {
+    const query = this.baseQuery(dto).select(
+      db.raw(
+        'coalesce(sum(transactions."takebackFeeAmount"), 0) as "totalTakebackFeeAmount"',
+      ),
+      db.raw(
+        'coalesce(sum(company_monthly_payment."amountPaid"), 0) as "companyMonthlyPaymentsAmount"',
+      ),
+      db.raw('coalesce(sum(bonus."sellBonus"), 0) as "sellBonusAmount"'),
+      db.raw('coalesce(sum(bonus."newUserBonus"), 0) as "newUserBonusAmount"'),
+      db.raw(
+        'coalesce(sum(bonus."consultantBonus"), 0) as "consultantBonusAmount"',
+      ),
+      db.raw(
+        'coalesce(sum(bonus."referralBonus"), 0) as "referralBonusAmount"',
+      ),
+      db.raw(
+        'coalesce(sum(store_orders."buyValue"), 0) as "totalStoreBuyValue"',
+      ),
+      db.raw(
+        'coalesce(sum(store_orders."sellValue"), 0) as "totalStoreSellValue"',
+      ),
+      db.raw(
+        'coalesce(sum(commissions."commissionValue"), 0) as "commissionValueAmount"',
+      ),
+    )
 
     return query
   }

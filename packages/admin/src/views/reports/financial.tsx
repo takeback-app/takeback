@@ -47,11 +47,11 @@ export interface TotalizerData {
   sellBonusAmount: number
   newUserBonusAmount: number
   companyMonthlyPaymentsAmount: number
-  balanceAmount: number
   totalStoreBuyValue: number
   totalStoreSellValue: number
   consultantBonusAmount: number
   referralBonusAmount: number
+  commissionValueAmount: number
 }
 
 export function FinancialReport() {
@@ -321,7 +321,10 @@ export function FinancialReport() {
                 T. Grati. <br /> represen:
               </Text>
               <Text fontSize="sm">
-                {currencyFormat(totalizer.consultantBonusAmount)}
+                {currencyFormat(
+                  totalizer.consultantBonusAmount +
+                    totalizer.commissionValueAmount
+                )}
               </Text>
             </Box>
             <Box>
@@ -345,7 +348,17 @@ export function FinancialReport() {
                 T. Lucro <br /> Bruto:
               </Text>
               <Text fontSize="sm">
-                {currencyFormat(totalizer.balanceAmount)}
+                {currencyFormat(
+                  totalizer.totalTakebackFeeAmount +
+                    totalizer.companyMonthlyPaymentsAmount +
+                    totalizer.totalStoreSellValue -
+                    totalizer.sellBonusAmount -
+                    totalizer.newUserBonusAmount -
+                    totalizer.consultantBonusAmount -
+                    totalizer.commissionValueAmount -
+                    totalizer.referralBonusAmount -
+                    totalizer.totalStoreBuyValue
+                )}
               </Text>
             </Box>
           </SimpleGrid>
