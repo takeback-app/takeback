@@ -47,7 +47,7 @@ export class CompanyController {
           cityId: cityId ? Number(cityId) : undefined,
         },
         currentMonthlyPaymentPaid: monthlyPayment
-          ? monthlyPayment == "true"
+          ? monthlyPayment === 'true'
           : undefined,
       },
     }

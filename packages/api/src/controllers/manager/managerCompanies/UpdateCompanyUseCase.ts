@@ -6,8 +6,6 @@ import { CompaniesAddress } from '../../../database/models/CompanyAddress'
 import { Industries } from '../../../database/models/Industry'
 
 interface UpdateProps {
-  longitude: string;
-  latitude: string;
   fantasyName: string
   registeredNumber: string
   corporateName: string
@@ -20,6 +18,8 @@ interface UpdateProps {
   street: string
   number: string
   district: string
+  longitude?: string
+  latitude?: string
   contactPhone: string
 }
 
