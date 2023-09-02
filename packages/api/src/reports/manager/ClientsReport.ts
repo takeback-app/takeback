@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { DateTime } from 'luxon'
 
-import { BaseQueryDto, BaseReport } from '../BaseReport'
+import { BaseQueryDto, BaseReportWithTotalizer } from '../BaseReport'
 import { db } from '../../knex'
 import { maskPhone } from '../../utils/Masks'
 import { parseNumberToExcelString } from '../../utils'
@@ -54,7 +54,10 @@ const HEADERS = [
   'Data de Cadastro',
 ]
 
-export class ClientsReport extends BaseReport<ReportResponse, Filter> {
+export class ClientsReport extends BaseReportWithTotalizer<
+  ReportResponse,
+  Filter
+> {
   constructor() {
     super(HEADERS)
   }
