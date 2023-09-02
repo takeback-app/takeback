@@ -1,70 +1,69 @@
-import { Raffle as PrismaRaffle, RaffleItem, Prisma } from "@prisma/client";
-import crypto from "node:crypto";
-import { prisma } from "../../prisma";
-import { InternalError } from "../../config/GenerateErros";
-import { Notify } from "../../notifications";
-import { WinnerRaffle } from "../../notifications";
+import { Raffle as PrismaRaffle, RaffleItem, Prisma } from '@prisma/client'
+import crypto from 'node:crypto'
+import { prisma } from '../../prisma'
+import { InternalError } from '../../config/GenerateErros'
+import { Notify, WinnerRaffle } from '../../notifications'
 
 type Raffle = PrismaRaffle & {
-  items: RaffleItem[];
-  company: { fantasyName: string };
-};
+  items: RaffleItem[]
+  company: { fantasyName: string }
+}
 
 export class DrawRaffleUseCase {
   async execute(raffle: Raffle) {
     const validTicketsFilter: Prisma.RaffleTicketWhereInput = {
       raffleId: raffle.id,
-      status: "ACTIVE",
+      status: 'ACTIVE',
       consumer: { isPlaceholderConsumer: false },
-    };
+    }
 
     let numberOfRemainTickets = await prisma.raffleTicket.count({
       where: validTicketsFilter,
-    });
+    })
 
     if (numberOfRemainTickets < raffle.items.length) {
       throw new InternalError(
-        "Não é possível sortear sem ter cupons suficientes para o número de prêmios.",
-        400
-      );
+        'Não é possível sortear sem ter cupons suficientes para o número de prêmios.',
+        400,
+      )
     }
 
     for (const item of raffle.items) {
       const drawnTicket = await prisma.raffleTicket.findFirst({
         where: validTicketsFilter,
-        orderBy: { number: "asc" },
+        orderBy: { number: 'asc' },
         skip: this.randomNumber(numberOfRemainTickets),
-      });
+      })
 
-      if (!drawnTicket) return;
+      if (!drawnTicket) return
 
       await prisma.raffleItem.update({
         where: { id: item.id },
         data: { winnerTicketId: drawnTicket.id },
-      });
+      })
 
       await prisma.raffleTicket.update({
         where: { id: drawnTicket.id },
-        data: { status: "FINISHED" },
-      });
+        data: { status: 'FINISHED' },
+      })
 
       Notify.send(
         drawnTicket.consumerId,
-        new WinnerRaffle(item, raffle.company.fantasyName)
-      );
+        new WinnerRaffle(item, raffle.company.fantasyName),
+      )
 
-      numberOfRemainTickets--;
+      numberOfRemainTickets--
     }
 
     await prisma.raffleTicket.updateMany({
-      where: { raffleId: raffle.id, status: { not: "CANCELED" } },
-      data: { status: "FINISHED" },
-    });
+      where: { raffleId: raffle.id, status: { not: 'CANCELED' } },
+      data: { status: 'FINISHED' },
+    })
   }
 
   randomNumber(max: number) {
-    if (max <= 1) return undefined;
+    if (max <= 1) return undefined
 
-    return crypto.randomInt(max - 1);
+    return crypto.randomInt(max - 1)
   }
 }

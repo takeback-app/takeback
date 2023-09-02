@@ -1,14 +1,14 @@
-import { Request, Response } from "express";
-import { prisma } from "../../../prisma";
-import { InternalError } from "../../../config/GenerateErros";
+import { Request, Response } from 'express'
+import { prisma } from '../../../prisma'
+import { InternalError } from '../../../config/GenerateErros'
 
-const PER_PAGE = 60;
+const PER_PAGE = 60
 
 export class WithDrawController {
   async index(request: Request, response: Response) {
-    const pageQuery = request.query.page;
+    const pageQuery = request.query.page
 
-    const page = Number(pageQuery) || 1;
+    const page = Number(pageQuery) || 1
 
     const withdrawOrders = await prisma.withdrawOrder.findMany({
       include: {
@@ -26,21 +26,21 @@ export class WithDrawController {
         },
         status: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       take: PER_PAGE,
       skip: (page - 1) * PER_PAGE,
-    });
+    })
 
-    const count = await prisma.withdrawOrder.count();
+    const count = await prisma.withdrawOrder.count()
 
     return response.json({
       data: withdrawOrders,
       meta: { lastPage: Math.ceil(count / PER_PAGE) },
-    });
+    })
   }
 
   async show(request: Request, response: Response) {
-    const { id } = request.params;
+    const { id } = request.params
 
     const withdrawOrder = await prisma.withdrawOrder.findUnique({
       where: { id },
@@ -49,55 +49,69 @@ export class WithDrawController {
         representative: true,
         status: true,
       },
-    });
+    })
 
     if (!withdrawOrder) {
-      throw new InternalError("Saque não encontrada", 400);
+      throw new InternalError('Saque não encontrada', 400)
     }
 
-    return response.json(withdrawOrder);
+    return response.json(withdrawOrder)
   }
 
   async approve(request: Request, response: Response) {
-    const { id } = request.params;
+    const { id } = request.params
 
     const withdrawOrder = await prisma.withdrawOrder.findUnique({
       where: { id },
       include: {
         company: true,
+        representative: true,
       },
-    });
+    })
 
     if (!withdrawOrder) {
-      throw new InternalError("Saque não encontrada", 400);
+      throw new InternalError('Saque não encontrada', 400)
     }
 
-    const { company } = withdrawOrder;
+    const { company, representative } = withdrawOrder
 
-    if (+withdrawOrder.value > +company.positiveBalance) {
+    const balance = company?.positiveBalance || representative?.balance
+
+    if (+withdrawOrder.value > +balance) {
       throw new InternalError(
-        "Não é possível fazer saque de um valor maior do que se tem em conta",
-        403
-      );
+        'Não é possível fazer saque de um valor maior do que se tem em conta',
+        403,
+      )
     }
 
     const paidStatus = await prisma.withdrawOrderStatus.findFirst({
-      where: { description: "Pago" },
-    });
+      where: { description: 'Pago' },
+    })
 
     if (!paidStatus) {
       throw new InternalError(
-        "Sistema não configurado. Contate um administrador",
-        400
-      );
+        'Sistema não configurado. Contate um administrador',
+        400,
+      )
     }
 
-    await prisma.company.update({
-      where: { id: withdrawOrder.companyId },
-      data: {
-        positiveBalance: company.positiveBalance.sub(withdrawOrder.value),
-      },
-    });
+    if (company) {
+      await prisma.company.update({
+        where: { id: withdrawOrder.companyId },
+        data: {
+          positiveBalance: balance.sub(withdrawOrder.value),
+        },
+      })
+    }
+
+    if (representative) {
+      await prisma.representative.update({
+        where: { id: withdrawOrder.representativeId },
+        data: {
+          balance: balance.sub(withdrawOrder.value),
+        },
+      })
+    }
 
     await prisma.withdrawOrder.update({
       where: { id },
@@ -105,33 +119,31 @@ export class WithDrawController {
         statusId: paidStatus.id,
         approvedAt: new Date(),
       },
-    });
+    })
 
-    return response
-      .status(200)
-      .json({ message: "Saque aprovado com sucesso!" });
+    return response.status(200).json({ message: 'Saque aprovado com sucesso!' })
   }
 
   async cancel(request: Request, response: Response) {
-    const { id } = request.params;
+    const { id } = request.params
 
     const withdrawOrder = await prisma.withdrawOrder.findUnique({
       where: { id },
-    });
+    })
 
     if (!withdrawOrder) {
-      throw new InternalError("Saque não encontrada", 400);
+      throw new InternalError('Saque não encontrada', 400)
     }
 
     const cancelStatus = await prisma.withdrawOrderStatus.findFirst({
-      where: { description: "Cancelado" },
-    });
+      where: { description: 'Cancelado' },
+    })
 
     if (!cancelStatus) {
       throw new InternalError(
-        "Sistema não configurado. Contate um administrador",
-        400
-      );
+        'Sistema não configurado. Contate um administrador',
+        400,
+      )
     }
 
     await prisma.withdrawOrder.update({
@@ -139,10 +151,10 @@ export class WithDrawController {
       data: {
         statusId: cancelStatus.id,
       },
-    });
+    })
 
     return response
       .status(200)
-      .json({ message: "Saque cancelado com sucesso!" });
+      .json({ message: 'Saque cancelado com sucesso!' })
   }
 }

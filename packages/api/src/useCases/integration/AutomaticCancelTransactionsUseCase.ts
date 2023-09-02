@@ -37,7 +37,7 @@ export class AutomaticCancelTransactionsUseCase {
       nfceValidationStatus: NFCeValidationStatus.NOT_FOUND,
       createdAt: {
         lte: DateTime.now()
-          .minus({ day: integrated ? 4 : 30 })
+          .minus({ day: integrated ? 10 : 30 })
           .toJSDate(),
       },
     }

@@ -37,6 +37,7 @@ export class DashboardController {
 
     const activeConsumers = await prisma.consumer.count({
       where: {
+        isPlaceholderConsumer: false,
         expireBalanceDate: {
           gte: currentDate.toJSDate(),
         },

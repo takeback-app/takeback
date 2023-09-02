@@ -179,7 +179,7 @@ export function StoreProductDetail() {
             <Heading fontSize="md">Compras</Heading>
           </CardHeader>
           <Divider borderColor="gray.300" />
-          <CardBody as={Stack} overflowX="auto" maxH="48">
+          <CardBody as={Stack}>
             <AppTable
               dataLength={product.storeOrders.length}
               noDataMessage="Nenhuma compra"
