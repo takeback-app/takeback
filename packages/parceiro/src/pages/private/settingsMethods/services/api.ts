@@ -42,6 +42,27 @@ export async function editCompanyPaymentMethod(
   }
 }
 
+export async function editCompanyPaymentMethodTPag(
+  id: number,
+  data: { tPag: number }
+): Promise<ReturnApi> {
+  try {
+    const response = await API.put(
+      `company/company-payment-methods/${id}/tPag`,
+      data
+    )
+
+    return [true, response.data]
+  } catch (err) {
+    const error = err as AxiosError
+
+    return [
+      false,
+      { message: error.response?.data.message || 'Contate um administrador' }
+    ]
+  }
+}
+
 export async function deleteCompanyPaymentMethod(
   id: number
 ): Promise<ReturnApi> {

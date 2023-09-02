@@ -29,15 +29,15 @@ async function main() {
     where: {
       transactionStatus: { description: TransactionStatusEnum.PENDING },
       nfceValidationStatus: NFCeValidationStatus.IN_PROGRESS,
-      company: { integrationSettings: { isNot: null } },
+      company: { integrationSettings: { type: 'DESKTOP' } },
     },
     include: {
       transactionPaymentMethods: {
         select: {
           amount: true,
-          // companyPaymentMethod: {
-          //     select: { paymentMethod: { select: { tPag: true } } },
-          //   },
+          companyPaymentMethod: {
+            select: { tPag: true },
+          },
         },
       },
     },
@@ -57,6 +57,7 @@ async function main() {
     })
   ).reduce((hashMap, nfce) => {
     const paymentKey = nfce.nfcePayments
+      // .map((np) => `${np.tPag}-${np.value}`)
       .map((np) => `${np.value}`)
       .sort()
       .join('/')
@@ -74,6 +75,7 @@ async function main() {
 
   for (const transaction of transactions) {
     const transactionPaymentKey = transaction.transactionPaymentMethods
+      // .map((tpm) => `${tpm.companyPaymentMethod.tPag}-${tpm.amount}`)
       .map((tpm) => `${tpm.amount}`)
       .sort()
       .join('/')

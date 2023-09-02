@@ -32,6 +32,16 @@ export class CompaniesAddress {
   })
   zipCode: string;
 
+  @Column({
+    nullable: true,
+  })
+  longitude: string;
+
+  @Column({
+    nullable: true,
+  })
+  latitude: string;
+
   @ManyToOne(() => City, (city) => city.companiesAdress)
   city: City;
 }

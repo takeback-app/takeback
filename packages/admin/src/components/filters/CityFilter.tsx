@@ -8,14 +8,28 @@ interface Data {
   name: string
 }
 
+interface ResponseData {
+  companyCities: Data[]
+  consumerCities: Data[]
+}
+
+type ResponseDataKeys = keyof ResponseData
+
 interface Props extends SelectProps {
   value: number
   stateId?: number
   setValue: React.Dispatch<React.SetStateAction<number>>
+  filterType: ResponseDataKeys
 }
 
-export function CityFilter({ setValue, stateId, value, ...rest }: Props) {
-  const { data, isLoading } = useSWR<Data[]>([
+export function CityFilter({
+  setValue,
+  stateId,
+  value,
+  filterType = 'companyCities',
+  ...rest
+}: Props) {
+  const { data, isLoading } = useSWR<ResponseData>([
     'manager/report/filters/cities',
     { stateId }
   ])
@@ -28,7 +42,10 @@ export function CityFilter({ setValue, stateId, value, ...rest }: Props) {
 
   return (
     <ChakraSelect
-      options={[{ id: 0, name: 'Todas' }, ...data].map(city => ({
+      options={[
+        { id: 0, name: 'Todas' },
+        ...(data && data[filterType] ? data[filterType] : [])
+      ].map(city => ({
         text: city.name,
         value: city.id
       }))}

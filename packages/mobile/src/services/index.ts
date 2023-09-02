@@ -278,3 +278,21 @@ export async function deleteReferral(id: string): Promise<ReturnApi> {
     ]
   }
 }
+
+export async function createQRCodeLink(data: {
+  link: string
+  companyUserId?: string
+}): Promise<ReturnApi> {
+  try {
+    const response = await API.post('costumer/nfce/qrcode', data)
+
+    return [true, { message: response.data.message }]
+  } catch (err) {
+    const error = err as AxiosError
+
+    return [
+      false,
+      { message: error.response?.data.message || 'Contate um administrador' }
+    ]
+  }
+}

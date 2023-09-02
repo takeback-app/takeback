@@ -1,14 +1,19 @@
 import { Request, Response } from 'express'
 import { DateTime } from 'luxon'
-import {
-  APPROVED_TRANSACTION_STATUS_ID,
-  ClientsReport,
-} from './../../../reports/manager/ClientsReport'
+import { ClientsReport } from './../../../reports/manager/ClientsReport'
 import { InternalError } from '../../../config/GenerateErros'
 import { prisma } from '../../../prisma'
 import { filterNumber } from '../../../utils'
 import { ManagerClientReportRequest } from '../../../requests/reports/manager/ManagerClientReportRequest'
 
+export interface ClientTotalizer {
+  balanceAmount: number
+  consumerCount: number
+  pendingAmount: number
+  totalApprovedCashback: number
+  totalShoppingValue: number
+  registeredConsumers?: number
+}
 export class ClientReportController {
   async index(request: Request, response: Response) {
     const form = ManagerClientReportRequest.safeParse(request.query)
@@ -17,8 +22,17 @@ export class ClientReportController {
       throw new InternalError('Existem erros nos filtros', 400)
     }
 
-    const { dateEnd, dateStart, cityId, stateId, order, orderByColumn, page } =
-      form.data
+    const {
+      dateEnd,
+      dateStart,
+      cityId,
+      stateId,
+      order,
+      orderByColumn,
+      haveTransactions,
+      isPlaceholder,
+      page,
+    } = form.data
 
     const report = new ClientsReport()
 
@@ -31,6 +45,8 @@ export class ClientReportController {
         order,
         orderByColumn,
         stateId: filterNumber(stateId),
+        haveTransactions: haveTransactions === 'true',
+        isPlaceholder: isPlaceholder ? isPlaceholder === 'true' : undefined,
       },
     )
 
@@ -44,8 +60,16 @@ export class ClientReportController {
       throw new InternalError('Existem erros nos filtros', 400)
     }
 
-    const { dateEnd, dateStart, cityId, stateId, order, orderByColumn } =
-      form.data
+    const {
+      dateEnd,
+      dateStart,
+      cityId,
+      stateId,
+      haveTransactions,
+      order,
+      orderByColumn,
+      isPlaceholder,
+    } = form.data
 
     const report = new ClientsReport()
 
@@ -56,6 +80,8 @@ export class ClientReportController {
       order,
       orderByColumn,
       stateId: filterNumber(stateId),
+      haveTransactions: haveTransactions === 'true',
+      isPlaceholder: isPlaceholder ? isPlaceholder === 'true' : undefined,
     })
 
     excel.write('Relatório de Cliente.xlsx', response)
@@ -68,8 +94,16 @@ export class ClientReportController {
       throw new InternalError('Existem erros nos filtros', 400)
     }
 
-    const { dateEnd, dateStart, cityId, stateId, order, orderByColumn } =
-      form.data
+    const {
+      dateEnd,
+      dateStart,
+      cityId,
+      stateId,
+      haveTransactions,
+      order,
+      orderByColumn,
+      isPlaceholder,
+    } = form.data
 
     const report = new ClientsReport()
 
@@ -80,6 +114,8 @@ export class ClientReportController {
       order,
       orderByColumn,
       stateId: filterNumber(stateId),
+      haveTransactions: haveTransactions === 'true',
+      isPlaceholder: isPlaceholder ? isPlaceholder === 'true' : undefined,
     })
 
     response.setHeader('Content-type', 'application/pdf')
@@ -92,11 +128,21 @@ export class ClientReportController {
     pdf.end()
   }
 
-  async totalizer(request: Request, response: Response) {
-    const { dateEnd, dateStart, cityId, stateId } = request.query as Record<
-      string,
-      string
-    >
+  async getTotalizer(request: Request, response: Response) {
+    const form = ManagerClientReportRequest.safeParse(request.query)
+
+    if (!form.success) {
+      throw new InternalError('Existem erros nos filtros', 400)
+    }
+
+    const {
+      dateEnd,
+      dateStart,
+      cityId,
+      stateId,
+      haveTransactions,
+      isPlaceholder,
+    } = form.data
 
     const startDate = dateStart
       ? DateTime.fromISO(dateStart)
@@ -105,69 +151,58 @@ export class ClientReportController {
           .toJSDate()
       : undefined
     const endDate = dateEnd
-      ? DateTime.fromISO(dateEnd).minus({ hours: 3 }).startOf('day').toJSDate()
+      ? DateTime.fromISO(dateEnd).minus({ hours: 3 }).endOf('day').toJSDate()
       : undefined
 
-    const consumerAddress = {
-      AND: [
-        { cityId: filterNumber(cityId) },
-        { city: { stateId: filterNumber(stateId) } },
-      ],
+    let consumerAddress
+
+    if (cityId && stateId) {
+      consumerAddress = {
+        AND: [
+          { cityId: filterNumber(cityId) },
+          {
+            city: { stateId: filterNumber(stateId) },
+          },
+        ],
+      }
     }
 
-    const consumerCount = await prisma.consumer.count({
+    if (!cityId && stateId) {
+      consumerAddress = {
+        city: { stateId: filterNumber(stateId) },
+      }
+    }
+
+    const report = new ClientsReport()
+
+    const totalizer = await report.getTotalizer<ClientTotalizer>({
+      dateEnd,
+      dateStart,
+      cityId: filterNumber(cityId),
+      stateId: filterNumber(stateId),
+      haveTransactions: haveTransactions === 'true',
+      isPlaceholder: isPlaceholder ? isPlaceholder === 'true' : undefined,
+    })
+
+    const sumTotalizer = totalizer.reduce((acc, curr) => {
+      acc.balanceAmount += curr.balanceAmount
+      acc.consumerCount += curr.consumerCount
+      acc.pendingAmount += curr.pendingAmount
+      acc.totalApprovedCashback += curr.totalApprovedCashback
+      acc.totalShoppingValue += curr.totalShoppingValue
+      return acc
+    })
+
+    sumTotalizer.registeredConsumers = await prisma.consumer.count({
       where: {
-        transactions: {
-          some: {
-            createdAt: { gte: startDate, lte: endDate },
-          },
-        },
+        createdAt: { gte: startDate, lte: endDate },
+        isPlaceholderConsumer: isPlaceholder
+          ? isPlaceholder === 'true'
+          : undefined,
         consumerAddress,
       },
     })
 
-    const totalShoppingValue = await prisma.transaction.aggregate({
-      where: {
-        createdAt: { gte: startDate, lte: endDate },
-        consumer: {
-          consumerAddress,
-        },
-      },
-      _sum: {
-        totalAmount: true,
-      },
-    })
-
-    const totalApprovedCashback = await prisma.transaction.aggregate({
-      where: {
-        createdAt: { gte: startDate, lte: endDate },
-        transactionStatusId: APPROVED_TRANSACTION_STATUS_ID,
-        consumer: {
-          consumerAddress,
-        },
-      },
-      _sum: {
-        cashbackAmount: true,
-      },
-    })
-
-    const totalBalance = await prisma.consumer.aggregate({
-      where: {
-        createdAt: { gte: startDate, lte: endDate },
-        consumerAddress,
-      },
-      _sum: {
-        blockedBalance: true,
-        balance: true,
-      },
-    })
-
-    return response.status(200).json({
-      consumerCount,
-      totalShoppingValue: totalShoppingValue._sum.totalAmount,
-      totalApprovedCashback: totalApprovedCashback._sum.cashbackAmount,
-      pendingAmount: totalBalance._sum.blockedBalance,
-      balanceAmount: totalBalance._sum.balance,
-    })
+    return response.status(200).json(sumTotalizer)
   }
 }

@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { DateTime } from 'luxon'
 
-import { BaseQueryDto, BaseReport } from '../BaseReport'
+import { BaseQueryDto, BaseReportWithTotalizer } from '../BaseReport'
 import { db } from '../../knex'
 import { parseNumberToExcelString } from '../../utils'
 
@@ -62,7 +62,10 @@ const HEADERS = [
   'Saldo Atual',
 ]
 
-export class CompanyReport extends BaseReport<ReportResponse, Filter> {
+export class CompanyReport extends BaseReportWithTotalizer<
+  ReportResponse,
+  Filter
+> {
   constructor() {
     super(HEADERS)
   }
@@ -86,7 +89,7 @@ export class CompanyReport extends BaseReport<ReportResponse, Filter> {
     return Object.values(this.excelRow(record))
   }
 
-  protected getQuery(dto: Filter & BaseQueryDto) {
+  private baseQuery(dto: Filter & BaseQueryDto) {
     const {
       dateStart,
       dateEnd,
@@ -94,23 +97,8 @@ export class CompanyReport extends BaseReport<ReportResponse, Filter> {
       cityId,
       companyStatusId,
       transactionStatusId = TransactionStatusTypes.APPROVED,
-      orderByColumn = OrderByColumn.TOTAL_AMOUNT,
-      order = 'desc',
     } = dto ?? {}
     const query = db
-      .select(
-        'companies.id as id',
-        'companies.fantasyName as companyName',
-        'companies.registeredNumber',
-        'city.name as city',
-        'state.name as state',
-        'company_status.description as status',
-        'industries.description as industry',
-        db.raw('coalesce(sum("totalAmount"), 0) as "totalAmount"'),
-        db.raw('coalesce(sum("cashbackAmount"), 0) as "cashbackAmount"'),
-        db.raw('coalesce(sum("takebackFeeAmount"), 0) as "takebackFeeAmount"'),
-        'companies.positiveBalance',
-      )
       .from('companies')
       .join('companies_address', 'companies.addressId', 'companies_address.id')
       .join('industries', 'companies.industryId', 'industries.id')
@@ -134,7 +122,7 @@ export class CompanyReport extends BaseReport<ReportResponse, Filter> {
           this.andOn(
             'transactions.createdAt',
             '<=',
-            db.raw('?', [DateTime.fromISO(dateEnd).startOf('day').toString()]),
+            db.raw('?', [DateTime.fromISO(dateEnd).endOf('day').toString()]),
           )
         }
 
@@ -153,7 +141,6 @@ export class CompanyReport extends BaseReport<ReportResponse, Filter> {
         'industries.description',
         'company_status.description',
       )
-      .orderBy(orderByColumn, order)
 
     if (cityId) {
       query.where('companies_address.cityId', cityId)
@@ -166,6 +153,42 @@ export class CompanyReport extends BaseReport<ReportResponse, Filter> {
     if (companyStatusId) {
       query.where('companies.statusId', companyStatusId)
     }
+
+    return query
+  }
+
+  protected getQuery(dto: Filter & BaseQueryDto) {
+    const { orderByColumn = OrderByColumn.TOTAL_AMOUNT, order = 'desc' } =
+      dto ?? {}
+    const query = this.baseQuery(dto)
+      .select(
+        'companies.id as id',
+        'companies.fantasyName as companyName',
+        'companies.registeredNumber',
+        'city.name as city',
+        'state.name as state',
+        'company_status.description as status',
+        'industries.description as industry',
+        db.raw('coalesce(sum("totalAmount"), 0) as "totalAmount"'),
+        db.raw('coalesce(sum("cashbackAmount"), 0) as "cashbackAmount"'),
+        db.raw('coalesce(sum("takebackFeeAmount"), 0) as "takebackFeeAmount"'),
+        'companies.positiveBalance',
+      )
+      .orderBy(orderByColumn, order)
+
+    return query
+  }
+
+  protected getTotalizerQuery(dto: Filter & BaseQueryDto) {
+    const query = this.baseQuery(dto).select(
+      db.raw('count(DISTINCT companies."id") as "companiesCount"'),
+      db.raw('coalesce(sum("totalAmount"), 0) as "totalAmount"'),
+      db.raw('coalesce(sum("cashbackAmount"), 0) as "totalCashbackAmount"'),
+      db.raw(
+        'coalesce(sum("takebackFeeAmount"), 0) as "totalTakebackFeeAmount"',
+      ),
+      db.raw('companies."positiveBalance" as "totalPositiveBalances"'),
+    )
 
     return query
   }

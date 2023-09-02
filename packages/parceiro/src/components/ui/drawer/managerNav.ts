@@ -32,7 +32,8 @@ import {
   IoGift,
   IoGiftOutline,
   IoImage,
-  IoImageOutline
+  IoImageOutline,
+  IoNewspaperOutline
 } from 'react-icons/io5'
 import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
 import { FaCashRegister, FaShoppingBag } from 'react-icons/fa'
@@ -87,6 +88,14 @@ export const managerNav = [
     inactiveIcon: FaShoppingBag,
     isActive: false,
     to: '/retirada-ofertas'
+  },
+  {
+    id: 10,
+    label: 'Extrato',
+    activeIcon: IoNewspaperOutline,
+    inactiveIcon: IoNewspaperOutline,
+    isActive: false,
+    to: '/extrato'
   },
   {
     id: 6,

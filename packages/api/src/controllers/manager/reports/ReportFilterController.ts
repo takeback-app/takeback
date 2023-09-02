@@ -1,13 +1,37 @@
 import { Request, Response } from 'express'
+import { Prisma } from '@prisma/client'
 import { prisma } from '../../../prisma'
 import { filterNumber } from '../../../utils'
 
 export class ReportFilterController {
   async states(request: Request, response: Response) {
-    const states = await prisma.state.findMany({
+    const { haveTransactions } = request.query as Record<string, string>
+
+    let transactionFilter: Prisma.TransactionListRelationFilter
+    if (haveTransactions) {
+      transactionFilter =
+        haveTransactions === 'true'
+          ? {
+              some: {},
+            }
+          : {
+              none: {},
+            }
+    }
+
+    const companyStates = await prisma.state.findMany({
       where: {
         city: {
-          some: { companyAddresses: { some: { id: { not: undefined } } } },
+          some: {
+            companyAddresses: {
+              some: {
+                id: { not: undefined },
+                company: {
+                  transactions: transactionFilter,
+                },
+              },
+            },
+          },
         },
       },
       select: {
@@ -17,13 +41,35 @@ export class ReportFilterController {
       },
     })
 
-    return response.json(states)
+    const consumerStates = await prisma.state.findMany({
+      where: {
+        city: {
+          some: {
+            consumerAddresses: {
+              some: {
+                id: { not: undefined },
+                consumer: {
+                  transactions: transactionFilter,
+                },
+              },
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        initials: true,
+      },
+    })
+
+    return response.json({ companyStates, consumerStates })
   }
 
   async cities(request: Request, response: Response) {
     const { stateId } = request.query as Record<string, string>
 
-    const cities = await prisma.city.findMany({
+    const companyCities = await prisma.city.findMany({
       where: {
         companyAddresses: { some: { id: { not: undefined } } },
         stateId: filterNumber(stateId),
@@ -34,7 +80,18 @@ export class ReportFilterController {
       },
     })
 
-    return response.json(cities)
+    const consumerCities = await prisma.city.findMany({
+      where: {
+        consumerAddresses: { some: { id: { not: undefined } } },
+        stateId: filterNumber(stateId),
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    })
+
+    return response.json({ companyCities, consumerCities })
   }
 
   async companyStatus(request: Request, response: Response) {

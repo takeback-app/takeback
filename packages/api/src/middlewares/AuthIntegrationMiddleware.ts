@@ -29,5 +29,12 @@ export const AuthIntegrationMiddleware = async (
     throw new InternalError('Integração não configurada', 403)
   }
 
+  if (company.integrationSettings.type !== 'DESKTOP') {
+    throw new InternalError(
+      'Integração não configurada para esse tipo de aplicação',
+      403,
+    )
+  }
+
   next()
 }

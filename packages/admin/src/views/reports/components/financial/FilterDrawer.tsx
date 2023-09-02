@@ -37,7 +37,7 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
   const [localOrderBy, setOrderBy] = useState(orderBy)
   const [localOrder, setOrder] = useState(order)
   const [localTransactionStatusId, setTransactionStatusId] = useState(0)
-  const [localMonthlyPayment, setMonthlyPayment] = useState(true)
+  const [localMonthlyPayment, setMonthlyPayment] = useState('')
 
   function resetFilter() {
     reset()
@@ -47,7 +47,7 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
     setOrderBy(orderBy)
     setOrder(order)
     setTransactionStatusId(0)
-    setMonthlyPayment(true)
+    setMonthlyPayment('')
   }
 
   function handleSubmit() {
@@ -77,13 +77,14 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
               <ChakraSelect
                 size="sm"
                 options={[
+                  { value: '', text: 'Todos' },
                   { value: 'true', text: 'Pago' },
                   { value: 'false', text: 'Não Pago' }
                 ]}
                 label="Status da mensalidade"
                 name="monthlyPaymentStatus"
                 value={String(localMonthlyPayment)}
-                onChange={e => setMonthlyPayment(e.target.value === 'true')}
+                onChange={e => setMonthlyPayment(e.target.value)}
               />
 
               <TransactionStatusFilter
@@ -110,7 +111,7 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
               <ChakraSelect
                 size="sm"
                 options={[
-                  { value: OrderByColumn.CITY_NAME, text: 'Cidade' },
+                  { value: OrderByColumn.CITY_NAME, text: 'Nome da Cidade' },
                   {
                     value: OrderByColumn.MONTHLY_PAYMENT,
                     text: 'Valor de mensalidade'

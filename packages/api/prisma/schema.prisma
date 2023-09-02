@@ -81,6 +81,8 @@ model CompanyAddress {
   district   String?  @db.VarChar
   number     String?  @db.VarChar
   complement String?  @db.VarChar
+  longitude  String?  @db.VarChar
+  latitude   String?  @db.VarChar
   cityId     Int?
   zipCode    String?  @db.VarChar
   company    Company?
@@ -112,6 +114,7 @@ model CompanyPaymentMethod {
   id                        Int                        @id(map: "PK_7f9233e77d51ef422b9c7430f6a") @default(autoincrement())
   companyId                 String                     @db.Uuid
   paymentMethodId           Int
+  tPag                      Int?
   cashbackPercentage        Decimal                    @default(0) @db.Decimal(10, 4)
   isActive                  Boolean                    @default(false)
   createdAt                 DateTime                   @default(now()) @db.Timestamp(6)
@@ -163,6 +166,7 @@ model CompanyUser {
   raffleItemDeliveries          RaffleItemDelivery[]
   TransactionSolicitation       TransactionSolicitation[]
   notifications                 Notification[]
+  NFCeQRCode                    NFCeQRCode[]
 
   @@map("company_users")
 }
@@ -205,6 +209,7 @@ model Consumer {
   isPlaceholderConsumer         Boolean                   @default(false)
   createdAt                     DateTime                  @default(now()) @db.Timestamp(6)
   updatedAt                     DateTime                  @default(now()) @db.Timestamp(6)
+  activatedAt                   DateTime?                 @db.Timestamp(6)
   expireBalanceDate             DateTime?                 @db.Timestamp(6)
   addressId                     Int?                      @unique(map: "REL_3ffc911cff52ac729e01188ea1")
   resetPasswordToken            String?                   @db.VarChar
@@ -224,6 +229,7 @@ model Consumer {
   referrals                     Referral[]
   fatherReferrals               Referral[]                @relation("ReferralConsumer")
   storeOrders                   StoreOrder[]
+  NFCeQRCode                    NFCeQRCode[]
 
   @@map("consumers")
 }
@@ -931,15 +937,21 @@ model AccessToken {
 }
 
 model IntegrationSettings {
-  id         String   @id @default(uuid()) @db.Uuid
-  companyId  String   @unique @db.Uuid
-  url        String
+  id         String          @id @default(uuid()) @db.Uuid
+  companyId  String          @unique @db.Uuid
+  url        String?
   folderPath String?
-  createdAt  DateTime @default(now())
+  type       IntegrationType @default(DESKTOP)
+  createdAt  DateTime        @default(now())
 
   company Company @relation(fields: [companyId], references: [id])
 
   @@map("integration_settings")
+}
+
+enum IntegrationType {
+  QRCODE
+  DESKTOP
 }
 
 model NFCe {
@@ -986,6 +998,27 @@ enum NFCePaymentMethod {
   CASHBACK
   NO_PAYMENT
   OTHER
+}
+
+model NFCeQRCode {
+  id            String         @id @default(uuid()) @db.Uuid
+  link          String
+  consumerId    String         @db.Uuid
+  companyUserId String?        @db.Uuid
+  type          NFCeQRCodeType @default(WAITING)
+  retries       Int            @default(0)
+  createdAt     DateTime       @default(now())
+
+  consumer    Consumer     @relation(fields: [consumerId], references: [id])
+  companyUser CompanyUser? @relation(fields: [companyUserId], references: [id])
+
+  @@map("nfce_qr_codes")
+}
+
+enum NFCeQRCodeType {
+  WAITING
+  VALIDATED
+  NOT_VALIDATED
 }
 
 model StoreProduct {
