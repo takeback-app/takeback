@@ -89,7 +89,7 @@ export function RecognizeSales() {
     })
       .then(response => {
         toast({
-          title: 'Venda Reconhecida!',
+          title: 'Cashback Reconhecido!',
           description: response.data,
           type: 'success'
         })
@@ -116,7 +116,7 @@ export function RecognizeSales() {
 
   if (error) {
     return (
-      <Layout title="Reconhecer Vendas">
+      <Layout title="Reconhecer Cashback">
         <BlockModal
           isOpen={true}
           hasBlur
@@ -129,7 +129,7 @@ export function RecognizeSales() {
 
   if (!transactions || isLoading) {
     return (
-      <Layout title="Reconhecer Vendas">
+      <Layout title="Reconhecer Cashback">
         <Flex w="full" h="70vh" align="center" justify="center">
           <Loader color="rgba(54, 162, 235, 1)" />
         </Flex>
@@ -138,7 +138,7 @@ export function RecognizeSales() {
   }
 
   return (
-    <Layout title="Reconhecer Vendas">
+    <Layout title="Reconhecer Cashback">
       <Box p={4} overflow="hidden">
         <Flex align="center" justify="space-between">
           <ButtonGroup>
@@ -154,7 +154,7 @@ export function RecognizeSales() {
             </Tooltip>
           </ButtonGroup>
           <Button colorScheme="green" onClick={confirmModal.onOpen}>
-            Reconhecer Vendas
+            Reconhecer Cashback
           </Button>
         </Flex>
         <AppTable

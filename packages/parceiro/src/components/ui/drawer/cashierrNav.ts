@@ -18,11 +18,11 @@ export const cashierNav = [
   },
   {
     id: 5,
-    label: 'Reconhecer Vendas',
+    label: 'Reconhecer Cashback',
     activeIcon: FaRegBookmark,
     inactiveIcon: FaRegBookmark,
     isActive: false,
-    to: '/reconhecer-vendas'
+    to: '/reconhecer-cashback'
   },
   // {
   //   id: 2,
@@ -34,14 +34,6 @@ export const cashierNav = [
   //   to: '/solicitações/pagamento'
   // },
   {
-    id: 2,
-    label: 'Retirada de Produtos',
-    activeIcon: FaShoppingBag,
-    inactiveIcon: FaShoppingBag,
-    isActive: false,
-    to: '/retirada-ofertas'
-  },
-  {
     id: 3,
     label: 'Autorizar Cashback',
     activeIcon: IoCart,
@@ -49,6 +41,14 @@ export const cashierNav = [
     hasDotKey: 'cashbackRequest',
     isActive: false,
     to: '/solicitações/cashback'
+  },
+  {
+    id: 2,
+    label: 'Retirada de Produtos',
+    activeIcon: FaShoppingBag,
+    inactiveIcon: FaShoppingBag,
+    isActive: false,
+    to: '/retirada-ofertas'
   },
   {
     id: 4,

@@ -299,7 +299,7 @@ const Navigation: React.FC = () => {
         }
       />
       <Route
-        path="/reconhecer-vendas"
+        path="/reconhecer-cashback"
         element={
           <PrivateRoute>
             <RecognizeSales />

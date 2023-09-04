@@ -65,14 +65,6 @@ export const managerNav = [
   //   to: '/solicitações/pagamento'
   // },
   {
-    id: 11,
-    label: 'Reconhecer Vendas',
-    activeIcon: FaRegBookmark,
-    inactiveIcon: FaRegBookmark,
-    isActive: false,
-    to: '/reconhecer-vendas'
-  },
-  {
     id: 3,
     label: 'Autorizar cashback',
     activeIcon: IoCart,
@@ -80,6 +72,14 @@ export const managerNav = [
     hasDotKey: 'cashbackRequest',
     isActive: false,
     to: '/solicitações/cashback'
+  },
+  {
+    id: 11,
+    label: 'Reconhecer Cashback',
+    activeIcon: FaRegBookmark,
+    inactiveIcon: FaRegBookmark,
+    isActive: false,
+    to: '/reconhecer-cashback'
   },
   {
     id: 4,

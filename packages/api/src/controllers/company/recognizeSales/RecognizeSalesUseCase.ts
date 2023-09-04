@@ -27,7 +27,7 @@ class RecognizeSalesUseCase {
     )
 
     if (transactionsWithCompanyUsers.length > 0) {
-      throw new InternalError('Venda selecionada já está reconhecida', 400)
+      throw new InternalError('Cashback selecionado já está reconhecido', 400)
     }
 
     // Atualizando as transações
@@ -39,7 +39,7 @@ class RecognizeSalesUseCase {
       },
     })
 
-    return 'Vendas reconhecidas com sucesso!'
+    return 'Cashbacks reconhecidos com sucesso!'
   }
 }
 
