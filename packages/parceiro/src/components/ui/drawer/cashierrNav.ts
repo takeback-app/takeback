@@ -3,7 +3,7 @@ import {
   // BsCashCoin,
   BsFillPiggyBankFill
 } from 'react-icons/bs'
-import { FaShoppingBag } from 'react-icons/fa'
+import { FaRegBookmark, FaShoppingBag } from 'react-icons/fa'
 import { IoCart, IoCartOutline } from 'react-icons/io5'
 import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
 
@@ -15,6 +15,14 @@ export const cashierNav = [
     inactiveIcon: BsFillPiggyBankFill,
     isActive: true,
     to: '/caixa'
+  },
+  {
+    id: 5,
+    label: 'Reconhecer Vendas',
+    activeIcon: FaRegBookmark,
+    inactiveIcon: FaRegBookmark,
+    isActive: false,
+    to: '/reconhecer-vendas'
   },
   // {
   //   id: 2,

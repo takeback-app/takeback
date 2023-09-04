@@ -36,6 +36,7 @@ import { LogoChangeRequest } from '../pages/private/logoChangeRequest'
 import { TakebackPayments } from '../pages/private/takebackPayments'
 import { StoreOrders } from '../pages/private/store/StoreOrders'
 import { Extract } from '../pages/private/extract'
+import { RecognizeSales } from '../pages/private/recognizeSales'
 
 interface Props {
   children: JSX.Element
@@ -294,6 +295,14 @@ const Navigation: React.FC = () => {
         element={
           <PrivateRoute>
             <Extract />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/reconhecer-vendas"
+        element={
+          <PrivateRoute>
+            <RecognizeSales />
           </PrivateRoute>
         }
       />

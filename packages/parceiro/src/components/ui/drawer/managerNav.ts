@@ -36,7 +36,7 @@ import {
   IoNewspaperOutline
 } from 'react-icons/io5'
 import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
-import { FaCashRegister, FaShoppingBag } from 'react-icons/fa'
+import { FaCashRegister, FaRegBookmark, FaShoppingBag } from 'react-icons/fa'
 
 export const managerNav = [
   {
@@ -64,6 +64,14 @@ export const managerNav = [
   //   isActive: false,
   //   to: '/solicitações/pagamento'
   // },
+  {
+    id: 11,
+    label: 'Reconhecer Vendas',
+    activeIcon: FaRegBookmark,
+    inactiveIcon: FaRegBookmark,
+    isActive: false,
+    to: '/reconhecer-vendas'
+  },
   {
     id: 3,
     label: 'Autorizar cashback',
