@@ -10,20 +10,17 @@ type TransactionItemProps = {
 }
 
 export function TransactionItem(props: TransactionItemProps) {
-  const { data, referenceDate, type } = props
+  const { data, referenceDate } = props
 
   return (
     <Tr color="gray.500" key={data.id}>
-      <Td px="2" fontSize="xs">
+      <Td px="2" fontSize="xs" w={200}>
         {new Date(referenceDate).toLocaleString()}
       </Td>
       <Td px="2" fontSize="xs">
-        <Text>{type}</Text>
+        <Text>Recebimento Takeback</Text>
       </Td>
-      <Td px="2" fontSize="xs">
-        <Text>Pago com Takeback</Text>
-      </Td>
-      <Td px="2" fontSize="xs">
+      <Td px="2" fontSize="xs" w={150}>
         <Text fontWeight="semibold" color="green.600">
           +{currencyFormat(data.totalAmount)}
         </Text>

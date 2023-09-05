@@ -254,6 +254,7 @@ routes.put(
 routes.get('/store/orders', storeOrderController.index)
 routes.put('/store/orders/:id', storeOrderController.update)
 
+routes.get('/extract/filter-period', extractController.filterPeriod)
 routes.get('/extract', extractController.index)
 routes.get('/extract/paginated', extractController.paginated)
 

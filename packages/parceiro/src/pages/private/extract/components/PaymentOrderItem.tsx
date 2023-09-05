@@ -17,20 +17,17 @@ enum PaymentOrderStatusEnum {
 }
 
 export function PaymentOrdersItem(props: PaymentOrdersItemProps) {
-  const { data, referenceDate, type } = props
+  const { data, referenceDate } = props
 
   return (
     <Tr color="gray.500" key={data.id}>
-      <Td px="2" fontSize="xs">
+      <Td px="2" fontSize="xs" w={200}>
         {new Date(referenceDate).toLocaleString()}
       </Td>
       <Td px="2" fontSize="xs">
-        <Text>{type}</Text>
+        <Text>Ordem de Pagamento</Text>
       </Td>
-      <Td px="2" fontSize="xs">
-        <Text>Pagamento de cashbacks</Text>
-      </Td>
-      <Td px="2" fontSize="xs">
+      <Td px="2" fontSize="xs" w={150}>
         {(() => {
           switch (data.paymentOrderStatus) {
             case PaymentOrderStatusEnum.AUTHORIZED:
