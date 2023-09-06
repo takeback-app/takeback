@@ -12,7 +12,7 @@ const routes = Router()
 
 routes.post('/login', LoginController.handle)
 routes.get('/updater/:target/:arch/:currentVersion', UpdaterController.handle)
-routes.get('/test', UpdaterController.test)
+routes.post('/test', UpdaterController.test)
 
 routes.get('/bling/auth', HomologationController.handle)
 
