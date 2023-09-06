@@ -98,6 +98,14 @@ export const managerNav = [
     to: '/extrato'
   },
   {
+    id: 11,
+    label: 'Perfil do Cliente',
+    activeIcon: IoNewspaperOutline,
+    inactiveIcon: IoNewspaperOutline,
+    isActive: false,
+    to: '/cliente/perfil'
+  },
+  {
     id: 6,
     label: 'Notificações',
     activeIcon: IoNotifications,
