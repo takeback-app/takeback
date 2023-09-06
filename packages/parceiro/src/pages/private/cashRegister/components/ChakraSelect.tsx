@@ -45,18 +45,18 @@ const ChakraSelect = React.forwardRef<HTMLSelectElement, ChakraSelectProps>(
         gridColumnStart={gridColumnStart}
         gridColumnEnd={gridColumnEnd}
         isRequired={isRequired}
+        isReadOnly={rest.isReadOnly}
         isInvalid={!!rest.error}
       >
         <FormLabel fontSize="xs" fontWeight="semibold" color="gray.600">
           {label}
         </FormLabel>
-        <InputGroup variant="flushed">
+        <InputGroup>
           <Select
-            fontWeight="black"
-            fontSize="sm"
-            size="xs"
-            variant="flushed"
             autoFocus={rest.autoFocus}
+            isReadOnly={rest.isReadOnly}
+            size="sm"
+            pointerEvents={isLoading || rest.isReadOnly ? 'none' : 'auto'}
             ref={ref}
             {...rest}
           >

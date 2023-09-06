@@ -3,7 +3,7 @@ import {
   // BsCashCoin,
   BsFillPiggyBankFill
 } from 'react-icons/bs'
-import { FaShoppingBag } from 'react-icons/fa'
+import { FaRegBookmark, FaShoppingBag } from 'react-icons/fa'
 import { IoCart, IoCartOutline } from 'react-icons/io5'
 import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
 
@@ -16,6 +16,14 @@ export const cashierNav = [
     isActive: true,
     to: '/caixa'
   },
+  {
+    id: 5,
+    label: 'Reconhecer Cashback',
+    activeIcon: FaRegBookmark,
+    inactiveIcon: FaRegBookmark,
+    isActive: false,
+    to: '/reconhecer-cashback'
+  },
   // {
   //   id: 2,
   //   label: 'Receber Pagamento',
@@ -26,14 +34,6 @@ export const cashierNav = [
   //   to: '/solicitações/pagamento'
   // },
   {
-    id: 2,
-    label: 'Retirada de Produtos',
-    activeIcon: FaShoppingBag,
-    inactiveIcon: FaShoppingBag,
-    isActive: false,
-    to: '/retirada-ofertas'
-  },
-  {
     id: 3,
     label: 'Autorizar Cashback',
     activeIcon: IoCart,
@@ -41,6 +41,14 @@ export const cashierNav = [
     hasDotKey: 'cashbackRequest',
     isActive: false,
     to: '/solicitações/cashback'
+  },
+  {
+    id: 2,
+    label: 'Retirada de Produtos',
+    activeIcon: FaShoppingBag,
+    inactiveIcon: FaShoppingBag,
+    isActive: false,
+    to: '/retirada-ofertas'
   },
   {
     id: 4,
