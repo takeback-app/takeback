@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { Prisma } from '@prisma/client'
 import { prisma } from '../../../prisma'
+import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
 
 interface Props {
   companyId: string
@@ -65,7 +66,9 @@ class FindUnrecognizedSalesUseCase {
       },
       where: {
         companiesId: companyId,
-        transactionStatusId: 3,
+        transactionStatus: {
+          description: TransactionStatusEnum.PAID_WITH_TAKEBACK,
+        },
         companyUsersId: null,
         createdAt: { lte: endDate, gte: startDate },
       },

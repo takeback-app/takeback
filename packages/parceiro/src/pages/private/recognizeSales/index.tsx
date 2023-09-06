@@ -32,6 +32,7 @@ import { currencyFormat } from '../../../utils/currencyFormat'
 import { BlockModal } from '../../../components/modals/BlockModal'
 import { API } from '../../../services/API'
 import { toast } from '../../../components/ui/toast'
+import { AxiosError } from 'axios'
 
 export interface TransactionData {
   id: number
@@ -80,34 +81,31 @@ export function RecognizeSales() {
     setCheckedItems([...checkedItems, value])
   }
 
-  function handleRecognizeSales() {
+  async function handleRecognizeSales() {
     confirmModal.onClose()
     setButtonLoading(true)
 
-    API.put('/company/recognize-sales/recognize', {
-      transactionIDs: checkedItems
-    })
-      .then(response => {
-        toast({
-          title: 'Cashback Reconhecido!',
-          description: response.data,
-          type: 'success'
-        })
-        mutate(['company/recognize-sales/find', filter])
-        setCheckedItems([])
+    try {
+      const response = await API.put('/company/recognize-sales/recognize', {
+        transactionIDs: checkedItems
       })
-      .catch(error => {
-        if (error.isAxiosError) {
-          toast({
-            title: 'Ops :(',
-            description: error.response.data.message,
-            type: 'error'
-          })
-        }
+      toast({
+        title: 'Cashback Reconhecido!',
+        description: response.data,
+        type: 'success'
       })
-      .finally(() => {
-        setButtonLoading(false)
+      mutate(['company/recognize-sales/find', filter])
+      setCheckedItems([])
+      setButtonLoading(false)
+    } catch (err) {
+      const error = err as AxiosError
+
+      toast({
+        title: 'Ops :(',
+        description: error?.response?.data.message,
+        type: 'error'
       })
+    }
   }
 
   const isIndeterminate =

@@ -2,7 +2,8 @@ import { Request, Response } from 'express'
 
 import { FindUnrecognizedSalesUseCase } from './FindUnrecognizedSalesUseCase'
 import { RecognizeSalesUseCase } from './RecognizeSalesUseCase'
-import { partition } from '../../../utils'
+import { RecognizeSalesRequest } from '../../../requests/RecognizeSalesRequest'
+import { InternalError } from '../../../config/GenerateErros'
 
 interface Props {
   transactionIDs: number[]
@@ -11,8 +12,14 @@ interface Props {
 class RecognizeSalesController {
   async findUnrecognizedSales(request: Request, response: Response) {
     const { companyId } = request['tokenPayload']
-    const { dateStart, dateEnd, order, orderByColumn } =
-      request.query as Record<string, string>
+
+    const form = RecognizeSalesRequest.safeParse(request.query)
+
+    if (!form.success) {
+      throw new InternalError('Existem erros nos filtros', 400)
+    }
+
+    const { dateStart, dateEnd, order, orderByColumn } = form.data
 
     const findCashbacks = new FindUnrecognizedSalesUseCase()
 
@@ -20,8 +27,8 @@ class RecognizeSalesController {
       companyId,
       dateStart,
       dateEnd,
-      order: order === 'asc' ? 'asc' : 'desc',
-      orderByColumn: orderByColumn === 'fullName' ? 'fullName' : 'createdAt',
+      order,
+      orderByColumn,
     })
 
     return response.status(200).json(transactions)
@@ -29,9 +36,8 @@ class RecognizeSalesController {
 
   async recognizeSales(request: Request, response: Response) {
     const { userId } = request['tokenPayload']
-    const { transactionIDs: ids }: Props = request.body
+    const { transactionIDs }: Props = request.body
 
-    const [transactionIDs] = partition(ids, (t) => typeof t === 'number')
     const recognizeSales = new RecognizeSalesUseCase()
 
     const message = await recognizeSales.execute({
