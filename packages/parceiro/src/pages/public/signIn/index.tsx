@@ -37,7 +37,11 @@ export const SignIn: React.FC = () => {
     setIsRootUser,
     setOffice,
     setCompanyName,
-    setGenerateCashback
+    setGenerateCashback,
+    setCanAccessClientReport,
+    setCanHaveStoreProducts,
+    setCanSendBirthdayNotification,
+    setCanUseIntegration
   } = useContext(AuthContext)
   const toast = useToast(chakraToastOptions)
 
@@ -97,7 +101,6 @@ export const SignIn: React.FC = () => {
         API.defaults.headers.common.Authorization = `Bearer ${data.token}`
 
         sessionStorage.setItem('token', data.token)
-
         setUserName(data.name)
         setOffice(data.office)
         setIsManager(data.isManager)
@@ -105,6 +108,10 @@ export const SignIn: React.FC = () => {
         setCompanyName(data.companyName)
         setGenerateCashback(data.generateCashback)
         setIsSignedIn(true)
+        setCanAccessClientReport(data.canAccessClientReport)
+        setCanHaveStoreProducts(data.canHaveStoreProducts)
+        setCanSendBirthdayNotification(data.canSendBirthdayNotification)
+        setCanUseIntegration(data.canUseIntegration)
 
         if (data.isManager) {
           navigateTo('/painel')

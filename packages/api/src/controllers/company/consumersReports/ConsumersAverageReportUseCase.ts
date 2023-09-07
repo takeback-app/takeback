@@ -63,7 +63,6 @@ export class ConsumersAverageReportUseCase {
     const companyAvgBuyPerConsumers = companyTransactions / companyConsumers
     const cityAvgBuyPerConsumers = cityTransactions / cityConsumers
 
-    console.log(companyAvgBuyPerConsumers, cityAvgBuyPerConsumers)
     return {
       company: +companyAvgBuyPerConsumers.toFixed(2),
       city: +cityAvgBuyPerConsumers.toFixed(2),

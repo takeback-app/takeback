@@ -1,73 +1,81 @@
-import bcrypt from "bcrypt";
-import { InternalError } from "../../../config/GenerateErros";
-import { generateToken } from "../../../config/JWT";
+import bcrypt from 'bcrypt'
+import { InternalError } from '../../../config/GenerateErros'
+import { generateToken } from '../../../config/JWT'
 
-import { prisma } from "../../../prisma";
+import { prisma } from '../../../prisma'
 
 interface Props {
-  user: string;
-  password: string;
+  user: string
+  password: string
 }
 
 class SignInCompanyUseCase {
   async execute({ user, password }: Props) {
     // Verificando se todos os dados necessários foram informados
     if (!user || !password) {
-      throw new InternalError("Dados incompletos", 400);
+      throw new InternalError('Dados incompletos', 400)
     }
 
     const companyUser = await prisma.companyUser.findFirst({
       where: {
-        cpf: user.replace(/\D/g, ""),
+        cpf: user.replace(/\D/g, ''),
       },
       include: {
         company: {
           include: {
             companyStatus: true,
+            paymentPlan: {
+              select: {
+                canAccessClientReport: true,
+                canHaveStoreProducts: true,
+                canSendBirthdayNotification: true,
+                canUseIntegration: true,
+              },
+            },
           },
         },
         companyUserType: true,
       },
-    });
+    })
 
-    const company = companyUser?.company;
+    const company = companyUser?.company
 
     // Verificando se a empresa foi localizada
     if (!company) {
-      throw new InternalError("Erro ao realizar login", 400);
+      throw new InternalError('Erro ao realizar login', 400)
     }
 
     // Verificando se a empresa está bloqueada
     if (company.companyStatus.blocked) {
-      throw new InternalError("Erro ao realizar login", 400);
+      throw new InternalError('Erro ao realizar login', 400)
     }
 
     // Caso a empresa permita o acesso do usuário suporte, o IF será executado
     if (company.permissionToSupportAccess) {
-      const [prefixUser, cpfUser] = user.split("/");
+      const [prefixUser, cpfUser] = user.split('/')
 
-      if (prefixUser && prefixUser.toLowerCase() === "suporte") {
+      if (prefixUser && prefixUser.toLowerCase() === 'suporte') {
         // Buscando aquele determinado usuário suporte
         const supportUser = await prisma.supportUser.findFirst({
-          where: { cpf: cpfUser.replace(/\D/g, "") },
-        });
+          where: { cpf: cpfUser.replace(/\D/g, '') },
+        })
 
         if (!supportUser) {
-          throw new InternalError("Erro ao realizar login", 401);
+          throw new InternalError('Erro ao realizar login', 401)
         }
 
         // Verificando se a senha informada está correta
         const passwordMatch = await bcrypt.compare(
           password,
-          supportUser.password
-        );
+          supportUser.password,
+        )
 
         if (!passwordMatch) {
-          throw new InternalError("Erro ao realizar login", 400);
+          throw new InternalError('Erro ao realizar login', 400)
         }
 
         if (!supportUser.isActive) {
-          throw new InternalError("Usuário não autorizado", 400);
+          throw new InternalError('Usuário não autorizado', 400)
         }
 
         const token = generateToken(
@@ -77,31 +85,36 @@ class SignInCompanyUseCase {
             userId: supportUser.id,
             isManager: true,
             name: supportUser.name,
-            office: "Suporte",
+            office: 'Suporte',
             isRootUser: true,
             cpf: supportUser.cpf,
             companyName: company.fantasyName,
+            canAccessClientReport: company.paymentPlan.canAccessClientReport,
+            canHaveStoreProducts: company.paymentPlan.canHaveStoreProducts,
+            canSendBirthdayNotification:
+              company.paymentPlan.canSendBirthdayNotification,
+            canUseIntegration: company.paymentPlan.canUseIntegration,
           },
           process.env.JWT_PRIVATE_KEY,
-          parseInt(process.env.JWT_EXPIRES_IN)
-        );
+          parseInt(process.env.JWT_EXPIRES_IN),
+        )
 
         return {
           token,
           generateCashback: company.companyStatus.generateCashback,
           isManager: true,
           name: supportUser.name,
-          office: "Suporte",
+          office: 'Suporte',
           companyId: company.id,
           isRootUser: true,
           cpf: supportUser.cpf,
           companyName: company.fantasyName,
-        };
+        }
       }
 
       // Verificando se o usuário existe
       if (!companyUser) {
-        throw new InternalError("Erro ao realizar login", 400);
+        throw new InternalError('Erro ao realizar login', 400)
       }
 
       // Verificando se o usuário encontrado está ativo
@@ -110,17 +123,14 @@ class SignInCompanyUseCase {
         !companyUser.password ||
         companyUser.password.length === 0
       ) {
-        throw new InternalError("Usuário não autorizado", 400);
+        throw new InternalError('Usuário não autorizado', 400)
       }
 
       // Verificando se a senha informada está correta
-      const passwordMatch = await bcrypt.compare(
-        password,
-        companyUser.password
-      );
+      const passwordMatch = await bcrypt.compare(password, companyUser.password)
 
       if (!passwordMatch) {
-        throw new InternalError("Erro ao realizar login", 400);
+        throw new InternalError('Erro ao realizar login', 400)
       }
 
       // Gerando token
@@ -135,10 +145,15 @@ class SignInCompanyUseCase {
           isRootUser: companyUser.isRootUser,
           cpf: companyUser.cpf,
           companyName: company.fantasyName,
+          canAccessClientReport: company.paymentPlan.canAccessClientReport,
+          canHaveStoreProducts: company.paymentPlan.canHaveStoreProducts,
+          canSendBirthdayNotification:
+            company.paymentPlan.canSendBirthdayNotification,
+          canUseIntegration: company.paymentPlan.canUseIntegration,
         },
         process.env.JWT_PRIVATE_KEY,
-        parseInt(process.env.JWT_EXPIRES_IN)
-      );
+        parseInt(process.env.JWT_EXPIRES_IN),
+      )
 
       return {
         token,
@@ -150,12 +165,12 @@ class SignInCompanyUseCase {
         isRootUser: companyUser.isRootUser,
         cpf: companyUser.cpf,
         companyName: company.fantasyName,
-      };
+      }
     }
 
     // Verificando se o usuário existe
     if (!companyUser) {
-      throw new InternalError("Erro ao realizar login", 400);
+      throw new InternalError('Erro ao realizar login', 400)
     }
 
     // Verificando se o usuário encontrado está ativo
@@ -164,13 +179,13 @@ class SignInCompanyUseCase {
       !companyUser.password ||
       companyUser.password.length === 0
     ) {
-      throw new InternalError("Usuário não autorizado", 400);
+      throw new InternalError('Usuário não autorizado', 400)
     }
 
     // Verificando se a senha informada está correta
-    const passwordMatch = await bcrypt.compare(password, companyUser.password);
+    const passwordMatch = await bcrypt.compare(password, companyUser.password)
     if (!passwordMatch) {
-      throw new InternalError("Erro ao realizar login", 400);
+      throw new InternalError('Erro ao realizar login', 400)
     }
 
     const token = generateToken(
@@ -184,10 +199,15 @@ class SignInCompanyUseCase {
         isRootUser: companyUser.isRootUser,
         cpf: companyUser.cpf,
         companyName: company.fantasyName,
+        canAccessClientReport: company.paymentPlan.canAccessClientReport,
+        canHaveStoreProducts: company.paymentPlan.canHaveStoreProducts,
+        canSendBirthdayNotification:
+          company.paymentPlan.canSendBirthdayNotification,
+        canUseIntegration: company.paymentPlan.canUseIntegration,
       },
       process.env.JWT_PRIVATE_KEY,
-      parseInt(process.env.JWT_EXPIRES_IN)
-    );
+      parseInt(process.env.JWT_EXPIRES_IN),
+    )
 
     return {
       token,
@@ -199,8 +219,8 @@ class SignInCompanyUseCase {
       isRootUser: companyUser.isRootUser,
       cpf: companyUser.cpf,
       companyName: company.fantasyName,
-    };
+    }
   }
 }
 
-export { SignInCompanyUseCase };
+export { SignInCompanyUseCase }

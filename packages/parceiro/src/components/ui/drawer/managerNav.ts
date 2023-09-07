@@ -37,8 +37,11 @@ import {
 } from 'react-icons/io5'
 import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
 import { FaCashRegister, FaShoppingBag } from 'react-icons/fa'
+import { Nav } from '../layout/SidebarContent'
 
-export const managerNav = [
+// accessChecker habilita a checagem, se canAccessClientReport a sidebar só vai exibir essa opção caso a company tenha acesso aos relatórios do cliente
+
+export const managerNav: Nav[] = [
   {
     id: 0,
     label: 'Painel',
@@ -103,7 +106,10 @@ export const managerNav = [
     activeIcon: IoNewspaperOutline,
     inactiveIcon: IoNewspaperOutline,
     isActive: false,
-    to: '/cliente/perfil'
+    to: '/cliente/perfil',
+    accessChecker: {
+      checkAccessClientReport: true
+    }
   },
   {
     id: 6,

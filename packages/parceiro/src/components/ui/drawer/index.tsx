@@ -8,18 +8,7 @@ import * as S from './styles'
 import useSWR from 'swr'
 import { Dot } from './Dot'
 import { IconType } from 'react-icons'
-
-interface Nav {
-  id: number
-  inactiveIcon: IconType
-  activeIcon: IconType
-  label: string
-  isActive: boolean
-  to: string
-  hasDotKey?: string
-  pages?: Page[]
-  isOpened?: boolean
-}
+import { Nav } from '../layout/SidebarContent'
 
 export interface Page {
   id: number
