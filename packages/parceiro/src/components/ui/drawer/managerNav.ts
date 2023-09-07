@@ -36,7 +36,7 @@ import {
   IoNewspaperOutline
 } from 'react-icons/io5'
 import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
-import { FaCashRegister, FaShoppingBag } from 'react-icons/fa'
+import { FaCashRegister, FaRegBookmark, FaShoppingBag } from 'react-icons/fa'
 import { Nav } from '../layout/SidebarContent'
 
 // accessChecker habilita a checagem, se canAccessClientReport a sidebar só vai exibir essa opção caso a company tenha acesso aos relatórios do cliente
@@ -75,6 +75,14 @@ export const managerNav: Nav[] = [
     hasDotKey: 'cashbackRequest',
     isActive: false,
     to: '/solicitações/cashback'
+  },
+  {
+    id: 11,
+    label: 'Reconhecer Cashback',
+    activeIcon: FaRegBookmark,
+    inactiveIcon: FaRegBookmark,
+    isActive: false,
+    to: '/reconhecer-cashback'
   },
   {
     id: 4,
