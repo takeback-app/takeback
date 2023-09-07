@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React from 'react'
 import { IoLogoUsd } from 'react-icons/io5'
 
 import { Layout } from '../../../components/ui/layout'
@@ -8,8 +8,7 @@ import { DoughnutChart } from '../../../components/charts/doughnutChart'
 
 import * as S from './styles'
 import useSWR from 'swr'
-import { currencyFormat } from '../../../utils/currencyFormat'
-import { DoughnutChartPercent } from './components/doughnutChartPercent'
+import { BarChart } from '../../../components/charts/barChart'
 
 interface GraphTypes {
   company: Graph
@@ -72,7 +71,7 @@ export function ConsumerProfile() {
             subtitle="Sua empresa"
             loading={isLoading}
           >
-            <DoughnutChartPercent
+            <DoughnutChart
               data={{
                 labels: graphData?.consumerChildrens?.company?.labels,
                 datasets: [
@@ -91,6 +90,7 @@ export function ConsumerProfile() {
                   }
                 ]
               }}
+              tooltipFormat="percent"
             />
           </LargeCard>
           <LargeCard
@@ -98,7 +98,7 @@ export function ConsumerProfile() {
             subtitle="Sua cidade"
             loading={isLoading}
           >
-            <DoughnutChartPercent
+            <DoughnutChart
               data={{
                 labels: graphData?.consumerChildrens?.city?.labels,
                 datasets: [
@@ -117,6 +117,7 @@ export function ConsumerProfile() {
                   }
                 ]
               }}
+              tooltipFormat="percent"
             />
           </LargeCard>
           <LargeCard
@@ -124,30 +125,25 @@ export function ConsumerProfile() {
             subtitle="Sua empresa"
             loading={isLoading}
           >
-            <DoughnutChartPercent
+            <BarChart
               data={{
                 labels: graphData?.consumerMonthlyIncomes?.company?.labels,
                 datasets: [
                   {
                     data:
                       graphData?.consumerMonthlyIncomes?.company?.values ?? [],
+                    label: '',
                     backgroundColor: [
-                      'rgba(255, 99, 132, 0.5)',
-                      'rgba(54, 162, 235, 0.5)',
-                      'rgba(255, 206, 86, 0.5)',
-                      'rgba(75, 192, 192, 0.5)'
-                    ],
-                    borderWidth: 1,
-                    borderColor: [
                       'rgba(255, 99, 132, 1)',
                       'rgba(54, 162, 235, 1)',
                       'rgba(255, 206, 86, 1)',
                       'rgba(75, 192, 192, 1)'
                     ],
-                    label: ''
+                    borderRadius: 4
                   }
                 ]
               }}
+              tooltipFormat="percent"
             />
           </LargeCard>
           <LargeCard
@@ -155,29 +151,24 @@ export function ConsumerProfile() {
             subtitle="Sua cidade"
             loading={isLoading}
           >
-            <DoughnutChartPercent
+            <BarChart
               data={{
                 labels: graphData?.consumerMonthlyIncomes?.city?.labels,
                 datasets: [
                   {
                     data: graphData?.consumerMonthlyIncomes?.city?.values ?? [],
+                    label: '',
                     backgroundColor: [
-                      'rgba(255, 99, 132, 0.5)',
-                      'rgba(54, 162, 235, 0.5)',
-                      'rgba(255, 206, 86, 0.5)',
-                      'rgba(75, 192, 192, 0.5)'
-                    ],
-                    borderWidth: 1,
-                    borderColor: [
                       'rgba(255, 99, 132, 1)',
                       'rgba(54, 162, 235, 1)',
                       'rgba(255, 206, 86, 1)',
                       'rgba(75, 192, 192, 1)'
                     ],
-                    label: ''
+                    borderRadius: 4
                   }
                 ]
               }}
+              tooltipFormat="percent"
             />
           </LargeCard>
           <LargeCard
@@ -185,29 +176,24 @@ export function ConsumerProfile() {
             subtitle="Sua empresa"
             loading={isLoading}
           >
-            <DoughnutChartPercent
+            <BarChart
               data={{
                 labels: graphData?.consumerSchooling?.company?.labels,
                 datasets: [
                   {
                     data: graphData?.consumerSchooling?.company?.values ?? [],
+                    label: '',
                     backgroundColor: [
-                      'rgba(255, 99, 132, 0.5)',
-                      'rgba(54, 162, 235, 0.5)',
-                      'rgba(255, 206, 86, 0.5)',
-                      'rgba(75, 192, 192, 0.5)'
-                    ],
-                    borderWidth: 1,
-                    borderColor: [
                       'rgba(255, 99, 132, 1)',
                       'rgba(54, 162, 235, 1)',
                       'rgba(255, 206, 86, 1)',
                       'rgba(75, 192, 192, 1)'
                     ],
-                    label: ''
+                    borderRadius: 4
                   }
                 ]
               }}
+              tooltipFormat="percent"
             />
           </LargeCard>
           <LargeCard
@@ -215,29 +201,24 @@ export function ConsumerProfile() {
             subtitle="Sua cidade"
             loading={isLoading}
           >
-            <DoughnutChartPercent
+            <BarChart
               data={{
                 labels: graphData?.consumerSchooling?.city?.labels,
                 datasets: [
                   {
                     data: graphData?.consumerSchooling?.city?.values ?? [],
+                    label: '',
                     backgroundColor: [
-                      'rgba(255, 99, 132, 0.5)',
-                      'rgba(54, 162, 235, 0.5)',
-                      'rgba(255, 206, 86, 0.5)',
-                      'rgba(75, 192, 192, 0.5)'
-                    ],
-                    borderWidth: 1,
-                    borderColor: [
                       'rgba(255, 99, 132, 1)',
                       'rgba(54, 162, 235, 1)',
                       'rgba(255, 206, 86, 1)',
                       'rgba(75, 192, 192, 1)'
                     ],
-                    label: ''
+                    borderRadius: 4
                   }
                 ]
               }}
+              tooltipFormat="percent"
             />
           </LargeCard>
           <LargeCard
@@ -245,7 +226,7 @@ export function ConsumerProfile() {
             subtitle="Sua empresa"
             loading={isLoading}
           >
-            <DoughnutChartPercent
+            <DoughnutChart
               data={{
                 labels: graphData?.consumerSex?.company?.labels,
                 datasets: [
@@ -264,6 +245,7 @@ export function ConsumerProfile() {
                   }
                 ]
               }}
+              tooltipFormat="percent"
             />
           </LargeCard>
           <LargeCard
@@ -271,7 +253,7 @@ export function ConsumerProfile() {
             subtitle="Sua cidade"
             loading={isLoading}
           >
-            <DoughnutChartPercent
+            <DoughnutChart
               data={{
                 labels: graphData?.consumerSex?.city?.labels,
                 datasets: [
@@ -290,6 +272,7 @@ export function ConsumerProfile() {
                   }
                 ]
               }}
+              tooltipFormat="percent"
             />
           </LargeCard>
           <LargeCard
@@ -297,35 +280,24 @@ export function ConsumerProfile() {
             subtitle="Sua empresa"
             loading={isLoading}
           >
-            <DoughnutChart
+            <BarChart
               data={{
                 labels: graphData?.constumerTimeRange?.company?.labels,
                 datasets: [
                   {
                     data: graphData?.constumerTimeRange?.company?.values ?? [],
+                    label: '',
                     backgroundColor: [
-                      'rgba(255, 99, 132, 0.5)',
-                      'rgba(54, 162, 235, 0.5)',
-                      'rgba(255, 206, 86, 0.5)',
-                      'rgba(75, 192, 192, 0.5)',
-                      'rgba(153, 102, 255, 0.5)',
-                      'rgba(255, 159, 64, 0.5)',
-                      'rgba(105, 64, 255, 0.5)'
-                    ],
-                    borderWidth: 1,
-                    borderColor: [
                       'rgba(255, 99, 132, 1)',
                       'rgba(54, 162, 235, 1)',
                       'rgba(255, 206, 86, 1)',
-                      'rgba(75, 192, 192, 1)',
-                      'rgba(153, 102, 255, 1)',
-                      'rgba(255, 159, 64, 1)',
-                      'rgba(105, 64, 255, 1)'
+                      'rgba(75, 192, 192, 1)'
                     ],
-                    label: ''
+                    borderRadius: 4
                   }
                 ]
               }}
+              tooltipFormat="decimal"
             />
           </LargeCard>
           <LargeCard
@@ -333,37 +305,24 @@ export function ConsumerProfile() {
             subtitle="Sua cidade"
             loading={isLoading}
           >
-            <DoughnutChart
+            <BarChart
               data={{
                 labels: graphData?.constumerTimeRange?.city?.labels,
                 datasets: [
                   {
                     data: graphData?.constumerTimeRange?.city?.values ?? [],
+                    label: '',
                     backgroundColor: [
-                      'rgba(255, 99, 132, 0.5)',
-                      'rgba(54, 162, 235, 0.5)',
-                      'rgba(255, 206, 86, 0.5)',
-                      'rgba(75, 192, 192, 0.5)',
-                      'rgba(153, 102, 255, 0.5)',
-                      'rgba(255, 159, 64, 0.5)',
-                      'rgba(105, 64, 255, 0.5)',
-                      'rgba(255, 64, 89, 0.5)'
-                    ],
-                    borderWidth: 1,
-                    borderColor: [
                       'rgba(255, 99, 132, 1)',
                       'rgba(54, 162, 235, 1)',
                       'rgba(255, 206, 86, 1)',
-                      'rgba(75, 192, 192, 1)',
-                      'rgba(153, 102, 255, 1)',
-                      'rgba(255, 159, 64, 1)',
-                      'rgba(105, 64, 255, 1)',
-                      'rgba(255, 64, 89, 1)'
+                      'rgba(75, 192, 192, 1)'
                     ],
-                    label: ''
+                    borderRadius: 4
                   }
                 ]
               }}
+              tooltipFormat="decimal"
             />
           </LargeCard>
         </S.LargeCardsWrapper>

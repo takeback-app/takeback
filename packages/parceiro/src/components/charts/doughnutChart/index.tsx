@@ -46,17 +46,29 @@ interface DataProps {
 
 interface Props {
   data: DataProps
+  tooltipFormat: 'decimal' | 'percent'
 }
 
-export const DoughnutChart: React.FC<Props> = ({ data }) => (
+export const DoughnutChart: React.FC<Props> = ({ data, tooltipFormat }) => (
   <Doughnut
-    width="300"
-    height="300"
     options={{
       responsive: true,
+      aspectRatio: 2,
       plugins: {
         legend: {
           position: 'bottom'
+        },
+        tooltip: {
+          callbacks: {
+            label(tooltipItem) {
+              if (tooltipFormat === 'percent') {
+                const value = tooltipItem.raw as number
+                const formatedNumber = value * 100
+                return `${tooltipItem.label} - ${formatedNumber.toFixed(2)}%`
+              }
+              return `${tooltipItem.label} - ${tooltipItem.raw}`
+            }
+          }
         }
       }
     }}
