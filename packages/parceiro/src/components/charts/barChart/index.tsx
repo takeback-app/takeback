@@ -38,6 +38,7 @@ interface DataProps {
 interface Props {
   data: DataProps
   tooltipFormat: 'decimal' | 'percent'
+  datalabels: boolean
 }
 
 export const BarChart: React.FC<React.PropsWithChildren<Props>> = ({
@@ -51,6 +52,26 @@ export const BarChart: React.FC<React.PropsWithChildren<Props>> = ({
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
+        datalabels: {
+          formatter: function (value) {
+            if (tooltipFormat === 'percent') {
+              const formatedNumber = value * 100
+              return `${formatedNumber.toFixed(2)}%`
+            }
+            return value
+          },
+          clamp: true,
+          anchor: 'end',
+          align: 'bottom',
+          labels: {
+            title: {
+              font: {
+                weight: 'bold',
+                size: 16
+              }
+            }
+          }
+        },
         legend: {
           position: 'bottom',
           display: false

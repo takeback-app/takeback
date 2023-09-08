@@ -109,7 +109,7 @@ export const managerNav: Nav[] = [
     to: '/extrato'
   },
   {
-    id: 11,
+    id: 12,
     label: 'Perfil do Cliente',
     activeIcon: IoNewspaperOutline,
     inactiveIcon: IoNewspaperOutline,

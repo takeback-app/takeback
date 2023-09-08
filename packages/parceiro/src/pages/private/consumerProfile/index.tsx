@@ -144,6 +144,7 @@ export function ConsumerProfile() {
                 ]
               }}
               tooltipFormat="percent"
+              datalabels={true}
             />
           </LargeCard>
           <LargeCard
@@ -169,6 +170,7 @@ export function ConsumerProfile() {
                 ]
               }}
               tooltipFormat="percent"
+              datalabels={true}
             />
           </LargeCard>
           <LargeCard
@@ -194,6 +196,7 @@ export function ConsumerProfile() {
                 ]
               }}
               tooltipFormat="percent"
+              datalabels={true}
             />
           </LargeCard>
           <LargeCard
@@ -219,6 +222,7 @@ export function ConsumerProfile() {
                 ]
               }}
               tooltipFormat="percent"
+              datalabels={true}
             />
           </LargeCard>
           <LargeCard
@@ -276,7 +280,7 @@ export function ConsumerProfile() {
             />
           </LargeCard>
           <LargeCard
-            title="Compras em um Intervalo"
+            title="Horario de compra dos clientes"
             subtitle="Sua empresa"
             loading={isLoading}
           >
@@ -298,10 +302,11 @@ export function ConsumerProfile() {
                 ]
               }}
               tooltipFormat="decimal"
+              datalabels={true}
             />
           </LargeCard>
           <LargeCard
-            title="Compras em um Intervalo"
+            title="Horario de compra dos clientes"
             subtitle="Sua cidade"
             loading={isLoading}
           >
@@ -323,6 +328,7 @@ export function ConsumerProfile() {
                 ]
               }}
               tooltipFormat="decimal"
+              datalabels={true}
             />
           </LargeCard>
         </S.LargeCardsWrapper>
