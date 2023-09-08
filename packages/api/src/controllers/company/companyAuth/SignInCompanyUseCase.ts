@@ -109,6 +109,11 @@ class SignInCompanyUseCase {
           isRootUser: true,
           cpf: supportUser.cpf,
           companyName: company.fantasyName,
+          canAccessClientReport: company.paymentPlan.canAccessClientReport,
+          canHaveStoreProducts: company.paymentPlan.canHaveStoreProducts,
+          canSendBirthdayNotification:
+            company.paymentPlan.canSendBirthdayNotification,
+          canUseIntegration: company.paymentPlan.canUseIntegration,
         }
       }
 
@@ -165,6 +170,11 @@ class SignInCompanyUseCase {
         isRootUser: companyUser.isRootUser,
         cpf: companyUser.cpf,
         companyName: company.fantasyName,
+        canAccessClientReport: company.paymentPlan.canAccessClientReport,
+        canHaveStoreProducts: company.paymentPlan.canHaveStoreProducts,
+        canSendBirthdayNotification:
+          company.paymentPlan.canSendBirthdayNotification,
+        canUseIntegration: company.paymentPlan.canUseIntegration,
       }
     }
 
@@ -219,6 +229,11 @@ class SignInCompanyUseCase {
       isRootUser: companyUser.isRootUser,
       cpf: companyUser.cpf,
       companyName: company.fantasyName,
+      canAccessClientReport: company.paymentPlan.canAccessClientReport,
+      canHaveStoreProducts: company.paymentPlan.canHaveStoreProducts,
+      canSendBirthdayNotification:
+        company.paymentPlan.canSendBirthdayNotification,
+      canUseIntegration: company.paymentPlan.canUseIntegration,
     }
   }
 }
