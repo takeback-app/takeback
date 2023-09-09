@@ -43,9 +43,8 @@ export class GenerateCashbackUseCase {
       consumerId,
     } = data
 
-    const sumMethodValue = paymentMethods.reduce(
-      (sum, { value }) => sum + value,
-      0,
+    const sumMethodValue = Number(
+      paymentMethods.reduce((sum, { value }) => sum + value, 0).toFixed(2),
     )
 
     if (sumMethodValue !== Number(totalAmount) + backAmount) {

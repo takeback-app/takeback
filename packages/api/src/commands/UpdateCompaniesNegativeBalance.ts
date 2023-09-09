@@ -1,7 +1,7 @@
 import 'dotenv/config'
 
 import { SingleBar, Presets } from 'cli-progress'
-import { Decimal } from '@prisma/client/runtime'
+import { Decimal } from '@prisma/client/runtime/library'
 import { prisma } from '../prisma'
 import { TransactionStatusEnum } from '../enum/TransactionStatusEnum'
 
