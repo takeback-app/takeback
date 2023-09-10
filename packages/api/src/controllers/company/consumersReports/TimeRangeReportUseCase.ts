@@ -29,14 +29,14 @@ export class TimeRangeReportUseCase {
 
     this.cityId = company.companyAddress.cityId
 
-    const timeRange01_03 = await this.baseQuery(4, 6)
-    const timeRange04_06 = await this.baseQuery(7, 9)
-    const timeRange07_09 = await this.baseQuery(10, 12)
-    const timeRange10_12 = await this.baseQuery(13, 15)
-    const timeRange13_15 = await this.baseQuery(16, 18)
-    const timeRange16_18 = await this.baseQuery(19, 21)
-    const timeRange19_21 = await this.baseQuery(22, 0)
-    const timeRange22_00 = await this.baseQuery(1, 3)
+    const timeRange01_03 = await this.baseQuery(1, 3)
+    const timeRange04_06 = await this.baseQuery(4, 6)
+    const timeRange07_09 = await this.baseQuery(7, 9)
+    const timeRange10_12 = await this.baseQuery(10, 12)
+    const timeRange13_15 = await this.baseQuery(13, 15)
+    const timeRange16_18 = await this.baseQuery(16, 18)
+    const timeRange19_21 = await this.baseQuery(19, 21)
+    const timeRange22_00 = await this.baseQuery(22, 0)
 
     const labels = [
       'Entre 01:00hrs e 03:59hrs',
@@ -79,18 +79,27 @@ export class TimeRangeReportUseCase {
     }
   }
 
+  // converte a hora para UTC-3
+  private hourOffset(hour: number) {
+    const hourPlusThree = hour + 3
+    return hourPlusThree > 24 ? hourPlusThree - 24 : hourPlusThree
+  }
+
   private async baseQuery(
     startHour: number,
     endHour: number,
   ): Promise<baseQueryResponse> {
+    const startHourOffset = this.hourOffset(startHour)
+    const endHourOffset = this.hourOffset(endHour)
+
     const companyConsumers = await db
       .select('transactions.id')
       .from('consumers')
       .join('transactions', 'transactions.consumersId', 'consumers.id')
       .where('transactions.companiesId', this.companyId)
       .whereRaw('extract(hour from transactions."createdAt") between ? and ?', [
-        startHour,
-        endHour,
+        startHourOffset,
+        endHourOffset,
       ])
       .groupBy('transactions.id', 'consumers.id')
 
@@ -102,8 +111,8 @@ export class TimeRangeReportUseCase {
       .join('companies_address', 'companies_address.id', 'companies.addressId')
       .where('companies_address.cityId', this.cityId)
       .whereRaw('extract(hour from transactions."createdAt") between ? and ?', [
-        startHour,
-        endHour,
+        startHourOffset,
+        endHourOffset,
       ])
       .groupBy('transactions.id', 'consumers.id')
 
