@@ -18,6 +18,7 @@ interface GenerateCashbackUseDTO {
   companyUserId?: string
   totalAmount: number
   backAmount?: number
+  createdAt?: Date
   paymentMethods: PaymentMethod[]
 }
 
@@ -108,6 +109,7 @@ export class GenerateCashbackUseCase {
         companiesId: company.id,
         companyUsersId: companyUserId,
         dateAt: new Date(),
+        createdAt: data.createdAt,
         backAmount,
         transactionStatusId,
       },

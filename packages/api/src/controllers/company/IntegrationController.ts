@@ -5,10 +5,13 @@ export class IntegrationController {
   async getIntegrationType(request: Request, response: Response) {
     const { companyId } = request['tokenPayload']
 
-    const integration = await prisma.integrationSettings.findFirst({
-      where: { companyId },
+    const company = await prisma.company.findFirst({
+      where: { id: companyId },
+      select: { useQRCode: true },
     })
 
-    return response.json({ integrationType: integration?.type || 'NONE' })
+    return response.json({
+      integrationType: company.useQRCode ? 'QRCODE' : 'DESKTOP',
+    })
   }
 }

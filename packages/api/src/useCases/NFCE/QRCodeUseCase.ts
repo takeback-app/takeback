@@ -1,17 +1,13 @@
 import axios from 'axios'
 import { load } from 'cheerio'
 import { DateTime } from 'luxon'
-import {
-  NFCePaymentMethod,
-  NFCeQRCode,
-  NFCeValidationStatus,
-} from '@prisma/client'
+import { NFCePaymentMethod, QRCode } from '@prisma/client'
+import { Decimal } from '@prisma/client/runtime/library'
 import { getNFCePaymentMethod } from '../../enum/NfcePaymentMethodEnum'
 import { prisma } from '../../prisma'
 import { GenerateCashbackUseCase } from '../cashback/GenerateCashbackUseCase'
 
 interface NfceData {
-  path: string
   issuedAt: Date
   nfcePayments: { value: number; method: NFCePaymentMethod; tPag: number }[]
 }
@@ -21,15 +17,15 @@ interface PaymentMethod {
   value: number
 }
 
-export class NfceQRCode {
+export class QRCodeUseCase {
   protected generateCashbackUseCase: GenerateCashbackUseCase
 
-  constructor(private qrCode: NFCeQRCode) {
+  constructor(private qrCode: QRCode) {
     this.generateCashbackUseCase = new GenerateCashbackUseCase()
   }
 
-  public static makeFromLink(qrCode: NFCeQRCode) {
-    return new NfceQRCode(qrCode)
+  public static makeFromLink(qrCode: QRCode) {
+    return new QRCodeUseCase(qrCode)
   }
 
   private async getHtml() {
@@ -42,7 +38,7 @@ export class NfceQRCode {
     }
   }
 
-  public async createNfce() {
+  public async createTransaction() {
     try {
       const $ = await this.getHtml()
 
@@ -57,7 +53,19 @@ export class NfceQRCode {
       const issuedAt = DateTime.fromFormat(
         issuedAtString,
         'dd/MM/yyyy HH:mm:ss',
-      ).toJSDate()
+      ).setZone('America/Sao_Paulo')
+
+      if (issuedAt.diffNow().days > 0) {
+        await prisma.qRCode.update({
+          where: { id: this.qrCode.id },
+          data: {
+            type: 'NOT_VALIDATED',
+            description: 'Cupom descartado após 24 horas da compra',
+          },
+        })
+
+        return false
+      }
 
       const nfcePayments = $('div.row > div > strong')
         .map((i, el) => $(el).text())
@@ -83,28 +91,34 @@ export class NfceQRCode {
 
       const company = await prisma.company.findFirst({
         select: { id: true },
-        where: {
-          registeredNumber: cnpj,
-          integrationSettings: { type: 'QRCODE' },
-        },
+        where: { registeredNumber: cnpj },
       })
 
       if (!company) {
-        await prisma.nFCeQRCode.update({
+        await prisma.qRCode.update({
           where: { id: this.qrCode.id },
-          data: { type: 'NOT_VALIDATED' },
+          data: {
+            type: 'NOT_VALIDATED',
+            description: 'Cupom não valido para empresa solicitada',
+          },
         })
 
         return false
       }
 
-      return await this.saveNfce(company.id, {
-        path: 'QRCODE',
-        issuedAt,
+      const transaction = await this.saveTransaction(company.id, {
+        issuedAt: issuedAt.toJSDate(),
         nfcePayments,
       })
+
+      await prisma.transaction.update({
+        where: { id: transaction.id },
+        data: { qrCodeId: this.qrCode.id, nfceValidationStatus: 'VALIDATED' },
+      })
+
+      return transaction
     } catch (e) {
-      await prisma.nFCeQRCode.update({
+      await prisma.qRCode.update({
         where: { id: this.qrCode.id },
         data: { retries: this.qrCode.retries + 1 },
       })
@@ -113,17 +127,17 @@ export class NfceQRCode {
     }
   }
 
-  public async saveNfce(
+  public async saveTransaction(
     companyId: string,
-    { issuedAt, nfcePayments, path }: NfceData,
+    { issuedAt, nfcePayments }: NfceData,
     companyUserId?: string,
   ) {
     const paymentMethods: PaymentMethod[] = []
 
-    let totalAmount = 0
+    let totalAmount = new Decimal(0.0)
 
     for (const nfcePayment of nfcePayments) {
-      totalAmount += nfcePayment.value
+      totalAmount = totalAmount.plus(nfcePayment.value)
 
       const { id } = await prisma.companyPaymentMethod.findFirstOrThrow({
         select: { id: true },
@@ -133,36 +147,48 @@ export class NfceQRCode {
       paymentMethods.push({ id, value: nfcePayment.value })
     }
 
-    const transaction = await this.generateCashbackUseCase.execute({
-      companyId,
-      companyUserId,
-      consumerId: this.qrCode.consumerId,
-      totalAmount,
-      paymentMethods,
+    let transaction = await prisma.transaction.findFirst({
+      where: {
+        companiesId: companyId,
+        consumersId: this.qrCode.consumerId,
+        totalAmount,
+        createdAt: { gte: DateTime.now().minus({ days: 1 }).toJSDate() },
+      },
     })
 
-    const nfce = await prisma.nFCe.create({
-      data: {
-        path,
+    if (!transaction) {
+      transaction = await this.generateCashbackUseCase.execute({
         companyId,
-        issuedAt,
-        nfcePayments: { createMany: { data: nfcePayments } },
-      },
-    })
+        companyUserId,
+        consumerId: this.qrCode.consumerId,
+        createdAt: issuedAt,
+        totalAmount: totalAmount.toNumber(),
+        paymentMethods,
+      })
+    }
 
-    await prisma.transaction.update({
-      where: { id: transaction.id },
-      data: {
-        nfceId: nfce.id,
-        nfceValidationStatus: NFCeValidationStatus.VALIDATED,
-      },
-    })
+    // const nfce = await prisma.nFCe.create({
+    //   data: {
+    //     path,
+    //     companyId,
+    //     issuedAt,
+    //     nfcePayments: { createMany: { data: nfcePayments } },
+    //   },
+    // })
 
-    await prisma.nFCeQRCode.update({
+    // await prisma.transaction.update({
+    //   where: { id: transaction.id },
+    //   data: {
+    //     nfceId: nfce.id,
+    //     nfceValidationStatus: NFCeValidationStatus.VALIDATED,
+    //   },
+    // })
+
+    await prisma.qRCode.update({
       where: { id: this.qrCode.id },
       data: { type: 'VALIDATED' },
     })
 
-    return nfce
+    return transaction
   }
 }

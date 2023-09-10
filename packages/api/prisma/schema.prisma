@@ -50,6 +50,7 @@ model Company {
   permissionToSupportAccess   Boolean                     @default(true)
   representativeId            String?                     @db.Uuid
   useCashbackAsBack           Boolean                     @default(true)
+  useQRCode                   Boolean                     @default(false)
   paymentPlan                 PaymentPlan?                @relation(fields: [paymentPlanId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_0d4ef1a2673e3fc3b1934baaea5")
   companyAddress              CompanyAddress?             @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_2bb6583d4cf35554e19694c8a9b")
   companyStatus               CompanyStatus?              @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_78f70c4376dbfc35f8ba9257295")
@@ -166,7 +167,7 @@ model CompanyUser {
   raffleItemDeliveries          RaffleItemDelivery[]
   TransactionSolicitation       TransactionSolicitation[]
   notifications                 Notification[]
-  NFCeQRCode                    NFCeQRCode[]
+  qrCodes                       QRCode[]
 
   @@map("company_users")
 }
@@ -229,7 +230,7 @@ model Consumer {
   referrals                     Referral[]
   fatherReferrals               Referral[]                @relation("ReferralConsumer")
   storeOrders                   StoreOrder[]
-  NFCeQRCode                    NFCeQRCode[]
+  qrCodes                       QRCode[]
 
   @@map("consumers")
 }
@@ -460,6 +461,7 @@ model Transaction {
   fatherTransactionId          Int?
   companyUsersId               String?                    @db.Uuid
   backAmount                   Decimal?                   @default(0) @db.Decimal(10, 4)
+  qrCodeId                     String?                    @db.Uuid
   nfceId                       String?                    @unique() @db.Uuid
   nfceValidationStatus         NFCeValidationStatus       @default(IN_PROGRESS)
   transactionPaymentMethods    TransactionPaymentMethod[]
@@ -474,6 +476,7 @@ model Transaction {
   raffleTickets                RaffleTicket[]
   commissions                  Commission[]
   nfce                         NFCe?                      @relation(fields: [nfceId], references: [id])
+  qrCode                       QRCode?                    @relation(fields: [qrCodeId], references: [id])
 
   @@map("transactions")
 }
@@ -1000,22 +1003,24 @@ enum NFCePaymentMethod {
   OTHER
 }
 
-model NFCeQRCode {
-  id            String         @id @default(uuid()) @db.Uuid
+model QRCode {
+  id            String     @id @default(uuid()) @db.Uuid
   link          String
-  consumerId    String         @db.Uuid
-  companyUserId String?        @db.Uuid
-  type          NFCeQRCodeType @default(WAITING)
-  retries       Int            @default(0)
-  createdAt     DateTime       @default(now())
+  consumerId    String     @db.Uuid
+  companyUserId String?    @db.Uuid
+  type          QRCodeType @default(WAITING)
+  description   String     @default("")
+  retries       Int        @default(0)
+  createdAt     DateTime   @default(now())
 
-  consumer    Consumer     @relation(fields: [consumerId], references: [id])
-  companyUser CompanyUser? @relation(fields: [companyUserId], references: [id])
+  consumer    Consumer      @relation(fields: [consumerId], references: [id])
+  companyUser CompanyUser?  @relation(fields: [companyUserId], references: [id])
+  Transaction Transaction[]
 
-  @@map("nfce_qr_codes")
+  @@map("qr_codes")
 }
 
-enum NFCeQRCodeType {
+enum QRCodeType {
   WAITING
   VALIDATED
   NOT_VALIDATED
