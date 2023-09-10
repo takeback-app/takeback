@@ -91,6 +91,8 @@ export function ConsumerProfile() {
                 ]
               }}
               tooltipFormat="percent"
+              activeDataLabels={true}
+              aspectRatio={2}
             />
           </LargeCard>
           <LargeCard
@@ -118,6 +120,8 @@ export function ConsumerProfile() {
                 ]
               }}
               tooltipFormat="percent"
+              activeDataLabels={true}
+              aspectRatio={2}
             />
           </LargeCard>
           <LargeCard
@@ -250,6 +254,8 @@ export function ConsumerProfile() {
                 ]
               }}
               tooltipFormat="percent"
+              activeDataLabels={true}
+              aspectRatio={2}
             />
           </LargeCard>
           <LargeCard
@@ -277,6 +283,8 @@ export function ConsumerProfile() {
                 ]
               }}
               tooltipFormat="percent"
+              activeDataLabels={true}
+              aspectRatio={2}
             />
           </LargeCard>
           <LargeCard

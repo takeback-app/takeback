@@ -48,15 +48,23 @@ interface DataProps {
 interface Props {
   data: DataProps
   tooltipFormat: 'decimal' | 'percent'
+  activeDataLabels?: boolean
+  aspectRatio?: number
 }
 
-export const DoughnutChart: React.FC<Props> = ({ data, tooltipFormat }) => (
+export const DoughnutChart: React.FC<Props> = ({
+  data,
+  tooltipFormat,
+  activeDataLabels = false,
+  aspectRatio
+}) => (
   <Doughnut
     options={{
       responsive: true,
-      aspectRatio: 2,
+      aspectRatio,
       plugins: {
         datalabels: {
+          display: activeDataLabels,
           formatter: function (value) {
             return Math.round(value * 100) + '%'
           },
