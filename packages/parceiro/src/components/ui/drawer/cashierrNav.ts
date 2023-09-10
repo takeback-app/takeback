@@ -6,8 +6,11 @@ import {
 import { FaRegBookmark, FaShoppingBag } from 'react-icons/fa'
 import { IoCart, IoCartOutline } from 'react-icons/io5'
 import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
+import { Nav } from '../layout/SidebarContent'
 
-export const cashierNav = [
+// accessChecker habilita a checagem, se canAccessClientReport a sidebar só vai exibir essa opção caso a company tenha acesso aos relatórios do cliente
+
+export const cashierNav: Nav[] = [
   {
     id: 1,
     label: 'Lançamento Manual',

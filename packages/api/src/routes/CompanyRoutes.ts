@@ -34,6 +34,7 @@ import { CompanyPaymentMethodController } from '../controllers/company/CompanyPa
 import { StoreOrderController } from '../controllers/company/store/StoreOrderController'
 import { ExtractController } from '../controllers/company/extract/ExtractController'
 import { IntegrationController } from '../controllers/company/IntegrationController'
+import { CosumersReportsController } from '../controllers/company/consumersReports/CosumersReportsController'
 import { RecognizeSalesController } from '../controllers/company/recognizeSales/RecognizeSalesController'
 
 const auth = new AuthCompanyController()
@@ -69,6 +70,7 @@ const extractController = new ExtractController()
 const birthdayNotificationController = new BirthdayNotificationController()
 const storeOrderController = new StoreOrderController()
 const integrationController = new IntegrationController()
+const cosumersReportsController = new CosumersReportsController()
 
 const recognizeSalesController = new RecognizeSalesController()
 
@@ -263,6 +265,7 @@ routes.get('/extract/paginated', extractController.paginated)
 
 routes.get('/integrations/type', integrationController.getIntegrationType)
 
+routes.get('/consumers/report', cosumersReportsController.index)
 routes.get(
   '/recognize-sales/find',
   recognizeSalesController.findUnrecognizedSales,
