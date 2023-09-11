@@ -16,20 +16,17 @@ enum WithdrawOrderStatusEnum {
 }
 
 export function WithdrawOrderItem(props: WithdrawOrderItemProps) {
-  const { data, referenceDate, type } = props
+  const { data, referenceDate } = props
 
   return (
     <Tr color="gray.500" key={data.id}>
-      <Td px="2" fontSize="xs">
+      <Td px="2" fontSize="xs" w={200}>
         {new Date(referenceDate).toLocaleString()}
-      </Td>
-      <Td px="2" fontSize="xs">
-        <Text>{type}</Text>
       </Td>
       <Td px="2" fontSize="xs">
         <Text>Saque do saldo Takeback</Text>
       </Td>
-      <Td px="2" fontSize="xs">
+      <Td px="2" fontSize="xs" w={150}>
         {(() => {
           switch (data.status) {
             case WithdrawOrderStatusEnum.PAID:

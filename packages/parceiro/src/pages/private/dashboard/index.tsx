@@ -163,6 +163,7 @@ export const Dashboard: React.FC = () => {
                     }
                   ]
                 }}
+                tooltipFormat="decimal"
               />
             ) : (
               <S.NoDataLabel>Nenhum cashback</S.NoDataLabel>

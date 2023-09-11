@@ -36,6 +36,8 @@ import { LogoChangeRequest } from '../pages/private/logoChangeRequest'
 import { TakebackPayments } from '../pages/private/takebackPayments'
 import { StoreOrders } from '../pages/private/store/StoreOrders'
 import { Extract } from '../pages/private/extract'
+import { ConsumerProfile } from '../pages/private/consumerProfile'
+import { RecognizeSales } from '../pages/private/recognizeSales'
 
 interface Props {
   children: JSX.Element
@@ -294,6 +296,22 @@ const Navigation: React.FC = () => {
         element={
           <PrivateRoute>
             <Extract />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/reconhecer-cashback"
+        element={
+          <PrivateRoute>
+            <RecognizeSales />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/cliente/perfil"
+        element={
+          <PrivateRoute>
+            <ConsumerProfile />
           </PrivateRoute>
         }
       />

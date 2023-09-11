@@ -7,19 +7,44 @@ import {
   Image,
   BoxProps
 } from '@chakra-ui/react'
-import { Drawer } from '../drawer'
+import { Drawer, Page } from '../drawer'
 
 import logoHorizontal from '../../../assets/logos/logoTakebackHorizontal.png'
 import { AuthContext } from '../../../contexts/AuthContext'
 import { managerNav } from '../drawer/managerNav'
 import { cashierNav } from '../drawer/cashierrNav'
+import { IconType } from 'react-icons'
+
+export interface Nav {
+  id: number
+  inactiveIcon: IconType
+  activeIcon: IconType
+  label: string
+  isActive: boolean
+  to: string
+  hasDotKey?: string
+  pages?: Page[]
+  isOpened?: boolean
+  accessChecker?: {
+    checkAccessClientReport: boolean
+  }
+}
 
 interface SidebarProps extends BoxProps {
   onClose: () => void
 }
 
 export function SidebarContent({ onClose, ...rest }: SidebarProps) {
-  const { isManager } = useContext(AuthContext)
+  const { isManager, canAccessClientReport } = useContext(AuthContext)
+
+  const navData = isManager ? managerNav : cashierNav
+
+  const navDataFiltred = navData.filter(data => {
+    if (data.accessChecker?.checkAccessClientReport && !canAccessClientReport) {
+      return false
+    }
+    return true
+  })
 
   return (
     <Box
@@ -38,7 +63,7 @@ export function SidebarContent({ onClose, ...rest }: SidebarProps) {
         <Image src={logoHorizontal} w="60" />
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
-      <Drawer navData={isManager ? managerNav : cashierNav} />
+      <Drawer navData={navDataFiltred} />
     </Box>
   )
 }

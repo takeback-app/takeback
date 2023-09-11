@@ -1,9 +1,10 @@
 import { Request, Response } from 'express'
+import { DateTime } from 'luxon'
 import { GetCompanyExtractUseCase } from '../../../useCases/extract/company/GetCompanyExtractUseCase'
 
 export class ExtractController {
   async index(request: Request, response: Response) {
-    const { id: companyId } = request['tokenPayload']
+    const { companyId } = request['tokenPayload']
 
     const useCase = new GetCompanyExtractUseCase(companyId)
 
@@ -13,20 +14,39 @@ export class ExtractController {
   }
 
   async paginated(request: Request, response: Response) {
-    const { page } = request.query
+    const { month, year } = request.query
 
-    const { id: companyId } = request['tokenPayload']
+    const { companyId } = request['tokenPayload']
 
-    const pageNumber = Number(page) || 1
+    const parsedDate = DateTime.fromObject({
+      year: Number(year),
+      month: Number(month) + 1,
+      day: 1,
+    })
 
-    const useCase = new GetCompanyExtractUseCase(companyId, pageNumber)
+    const useCase = new GetCompanyExtractUseCase(companyId, parsedDate)
 
     const data = await useCase.execute()
-    const monthName = useCase.getMonthName()
+
+    const totalizer = await useCase.getTotalizer()
+
+    const monthName = parsedDate.setLocale('pt-br').toFormat('MMMM - yyyy')
+    const parsedMonthName = monthName[0].toUpperCase() + monthName.slice(1)
 
     return response.json({
-      title: monthName,
+      title: parsedMonthName,
       data,
+      totalizer,
     })
+  }
+
+  async filterPeriod(request: Request, response: Response) {
+    const { companyId } = request['tokenPayload']
+
+    const useCase = new GetCompanyExtractUseCase(companyId)
+
+    const filter = await useCase.getFilterPeriod()
+
+    return response.json(filter)
   }
 }

@@ -51,6 +51,7 @@
     "brazilian-values": "^0.12.0",
     "chakra-react-select": "^4.6.0",
     "chart.js": "^3.6.2",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "downshift": "^7.4.1",
     "framer-motion": "^9.0.1",
     "moment": "^2.29.3",

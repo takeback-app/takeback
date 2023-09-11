@@ -8,6 +8,7 @@ interface Props {
 export const Container = styled.div<Props>`
   width: 99%;
   height: 100%;
+  min-height: 460px;
   display: flex;
   flex-direction: column;
   border-radius: 6px;
@@ -39,7 +40,7 @@ export const Header = styled.div<Props>`
 `
 export const Main = styled.div`
   width: 100%;
-  height: 90%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -34,6 +34,8 @@ import { CompanyPaymentMethodController } from '../controllers/company/CompanyPa
 import { StoreOrderController } from '../controllers/company/store/StoreOrderController'
 import { ExtractController } from '../controllers/company/extract/ExtractController'
 import { IntegrationController } from '../controllers/company/IntegrationController'
+import { CosumersReportsController } from '../controllers/company/consumersReports/CosumersReportsController'
+import { RecognizeSalesController } from '../controllers/company/recognizeSales/RecognizeSalesController'
 
 const auth = new AuthCompanyController()
 const reports = new ReportsController()
@@ -68,6 +70,9 @@ const extractController = new ExtractController()
 const birthdayNotificationController = new BirthdayNotificationController()
 const storeOrderController = new StoreOrderController()
 const integrationController = new IntegrationController()
+const cosumersReportsController = new CosumersReportsController()
+
+const recognizeSalesController = new RecognizeSalesController()
 
 const fileController = new FileController()
 
@@ -254,9 +259,20 @@ routes.put(
 routes.get('/store/orders', storeOrderController.index)
 routes.put('/store/orders/:id', storeOrderController.update)
 
+routes.get('/extract/filter-period', extractController.filterPeriod)
 routes.get('/extract', extractController.index)
 routes.get('/extract/paginated', extractController.paginated)
 
 routes.get('/integrations/type', integrationController.getIntegrationType)
+
+routes.get('/consumers/report', cosumersReportsController.index)
+routes.get(
+  '/recognize-sales/find',
+  recognizeSalesController.findUnrecognizedSales,
+)
+routes.put(
+  '/recognize-sales/recognize',
+  recognizeSalesController.recognizeSales,
+)
 
 export default routes

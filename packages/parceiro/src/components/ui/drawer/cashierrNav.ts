@@ -3,11 +3,14 @@ import {
   // BsCashCoin,
   BsFillPiggyBankFill
 } from 'react-icons/bs'
-import { FaShoppingBag } from 'react-icons/fa'
+import { FaRegBookmark, FaShoppingBag } from 'react-icons/fa'
 import { IoCart, IoCartOutline } from 'react-icons/io5'
 import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
+import { Nav } from '../layout/SidebarContent'
 
-export const cashierNav = [
+// accessChecker habilita a checagem, se canAccessClientReport a sidebar só vai exibir essa opção caso a company tenha acesso aos relatórios do cliente
+
+export const cashierNav: Nav[] = [
   {
     id: 1,
     label: 'Lançamento Manual',
@@ -15,6 +18,14 @@ export const cashierNav = [
     inactiveIcon: BsFillPiggyBankFill,
     isActive: true,
     to: '/caixa'
+  },
+  {
+    id: 5,
+    label: 'Reconhecer Cashback',
+    activeIcon: FaRegBookmark,
+    inactiveIcon: FaRegBookmark,
+    isActive: false,
+    to: '/reconhecer-cashback'
   },
   // {
   //   id: 2,
@@ -26,14 +37,6 @@ export const cashierNav = [
   //   to: '/solicitações/pagamento'
   // },
   {
-    id: 2,
-    label: 'Retirada de Produtos',
-    activeIcon: FaShoppingBag,
-    inactiveIcon: FaShoppingBag,
-    isActive: false,
-    to: '/retirada-ofertas'
-  },
-  {
     id: 3,
     label: 'Autorizar Cashback',
     activeIcon: IoCart,
@@ -41,6 +44,14 @@ export const cashierNav = [
     hasDotKey: 'cashbackRequest',
     isActive: false,
     to: '/solicitações/cashback'
+  },
+  {
+    id: 2,
+    label: 'Retirada de Produtos',
+    activeIcon: FaShoppingBag,
+    inactiveIcon: FaShoppingBag,
+    isActive: false,
+    to: '/retirada-ofertas'
   },
   {
     id: 4,

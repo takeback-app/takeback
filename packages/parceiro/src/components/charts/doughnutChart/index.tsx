@@ -1,8 +1,9 @@
 import React from 'react'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+import ChartDataLabels from 'chartjs-plugin-datalabels'
 import { Doughnut } from 'react-chartjs-2'
 
-ChartJS.register(ArcElement, Tooltip, Legend)
+ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels)
 
 export const data = {
   labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
@@ -46,17 +47,51 @@ interface DataProps {
 
 interface Props {
   data: DataProps
+  tooltipFormat: 'decimal' | 'percent'
+  activeDataLabels?: boolean
+  aspectRatio?: number
 }
 
-export const DoughnutChart: React.FC<Props> = ({ data }) => (
+export const DoughnutChart: React.FC<Props> = ({
+  data,
+  tooltipFormat,
+  activeDataLabels = false,
+  aspectRatio
+}) => (
   <Doughnut
-    width="300"
-    height="300"
     options={{
       responsive: true,
+      aspectRatio,
       plugins: {
+        datalabels: {
+          display: activeDataLabels,
+          formatter: function (value) {
+            return Math.round(value * 100) + '%'
+          },
+          labels: {
+            title: {
+              font: {
+                weight: 'bold',
+                size: 16
+              }
+            }
+          }
+        },
         legend: {
           position: 'bottom'
+        },
+        tooltip: {
+          enabled: true,
+          callbacks: {
+            label(tooltipItem) {
+              if (tooltipFormat === 'percent') {
+                const value = tooltipItem.raw as number
+                const formatedNumber = value * 100
+                return `${tooltipItem.label} - ${formatedNumber.toFixed(2)}%`
+              }
+              return `${tooltipItem.label} - ${tooltipItem.raw}`
+            }
+          }
         }
       }
     }}

@@ -207,12 +207,8 @@ export class FinancialReport extends BaseReportWithTotalizer<
     const storeOrdersQuery = db
       .select(
         'companies_address.cityId',
-        db.raw(
-          'sum(store_orders."value" * store_orders."quantity") as "sellValue"',
-        ),
-        db.raw(
-          'sum(store_orders."companyCreditValue" * store_orders."quantity") as "buyValue"',
-        ),
+        db.raw('sum(store_orders."value") as "sellValue"'),
+        db.raw('sum(store_orders."companyCreditValue") as "buyValue"'),
       )
       .from('store_orders')
       .join(
