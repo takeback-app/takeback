@@ -31,7 +31,8 @@ import {
   useDisclosure,
   useToast,
   Heading,
-  Text
+  Text,
+  Badge
 } from '@chakra-ui/react'
 import { chakraToastOptions } from '../../../components/ui/toast'
 import { ChakraInput } from '../../../components/inputs/ChakraInput'
@@ -62,6 +63,7 @@ interface TransactionProps {
   companyUser: {
     name: string
   }
+  qrCodeId: string | null
 }
 
 interface TransactionPaymentMethod {
@@ -95,6 +97,7 @@ export const Cashback: React.FC = () => {
   const [total, setTotal] = useState(0)
   const [allChecked, setAllChecked] = useState(false)
   const [hasIntegration, setHasIntegration] = useState(false)
+  const [useQRCode, setUseQRCode] = useState(false)
 
   const [modalCancelVisible, setModalCancelVisible] = useState(false)
   const [modalPaymentVisible, setModalPaymentVisible] = useState(false)
@@ -320,6 +323,12 @@ export const Cashback: React.FC = () => {
     })
   }
 
+  const getUseQRCode = () => {
+    API.get('/company/integrations/type').then(response => {
+      setUseQRCode(response.data.integrationType === 'QRCODE')
+    })
+  }
+
   const getCompanyData = () => {
     API.get('/company/data/find').then(response => {
       setCompanyData(response.data)
@@ -351,6 +360,7 @@ export const Cashback: React.FC = () => {
   useEffect(() => {
     cashbacksSelected = []
     findCashbacks()
+    getUseQRCode()
     getCompanyData()
     getPaymentOrderMethods()
 
@@ -403,6 +413,9 @@ export const Cashback: React.FC = () => {
                       <S.Th>Cliente</S.Th>
                       <S.Th>Vendedor</S.Th>
                       {hasIntegration && <S.Th>Validação por NFC-e</S.Th>}
+                      {!hasIntegration && useQRCode && (
+                        <S.Th>Solicitado via QRCode</S.Th>
+                      )}
                       <S.Th>Valor da Compra</S.Th>
                       <S.Th>Método de Pagamento</S.Th>
                       <S.Th>Cashback</S.Th>
@@ -440,6 +453,15 @@ export const Cashback: React.FC = () => {
                             <ValidationNfce
                               nfceValidationStatus={item.nfceValidationStatus}
                             />
+                          </S.Td>
+                        )}
+                        {!hasIntegration && useQRCode && (
+                          <S.Td>
+                            <Badge
+                              colorScheme={item.qrCodeId ? 'green' : 'yellow'}
+                            >
+                              {item.qrCodeId ? 'Sim' : 'Não'}
+                            </Badge>
                           </S.Td>
                         )}
                         <S.Td>
