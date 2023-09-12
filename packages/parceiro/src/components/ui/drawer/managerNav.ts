@@ -78,11 +78,11 @@ export const managerNav: Nav[] = [
   },
   {
     id: 11,
-    label: 'Reconhecer Cashback',
+    label: 'Receber Cashback',
     activeIcon: FaRegBookmark,
     inactiveIcon: FaRegBookmark,
     isActive: false,
-    to: '/reconhecer-cashback'
+    to: '/receber-cashback'
   },
   {
     id: 4,
@@ -107,17 +107,6 @@ export const managerNav: Nav[] = [
     inactiveIcon: IoNewspaperOutline,
     isActive: false,
     to: '/extrato'
-  },
-  {
-    id: 12,
-    label: 'Perfil do Cliente',
-    activeIcon: IoNewspaperOutline,
-    inactiveIcon: IoNewspaperOutline,
-    isActive: false,
-    to: '/cliente/perfil',
-    accessChecker: {
-      checkAccessClientReport: true
-    }
   },
   {
     id: 6,
@@ -231,6 +220,17 @@ export const managerNav: Nav[] = [
         isActive: false,
         to: '/relatorios/cashback',
         userBlocked: 0
+      },
+      {
+        id: 3,
+        label: 'Perfil do Cliente',
+        activeIcon: IoNewspaperOutline,
+        inactiveIcon: IoNewspaperOutline,
+        isActive: false,
+        to: '/cliente/perfil',
+        accessChecker: {
+          checkAccessClientReport: true
+        }
       }
     ]
   },

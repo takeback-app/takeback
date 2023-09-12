@@ -21,11 +21,11 @@ export const cashierNav: Nav[] = [
   },
   {
     id: 5,
-    label: 'Reconhecer Cashback',
+    label: 'Receber Cashback',
     activeIcon: FaRegBookmark,
     inactiveIcon: FaRegBookmark,
     isActive: false,
-    to: '/reconhecer-cashback'
+    to: '/receber-cashback'
   },
   // {
   //   id: 2,

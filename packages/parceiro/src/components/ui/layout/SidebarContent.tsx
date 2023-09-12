@@ -43,6 +43,12 @@ export function SidebarContent({ onClose, ...rest }: SidebarProps) {
     if (data.accessChecker?.checkAccessClientReport && !canAccessClientReport) {
       return false
     }
+    if (!canAccessClientReport && data.pages?.length) {
+      console.log(canAccessClientReport)
+      data.pages = data.pages.filter(
+        page => !page.accessChecker?.checkAccessClientReport
+      )
+    }
     return true
   })
 
