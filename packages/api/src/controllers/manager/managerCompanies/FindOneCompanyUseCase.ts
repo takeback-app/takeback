@@ -29,6 +29,7 @@ class FindOneCompanyUseCase {
         'company.contactPhone',
         'company.representativeId',
         'company.logoUrl',
+        'company.useQRCode',
       ])
       .addSelect([
         'industry.id',

@@ -108,7 +108,8 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
           feeDescription: response.data.company.plan_description,
           feeValue: response.data.company.plan_value,
           status: response.data.company.status_description,
-          contactPhone: response.data.company.company_contactPhone
+          contactPhone: response.data.company.company_contactPhone,
+          useQRCode: response.data.company.company_useQRCode
         })
 
         setRegisteredNumber(response.data.company.company_registeredNumber)
@@ -137,7 +138,8 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
       number: data.number,
       longitude: data.longitude,
       latitude: data.latitude,
-      contactPhone: data.contactPhone
+      contactPhone: data.contactPhone,
+      useQRCode: data.useQRCode
     })
       .then(response => {
         notifySuccess(response.data.message)
@@ -282,6 +284,20 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
                 options={industries}
                 label="Ramo de atividade"
                 name="industry"
+              />
+              <SelectInputWithBorder
+                options={[
+                  {
+                    id: 'true',
+                    name: 'Ativo'
+                  },
+                  {
+                    id: 'false',
+                    name: 'Inativo'
+                  }
+                ]}
+                label="Integração QRCode"
+                name="useQRCode"
               />
             </S.InfoWrapper>
 

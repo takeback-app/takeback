@@ -179,4 +179,9 @@ export class Companies {
 
   @UpdateDateColumn()
   updatedAt: Date
+
+  @Column({
+    default: false,
+  })
+  useQRCode: boolean
 }

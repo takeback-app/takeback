@@ -21,6 +21,7 @@ interface UpdateProps {
   longitude?: string
   latitude?: string
   contactPhone: string
+  useQRCode: boolean
 }
 
 class UpdateCompanyUseCase {
@@ -78,6 +79,7 @@ class UpdateCompanyUseCase {
         corporateName: props.corporateName,
         phone: props.phone.replace(/[^\d]/g, ''),
         contactPhone: props.contactPhone.replace(/[^\d]/g, ''),
+        useQRCode: props.useQRCode,
       },
     )
 
