@@ -52,6 +52,7 @@ export interface StoreOrderData {
 export interface TransactionData {
   id: number
   totalAmount: number
+  consumerFullName: string
 }
 
 export interface WithdrawOrderData {
@@ -144,6 +145,7 @@ export function Extract() {
               case ExtractTypes.PAYMENT_ORDERS:
                 return (
                   <PaymentOrdersItem
+                    key={item.id}
                     data={item?.data}
                     referenceDate={item?.referenceDate}
                     type={ExtractDescriptionTypes[item.type]}
@@ -152,6 +154,7 @@ export function Extract() {
               case ExtractTypes.MONTHLY_PAYMENTS:
                 return (
                   <MonthlyPaymentItem
+                    key={item.id}
                     data={item?.data}
                     referenceDate={item?.referenceDate}
                     type={ExtractDescriptionTypes[item.type]}
@@ -160,6 +163,7 @@ export function Extract() {
               case ExtractTypes.STORE_ORDER:
                 return (
                   <StoreOrderItem
+                    key={item.id}
                     data={item?.data}
                     referenceDate={item?.referenceDate}
                     type={ExtractDescriptionTypes[item.type]}
@@ -168,6 +172,7 @@ export function Extract() {
               case ExtractTypes.TRANSACTION:
                 return (
                   <TransactionItem
+                    key={item.id}
                     data={item?.data}
                     referenceDate={item?.referenceDate}
                     type={ExtractDescriptionTypes[item.type]}
@@ -176,6 +181,7 @@ export function Extract() {
               case ExtractTypes.WITHDRAW_ORDER:
                 return (
                   <WithdrawOrderItem
+                    key={item.id}
                     data={item?.data}
                     referenceDate={item?.referenceDate}
                     type={ExtractDescriptionTypes[item.type]}
@@ -219,7 +225,7 @@ export function Extract() {
     }
     return (
       <Text fontWeight="semibold" color="red.600">
-        -{currencyFormat(balance)}
+        {currencyFormat(balance)}
       </Text>
     )
   }

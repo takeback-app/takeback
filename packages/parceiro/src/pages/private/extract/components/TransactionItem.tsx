@@ -18,7 +18,7 @@ export function TransactionItem(props: TransactionItemProps) {
         {new Date(referenceDate).toLocaleString()}
       </Td>
       <Td px="2" fontSize="xs">
-        <Text>Recebimento Takeback</Text>
+        <Text>Recebimento Takeback ({data.consumerFullName})</Text>
       </Td>
       <Td px="2" fontSize="xs" w={150}>
         <Text fontWeight="semibold" color="green.600">
