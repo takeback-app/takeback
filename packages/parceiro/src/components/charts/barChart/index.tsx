@@ -51,6 +51,11 @@ export const BarChart: React.FC<React.PropsWithChildren<Props>> = ({
     options={{
       responsive: true,
       maintainAspectRatio: false,
+      layout: {
+        padding: {
+          top: 30
+        }
+      },
       plugins: {
         datalabels: {
           formatter: function (value) {
@@ -60,9 +65,8 @@ export const BarChart: React.FC<React.PropsWithChildren<Props>> = ({
             }
             return value
           },
-          clamp: true,
           anchor: 'end',
-          align: 'bottom',
+          align: 'top',
           labels: {
             title: {
               font: {
