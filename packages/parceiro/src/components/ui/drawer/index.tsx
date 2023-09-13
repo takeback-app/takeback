@@ -18,6 +18,9 @@ export interface Page {
   isActive: boolean
   to: string
   userBlocked?: number
+  accessChecker?: {
+    checkAccessClientReport: boolean
+  }
 }
 
 interface Props {

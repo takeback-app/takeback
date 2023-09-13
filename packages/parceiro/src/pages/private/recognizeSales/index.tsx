@@ -12,27 +12,21 @@ import {
   Tooltip,
   ButtonGroup,
   useDisclosure,
-  Button,
-  Modal,
-  ModalOverlay,
-  ModalCloseButton,
-  ModalHeader,
-  ModalContent,
-  ModalBody,
-  ModalFooter
+  Button
 } from '@chakra-ui/react'
 import { Layout } from '../../../components/ui/layout'
 import { AppTable } from '../../../components/table'
 import { IoFilterSharp } from 'react-icons/io5'
 import useSWR, { mutate } from 'swr'
 import Loader from 'react-spinners/PulseLoader'
-import { FilterDrawer } from './components/FilterDrawer'
-import { useClientReport } from './components/state'
+import { FilterDrawer } from './components/filter/FilterDrawer'
+import { useClientReport } from './components/filter/state'
 import { currencyFormat } from '../../../utils/currencyFormat'
 import { BlockModal } from '../../../components/modals/BlockModal'
 import { API } from '../../../services/API'
 import { toast } from '../../../components/ui/toast'
 import { AxiosError } from 'axios'
+import { ConfirmationModal } from './components/confirmationModal/ConfirmationModal'
 
 export interface TransactionData {
   id: number
@@ -49,11 +43,12 @@ export interface TransactionData {
   createdAt: Date
 }
 
+export type ReturnApi = [boolean, { message: string }]
+
 export function RecognizeSales() {
   const { firstDate, secondDate, order, orderBy } = useClientReport()
   const filterModal = useDisclosure()
   const confirmModal = useDisclosure()
-  const [buttonLoading, setButtonLoading] = useState(false)
 
   const filter = useMemo(
     () => ({
@@ -83,7 +78,6 @@ export function RecognizeSales() {
 
   async function handleRecognizeSales() {
     confirmModal.onClose()
-    setButtonLoading(true)
 
     try {
       const response = await API.put('/company/recognize-sales/recognize', {
@@ -96,13 +90,15 @@ export function RecognizeSales() {
       })
       mutate(['company/recognize-sales/find', filter])
       setCheckedItems([])
-      setButtonLoading(false)
     } catch (err) {
       const error = err as AxiosError
 
+      const message =
+        error.response?.data.message || 'Erro interno. Contate um administrador'
+
       toast({
         title: 'Ops :(',
-        description: error?.response?.data.message,
+        description: message,
         type: 'error'
       })
     }
@@ -114,7 +110,7 @@ export function RecognizeSales() {
 
   if (error) {
     return (
-      <Layout title="Reconhecer Cashback">
+      <Layout title="Receber Cashback">
         <BlockModal
           isOpen={true}
           hasBlur
@@ -127,7 +123,7 @@ export function RecognizeSales() {
 
   if (!transactions || isLoading) {
     return (
-      <Layout title="Reconhecer Cashback">
+      <Layout title="Receber Cashback">
         <Flex w="full" h="70vh" align="center" justify="center">
           <Loader color="rgba(54, 162, 235, 1)" />
         </Flex>
@@ -136,7 +132,7 @@ export function RecognizeSales() {
   }
 
   return (
-    <Layout title="Reconhecer Cashback">
+    <Layout title="Receber Cashback">
       <Box p={4} overflow="hidden">
         <Flex align="center" justify="space-between">
           <ButtonGroup>
@@ -152,7 +148,7 @@ export function RecognizeSales() {
             </Tooltip>
           </ButtonGroup>
           <Button colorScheme="green" onClick={confirmModal.onOpen}>
-            Reconhecer Cashback
+            Receber Cashback
           </Button>
         </Flex>
         <AppTable
@@ -222,32 +218,11 @@ export function RecognizeSales() {
           </Tbody>
         </AppTable>
       </Box>
-      <Modal isOpen={confirmModal.isOpen} onClose={confirmModal.onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Confirme para prosseguir</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>Tem certeza que deseja reconhecer essas vendas?</ModalBody>
-
-          <ModalFooter>
-            <Button
-              colorScheme="blue"
-              mr={3}
-              onClick={confirmModal.onClose}
-              disabled={buttonLoading}
-            >
-              Cancelar
-            </Button>
-            <Button
-              colorScheme="green"
-              onClick={handleRecognizeSales}
-              disabled={buttonLoading}
-            >
-              Confirmar
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.onClose}
+        handleRecognizeSales={handleRecognizeSales}
+      />
       <FilterDrawer isOpen={filterModal.isOpen} onClose={filterModal.onClose} />
     </Layout>
   )

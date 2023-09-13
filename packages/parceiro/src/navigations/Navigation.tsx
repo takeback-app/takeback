@@ -33,7 +33,6 @@ import { Notifications } from '../pages/private/createNotifications'
 import { NotificationCreate } from '../pages/private/createNotifications/createNotification'
 import { BirthdayNotificationCreate } from '../pages/private/birthdayNotification'
 import { LogoChangeRequest } from '../pages/private/logoChangeRequest'
-import { TakebackPayments } from '../pages/private/takebackPayments'
 import { StoreOrders } from '../pages/private/store/StoreOrders'
 import { Extract } from '../pages/private/extract'
 import { ConsumerProfile } from '../pages/private/consumerProfile'
@@ -300,7 +299,7 @@ const Navigation: React.FC = () => {
         }
       />
       <Route
-        path="/reconhecer-cashback"
+        path="/receber-cashback"
         element={
           <PrivateRoute>
             <RecognizeSales />

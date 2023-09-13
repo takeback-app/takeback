@@ -27,6 +27,7 @@ interface StoreOrderData {
 interface TransactionData {
   id: number
   totalAmount: number
+  consumerFullName: string
 }
 
 interface WithdrawOrderData {
@@ -365,6 +366,11 @@ export class GetCompanyExtractUseCase {
         id: true,
         totalAmount: true,
         createdAt: true,
+        consumer: {
+          select: {
+            fullName: true,
+          },
+        },
       },
     })
 
@@ -374,6 +380,7 @@ export class GetCompanyExtractUseCase {
       data: {
         id: t.id,
         totalAmount: +t.totalAmount,
+        consumerFullName: t.consumer.fullName,
       },
       referenceDate: t.createdAt,
     }))
@@ -394,6 +401,11 @@ export class GetCompanyExtractUseCase {
         id: true,
         amountPayWithTakebackBalance: true,
         createdAt: true,
+        consumer: {
+          select: {
+            fullName: true,
+          },
+        },
       },
     })
 
@@ -403,6 +415,7 @@ export class GetCompanyExtractUseCase {
       data: {
         id: t.id,
         totalAmount: +t.amountPayWithTakebackBalance,
+        consumerFullName: t.consumer.fullName,
       },
       referenceDate: t.createdAt,
     }))
