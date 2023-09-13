@@ -55,7 +55,7 @@ export class QRCodeUseCase {
         'dd/MM/yyyy HH:mm:ss',
       ).setZone('America/Sao_Paulo')
 
-      if (issuedAt.diffNow().days > 0) {
+      if (issuedAt.diffNow('day').days >= 1) {
         await prisma.qRCode.update({
           where: { id: this.qrCode.id },
           data: {
@@ -89,9 +89,11 @@ export class QRCodeUseCase {
           return acc
         }, [])
 
+      console.log(nfcePayments)
+
       const company = await prisma.company.findFirst({
         select: { id: true },
-        where: { registeredNumber: cnpj },
+        where: { registeredNumber: cnpj, id: this.qrCode.companyId },
       })
 
       if (!company) {

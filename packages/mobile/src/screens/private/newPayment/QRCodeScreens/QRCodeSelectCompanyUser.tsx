@@ -40,7 +40,8 @@ export function QRCodeSelectCompanyUser({ navigation }) {
 
     const [isOk, response] = await createQRCodeLink({
       link: qrCodeLink,
-      companyUserId: companyUserId || undefined
+      companyUserId: companyUserId || undefined,
+      companyId: company.id
     })
 
     toast.show({
@@ -71,7 +72,7 @@ export function QRCodeSelectCompanyUser({ navigation }) {
             Quem foi o funcionário da empresa que te atendeu?
           </Heading>
           <Text color="gray.600" fontSize="md" mt="3">
-            Selecione na lista o funcionário
+            Funcionários de {company.fantasyName.toUpperCase()}
           </Text>
         </Flex>
 

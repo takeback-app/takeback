@@ -282,6 +282,7 @@ export async function deleteReferral(id: string): Promise<ReturnApi> {
 export async function createQRCodeLink(data: {
   link: string
   companyUserId?: string
+  companyId: string
 }): Promise<ReturnApi> {
   try {
     const response = await API.post('costumer/nfce/qrcode', data)

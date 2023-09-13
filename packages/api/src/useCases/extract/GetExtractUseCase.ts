@@ -1,4 +1,9 @@
-import { BonusType, SolicitationStatus, SolicitationType } from '@prisma/client'
+import {
+  BonusType,
+  QRCodeType,
+  SolicitationStatus,
+  SolicitationType,
+} from '@prisma/client'
 import { DateTime } from 'luxon'
 import { randomUUID } from 'crypto'
 import { prisma } from '../../prisma'
@@ -48,6 +53,13 @@ interface StoreOrderData {
   productName: string
 }
 
+interface QRCodeData {
+  id: string
+  description: string
+  companyName: string
+  type: QRCodeType
+}
+
 type ExtractItemType =
   | { type: 'TRANSACTION'; data: TransactionData }
   | { type: 'TRANSFER'; data: TransferData }
@@ -55,6 +67,7 @@ type ExtractItemType =
   | { type: 'BONUS'; data: BonusData }
   | { type: 'SOLICITATION'; data: SolicitationData }
   | { type: 'STORE_ORDER'; data: StoreOrderData }
+  | { type: 'QRCODE'; data: QRCodeData }
 
 type ExtractItem = ExtractItemType & {
   id: string
@@ -102,6 +115,7 @@ export class GetExtractUseCase {
     const bonuses = await this.bonuses()
     const solicitations = await this.solicitations()
     const storeOrders = await this.storeOrders()
+    const qrCodes = await this.qrCodes()
 
     return transactions
       .concat(
@@ -110,6 +124,7 @@ export class GetExtractUseCase {
         bonuses,
         solicitations,
         storeOrders,
+        qrCodes,
       )
       .sort((a, b) => b.referenceDate.getTime() - a.referenceDate.getTime())
   }
@@ -286,6 +301,37 @@ export class GetExtractUseCase {
           productName: s.product.name,
         },
         referenceDate: s.createdAt,
+      }
+    })
+  }
+
+  async qrCodes(): Promise<ExtractItem[]> {
+    const qRCodes = await prisma.qRCode.findMany({
+      where: {
+        consumerId: this.consumerId,
+        createdAt: { gte: this.startPageDate, lte: this.endPageDate },
+        type: { not: 'VALIDATED' },
+      },
+      select: {
+        id: true,
+        description: true,
+        type: true,
+        createdAt: true,
+        company: { select: { fantasyName: true } },
+      },
+    })
+
+    return qRCodes.map((q) => {
+      return {
+        id: q.id,
+        type: 'QRCODE',
+        data: {
+          id: q.id,
+          description: q.description,
+          companyName: q.company.fantasyName,
+          type: q.type,
+        },
+        referenceDate: q.createdAt,
       }
     })
   }

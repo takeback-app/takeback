@@ -29,6 +29,8 @@ async function main() {
   }
 
   bar.stop()
+
+  return process.exit(0)
 }
 
 function cancelQRCodes() {

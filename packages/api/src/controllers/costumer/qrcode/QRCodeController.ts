@@ -6,7 +6,10 @@ export class QRCodeController {
   async store(request: Request, response: Response) {
     const { id: consumerId } = request['tokenPayload']
 
-    const { link, companyUserId } = request.body as Record<string, string>
+    const { link, companyUserId, companyId } = request.body as Record<
+      string,
+      string
+    >
 
     const alreadyExistQRCode = await prisma.qRCode.findFirst({
       where: { link },
@@ -23,7 +26,7 @@ export class QRCodeController {
     }
 
     await prisma.qRCode.create({
-      data: { link, consumerId, companyUserId },
+      data: { link, consumerId, companyUserId, companyId },
     })
 
     return response

@@ -43,6 +43,11 @@ export enum SolicitationType {
   PAYMENT = 'PAYMENT'
 }
 
+export enum QRCodeType {
+  WAITING = 'WAITING',
+  NOT_VALIDATED = 'NOT_VALIDATED'
+}
+
 export interface SolicitationData {
   id: string
   amount: number
@@ -60,6 +65,13 @@ export interface StoreOrderData {
   productName: string
 }
 
+export interface QRCodeData {
+  id: string
+  description: string
+  companyName: string
+  type: 'WAITING' | 'NOT_VALIDATED'
+}
+
 type ExtractItemType =
   | { type: 'TRANSACTION'; data: TransactionData }
   | { type: 'TRANSFER'; data: TransferData }
@@ -67,6 +79,7 @@ type ExtractItemType =
   | { type: 'BONUS'; data: BonusData }
   | { type: 'SOLICITATION'; data: SolicitationData }
   | { type: 'STORE_ORDER'; data: StoreOrderData }
+  | { type: 'QRCODE'; data: QRCodeData }
 
 export enum ExtractType {
   TRANSACTION = 'TRANSACTION',
@@ -74,6 +87,7 @@ export enum ExtractType {
   BALANCE_EXPIRATION = 'BALANCE_EXPIRATION',
   BONUS = 'BONUS',
   SOLICITATION = 'SOLICITATION',
+  QRCODE = 'QRCODE',
   STORE_ORDER = 'STORE_ORDER'
 }
 
