@@ -309,7 +309,7 @@ export function ConsumerProfile() {
                   }
                 ]
               }}
-              tooltipFormat="decimal"
+              tooltipFormat="percent"
               datalabels={true}
             />
           </LargeCard>
@@ -335,7 +335,7 @@ export function ConsumerProfile() {
                   }
                 ]
               }}
-              tooltipFormat="decimal"
+              tooltipFormat="percent"
               datalabels={true}
             />
           </LargeCard>

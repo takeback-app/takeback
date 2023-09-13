@@ -38,6 +38,26 @@ export class TimeRangeReportUseCase {
     const timeRange19_21 = await this.baseQuery(19, 21)
     const timeRange22_00 = await this.baseQuery(22, 0)
 
+    const totalCityTimeRange =
+      timeRange01_03.city +
+      timeRange04_06.city +
+      timeRange07_09.city +
+      timeRange10_12.city +
+      timeRange13_15.city +
+      timeRange16_18.city +
+      timeRange19_21.city +
+      timeRange22_00.city
+
+    const totalCompanyTimeRange =
+      timeRange01_03.company +
+      timeRange04_06.company +
+      timeRange07_09.company +
+      timeRange10_12.company +
+      timeRange13_15.company +
+      timeRange16_18.company +
+      timeRange19_21.company +
+      timeRange22_00.company
+
     const labels = [
       'Entre 01:00hrs e 03:59hrs',
       'Entre 04:00hrs e 06:59hrs',
@@ -53,27 +73,27 @@ export class TimeRangeReportUseCase {
       company: {
         labels,
         values: [
-          timeRange01_03.company,
-          timeRange04_06.company,
-          timeRange07_09.company,
-          timeRange10_12.company,
-          timeRange13_15.company,
-          timeRange16_18.company,
-          timeRange19_21.company,
-          timeRange22_00.company,
+          +(timeRange01_03.company / totalCompanyTimeRange).toFixed(4),
+          +(timeRange04_06.company / totalCompanyTimeRange).toFixed(4),
+          +(timeRange07_09.company / totalCompanyTimeRange).toFixed(4),
+          +(timeRange10_12.company / totalCompanyTimeRange).toFixed(4),
+          +(timeRange13_15.company / totalCompanyTimeRange).toFixed(4),
+          +(timeRange16_18.company / totalCompanyTimeRange).toFixed(4),
+          +(timeRange19_21.company / totalCompanyTimeRange).toFixed(4),
+          +(timeRange22_00.company / totalCompanyTimeRange).toFixed(4),
         ],
       },
       city: {
         labels,
         values: [
-          timeRange01_03.city,
-          timeRange04_06.city,
-          timeRange07_09.city,
-          timeRange10_12.city,
-          timeRange13_15.city,
-          timeRange16_18.city,
-          timeRange19_21.city,
-          timeRange22_00.city,
+          +(timeRange01_03.city / totalCompanyTimeRange).toFixed(4),
+          +(timeRange04_06.city / totalCompanyTimeRange).toFixed(4),
+          +(timeRange07_09.city / totalCompanyTimeRange).toFixed(4),
+          +(timeRange10_12.city / totalCompanyTimeRange).toFixed(4),
+          +(timeRange13_15.city / totalCompanyTimeRange).toFixed(4),
+          +(timeRange16_18.city / totalCompanyTimeRange).toFixed(4),
+          +(timeRange19_21.city / totalCompanyTimeRange).toFixed(4),
+          +(timeRange22_00.city / totalCompanyTimeRange).toFixed(4),
         ],
       },
     }

@@ -12,8 +12,8 @@ import {
   DrawerOverlay,
   Stack
 } from '@chakra-ui/react'
-import { ChakraInput } from '../../../../components/chakra/ChakraInput'
-import { ChakraSelect } from '../../cashRegister/components/ChakraSelect'
+import { ChakraInput } from '../../../../../components/chakra/ChakraInput'
+import { ChakraSelect } from '../../../cashRegister/components/ChakraSelect'
 import { Order, useClientReport } from './state'
 
 interface FilterDrawerProps {
