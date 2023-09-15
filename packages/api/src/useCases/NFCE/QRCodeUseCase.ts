@@ -55,7 +55,9 @@ export class QRCodeUseCase {
         'dd/MM/yyyy HH:mm:ss',
       ).setZone('America/Sao_Paulo')
 
-      if (issuedAt.diffNow('day').days >= 1) {
+      const diffNow = DateTime.now().diff(issuedAt).as('days')
+
+      if (diffNow >= 1) {
         await prisma.qRCode.update({
           where: { id: this.qrCode.id },
           data: {
