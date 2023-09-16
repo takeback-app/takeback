@@ -21,7 +21,7 @@ interface UpdateProps {
   longitude?: string
   latitude?: string
   contactPhone: string
-  useQRCode: boolean
+  useQRCode?: boolean
 }
 
 class UpdateCompanyUseCase {
