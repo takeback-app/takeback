@@ -9,6 +9,7 @@ import { DoughnutChart } from '../../../components/charts/doughnutChart'
 import * as S from './styles'
 import useSWR from 'swr'
 import { BarChart } from '../../../components/charts/barChart'
+import { currencyFormat } from '../../../utils/currencyFormat'
 
 interface GraphTypes {
   company: Graph
@@ -44,21 +45,19 @@ export function ConsumerProfile() {
       <S.Container>
         <S.SmallCardsWrapper>
           <SmallCard
-            title="Média de compra por cliente"
+            title="Compra média por cliente"
             label="Sua empresa"
-            description={Intl.NumberFormat('pt-BR', {
-              minimumFractionDigits: 2
-            }).format(graphData?.consumersAverage.company || 0)}
+            description={currencyFormat(
+              graphData?.consumersAverage.company || 0
+            )}
             icon={IoLogoUsd}
             color="#00BF78"
             loading={isLoading}
           />
           <SmallCard
-            title="Média de compra por cliente"
+            title="Compra média por cliente"
             label="Sua cidade"
-            description={Intl.NumberFormat('pt-BR', {
-              minimumFractionDigits: 2
-            }).format(graphData?.consumersAverage.city || 0)}
+            description={currencyFormat(graphData?.consumersAverage.city || 0)}
             icon={IoLogoUsd}
             color="#00BF78"
             loading={isLoading}
