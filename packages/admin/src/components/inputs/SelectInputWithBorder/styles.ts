@@ -32,6 +32,7 @@ export const Select = styled.select<Props>`
   font-family: 'Inter', sans-serif;
   font-size: 0.8rem;
   font-weight: 600;
+  background-color: transparent;
   color: ${props => (props.disabled ? PALLET.COLOR_10 : '#707070')};
 
   :hover {
@@ -46,6 +47,7 @@ export const Label = styled.label`
   font-weight: 600;
   font-family: 'Inter';
   color: #707070;
+  margin-block: 4px;
 
   @media (max-width: 450px) {
     font-size: 0.9rem;
