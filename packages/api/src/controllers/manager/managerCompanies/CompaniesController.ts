@@ -87,6 +87,7 @@ class CompaniesController {
       longitude: props.longitude,
       latitude: props.latitude,
       contactPhone: props.contactPhone,
+      useQRCode: props.useQRCode === 'true',
     })
 
     const companies = await find.execute({ companyId })

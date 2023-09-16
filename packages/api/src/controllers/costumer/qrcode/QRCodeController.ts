@@ -2,13 +2,16 @@ import { Request, Response } from 'express'
 import { prisma } from '../../../prisma'
 import { nfceLinks } from '../../../config/nfce-links'
 
-export class NfceQRCodeController {
+export class QRCodeController {
   async store(request: Request, response: Response) {
     const { id: consumerId } = request['tokenPayload']
 
-    const { link, companyUserId } = request.body as Record<string, string>
+    const { link, companyUserId, companyId } = request.body as Record<
+      string,
+      string
+    >
 
-    const alreadyExistQRCode = await prisma.nFCeQRCode.findFirst({
+    const alreadyExistQRCode = await prisma.qRCode.findFirst({
       where: { link },
     })
 
@@ -22,8 +25,8 @@ export class NfceQRCodeController {
       return response.status(400).json({ message: 'QRCode invalido' })
     }
 
-    await prisma.nFCeQRCode.create({
-      data: { link, consumerId, companyUserId },
+    await prisma.qRCode.create({
+      data: { link, consumerId, companyUserId, companyId },
     })
 
     return response

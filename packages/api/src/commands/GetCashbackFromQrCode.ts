@@ -1,10 +1,10 @@
 import 'dotenv/config'
 import { Presets, SingleBar } from 'cli-progress'
-import { NfceQRCode } from '../useCases/NFCE/NfceQRCode'
+import { QRCodeUseCase } from '../useCases/NFCE/QRCodeUseCase'
 import { prisma } from '../prisma'
 
 const PER_LOOP = 5
-const RETRIES_LIMIT = 6 * 2 // 2 horas
+const RETRIES_LIMIT = 6 * 24 // 24 horas
 
 // Comando executa a cada 10 minutos
 async function main() {
@@ -20,7 +20,7 @@ async function main() {
     const qrCodes = await getWaitingQRCodes(page)
 
     const promises = qrCodes.map((qrCode) =>
-      NfceQRCode.makeFromLink(qrCode).createNfce(),
+      QRCodeUseCase.makeFromLink(qrCode).createTransaction(),
     )
 
     await Promise.all(promises)
@@ -29,17 +29,23 @@ async function main() {
   }
 
   bar.stop()
+
+  return process.exit(0)
 }
 
 function cancelQRCodes() {
-  return prisma.nFCeQRCode.updateMany({
+  return prisma.qRCode.updateMany({
     where: { type: 'WAITING', retries: { gte: RETRIES_LIMIT } },
-    data: { type: 'NOT_VALIDATED' },
+    data: {
+      type: 'NOT_VALIDATED',
+      description:
+        'Cupom não identificado, solicitar lançamento manual da empresa',
+    },
   })
 }
 
 async function getLastPage() {
-  const total = await prisma.nFCeQRCode.count({
+  const total = await prisma.qRCode.count({
     where: { type: 'WAITING' },
   })
 
@@ -47,7 +53,7 @@ async function getLastPage() {
 }
 
 function getWaitingQRCodes(page: number) {
-  return prisma.nFCeQRCode.findMany({
+  return prisma.qRCode.findMany({
     where: { type: 'WAITING' },
     orderBy: { createdAt: 'asc' },
     skip: page * PER_LOOP,

@@ -30,7 +30,7 @@ import { MissingFieldController } from '../controllers/costumer/MissingFieldCont
 import { ReferralController } from '../controllers/costumer/ReferralController'
 import { StoreProductsController } from '../controllers/costumer/store/StoreProductsController'
 import { StoreOrderController } from '../controllers/costumer/store/StoreOrderController'
-import { NfceQRCodeController } from '../controllers/costumer/qrcode/NfceQRCodeController'
+import { QRCodeController } from '../controllers/costumer/qrcode/QRCodeController'
 import { IntegrationController } from '../controllers/costumer/IntegrationController'
 
 const costumerAuth = new ConstumerAuthenticationController()
@@ -52,7 +52,7 @@ const referralController = new ReferralController()
 
 const storeProductController = new StoreProductsController()
 const storeOrderController = new StoreOrderController()
-const nfceQRCodeController = new NfceQRCodeController()
+const qrCodeController = new QRCodeController()
 const integrationController = new IntegrationController()
 
 const routes = Router()
@@ -163,7 +163,7 @@ routes.get('/store/orders/:id', storeOrderController.show)
 routes.get('/store/orders/:id/withdrawal', storeOrderController.withdrawal)
 routes.post('/store/orders', storeOrderController.store)
 
-routes.post('/nfce/qrcode', nfceQRCodeController.store)
+routes.post('/nfce/qrcode', qrCodeController.store)
 routes.get(
   '/companies/:companyId/integrations/type',
   integrationController.getIntegrationType,

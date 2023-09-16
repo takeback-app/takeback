@@ -1,26 +1,25 @@
+import React from 'react'
 import { Center, Spinner, Text, View } from 'native-base'
-import React, { useCallback, useMemo, useState } from 'react'
 import { StatusBar } from 'react-native'
 
 import { FlashList, ListRenderItem } from '@shopify/flash-list'
-
-import useSWR from 'swr'
 
 import { Header } from '../../../components/header'
 import { Layout } from '../../../components/layout'
 import { EmptyComponent } from './components/EmptyComponent'
 
+import { InfinityScrollFooter } from '../../../components/List/InfinityScrollFooter'
+import { useInfiniteSectionList } from '../../../hooks/useInfiniteSectionList'
 import { ExtractHeader } from './components/ExtractHeader'
-import { ExtractItem, ExtractType } from './types'
-import { TransactionItem } from './components/ExtractItem/TransactionItem'
-import { TransferItem } from './components/ExtractItem/TransferItem'
 import { BalanceExpirationItem } from './components/ExtractItem/BalanceExpirationItem'
 import { BonusItem } from './components/ExtractItem/BonusItem'
 import { SolicitationItem } from './components/ExtractItem/SolicitationItem'
-import { useInfiniteSectionList } from '../../../hooks/useInfiniteSectionList'
-import { InfinityScrollFooter } from '../../../components/List/InfinityScrollFooter'
-import { SectionHeader } from './components/SectionHeader'
 import { StoreOrderItem } from './components/ExtractItem/StoreOrderItem'
+import { TransactionItem } from './components/ExtractItem/TransactionItem'
+import { TransferItem } from './components/ExtractItem/TransferItem'
+import { SectionHeader } from './components/SectionHeader'
+import { ExtractItem, ExtractType } from './types'
+import { QRCodeItem } from './components/ExtractItem/QRCodeItem'
 
 const renderItem: ListRenderItem<ExtractItem | undefined | string> = ({
   item
@@ -55,6 +54,8 @@ const renderItem: ListRenderItem<ExtractItem | undefined | string> = ({
       return (
         <StoreOrderItem {...item.data} referenceDate={item.referenceDate} />
       )
+    case ExtractType.QRCODE:
+      return <QRCodeItem {...item.data} referenceDate={item.referenceDate} />
     default:
       return null
   }

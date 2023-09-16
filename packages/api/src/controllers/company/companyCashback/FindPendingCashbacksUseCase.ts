@@ -44,6 +44,7 @@ class FindPendingCashbacksUseCase {
         companyUser: { select: { name: true } },
         nfceValidationStatus: true,
         nfce: true,
+        qrCodeId: true,
         transactionPaymentMethods: {
           select: {
             companyPaymentMethod: {

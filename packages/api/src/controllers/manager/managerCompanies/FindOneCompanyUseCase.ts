@@ -1,64 +1,65 @@
-import { getRepository } from "typeorm";
-import { City } from "../../../database/models/City";
-import { Companies } from "../../../database/models/Company";
-import { CompaniesAddress } from "../../../database/models/CompanyAddress";
-import { CompanyStatus } from "../../../database/models/CompanyStatus";
-import { Industries } from "../../../database/models/Industry";
-import { PaymentPlans } from "../../../database/models/PaymentPlans";
+import { getRepository } from 'typeorm'
+import { City } from '../../../database/models/City'
+import { Companies } from '../../../database/models/Company'
+import { CompaniesAddress } from '../../../database/models/CompanyAddress'
+import { CompanyStatus } from '../../../database/models/CompanyStatus'
+import { Industries } from '../../../database/models/Industry'
+import { PaymentPlans } from '../../../database/models/PaymentPlans'
 
 interface Props {
-  companyId: string;
+  companyId: string
 }
 
 class FindOneCompanyUseCase {
   async execute({ companyId }: Props) {
     const company = await getRepository(Companies)
-      .createQueryBuilder("company")
+      .createQueryBuilder('company')
       .select([
-        "company.id",
-        "company.fantasyName",
-        "company.corporateName",
-        "company.registeredNumber",
-        "company.email",
-        "company.phone",
-        "company.positiveBalance",
-        "company.negativeBalance",
-        "company.monthlyPayment",
-        "company.customIndustryFee",
-        "company.customIndustryFeeActive",
-        "company.contactPhone",
-        "company.representativeId",
-        "company.logoUrl",
+        'company.id',
+        'company.fantasyName',
+        'company.corporateName',
+        'company.registeredNumber',
+        'company.email',
+        'company.phone',
+        'company.positiveBalance',
+        'company.negativeBalance',
+        'company.monthlyPayment',
+        'company.customIndustryFee',
+        'company.customIndustryFeeActive',
+        'company.contactPhone',
+        'company.representativeId',
+        'company.logoUrl',
+        'company.useQRCode',
       ])
       .addSelect([
-        "industry.id",
-        "industry.description",
-        "industry.industryFee",
-        "status.description",
-        "status.id",
-        "address.street",
-        "address.district",
-        "address.number",
-        "address.longitude",
-        "address.latitude",
-        "city.id",
-        "city.name",
-        "plan.id",
-        "plan.description",
-        "plan.value",
+        'industry.id',
+        'industry.description',
+        'industry.industryFee',
+        'status.description',
+        'status.id',
+        'address.street',
+        'address.district',
+        'address.number',
+        'address.longitude',
+        'address.latitude',
+        'city.id',
+        'city.name',
+        'plan.id',
+        'plan.description',
+        'plan.value',
       ])
-      .leftJoin(Industries, "industry", "industry.id = company.industry")
-      .leftJoin(CompanyStatus, "status", "status.id = company.status")
-      .leftJoin(CompaniesAddress, "address", "address.id = company.address")
-      .leftJoin(City, "city", "city.id = address.city")
-      .leftJoin(PaymentPlans, "plan", "plan.id = company.paymentPlan")
-      .where("company.id = :companyId", {
+      .leftJoin(Industries, 'industry', 'industry.id = company.industry')
+      .leftJoin(CompanyStatus, 'status', 'status.id = company.status')
+      .leftJoin(CompaniesAddress, 'address', 'address.id = company.address')
+      .leftJoin(City, 'city', 'city.id = address.city')
+      .leftJoin(PaymentPlans, 'plan', 'plan.id = company.paymentPlan')
+      .where('company.id = :companyId', {
         companyId,
       })
-      .getRawOne();
+      .getRawOne()
 
-    return company;
+    return company
   }
 }
 
-export { FindOneCompanyUseCase };
+export { FindOneCompanyUseCase }

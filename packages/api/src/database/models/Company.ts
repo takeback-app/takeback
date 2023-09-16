@@ -8,175 +8,180 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from "typeorm";
+} from 'typeorm'
 
-import { CompaniesAddress } from "./CompanyAddress";
-import { Industries } from "./Industry";
-import { Transactions } from "./Transaction";
-import { CompanyUsers } from "./CompanyUsers";
-import { CompanyStatus } from "./CompanyStatus";
-import { CompanyPaymentMethods } from "./CompanyPaymentMethod";
-import { PaymentPlans } from "./PaymentPlans";
-import { PaymentOrder } from "./PaymentOrder";
+import { CompaniesAddress } from './CompanyAddress'
+import { Industries } from './Industry'
+import { Transactions } from './Transaction'
+import { CompanyUsers } from './CompanyUsers'
+import { CompanyStatus } from './CompanyStatus'
+import { CompanyPaymentMethods } from './CompanyPaymentMethod'
+import { PaymentPlans } from './PaymentPlans'
+import { PaymentOrder } from './PaymentOrder'
 
-import { ColumnNumericTransformer } from "../../config/TransformerDecimal";
-import { CompanyMonthlyPayment } from "./CompanyMonthlyPayment";
-import { Representative } from "./Representative";
-import { RepresentativeBillingCompany } from "./RepresentativeBillingCompany";
+import { CompanyMonthlyPayment } from './CompanyMonthlyPayment'
+import { Representative } from './Representative'
+import { RepresentativeBillingCompany } from './RepresentativeBillingCompany'
+import { ColumnNumericTransformer } from '../../config/TransformerDecimal'
 
 @Entity()
 export class Companies {
-  @PrimaryGeneratedColumn("uuid")
-  id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
   @Column()
-  corporateName: string;
+  corporateName: string
 
   @Column()
-  fantasyName: string;
+  fantasyName: string
 
   @Column()
-  registeredNumber: string;
+  registeredNumber: string
 
   @Column()
-  representativeId: string;
+  representativeId: string
 
   @Column()
-  email: string;
+  email: string
 
   @Column()
-  phone: string;
+  phone: string
 
   @Column()
-  logoUrl: string;
+  logoUrl: string
 
   @Column()
-  contactPhone: string;
+  contactPhone: string
 
   @Column({
     default: true,
   })
-  periodFree: boolean;
+  periodFree: boolean
 
   @Column({
-    type: "decimal",
+    type: 'decimal',
     precision: 10,
     scale: 4,
     default: 0.0,
     transformer: new ColumnNumericTransformer(),
   })
-  customIndustryFee: number;
+  customIndustryFee: number
 
   @Column({
     default: false,
   })
-  customIndustryFeeActive: boolean;
+  customIndustryFeeActive: boolean
 
   @Column({
-    type: "decimal",
+    type: 'decimal',
     precision: 10,
     scale: 4,
     default: 0.0,
     transformer: new ColumnNumericTransformer(),
   })
-  positiveBalance: number;
+  positiveBalance: number
 
   @Column({
-    type: "decimal",
+    type: 'decimal',
     precision: 10,
     scale: 4,
     default: 0.0,
     transformer: new ColumnNumericTransformer(),
   })
-  negativeBalance: number;
+  negativeBalance: number
 
   @Column({
-    type: "decimal",
+    type: 'decimal',
     precision: 10,
     scale: 4,
     default: 0.0,
     transformer: new ColumnNumericTransformer(),
   })
-  monthlyPayment: number;
+  monthlyPayment: number
 
   @Column({
     default: false,
   })
-  customMonthlyPayment: boolean;
+  customMonthlyPayment: boolean
 
   @Column({
     default: false,
   })
-  currentMonthlyPaymentPaid: boolean;
+  currentMonthlyPaymentPaid: boolean
 
   @Column({
     default: false,
   })
-  permissionToSupportAccess: boolean;
+  permissionToSupportAccess: boolean
 
   @Column({
     default: false,
   })
-  useCashbackAsBack: boolean;
+  useCashbackAsBack: boolean
 
   @Column({
-    type: "date",
+    type: 'date',
     nullable: true,
   })
-  firstAccessAllowedAt: Date;
+  firstAccessAllowedAt: Date
 
   @Column({
-    type: "date",
+    type: 'date',
     nullable: true,
   })
-  provisionalAccessAllowedAt: Date;
+  provisionalAccessAllowedAt: Date
 
   @OneToOne(() => CompaniesAddress)
   @JoinColumn()
-  address: CompaniesAddress;
+  address: CompaniesAddress
 
   @OneToMany(() => PaymentOrder, (paymentOrder) => paymentOrder.company)
-  paymentOrder: PaymentOrder[];
+  paymentOrder: PaymentOrder[]
 
   @OneToMany(() => Transactions, (transactions) => transactions.companies)
-  transaction: Transactions[];
+  transaction: Transactions[]
 
   @OneToMany(
     () => CompanyMonthlyPayment,
-    (monthlyPayment) => monthlyPayment.company
+    (monthlyPayment) => monthlyPayment.company,
   )
-  companyMonthlyPayment: CompanyMonthlyPayment[];
+  companyMonthlyPayment: CompanyMonthlyPayment[]
 
   @ManyToOne(() => Industries, (industry) => industry.companies)
-  industry: Industries;
+  industry: Industries
 
   @OneToMany(() => CompanyUsers, (companyUser) => companyUser.company)
-  users: CompanyUsers[];
+  users: CompanyUsers[]
 
   @ManyToOne(() => CompanyStatus, (status) => status.company)
-  status: CompanyStatus;
+  status: CompanyStatus
 
   @ManyToOne(() => PaymentPlans, (payment) => payment.company)
-  paymentPlan: PaymentPlans;
+  paymentPlan: PaymentPlans
 
   @ManyToOne(() => Representative, (representative) => representative.companies)
-  representative: Representative;
+  representative: Representative
 
   @OneToMany(
     () => RepresentativeBillingCompany,
-    (representativeBillingCompany) => representativeBillingCompany.company
+    (representativeBillingCompany) => representativeBillingCompany.company,
   )
-  representativeBillingCompany: RepresentativeBillingCompany[];
+  representativeBillingCompany: RepresentativeBillingCompany[]
 
   @OneToMany(
     () => CompanyPaymentMethods,
-    (companyPaymentMethods) => companyPaymentMethods.company
+    (companyPaymentMethods) => companyPaymentMethods.company,
   )
-  public companyPaymentMethod!: CompanyPaymentMethods[];
+  public companyPaymentMethod!: CompanyPaymentMethods[]
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt: Date
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt: Date
+
+  @Column({
+    default: false,
+  })
+  useQRCode: boolean
 }
