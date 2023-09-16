@@ -20,32 +20,19 @@ export class ConsumersAverageReportUseCase {
 
     const cityId = company.companyAddress.cityId
 
-    const companyTransactions = await prisma.transaction.count({
-      where: {
-        companiesId: companyId,
-      },
-    })
-
-    const companyTransactionsAmount = await prisma.transaction.aggregate({
+    const companyTransactions = await prisma.transaction.aggregate({
       where: {
         companiesId: companyId,
       },
       _sum: {
         totalAmount: true,
       },
-    })
-
-    const cityTransactions = await prisma.transaction.count({
-      where: {
-        company: {
-          companyAddress: {
-            cityId,
-          },
-        },
+      _count: {
+        id: true,
       },
     })
 
-    const cityTransactionsAmount = await prisma.transaction.aggregate({
+    const cityTransactions = await prisma.transaction.aggregate({
       where: {
         company: {
           companyAddress: {
@@ -56,19 +43,15 @@ export class ConsumersAverageReportUseCase {
       _sum: {
         totalAmount: true,
       },
+      _count: {
+        id: true,
+      },
     })
-
-    console.log(
-      companyTransactionsAmount._sum,
-      companyTransactions,
-      cityTransactionsAmount._sum,
-      cityTransactions,
-    )
 
     const companyAvgBuyPerConsumers =
-      +companyTransactionsAmount._sum.totalAmount / companyTransactions
+      +companyTransactions._sum.totalAmount / companyTransactions._count.id
     const cityAvgBuyPerConsumers =
-      +cityTransactionsAmount._sum.totalAmount / cityTransactions
+      +cityTransactions._sum.totalAmount / cityTransactions._count.id
 
     return {
       company: +companyAvgBuyPerConsumers.toFixed(2),
