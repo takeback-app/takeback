@@ -86,14 +86,14 @@ export class TimeRangeReportUseCase {
       city: {
         labels,
         values: [
-          +(timeRange01_03.city / totalCompanyTimeRange).toFixed(4),
-          +(timeRange04_06.city / totalCompanyTimeRange).toFixed(4),
-          +(timeRange07_09.city / totalCompanyTimeRange).toFixed(4),
-          +(timeRange10_12.city / totalCompanyTimeRange).toFixed(4),
-          +(timeRange13_15.city / totalCompanyTimeRange).toFixed(4),
-          +(timeRange16_18.city / totalCompanyTimeRange).toFixed(4),
-          +(timeRange19_21.city / totalCompanyTimeRange).toFixed(4),
-          +(timeRange22_00.city / totalCompanyTimeRange).toFixed(4),
+          +(timeRange01_03.city / totalCityTimeRange).toFixed(4),
+          +(timeRange04_06.city / totalCityTimeRange).toFixed(4),
+          +(timeRange07_09.city / totalCityTimeRange).toFixed(4),
+          +(timeRange10_12.city / totalCityTimeRange).toFixed(4),
+          +(timeRange13_15.city / totalCityTimeRange).toFixed(4),
+          +(timeRange16_18.city / totalCityTimeRange).toFixed(4),
+          +(timeRange19_21.city / totalCityTimeRange).toFixed(4),
+          +(timeRange22_00.city / totalCityTimeRange).toFixed(4),
         ],
       },
     }
