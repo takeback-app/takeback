@@ -7,33 +7,6 @@ import { ApproveSolicitationUseCase } from '../useCases/cashback/ApproveSolicita
 // Constantes
 const STATUS_WAITING = 'WAITING'
 
-async function getCompanyUser(companyUserId?: string) {
-  if (!companyUserId) {
-    return null
-  }
-  try {
-    const result = await prisma.companyUser.findUnique({
-      where: { id: companyUserId },
-    })
-    return result
-  } catch (error) {
-    console.error(`Erro ao buscar companyUser: ${error.message}`)
-    return null
-  }
-}
-
-async function getCompany(companyId: string) {
-  try {
-    const result = await prisma.company.findUnique({
-      where: { id: companyId },
-    })
-    return result
-  } catch (error) {
-    console.error(`Erro ao buscar company: ${error.message}`)
-    return null
-  }
-}
-
 async function main() {
   const refDate = DateTime.now().minus({ day: 1 }).toJSDate()
 
@@ -58,23 +31,7 @@ async function main() {
     const approveUseCase = new ApproveSolicitationUseCase()
 
     for (const solicitation of solicitations) {
-      const companyUser = await getCompanyUser(solicitation.companyUserId)
-      const company = await getCompany(solicitation.companyId)
-
-      if (!company) {
-        continue
-      }
-
-      if (companyUser) {
-        if (
-          companyUser.cpf === solicitation.consumer.cpf ||
-          companyUser.companyId === company.id
-        ) {
-          continue
-        }
-      }
-
-      await approveUseCase.execute(solicitation, companyUser?.id)
+      await approveUseCase.execute(solicitation)
       bar.increment()
     }
 
