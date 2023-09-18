@@ -90,6 +90,14 @@ interface BirthdaysResponse {
   id: string
   fullName: string
   phone: string
+  birthDate?: string
+  day?: DayEnum
+}
+
+enum DayEnum {
+  TODAY = 'Hoje é',
+  YESTERDAY = 'Ontem foi',
+  TOMORROW = 'Amanhã será'
 }
 
 interface PaymentMethodFormatted {
@@ -268,6 +276,19 @@ export function CashRegister() {
       )
 
       if (data) {
+        const birthDate = new Date(data.birthDate)
+        const currentDate = new Date()
+        const dayDiff = birthDate.getDate() - currentDate.getDate()
+        switch (dayDiff) {
+          case -1:
+            data.day = DayEnum.YESTERDAY
+            break
+          case 1:
+            data.day = DayEnum.TOMORROW
+            break
+          default:
+            data.day = DayEnum.TODAY
+        }
         setBirthdayConsumer(data)
         alertModal.onOpen()
       }
@@ -517,10 +538,11 @@ export function CashRegister() {
         <AlertDialogOverlay />
 
         <AlertDialogContent paddingBottom="1rem">
-          <AlertDialogHeader>Aniversariante do dia!</AlertDialogHeader>
+          <AlertDialogHeader>Aniversariante!</AlertDialogHeader>
           <AlertDialogCloseButton />
           <AlertDialogBody>
-            Hoje é aniversário do {birthdayConsumer.fullName}!
+            {birthdayConsumer.day} aniversário de{' '}
+            {birthdayConsumer.fullName.trim()}!
           </AlertDialogBody>
         </AlertDialogContent>
       </AlertDialog>

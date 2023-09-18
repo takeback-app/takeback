@@ -13,16 +13,27 @@ export class FindConsumersBirthdaysUseCase {
   async findAllCompanyConsumersBirthdays({
     companyId,
   }: FindCompanyConsumersProps) {
-    const birthdays = await this.baseQuery().where(
-      'transactions.companiesId',
-      companyId,
-    )
+    const currentDate = DateTime.now()
+
+    const birthdays = await this.baseQuery()
+      .where('transactions.companiesId', companyId)
+      .whereRaw('extract(day from consumers."birthDate") = ?', [
+        currentDate.day,
+      ])
 
     return birthdays
   }
 
   async findIfConsumerBirthday({ cpf }: FindIfConsumerBirthdayProps) {
-    const birthday = await this.baseQuery().where('consumers.cpf', cpf)
+    const currentDate = DateTime.now()
+
+    const birthday = await this.baseQuery()
+      .whereRaw('extract(day from consumers."birthDate") between ? and ?', [
+        currentDate.day - 1,
+        currentDate.day + 1,
+      ])
+      .where('consumers.cpf', cpf)
+
     return birthday[0]
   }
 
@@ -30,14 +41,16 @@ export class FindConsumersBirthdaysUseCase {
     const currentDate = DateTime.now()
 
     const query = db
-      .select('consumers.id', 'consumers.fullName', 'consumers.phone')
+      .select(
+        'consumers.id',
+        'consumers.fullName',
+        'consumers.phone',
+        'consumers.birthDate',
+      )
       .from('consumers')
       .join('transactions', 'transactions.consumersId', 'consumers.id')
       .whereRaw('extract(month from consumers."birthDate") = ?', [
         currentDate.month,
-      ])
-      .whereRaw('extract(day from consumers."birthDate") = ?', [
-        currentDate.day,
       ])
       .groupBy('consumers.id')
 
