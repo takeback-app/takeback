@@ -16,13 +16,6 @@ async function main() {
         status: STATUS_WAITING,
         createdAt: { lte: refDate },
       },
-      include: {
-        consumer: {
-          select: {
-            cpf: true,
-          },
-        },
-      },
     })
 
     const bar = new SingleBar({}, Presets.shades_classic)
