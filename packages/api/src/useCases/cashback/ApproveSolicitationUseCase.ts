@@ -25,6 +25,7 @@ export class ApproveSolicitationUseCase {
       consumerId: solicitation.consumerId,
       totalAmount,
       paymentMethods,
+      createdAt: solicitation.createdAt,
     })
 
     await prisma.transactionSolicitation.update({
