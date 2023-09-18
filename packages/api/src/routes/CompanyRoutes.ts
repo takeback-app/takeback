@@ -154,6 +154,13 @@ routes.post(
   cashback.generateCashback,
 )
 
+routes.get(
+  '/cashbacks/find/birthdays',
+  cashback.findAllCompanyConsumersBirthdays,
+)
+
+routes.get('/cashbacks/consumer/birthday/:cpf', cashback.findIfConsumerBirthday)
+
 routes.post('/order/payment/generate', paymentOrder.generate)
 routes.put('/order/payment/cancel/:id', paymentOrder.cancel)
 routes.get('/order/payment/methods/findAll', paymentOrder.findPaymentMethod)

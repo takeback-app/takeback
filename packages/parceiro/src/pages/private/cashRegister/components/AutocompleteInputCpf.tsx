@@ -17,11 +17,13 @@ import { AutocompleteItem } from './AutocompleteItem'
 interface AutocompleteInputCpfProps {
   control: Control<CashRegisterData>
   selectConsumerItem: (item: string) => void
+  handleConsumerBirthday: (cpf: string) => void
 }
 
 export function AutocompleteInputCpf({
   control,
-  selectConsumerItem
+  selectConsumerItem,
+  handleConsumerBirthday
 }: AutocompleteInputCpfProps) {
   const { setConsumerName } = useCashRegisterState()
 
@@ -48,6 +50,10 @@ export function AutocompleteInputCpf({
 
   async function changeHandler(maskedCpf: string) {
     const actualCpf = unMaskCpf(maskedCpf)
+
+    if (actualCpf.length === 11) {
+      handleConsumerBirthday(actualCpf)
+    }
 
     if (actualCpf.length < 3 || actualCpf.length >= 11) {
       return setAutocompleteItems([])
