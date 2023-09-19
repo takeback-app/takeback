@@ -8,7 +8,7 @@ export const UpdateRaffleRequest = z
     pickUpLocation: z.string().optional(),
     ticketValue: z.number().min(0).optional(),
     drawDate: z.string().datetime().optional(),
-    isOpenToOtherCompanies: z.boolean().optional(),
+    openToOtherCompanies: OpenToOtherCompaniesSchema.array().optional(),
     isOpenToEmployees: z.boolean(),
     items: ItemSchema.array().optional(),
   })
