@@ -9,6 +9,7 @@ import { FindCashbackFiltersUseCase } from './FindCashbackFiltersUseCase'
 import { ValidateUserPasswordUseCase } from './ValidateUserPasswordUseCase'
 import { VerifyCashbacksExpired } from './VerifyCashbacksExpired'
 import { GetConsumerAutocompleteUseCase } from './GetConsumerAutocompleteUseCase'
+import { FindConsumersBirthdaysUseCase } from './FindConsumersBirthdaysUseCase'
 import { prisma } from '../../../prisma'
 import { CashRegisterUseCase } from '../../../useCases/cashback/CashRegisterUseCase'
 import { partition } from '../../../utils'
@@ -188,6 +189,28 @@ class CashbackController {
     })
 
     return response.status(200).json('Cashback emitido')
+  }
+
+  async findAllCompanyConsumersBirthdays(request: Request, response: Response) {
+    const { companyId } = request['tokenPayload']
+
+    const birthdays = new FindConsumersBirthdaysUseCase()
+
+    const result = await birthdays.findAllCompanyConsumersBirthdays({
+      companyId,
+    })
+
+    return response.status(200).json(result)
+  }
+
+  async findIfConsumerBirthday(request: Request, response: Response) {
+    const cpf = request.params.cpf
+
+    const birthdays = new FindConsumersBirthdaysUseCase()
+
+    const result = await birthdays.findIfConsumerBirthday({ cpf })
+
+    return response.status(200).json(result)
   }
 }
 
