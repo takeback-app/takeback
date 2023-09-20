@@ -56,6 +56,16 @@ export class RaffleController {
           },
         },
         status: true,
+        openToCompanyRaffles: {
+          select: {
+            company: {
+              select: {
+                id: true,
+                fantasyName: true,
+              },
+            },
+          },
+        },
       },
     })
 
@@ -126,7 +136,13 @@ export class RaffleController {
       )
     }
 
-    const { items, drawDate, ...rest } = form.data
+    const { items, drawDate, openToOtherCompanies, ...rest } = form.data
+
+    const parsedOpenToOtherCompanies = openToOtherCompanies?.map((company) => {
+      return {
+        companyId: company,
+      }
+    })
 
     const raffle = await prisma.raffle.create({
       data: {
@@ -139,6 +155,11 @@ export class RaffleController {
         drawDate: DateTime.fromISO(drawDate).plus({ hours: 3 }).toISO(),
         companyId,
         statusId: waitingStatus.id,
+        openToCompanyRaffles: {
+          createMany: {
+            data: parsedOpenToOtherCompanies,
+          },
+        },
       },
     })
 
@@ -215,13 +236,24 @@ export class RaffleController {
       )
     }
 
-    const { items, drawDate, ...rest } = form.data
+    const { items, drawDate, openToOtherCompanies, ...rest } = form.data
+
+    const parsedOpenToOtherCompanies = openToOtherCompanies?.map((company) => {
+      return {
+        companyId: company,
+      }
+    })
 
     await prisma.raffle.update({
       where: { id: raffle.id },
       data: {
         ...rest,
         drawDate: DateTime.fromISO(drawDate).plus({ hours: 3 }).toISO(),
+        openToCompanyRaffles: {
+          createMany: {
+            data: parsedOpenToOtherCompanies,
+          },
+        },
       },
     })
 

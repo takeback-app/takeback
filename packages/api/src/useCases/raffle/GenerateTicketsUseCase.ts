@@ -67,8 +67,10 @@ export class GenerateTicketsUseCase {
         OR: [
           { companyId: company.id },
           {
-            company: {
-              companyAddress: { cityId: company.companyAddress.cityId },
+            openToCompanyRaffles: {
+              every: {
+                companyId: company.id,
+              },
             },
           },
         ],

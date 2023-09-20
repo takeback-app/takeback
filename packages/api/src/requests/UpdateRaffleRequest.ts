@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { ItemSchema } from "./CreateRaffleRequest";
+import { z } from 'zod'
+import { ItemSchema } from './CreateRaffleRequest'
 
 export const UpdateRaffleRequest = z
   .object({
@@ -8,8 +8,9 @@ export const UpdateRaffleRequest = z
     pickUpLocation: z.string().optional(),
     ticketValue: z.number().min(0).optional(),
     drawDate: z.string().datetime().optional(),
-    openToOtherCompanies: OpenToOtherCompaniesSchema.array().optional(),
+    isOpenToOtherCompanies: z.boolean(),
+    openToOtherCompanies: z.string().array().optional(),
     isOpenToEmployees: z.boolean(),
     items: ItemSchema.array().optional(),
   })
-  .strict();
+  .strict()
