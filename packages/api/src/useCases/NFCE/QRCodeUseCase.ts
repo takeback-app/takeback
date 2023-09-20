@@ -53,6 +53,7 @@ export class QRCodeUseCase {
       const issuedAt = DateTime.fromFormat(
         issuedAtString,
         'dd/MM/yyyy HH:mm:ss',
+        { zone: 'UTC-3' },
       )
 
       const diffNow = DateTime.now().diff(issuedAt).as('days')
