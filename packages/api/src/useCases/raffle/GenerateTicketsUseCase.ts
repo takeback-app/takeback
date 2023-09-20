@@ -68,7 +68,7 @@ export class GenerateTicketsUseCase {
           { companyId: company.id },
           {
             openToCompanyRaffles: {
-              every: {
+              some: {
                 companyId: company.id,
               },
             },
