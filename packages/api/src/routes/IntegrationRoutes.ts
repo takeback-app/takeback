@@ -7,12 +7,14 @@ import IntegrationSettingsController from '../controllers/integration/Integratio
 import NfceController from '../controllers/integration/NfceController'
 import UpdaterController from '../controllers/integration/UpdaterController'
 import HomologationController from '../controllers/integration/Bling/HomologationController'
+import SellController from '../controllers/integration/CMM/SellController'
 
 const routes = Router()
 
+routes.post('/cmm/cashback', SellController.handle)
+
 routes.post('/login', LoginController.handle)
 routes.get('/updater/:target/:arch/:currentVersion', UpdaterController.handle)
-routes.post('/test', UpdaterController.test)
 
 routes.get('/bling/auth', HomologationController.handle)
 
