@@ -140,7 +140,10 @@ export class GenerateCashbackUseCase {
       ? PaymentApproved
       : NewCashback
 
-    Notify.send(consumerId, new Notification(transaction, company.fantasyName))
+    await Notify.send(
+      consumerId,
+      new Notification(transaction, company.fantasyName),
+    )
 
     return transaction
   }
