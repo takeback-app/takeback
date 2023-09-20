@@ -1,4 +1,4 @@
-import { Decimal } from '@prisma/client/runtime'
+import { Decimal } from '@prisma/client/runtime/library'
 import { prisma } from '../../prisma'
 import { TransactionStatusEnum } from '../../enum/TransactionStatusEnum'
 import { InternalError } from '../../config/GenerateErros'

@@ -75,6 +75,8 @@ export class BlingIntegration {
     this.accessToken = data.access_token
     this.refreshToken = data.refresh_token
 
+    console.log(data)
+
     this.setBearerToken()
   }
 

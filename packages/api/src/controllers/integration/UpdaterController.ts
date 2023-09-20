@@ -8,6 +8,14 @@ class UpdaterController {
 
     return response.status(204).json()
   }
+
+  async test(request: Request, response: Response) {
+    const data = request.body
+
+    console.log(data)
+
+    return response.status(204).json()
+  }
 }
 
 export default new UpdaterController()
