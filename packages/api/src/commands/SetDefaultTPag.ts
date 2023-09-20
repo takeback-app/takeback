@@ -12,8 +12,6 @@ async function main() {
     },
   })
 
-  console.log(companyPaymentMethods.length)
-
   const bar = new SingleBar({}, Presets.shades_classic)
 
   bar.start(companyPaymentMethods.length, 0)

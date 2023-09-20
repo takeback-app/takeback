@@ -53,7 +53,7 @@ export class QRCodeUseCase {
       const issuedAt = DateTime.fromFormat(
         issuedAtString,
         'dd/MM/yyyy HH:mm:ss',
-      ).setZone('America/Sao_Paulo')
+      )
 
       const diffNow = DateTime.now().diff(issuedAt).as('days')
 
@@ -91,8 +91,6 @@ export class QRCodeUseCase {
           return acc
         }, [])
 
-      console.log(nfcePayments)
-
       const company = await prisma.company.findFirst({
         select: { id: true },
         where: { registeredNumber: cnpj, id: this.qrCode.companyId },
@@ -110,10 +108,14 @@ export class QRCodeUseCase {
         return false
       }
 
-      const transaction = await this.saveTransaction(company.id, {
-        issuedAt: issuedAt.toJSDate(),
-        nfcePayments,
-      })
+      const transaction = await this.saveTransaction(
+        company.id,
+        {
+          issuedAt: issuedAt.toJSDate(),
+          nfcePayments,
+        },
+        this.qrCode.companyUserId,
+      )
 
       await prisma.transaction.update({
         where: { id: transaction.id },
