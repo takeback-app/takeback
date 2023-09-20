@@ -7,7 +7,7 @@ import { QRCodeType, QRCodeData } from '../../types'
 import { dateFormatSimple } from '../../../../../utils'
 
 const titleByType: { [key in QRCodeType]: string } = {
-  WAITING: 'Analisado QRCode ',
+  WAITING: 'Analisando QRCode ',
   NOT_VALIDATED: 'QRCode invalido'
 }
 

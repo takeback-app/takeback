@@ -63,7 +63,8 @@ export class QRCodeUseCase {
           where: { id: this.qrCode.id },
           data: {
             type: 'NOT_VALIDATED',
-            description: 'Cupom descartado após 24 horas da compra',
+            description:
+              'Cupom descartado. A compra foi feita a mais de 24 hrs.',
           },
         })
 
@@ -146,12 +147,26 @@ export class QRCodeUseCase {
     for (const nfcePayment of nfcePayments) {
       totalAmount = totalAmount.plus(nfcePayment.value)
 
-      const { id } = await prisma.companyPaymentMethod.findFirstOrThrow({
-        select: { id: true },
-        where: { companyId, tPag: nfcePayment.tPag },
-      })
+      const companyPaymentMethod =
+        await prisma.companyPaymentMethod.findFirstOrThrow({
+          select: { id: true },
+          where: { companyId, tPag: nfcePayment.tPag },
+        })
 
-      paymentMethods.push({ id, value: nfcePayment.value })
+      if (!companyPaymentMethod) {
+        await prisma.qRCode.update({
+          where: { id: this.qrCode.id },
+          data: {
+            type: 'NOT_VALIDATED',
+            description: 'Cupom não valido. Forma de pagamento não cadastrada',
+          },
+        })
+      }
+
+      paymentMethods.push({
+        id: companyPaymentMethod.id,
+        value: nfcePayment.value,
+      })
     }
 
     let transaction = await prisma.transaction.findFirst({
