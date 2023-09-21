@@ -96,7 +96,6 @@ class SignInCompanyUseCase {
     }
 
     if (!integrationCount && !company.useQRCode) {
-      console.log({ integrationCount, useQRCode: company.useQRCode })
       accessControl.push(AccessControlEnum.NOT_INTEGRATION_AND_QRCODE)
     }
 
