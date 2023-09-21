@@ -9,6 +9,7 @@ import useSWR from 'swr'
 import { Dot } from './Dot'
 import { IconType } from 'react-icons'
 import { Nav } from '../layout/SidebarContent'
+import { AccessControlTypes } from './managerNav'
 
 export interface Page {
   id: number
@@ -18,9 +19,7 @@ export interface Page {
   isActive: boolean
   to: string
   userBlocked?: number
-  accessChecker?: {
-    checkAccessClientReport: boolean
-  }
+  accessChecker: AccessControlTypes
 }
 
 interface Props {

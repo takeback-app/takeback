@@ -1,4 +1,6 @@
+/* eslint-disable no-unused-vars */
 import bcrypt from 'bcrypt'
+import { DateTime } from 'luxon'
 import { InternalError } from '../../../config/GenerateErros'
 import { generateToken } from '../../../config/JWT'
 
@@ -9,12 +11,27 @@ interface Props {
   password: string
 }
 
+enum AccessControlEnum {
+  BIRTHDAY_NOTIFICATION = 'BIRTHDAY_NOTIFICATION',
+  CLIENT_REPORT = 'CLIENT_REPORT',
+  INTEGRATION = 'INTEGRATION',
+  // Se a empresa tiver algum tipo de integração e QRCode
+  NOT_INTEGRATION_AND_QRCODE = 'NOT_INTEGRATION_AND_QRCODE',
+  QR_CODE = 'QR_CODE',
+  // Se a empresa tiver alguma oferta cadastrada e em andamento (com a data de retirada dentro do prazo).
+  STORE_PRODUCTS = 'STORE_PRODUCTS',
+}
+
+type AccessControlTypes = Array<keyof typeof AccessControlEnum>
+
 class SignInCompanyUseCase {
   async execute({ user, password }: Props) {
     // Verificando se todos os dados necessários foram informados
     if (!user || !password) {
       throw new InternalError('Dados incompletos', 400)
     }
+
+    const today = DateTime.now().toJSDate()
 
     const companyUser = await prisma.companyUser.findFirst({
       where: {
@@ -39,6 +56,49 @@ class SignInCompanyUseCase {
     })
 
     const company = companyUser?.company
+
+    const integrationCount = await prisma.integrationSettings.count({
+      where: {
+        companyId: company.id,
+        company: { paymentPlan: { canUseIntegration: true } },
+      },
+    })
+
+    const hasStoreProductInProgress = await prisma.storeProduct.count({
+      where: {
+        companyId: company.id,
+        dateLimitWithdrawal: {
+          gte: today,
+        },
+      },
+    })
+
+    const accessControl: AccessControlTypes = []
+
+    if (company.paymentPlan.canAccessClientReport) {
+      accessControl.push(AccessControlEnum.CLIENT_REPORT)
+    }
+
+    if (hasStoreProductInProgress) {
+      accessControl.push(AccessControlEnum.STORE_PRODUCTS)
+    }
+
+    if (company.paymentPlan.canSendBirthdayNotification) {
+      accessControl.push(AccessControlEnum.BIRTHDAY_NOTIFICATION)
+    }
+
+    if (integrationCount) {
+      accessControl.push(AccessControlEnum.INTEGRATION)
+    }
+
+    if (company.useQRCode) {
+      accessControl.push(AccessControlEnum.QR_CODE)
+    }
+
+    if (!integrationCount && !company.useQRCode) {
+      console.log({ integrationCount, useQRCode: company.useQRCode })
+      accessControl.push(AccessControlEnum.NOT_INTEGRATION_AND_QRCODE)
+    }
 
     // Verificando se a empresa foi localizada
     if (!company) {
@@ -89,11 +149,7 @@ class SignInCompanyUseCase {
             isRootUser: true,
             cpf: supportUser.cpf,
             companyName: company.fantasyName,
-            canAccessClientReport: company.paymentPlan.canAccessClientReport,
-            canHaveStoreProducts: company.paymentPlan.canHaveStoreProducts,
-            canSendBirthdayNotification:
-              company.paymentPlan.canSendBirthdayNotification,
-            canUseIntegration: company.paymentPlan.canUseIntegration,
+            accessControl,
           },
           process.env.JWT_PRIVATE_KEY,
           parseInt(process.env.JWT_EXPIRES_IN),
@@ -109,11 +165,7 @@ class SignInCompanyUseCase {
           isRootUser: true,
           cpf: supportUser.cpf,
           companyName: company.fantasyName,
-          canAccessClientReport: company.paymentPlan.canAccessClientReport,
-          canHaveStoreProducts: company.paymentPlan.canHaveStoreProducts,
-          canSendBirthdayNotification:
-            company.paymentPlan.canSendBirthdayNotification,
-          canUseIntegration: company.paymentPlan.canUseIntegration,
+          accessControl,
         }
       }
 
@@ -150,11 +202,7 @@ class SignInCompanyUseCase {
           isRootUser: companyUser.isRootUser,
           cpf: companyUser.cpf,
           companyName: company.fantasyName,
-          canAccessClientReport: company.paymentPlan.canAccessClientReport,
-          canHaveStoreProducts: company.paymentPlan.canHaveStoreProducts,
-          canSendBirthdayNotification:
-            company.paymentPlan.canSendBirthdayNotification,
-          canUseIntegration: company.paymentPlan.canUseIntegration,
+          accessControl,
         },
         process.env.JWT_PRIVATE_KEY,
         parseInt(process.env.JWT_EXPIRES_IN),
@@ -170,11 +218,7 @@ class SignInCompanyUseCase {
         isRootUser: companyUser.isRootUser,
         cpf: companyUser.cpf,
         companyName: company.fantasyName,
-        canAccessClientReport: company.paymentPlan.canAccessClientReport,
-        canHaveStoreProducts: company.paymentPlan.canHaveStoreProducts,
-        canSendBirthdayNotification:
-          company.paymentPlan.canSendBirthdayNotification,
-        canUseIntegration: company.paymentPlan.canUseIntegration,
+        accessControl,
       }
     }
 
@@ -209,11 +253,7 @@ class SignInCompanyUseCase {
         isRootUser: companyUser.isRootUser,
         cpf: companyUser.cpf,
         companyName: company.fantasyName,
-        canAccessClientReport: company.paymentPlan.canAccessClientReport,
-        canHaveStoreProducts: company.paymentPlan.canHaveStoreProducts,
-        canSendBirthdayNotification:
-          company.paymentPlan.canSendBirthdayNotification,
-        canUseIntegration: company.paymentPlan.canUseIntegration,
+        accessControl,
       },
       process.env.JWT_PRIVATE_KEY,
       parseInt(process.env.JWT_EXPIRES_IN),
@@ -229,11 +269,7 @@ class SignInCompanyUseCase {
       isRootUser: companyUser.isRootUser,
       cpf: companyUser.cpf,
       companyName: company.fantasyName,
-      canAccessClientReport: company.paymentPlan.canAccessClientReport,
-      canHaveStoreProducts: company.paymentPlan.canHaveStoreProducts,
-      canSendBirthdayNotification:
-        company.paymentPlan.canSendBirthdayNotification,
-      canUseIntegration: company.paymentPlan.canUseIntegration,
+      accessControl,
     }
   }
 }

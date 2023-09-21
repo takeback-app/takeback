@@ -11,7 +11,7 @@ import { Drawer, Page } from '../drawer'
 
 import logoHorizontal from '../../../assets/logos/logoTakebackHorizontal.png'
 import { AuthContext } from '../../../contexts/AuthContext'
-import { managerNav } from '../drawer/managerNav'
+import { AccessControlTypes, managerNav } from '../drawer/managerNav'
 import { cashierNav } from '../drawer/cashierrNav'
 import { IconType } from 'react-icons'
 
@@ -25,31 +25,36 @@ export interface Nav {
   hasDotKey?: string
   pages?: Page[]
   isOpened?: boolean
-  accessChecker?: {
-    checkAccessClientReport: boolean
-  }
+  accessChecker: AccessControlTypes
 }
-
 interface SidebarProps extends BoxProps {
   onClose: () => void
 }
 
 export function SidebarContent({ onClose, ...rest }: SidebarProps) {
-  const { isManager, canAccessClientReport } = useContext(AuthContext)
+  const { isManager, accessControl } = useContext(AuthContext)
 
   const navData = isManager ? managerNav : cashierNav
 
-  const navDataFiltred = navData.filter(data => {
-    if (data.accessChecker?.checkAccessClientReport && !canAccessClientReport) {
-      return false
+  function hasMatchingAccess(item: Nav) {
+    if (item.accessChecker.length === 0) {
+      return true
     }
-    if (!canAccessClientReport && data.pages?.length) {
-      console.log(canAccessClientReport)
-      data.pages = data.pages.filter(
-        page => !page.accessChecker?.checkAccessClientReport
-      )
+    return item.accessChecker.some(accessItem =>
+      accessControl.includes(accessItem)
+    )
+  }
+
+  const navDataFiltred = navData.filter(navItem => {
+    if (hasMatchingAccess(navItem)) {
+      if (navItem.pages && navItem.pages.length > 0) {
+        navItem.pages = navItem.pages.filter(pageItem =>
+          hasMatchingAccess(pageItem)
+        )
+      }
+      return true
     }
-    return true
+    return false
   })
 
   return (

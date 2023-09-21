@@ -21,10 +21,7 @@ const Root: React.FC = () => {
     setUserId,
     setGenerateCashback,
     setCompanyName,
-    setCanAccessClientReport,
-    setCanHaveStoreProducts,
-    setCanSendBirthdayNotification,
-    setCanUseIntegration
+    setAccessControl
   } = useContext(AuthContext)
   const { setIsOpen } = useContext(DrawerContext)
   const [loading, setLoading] = useState(true)
@@ -52,10 +49,7 @@ const Root: React.FC = () => {
             setUserId(data.userId)
             setCompanyName(data.companyName)
             setGenerateCashback(data.generateCashback)
-            setCanAccessClientReport(data.canAccessClientReport)
-            setCanHaveStoreProducts(data.canHaveStoreProducts)
-            setCanSendBirthdayNotification(data.canSendBirthdayNotification)
-            setCanUseIntegration(data.canUseIntegration)
+            setAccessControl(data.accessControl)
 
             setIsSignedIn(true)
 
