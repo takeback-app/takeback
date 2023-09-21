@@ -29,6 +29,10 @@ import { storeImage, storeRaffle } from './services/api'
 import { uploadItemImages } from './services/uploadItemImages'
 import { RafflesRules } from './components/RafflesRules'
 import { CreateItemsCard, Item } from './components/CreateItemsCard'
+import {
+  CompanyMultipleSelect,
+  Option
+} from './components/CompanyMultipleSelect'
 
 const schema = z.object({
   title: z.string().nonempty('Campo obrigatório'),
@@ -55,6 +59,10 @@ export function RaffleCreate() {
     })
 
   const files = watch('file')
+
+  const isOpenToOtherCompanies = watch('isOpenToOtherCompanies')
+
+  const [selectedCompanies, setSelectedCompanies] = useState<Option[]>([])
 
   async function onSubmit(data: CreateRaffleData) {
     if (!items.length) {
@@ -93,6 +101,10 @@ export function RaffleCreate() {
       })
     }
 
+    const openToOtherCompanies: string[] = selectedCompanies.map(
+      (company: Option) => String(company.value)
+    )
+
     const [isOk, storeData] = await storeRaffle({
       title: data.title,
       drawDate: new Date(data.drawDate).toISOString(),
@@ -101,7 +113,8 @@ export function RaffleCreate() {
       isOpenToEmployees: data.isOpenToEmployees === '1',
       ticketValue: unMaskCurrency(data.ticketValue),
       pickUpLocation: data.pickUpLocation,
-      items: itemsWithImageUrl
+      items: itemsWithImageUrl,
+      openToOtherCompanies
     })
 
     if (!isOk) {
@@ -194,6 +207,15 @@ export function RaffleCreate() {
                   </ChakraRadio>
                 )}
               />
+
+              {isOpenToOtherCompanies === '1' && (
+                <CompanyMultipleSelect
+                  label="Empresas participantes"
+                  size="sm"
+                  selectedOptions={selectedCompanies}
+                  setSelectedOptions={setSelectedCompanies}
+                />
+              )}
 
               <Controller
                 control={control}

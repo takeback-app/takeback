@@ -44,6 +44,10 @@ import { DrawRaffleButton } from './components/DrawRaffleButton'
 import { EditItemsCard } from './components/EditItemsCard'
 import { DetailsItemCard } from './components/DetailsItemCard'
 import { RaffleStatus } from '.'
+import {
+  CompanyMultipleSelect,
+  Option
+} from './components/CompanyMultipleSelect'
 
 const schema = z.object({
   title: z.string(),
@@ -57,6 +61,12 @@ const schema = z.object({
 
 export type UpdateRaffleData = z.infer<typeof schema>
 
+interface Company {
+  company: {
+    id: string
+    fantasyName: string
+  }
+}
 interface Raffle {
   id: string
   title: string
@@ -95,6 +105,7 @@ interface Raffle {
     id: number
     description: string
   }
+  openToCompanyRaffles: Company[]
 }
 
 interface RaffleDetailsProps {
@@ -127,12 +138,15 @@ export function RaffleDetails({ type = 'show' }: RaffleDetailsProps) {
     })
 
   const files = watch('file')
+  const isOpenToOtherCompanies = watch('isOpenToOtherCompanies')
 
   const isPassedDrawDate = useMemo(() => {
     if (!raffle) return false
 
     return new Date(raffle.drawDate) <= new Date()
   }, [raffle])
+
+  const [selectedCompanies, setSelectedCompanies] = useState<Option[]>([])
 
   async function onSubmit(data: UpdateRaffleData) {
     if (!items.length) {
@@ -171,6 +185,10 @@ export function RaffleDetails({ type = 'show' }: RaffleDetailsProps) {
       })
     }
 
+    const openToOtherCompanies: string[] = selectedCompanies.map(
+      (company: Option) => String(company.value)
+    )
+
     const [isOk, storeData] = await updateRaffle(id, {
       title: data.title,
       drawDate: new Date(data.drawDate).toISOString(),
@@ -179,7 +197,8 @@ export function RaffleDetails({ type = 'show' }: RaffleDetailsProps) {
       isOpenToEmployees: data.isOpenToEmployees === '1',
       ticketValue: unMaskCurrency(data.ticketValue),
       pickUpLocation: data.pickUpLocation,
-      items: itemsWithImageUrl
+      items: itemsWithImageUrl,
+      openToOtherCompanies
     })
 
     if (!isOk) {
@@ -206,8 +225,16 @@ export function RaffleDetails({ type = 'show' }: RaffleDetailsProps) {
     setValue('pickUpLocation', data.pickUpLocation)
     setValue('isOpenToOtherCompanies', data.isOpenToOtherCompanies ? '1' : '0')
     setValue('isOpenToEmployees', data.isOpenToEmployees ? '1' : '0')
-
     setItems(data.items)
+
+    setSelectedCompanies(
+      data.openToCompanyRaffles.map(company => {
+        return {
+          label: company.company.fantasyName,
+          value: company.company.id
+        }
+      })
+    )
   }
 
   if (isLoading) {
@@ -304,6 +331,16 @@ export function RaffleDetails({ type = 'show' }: RaffleDetailsProps) {
                   </ChakraRadio>
                 )}
               />
+
+              {isOpenToOtherCompanies === '1' && (
+                <CompanyMultipleSelect
+                  label="Empresas participantes"
+                  size="sm"
+                  isReadOnly={isReadOnly}
+                  selectedOptions={selectedCompanies}
+                  setSelectedOptions={setSelectedCompanies}
+                />
+              )}
 
               <Controller
                 control={control}
