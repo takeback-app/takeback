@@ -46,15 +46,15 @@ export function SidebarContent({ onClose, ...rest }: SidebarProps) {
   }
 
   const navDataFiltred = navData.filter(navItem => {
-    if (hasMatchingAccess(navItem)) {
-      if (navItem.pages && navItem.pages.length > 0) {
-        navItem.pages = navItem.pages.filter(pageItem =>
-          hasMatchingAccess(pageItem)
-        )
-      }
-      return true
+    if (!hasMatchingAccess(navItem)) {
+      return false
     }
-    return false
+    if (navItem.pages && navItem.pages.length > 0) {
+      navItem.pages = navItem.pages.filter(pageItem =>
+        hasMatchingAccess(pageItem)
+      )
+    }
+    return true
   })
 
   return (
