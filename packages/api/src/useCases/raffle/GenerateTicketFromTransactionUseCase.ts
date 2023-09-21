@@ -1,24 +1,24 @@
-import { Decimal } from "@prisma/client/runtime";
-import { prisma } from "../../prisma";
-import { GenerateTicketsUseCase } from "./GenerateTicketsUseCase";
-import { TransactionStatusEnum } from "../../enum/TransactionStatusEnum";
-import { RaffleTicketStatus } from "@prisma/client";
+import { Decimal } from '@prisma/client/runtime'
+import { RaffleTicketStatus } from '@prisma/client'
+import { GenerateTicketsUseCase } from './GenerateTicketsUseCase'
+import { prisma } from '../../prisma'
+import { TransactionStatusEnum } from '../../enum/TransactionStatusEnum'
 
 interface Transaction {
-  id: number;
-  companiesId: string;
-  consumersId: string;
-  totalAmount: number | Decimal;
-  transactionStatusId: number;
+  id: number
+  companiesId: string
+  consumersId: string
+  totalAmount: number | Decimal
+  transactionStatusId: number
 }
 
 export class GenerateTicketFromTransactionUseCase {
   async execute(transaction: Transaction) {
-    const useCase = new GenerateTicketsUseCase();
+    const useCase = new GenerateTicketsUseCase()
 
     const transactionStatus = await prisma.transactionStatus.findFirstOrThrow({
       where: { id: transaction.transactionStatusId },
-    });
+    })
 
     await useCase.execute({
       companyId: transaction.companiesId,
@@ -30,6 +30,6 @@ export class GenerateTicketFromTransactionUseCase {
         TransactionStatusEnum.PAID_WITH_TAKEBACK
           ? RaffleTicketStatus.ACTIVE
           : RaffleTicketStatus.PENDING,
-    });
+    })
   }
 }
