@@ -10,6 +10,7 @@ import {
   BarElement
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
+import { currencyFormat } from '../../../utils/currencyFormat'
 
 ChartJS.register(
   ArcElement,
@@ -37,13 +38,14 @@ interface DataProps {
 
 interface Props {
   data: DataProps
-  tooltipFormat: 'decimal' | 'percent'
+  tooltipFormat: 'decimal' | 'percent' | 'currency'
   datalabels: boolean
 }
 
 export const BarChart: React.FC<React.PropsWithChildren<Props>> = ({
   data,
-  tooltipFormat
+  tooltipFormat,
+  datalabels
 }) => (
   <Bar
     width="200"
@@ -58,10 +60,14 @@ export const BarChart: React.FC<React.PropsWithChildren<Props>> = ({
       },
       plugins: {
         datalabels: {
+          display: datalabels,
           formatter: function (value) {
             if (tooltipFormat === 'percent') {
               const formatedNumber = value * 100
               return `${formatedNumber.toFixed(2)}%`
+            }
+            if (tooltipFormat === 'currency') {
+              return currencyFormat(value)
             }
             return value
           },
@@ -83,12 +89,15 @@ export const BarChart: React.FC<React.PropsWithChildren<Props>> = ({
         tooltip: {
           callbacks: {
             label(tooltipItem) {
+              const value = tooltipItem.raw as number
               if (tooltipFormat === 'percent') {
-                const value = tooltipItem.raw as number
                 const formatedNumber = value * 100
                 return `${formatedNumber.toFixed(2)}%`
               }
-              return `${tooltipItem.raw}`
+              if (tooltipFormat === 'currency') {
+                return currencyFormat(value)
+              }
+              return `${value}`
             }
           }
         }
