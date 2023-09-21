@@ -41,6 +41,19 @@ import { Nav } from '../layout/SidebarContent'
 
 // accessChecker habilita a checagem, se canAccessClientReport a sidebar só vai exibir essa opção caso a company tenha acesso aos relatórios do cliente
 
+export enum AccessControlEnum {
+  BIRTHDAY_NOTIFICATION = 'BIRTHDAY_NOTIFICATION',
+  CLIENT_REPORT = 'CLIENT_REPORT',
+  INTEGRATION = 'INTEGRATION',
+  // Se a empresa tiver algum tipo de integração e QRCode
+  NOT_INTEGRATION_AND_QRCODE = 'NOT_INTEGRATION_AND_QRCODE',
+  QR_CODE = 'QR_CODE',
+  // Se a empresa tiver alguma oferta cadastrada e em andamento (com a data de retirada dentro do prazo).
+  STORE_PRODUCTS = 'STORE_PRODUCTS'
+}
+
+export type AccessControlTypes = Array<keyof typeof AccessControlEnum>
+
 export const managerNav: Nav[] = [
   {
     id: 0,
@@ -48,7 +61,8 @@ export const managerNav: Nav[] = [
     activeIcon: IoGrid,
     inactiveIcon: IoGridOutline,
     isActive: true,
-    to: '/painel'
+    to: '/painel',
+    accessChecker: []
   },
   {
     id: 1,
@@ -56,7 +70,8 @@ export const managerNav: Nav[] = [
     activeIcon: IoCart,
     inactiveIcon: IoCartOutline,
     isActive: false,
-    to: '/caixa'
+    to: '/caixa',
+    accessChecker: []
   },
   // {
   //   id: 2,
@@ -74,7 +89,8 @@ export const managerNav: Nav[] = [
     inactiveIcon: IoCartOutline,
     hasDotKey: 'cashbackRequest',
     isActive: false,
-    to: '/solicitações/cashback'
+    to: '/solicitações/cashback',
+    accessChecker: [AccessControlEnum.NOT_INTEGRATION_AND_QRCODE]
   },
   {
     id: 11,
@@ -82,7 +98,8 @@ export const managerNav: Nav[] = [
     activeIcon: FaRegBookmark,
     inactiveIcon: FaRegBookmark,
     isActive: false,
-    to: '/receber-cashback'
+    to: '/receber-cashback',
+    accessChecker: []
   },
   {
     id: 4,
@@ -90,7 +107,8 @@ export const managerNav: Nav[] = [
     activeIcon: IoTicket,
     inactiveIcon: IoTicketOutline,
     isActive: false,
-    to: '/sorteios'
+    to: '/sorteios',
+    accessChecker: []
   },
   {
     id: 5,
@@ -98,7 +116,8 @@ export const managerNav: Nav[] = [
     activeIcon: FaShoppingBag,
     inactiveIcon: FaShoppingBag,
     isActive: false,
-    to: '/retirada-ofertas'
+    to: '/retirada-ofertas',
+    accessChecker: [AccessControlEnum.STORE_PRODUCTS]
   },
   {
     id: 10,
@@ -106,7 +125,8 @@ export const managerNav: Nav[] = [
     activeIcon: IoNewspaperOutline,
     inactiveIcon: IoNewspaperOutline,
     isActive: false,
-    to: '/extrato'
+    to: '/extrato',
+    accessChecker: []
   },
   {
     id: 6,
@@ -115,6 +135,7 @@ export const managerNav: Nav[] = [
     inactiveIcon: IoNotificationsOutline,
     isActive: false,
     to: '/notificacoes',
+    accessChecker: [],
     pages: [
       {
         id: 0,
@@ -122,7 +143,8 @@ export const managerNav: Nav[] = [
         activeIcon: IoSend,
         inactiveIcon: IoSendOutline,
         isActive: false,
-        to: '/notificacoes'
+        to: '/notificacoes',
+        accessChecker: []
       },
       {
         id: 1,
@@ -130,7 +152,8 @@ export const managerNav: Nav[] = [
         activeIcon: IoGift,
         inactiveIcon: IoGiftOutline,
         isActive: false,
-        to: '/notificacoes/aniversario'
+        to: '/notificacoes/aniversario',
+        accessChecker: []
       }
     ]
   },
@@ -149,7 +172,8 @@ export const managerNav: Nav[] = [
         activeIcon: IoBagRemove,
         inactiveIcon: IoBagRemoveOutline,
         isActive: false,
-        to: '/cashbacks/pendentes'
+        to: '/cashbacks/pendentes',
+        accessChecker: []
       },
       {
         id: 1,
@@ -157,7 +181,8 @@ export const managerNav: Nav[] = [
         activeIcon: BsCashCoin,
         inactiveIcon: BsCash,
         isActive: false,
-        to: '/cashbacks/saque'
+        to: '/cashbacks/saque',
+        accessChecker: []
       },
       {
         id: 2,
@@ -165,7 +190,8 @@ export const managerNav: Nav[] = [
         activeIcon: IoLayersSharp,
         inactiveIcon: IoLayersOutline,
         isActive: false,
-        to: '/cashbacks/pagamentos'
+        to: '/cashbacks/pagamentos',
+        accessChecker: []
       },
       {
         id: 3,
@@ -173,7 +199,8 @@ export const managerNav: Nav[] = [
         activeIcon: RiTimeFill,
         inactiveIcon: RiTimeLine,
         isActive: false,
-        to: '/cashbacks/historico'
+        to: '/cashbacks/historico',
+        accessChecker: []
       },
       {
         id: 5,
@@ -181,9 +208,11 @@ export const managerNav: Nav[] = [
         activeIcon: FaCashRegister,
         inactiveIcon: FaCashRegister,
         isActive: false,
-        to: '/caixa/check'
+        to: '/caixa/check',
+        accessChecker: []
       }
-    ]
+    ],
+    accessChecker: []
   },
   {
     id: 8,
@@ -201,7 +230,8 @@ export const managerNav: Nav[] = [
         inactiveIcon: IoPeopleOutline,
         isActive: false,
         to: '/relatorios/cliente',
-        userBlocked: 0
+        userBlocked: 0,
+        accessChecker: []
       },
       {
         id: 1,
@@ -210,7 +240,8 @@ export const managerNav: Nav[] = [
         inactiveIcon: IoStorefrontOutline,
         isActive: false,
         to: '/relatorios/venda',
-        userBlocked: 0
+        userBlocked: 0,
+        accessChecker: []
       },
       {
         id: 2,
@@ -219,7 +250,8 @@ export const managerNav: Nav[] = [
         inactiveIcon: IoArrowUndoCircleOutline,
         isActive: false,
         to: '/relatorios/cashback',
-        userBlocked: 0
+        userBlocked: 0,
+        accessChecker: []
       },
       {
         id: 3,
@@ -228,11 +260,10 @@ export const managerNav: Nav[] = [
         inactiveIcon: IoNewspaperOutline,
         isActive: false,
         to: '/cliente/perfil',
-        accessChecker: {
-          checkAccessClientReport: true
-        }
+        accessChecker: [AccessControlEnum.CLIENT_REPORT]
       }
-    ]
+    ],
+    accessChecker: []
   },
   {
     id: 9,
@@ -250,7 +281,8 @@ export const managerNav: Nav[] = [
         inactiveIcon: IoStorefrontOutline,
         isActive: false,
         to: '/configuracoes/empresa',
-        userBlocked: 0
+        userBlocked: 0,
+        accessChecker: []
       },
       {
         id: 1,
@@ -259,7 +291,8 @@ export const managerNav: Nav[] = [
         inactiveIcon: IoImageOutline,
         isActive: false,
         to: '/configuracoes/trocar-logo',
-        userBlocked: 0
+        userBlocked: 0,
+        accessChecker: []
       },
       {
         id: 2,
@@ -268,7 +301,8 @@ export const managerNav: Nav[] = [
         inactiveIcon: IoIdCardOutline,
         isActive: false,
         to: '/configuracoes/usuarios',
-        userBlocked: 0
+        userBlocked: 0,
+        accessChecker: []
       },
       {
         id: 3,
@@ -277,8 +311,10 @@ export const managerNav: Nav[] = [
         inactiveIcon: IoCardOutline,
         isActive: false,
         to: '/configuracoes/pagamento',
-        userBlocked: 0
+        userBlocked: 0,
+        accessChecker: []
       }
-    ]
+    ],
+    accessChecker: []
   }
 ]

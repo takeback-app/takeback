@@ -1,34 +1,31 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express'
 // import { FindAppDataUseCase } from "./FindAppDataUseCase";
 
-import { ReportCashbackByPeriodUseCase } from "./ReportCashbackByPeriodUseCase";
-import { ReportCashbackByPaymentMethodUseCase } from "./ReportCashbackByPaymentMethodUseCase";
-import { BillingReportUseCase } from "./BillingReportUseCase";
+import { ReportCashbackByPeriodUseCase } from './ReportCashbackByPeriodUseCase'
+import { BillingReportUseCase } from './BillingReportUseCase'
+import { ReportBillingByPeriodUseCase } from './ReportBillingByPeriodUseCase'
 
 class ReportsController {
   async dashboardReports(request: Request, response: Response) {
-    const { companyId, userId } = request["tokenPayload"];
+    const { companyId } = request['tokenPayload']
 
-    const cashbacksByPeriodReport = new ReportCashbackByPeriodUseCase();
-    const billingReport = new BillingReportUseCase();
-    const cashbacksByPaymentMethodsReport =
-      new ReportCashbackByPaymentMethodUseCase();
+    const cashbacksByPeriodReport = new ReportCashbackByPeriodUseCase()
+    const billingReport = new BillingReportUseCase()
+    const billingsByPeriodReport = new ReportBillingByPeriodUseCase()
 
-    const cashbacksByPeriod = await cashbacksByPeriodReport.execute({
+    const cashbacksByPeriod = await cashbacksByPeriodReport.execute(
+      6,
       companyId,
-      userId,
-    });
+    )
 
-    const cashbacksByMethods = await cashbacksByPaymentMethodsReport.execute({
-      companyId,
-    });
+    const billingsByPeriod = await billingsByPeriodReport.execute(6, companyId)
 
-    const companyAmount = await billingReport.execute({ companyId });
+    const companyAmount = await billingReport.execute({ companyId })
 
     return response
       .status(200)
-      .json({ cashbacksByPeriod, cashbacksByMethods, companyAmount });
+      .json({ cashbacksByPeriod, billingsByPeriod, companyAmount })
   }
 }
 
-export { ReportsController };
+export { ReportsController }

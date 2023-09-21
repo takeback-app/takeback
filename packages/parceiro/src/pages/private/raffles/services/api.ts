@@ -49,6 +49,7 @@ export interface RaffleFormData {
   ticketValue: number
   pickUpLocation: string
   title: string
+  openToOtherCompanies?: string[]
 }
 
 export async function storeRaffle(data: RaffleFormData): Promise<ReturnApi> {

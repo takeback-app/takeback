@@ -2,7 +2,7 @@ import { BaseGraphUseCase } from './BaseGraphUseCase'
 import { prisma } from '../../../prisma'
 import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
 
-export class ReportCashbackByPeriodUseCase extends BaseGraphUseCase {
+export class ReportBillingByPeriodUseCase extends BaseGraphUseCase {
   async getMonthlyValue(
     monthStart: Date,
     monthEnd: Date,
@@ -21,9 +21,9 @@ export class ReportCashbackByPeriodUseCase extends BaseGraphUseCase {
         },
         createdAt: { gte: monthStart, lt: monthEnd },
       },
-      _sum: { cashbackAmount: true },
+      _sum: { totalAmount: true },
     })
 
-    return +data._sum.cashbackAmount
+    return +data._sum.totalAmount
   }
 }
