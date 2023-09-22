@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { load } from 'cheerio'
 import { DateTime } from 'luxon'
-import { NFCePaymentMethod, QRCode } from '@prisma/client'
+import { NFCePaymentMethod, QRCode, TransactionSource } from '@prisma/client'
 import { Decimal } from '@prisma/client/runtime/library'
 import { getNFCePaymentMethod } from '../../enum/NfcePaymentMethodEnum'
 import { prisma } from '../../prisma'
@@ -168,6 +168,7 @@ export class QRCodeUseCase {
         createdAt: issuedAt,
         totalAmount: totalAmount.toNumber(),
         paymentMethods,
+        transactionSource: TransactionSource.APP,
       })
     }
 
