@@ -27,6 +27,7 @@ import { AppTable } from '../../components/tables'
 import { Pagination } from '../../components/tables/Pagination'
 import { currencyFormat } from '../../utils/currencytFormat'
 import { TextBreak } from '../../components/tables/TextBreak'
+import { TransactionSourceEnum } from '../../enums/TransactionSource.enum'
 
 export interface CashbackData {
   id: number
@@ -42,6 +43,7 @@ export interface CashbackData {
   companyTotalPay: number
   companyName: string
   companyUserName: string
+  transactionSource: TransactionSourceEnum
 }
 
 export interface TotalizerData {
@@ -204,6 +206,7 @@ export function CashbackReport() {
               <Th>Cashback</Th>
               <Th>Troco</Th>
               <Th>V. a pagar</Th>
+              <Th>Origem</Th>
               <Th>Dt. de emissão</Th>
             </Tr>
           </Thead>
@@ -236,6 +239,11 @@ export function CashbackReport() {
                       cashback.takebackFeeAmount +
                       cashback.backAmount
                   )}
+                </Td>
+                <Td px="2" fontSize="xs" textTransform="capitalize">
+                  {cashback.transactionSource
+                    ? cashback.transactionSource.toLowerCase()
+                    : '-'}
                 </Td>
                 <Td fontSize="xs">
                   {new Date(cashback.createdAt).toLocaleString()}

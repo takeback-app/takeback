@@ -201,6 +201,7 @@ export class CashbacksReport extends BaseReportWithTotalizer<
         'companies.fantasyName as companyName',
         'company_users.name as companyUserName',
         'transaction_status.description as status',
+        'transactions.transactionSource',
         db.raw('max(payment_methods.description) as "paymentMethod"'),
       )
       .orderBy(orderByColumn, order)

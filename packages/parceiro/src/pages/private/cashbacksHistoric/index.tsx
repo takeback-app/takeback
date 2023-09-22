@@ -37,6 +37,7 @@ import {
   chargebackTransaction
 } from '../../../components/modals/ChargebackModalButton'
 import { FiRotateCw } from 'react-icons/fi'
+import { TransactionSourceEnum } from '../../../enums/TransactionSource.enum'
 
 interface Cashback {
   id: number
@@ -56,6 +57,7 @@ interface Cashback {
   transactionStatus: {
     description: string
   }
+  transactionSource: TransactionSourceEnum
 }
 
 interface TransactionPaymentMethod {
@@ -176,6 +178,7 @@ export function CashbackHistoric() {
               <Th px="2">Tx. Takeback</Th>
               <Th px="2">Troco</Th>
               <Th px="2">T. a Pagar</Th>
+              <Th px="2">Origem</Th>
               <Th px="2">Data de Emissão</Th>
             </Tr>
           </Thead>
@@ -224,6 +227,11 @@ export function CashbackHistoric() {
                       parseFloat(item.takebackFeeAmount) +
                       parseFloat(item.backAmount)
                   )}
+                </Td>
+                <Td px="2" fontSize="xs" textTransform="capitalize">
+                  {item.transactionSource
+                    ? item.transactionSource.toLowerCase()
+                    : '-'}
                 </Td>
                 <Td px="2" fontSize="xs">
                   {new Date(item.createdAt).toLocaleString()}
