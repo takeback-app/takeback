@@ -41,6 +41,7 @@ import { FiFilter } from 'react-icons/fi'
 import { FilterDrawer } from './components/FilterDrawer'
 import { useCashbackPay } from './state'
 import { PixQRCode } from 'pix-react'
+import { TransactionSourceEnum } from '../../../enums/TransactionSource.enum'
 
 export type NfceValidationStatus = 'IN_PROGRESS' | 'NOT_FOUND' | 'VALIDATED'
 
@@ -64,6 +65,7 @@ interface TransactionProps {
     name: string
   }
   qrCodeId: string | null
+  transactionSource: TransactionSourceEnum
 }
 
 interface TransactionPaymentMethod {
@@ -422,6 +424,7 @@ export const Cashback: React.FC = () => {
                       <S.Th>Taxa Takeback</S.Th>
                       <S.Th>Troco</S.Th>
                       <S.Th>Total a Pagar</S.Th>
+                      <S.Th>Origem</S.Th>
                       <S.Th>Data de Emissão</S.Th>
                     </S.Tr>
                   </S.THead>
@@ -489,6 +492,11 @@ export const Cashback: React.FC = () => {
                               parseFloat(item.takebackFeeAmount) +
                               parseFloat(item.backAmount)
                           )}
+                        </S.Td>
+                        <S.Td style={{ textTransform: 'capitalize' }}>
+                          {item.transactionSource
+                            ? item.transactionSource.toLowerCase()
+                            : '-'}
                         </S.Td>
                         <S.Td>{new Date(item.createdAt).toLocaleString()}</S.Td>
                       </S.Tr>

@@ -1,29 +1,30 @@
-import { ValidateUserPasswordUseCase } from "../../controllers/company/companyCashback/ValidateUserPasswordUseCase";
-import { prisma } from "../../prisma";
-import { PlaceholderConsumer } from "../consumer/CreatePlaceholderConsumer";
-import { GenerateCashbackUseCase } from "./GenerateCashbackUseCase";
+import { TransactionSource } from '@prisma/client'
+import { GenerateCashbackUseCase } from './GenerateCashbackUseCase'
+import { ValidateUserPasswordUseCase } from '../../controllers/company/companyCashback/ValidateUserPasswordUseCase'
+import { prisma } from '../../prisma'
+import { PlaceholderConsumer } from '../consumer/CreatePlaceholderConsumer'
 
 interface MethodData {
-  id: number;
-  value: number;
+  id: number
+  value: number
 }
 
 interface CashRegisterDTO {
-  companyId: string;
-  cpf: string;
-  totalAmount: number;
-  companyUserPassword: string;
-  backAmount: number;
-  paymentMethods: MethodData[];
+  companyId: string
+  cpf: string
+  totalAmount: number
+  companyUserPassword: string
+  backAmount: number
+  paymentMethods: MethodData[]
 }
 
 export class CashRegisterUseCase {
-  private validateUserPassword: ValidateUserPasswordUseCase;
-  private generateCashbackUseCase: GenerateCashbackUseCase;
+  private validateUserPassword: ValidateUserPasswordUseCase
+  private generateCashbackUseCase: GenerateCashbackUseCase
 
   constructor() {
-    this.validateUserPassword = new ValidateUserPasswordUseCase();
-    this.generateCashbackUseCase = new GenerateCashbackUseCase();
+    this.validateUserPassword = new ValidateUserPasswordUseCase()
+    this.generateCashbackUseCase = new GenerateCashbackUseCase()
   }
 
   async execute(data: CashRegisterDTO) {
@@ -34,20 +35,20 @@ export class CashRegisterUseCase {
       paymentMethods,
       totalAmount,
       backAmount,
-    } = data;
+    } = data
 
     const { id: companyUserId } =
       await this.validateUserPassword.findCompanyUserByPassword(
         companyId,
-        companyUserPassword
-      );
+        companyUserPassword,
+      )
 
     let consumer = await prisma.consumer.findFirst({
       where: { cpf },
-    });
+    })
 
     if (!consumer) {
-      consumer = await PlaceholderConsumer.create(cpf);
+      consumer = await PlaceholderConsumer.create(cpf)
     }
 
     return this.generateCashbackUseCase.execute({
@@ -57,6 +58,7 @@ export class CashRegisterUseCase {
       paymentMethods,
       totalAmount,
       backAmount,
-    });
+      transactionSource: TransactionSource.CHECKOUT,
+    })
   }
 }

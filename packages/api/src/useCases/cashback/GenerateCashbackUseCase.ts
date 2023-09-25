@@ -1,4 +1,9 @@
-import { Company, Consumer, Transaction } from '@prisma/client'
+import {
+  Company,
+  Consumer,
+  Transaction,
+  TransactionSource,
+} from '@prisma/client'
 import { TransactionGenerator } from './TransactionGenerator'
 import { InternalError } from '../../config/GenerateErros'
 import { prisma } from '../../prisma'
@@ -20,6 +25,7 @@ interface GenerateCashbackUseDTO {
   backAmount?: number
   createdAt?: Date
   paymentMethods: PaymentMethod[]
+  transactionSource: TransactionSource
 }
 
 export class GenerateCashbackUseCase {
@@ -42,6 +48,7 @@ export class GenerateCashbackUseCase {
       companyId,
       companyUserId,
       consumerId,
+      transactionSource,
     } = data
 
     const sumMethodValue = Number(
@@ -111,6 +118,7 @@ export class GenerateCashbackUseCase {
         createdAt: data.createdAt,
         backAmount,
         transactionStatusId,
+        transactionSource,
       },
     })
 
