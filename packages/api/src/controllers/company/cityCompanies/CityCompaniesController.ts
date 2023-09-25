@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { prisma } from '../../../prisma'
+import { CompanyStatusEnum } from '../../../enum/CompanyStatusEnum'
 
 export class CityCompaniesController {
   async index(request: Request, response: Response) {
@@ -22,6 +23,9 @@ export class CityCompaniesController {
       where: {
         companyAddress: {
           cityId: company.companyAddress.cityId,
+        },
+        companyStatus: {
+          description: CompanyStatusEnum.ACTIVE,
         },
       },
       select: {
