@@ -4,6 +4,7 @@ export interface RequestBody {
   Cnpj: string
   Num_Venda: string
   CPF: string
+  CPF_Vendedor: string
   Data_hora_compra: string
   Valor_total: string
   Troco_Cash: string
@@ -17,6 +18,7 @@ interface SellDto {
   cnpj: string
   sellId: string
   consumerCpf: string
+  companyUserCpf: string
   createdAt: Date
   totalAmount: number
   backAmount: number
@@ -32,6 +34,7 @@ export class CMMSellRequest {
       cnpj: data.Cnpj,
       sellId: data.Num_Venda,
       consumerCpf: data.CPF,
+      companyUserCpf: data.CPF_Vendedor,
       createdAt: DateTime.fromFormat(
         data.Data_hora_compra,
         'dd-MM-yyyy HH:mm:ss',

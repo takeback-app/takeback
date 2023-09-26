@@ -1,23 +1,29 @@
 import { Request, Response } from 'express'
 import { Decimal } from '@prisma/client/runtime'
+import { TransactionSource } from '@prisma/client'
 import { CMMSellRequest } from '../../../requests/CMMSellRequest'
 import { prisma } from '../../../prisma'
 import { GenerateCashbackUseCase } from '../../../useCases/cashback/GenerateCashbackUseCase'
+import { PlaceholderConsumer } from '../../../useCases/consumer/CreatePlaceholderConsumer'
 
 class SellController {
   async handle(request: Request, response: Response) {
     const data = request.body
 
-    const { cnpj, consumerCpf, ...cashbackData } =
+    const { cnpj, consumerCpf, companyUserCpf, ...cashbackData } =
       CMMSellRequest.getDataFormatted(data)
 
     const company = await prisma.company.findFirst({
       where: {
         registeredNumber: cnpj,
-        // TODO: verificar se existe integração com CMM
+        useCMM: true,
       },
       select: { id: true },
     })
+
+    if (!company) {
+      return response.status(400).json({ message: 'Empresa não encontrada' })
+    }
 
     const paymentMethods = []
 
@@ -47,29 +53,46 @@ class SellController {
       })
     }
 
-    if (!company) {
-      return response.status(400).json({ message: 'Empresa não encontrada' })
-    }
-
-    const consumer = await prisma.consumer.findFirst({
+    let consumer = await prisma.consumer.findFirst({
       where: {
         cpf: consumerCpf,
-        isPlaceholderConsumer: false, // TODO: verificar se pode ser ou não
-        deactivatedAccount: false,
       },
     })
 
-    if (!consumer) {
-      return response.status(400).json({ message: 'Cliente não encontrado' })
+    if (consumer?.deactivatedAccount) {
+      return response.status(400).json({ message: 'Cliente desativado' })
     }
+
+    if (!consumer) {
+      consumer = await PlaceholderConsumer.create(consumerCpf)
+    }
+
+    const companyUser = await prisma.companyUser.findFirst({
+      where: {
+        cpf: companyUserCpf,
+      },
+    })
 
     const useCase = new GenerateCashbackUseCase()
 
-    await useCase.execute({
+    const transaction = await useCase.execute({
       companyId: company.id,
       consumerId: consumer.id,
+      companyUserId: companyUser?.id,
       ...cashbackData,
       paymentMethods,
+      transactionSource: TransactionSource.CHECKOUT,
+    })
+
+    if (!transaction) {
+      return response.status(400).json({ message: 'Erro ao criar transação' })
+    }
+
+    await prisma.cmmSells.create({
+      data: {
+        sell: data,
+        transactionId: transaction.id,
+      },
     })
 
     return response
