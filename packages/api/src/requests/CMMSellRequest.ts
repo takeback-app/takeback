@@ -22,6 +22,7 @@ interface SellDto {
   createdAt: Date
   totalAmount: number
   backAmount: number
+  hasBackAmount: boolean
   paymentMethods: {
     tPag: number
     value: number
@@ -30,6 +31,7 @@ interface SellDto {
 
 export class CMMSellRequest {
   public static getDataFormatted(data: RequestBody): SellDto {
+    const hasBackAmount = data.Troco_Cash === 'Sim'
     return {
       cnpj: data.Cnpj,
       sellId: data.Num_Venda,
@@ -40,7 +42,8 @@ export class CMMSellRequest {
         'dd-MM-yyyy HH:mm:ss',
       ).toJSDate(),
       totalAmount: Number(data.Valor_total),
-      backAmount: data.Troco_Cash === 'Nao' ? undefined : 0,
+      hasBackAmount,
+      backAmount: hasBackAmount ? 0 : undefined,
       paymentMethods: data.Cond_Pag.map((pag) => ({
         tPag: Number(pag.Condicao.split(' - ')[0]),
         value: Number(pag.Valor_pag_cond),

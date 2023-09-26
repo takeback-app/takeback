@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { Decimal } from '@prisma/client/runtime'
 import { TransactionSource } from '@prisma/client'
+import { DateTime } from 'luxon'
 import { CMMSellRequest } from '../../../requests/CMMSellRequest'
 import { prisma } from '../../../prisma'
 import { GenerateCashbackUseCase } from '../../../useCases/cashback/GenerateCashbackUseCase'
@@ -17,8 +18,11 @@ class SellController {
       where: {
         registeredNumber: cnpj,
         useCMM: true,
+        paymentPlan: {
+          canUseIntegration: true,
+        },
       },
-      select: { id: true },
+      select: { id: true, useCashbackAsBack: true },
     })
 
     if (!company) {
@@ -46,12 +50,25 @@ class SellController {
       paymentMethods.push({ id: companyPaymentMethod.id, value: payment.value })
     }
 
-    if (!totalAmount.equals(cashbackData.totalAmount)) {
+    const backAmount =
+      cashbackData.hasBackAmount && company.useCashbackAsBack
+        ? totalAmount.toNumber() - cashbackData.totalAmount
+        : 0
+
+    const notBackAmountAndNotTotalAmountsEquals =
+      !totalAmount.equals(cashbackData.totalAmount) &&
+      !cashbackData.hasBackAmount
+
+    if (notBackAmountAndNotTotalAmountsEquals || backAmount < 0) {
       return response.status(400).json({
         message:
           'Valor total da compra não bate com os valores unitários para cada forma de pagamento',
       })
     }
+
+    cashbackData.backAmount = backAmount
+
+    delete cashbackData.hasBackAmount
 
     let consumer = await prisma.consumer.findFirst({
       where: {
@@ -75,22 +92,37 @@ class SellController {
 
     const useCase = new GenerateCashbackUseCase()
 
-    const transaction = await useCase.execute({
-      companyId: company.id,
-      consumerId: consumer.id,
-      companyUserId: companyUser?.id,
-      ...cashbackData,
-      paymentMethods,
-      transactionSource: TransactionSource.CHECKOUT,
+    let transaction = await prisma.transaction.findFirst({
+      where: {
+        companiesId: company.id,
+        consumersId: consumer.id,
+        totalAmount,
+        createdAt: {
+          gte: DateTime.fromJSDate(cashbackData.createdAt)
+            .minus({ hour: 2 })
+            .toJSDate(),
+          lte: DateTime.fromJSDate(cashbackData.createdAt)
+            .plus({ hour: 2 })
+            .toJSDate(),
+        },
+      },
     })
 
     if (!transaction) {
-      return response.status(400).json({ message: 'Erro ao criar transação' })
+      transaction = await useCase.execute({
+        companyId: company.id,
+        consumerId: consumer.id,
+        companyUserId: companyUser?.id,
+        ...cashbackData,
+        paymentMethods,
+        transactionSource: TransactionSource.CHECKOUT,
+      })
     }
 
     await prisma.cmmSells.create({
       data: {
         sell: data,
+        sellId: cashbackData.sellId,
         transactionId: transaction.id,
       },
     })
