@@ -1090,7 +1090,8 @@ model StoreOrder {
 }
 
 model CmmSells {
-  id            Int  @id @default(autoincrement())
+  id            Int    @id @default(autoincrement())
+  sellId        String
   sell          Json
   transactionId Int
 

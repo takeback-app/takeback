@@ -53,6 +53,11 @@ class FindPendingCashbacksUseCase {
           },
         },
         transactionSource: true,
+        cmmSells: {
+          select: {
+            sellId: true,
+          },
+        },
       },
       where: {
         companiesId: companyId,
