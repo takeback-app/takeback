@@ -52,6 +52,7 @@ class FindPendingCashbacksUseCase {
             },
           },
         },
+        transactionSource: true,
       },
       where: {
         companiesId: companyId,

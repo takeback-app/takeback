@@ -70,9 +70,10 @@ model Company {
   logoChangeRequests          LogoChangeRequest[]
   accessTokens                AccessToken[]
   integrationSettings         IntegrationSettings?
-  NFCe                        NFCe[]
+  nfce                        NFCe[]
   storeProducts               StoreProduct[]
-  QRCode                      QRCode[]
+  qrCode                      QRCode[]
+  companyRaffles              CompanyRaffle[]
 
   @@map("companies")
 }
@@ -478,8 +479,14 @@ model Transaction {
   commissions                  Commission[]
   nfce                         NFCe?                      @relation(fields: [nfceId], references: [id])
   qrCode                       QRCode?                    @relation(fields: [qrCodeId], references: [id])
+  transactionSource            TransactionSource?
 
   @@map("transactions")
+}
+
+enum TransactionSource {
+  APP
+  CHECKOUT
 }
 
 enum NFCeValidationStatus {
@@ -617,12 +624,23 @@ model Raffle {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  company Company        @relation(fields: [companyId], references: [id])
-  status  RaffleStatus   @relation(fields: [statusId], references: [id])
-  tickets RaffleTicket[]
-  items   RaffleItem[]
+  company              Company         @relation(fields: [companyId], references: [id])
+  status               RaffleStatus    @relation(fields: [statusId], references: [id])
+  tickets              RaffleTicket[]
+  items                RaffleItem[]
+  openToCompanyRaffles CompanyRaffle[]
 
   @@map("raffles")
+}
+
+model CompanyRaffle {
+  id        String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  raffleId  String  @db.Uuid
+  companyId String  @db.Uuid
+  company   Company @relation(fields: [companyId], references: [id])
+  raffle    Raffle  @relation(fields: [raffleId], references: [id])
+
+  @@map("company_raffle")
 }
 
 model RaffleItem {

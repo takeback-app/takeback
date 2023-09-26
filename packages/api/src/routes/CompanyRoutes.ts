@@ -36,6 +36,7 @@ import { ExtractController } from '../controllers/company/extract/ExtractControl
 import { IntegrationController } from '../controllers/company/IntegrationController'
 import { CosumersReportsController } from '../controllers/company/consumersReports/CosumersReportsController'
 import { RecognizeSalesController } from '../controllers/company/recognizeSales/RecognizeSalesController'
+import { CityCompaniesController } from '../controllers/company/cityCompanies/CityCompaniesController'
 
 const auth = new AuthCompanyController()
 const reports = new ReportsController()
@@ -75,6 +76,8 @@ const cosumersReportsController = new CosumersReportsController()
 const recognizeSalesController = new RecognizeSalesController()
 
 const fileController = new FileController()
+
+const cityCompaniesController = new CityCompaniesController()
 
 const routes = Router()
 
@@ -281,5 +284,6 @@ routes.put(
   '/recognize-sales/recognize',
   recognizeSalesController.recognizeSales,
 )
+routes.get('/find/city/companies', cityCompaniesController.index)
 
 export default routes

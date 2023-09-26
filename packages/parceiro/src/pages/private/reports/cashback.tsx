@@ -26,6 +26,7 @@ import { useCashbackReport } from './components/cashback/state'
 import { FilterDrawer } from './components/cashback/FilterDrawer'
 import { API } from '../../../services/API'
 import { currencyFormat } from '../../../utils/currencyFormat'
+import { TransactionSourceEnum } from '../../../enums/TransactionSource.enum'
 
 export interface CashbackData {
   id: number
@@ -39,6 +40,7 @@ export interface CashbackData {
   paymentMethod: string
   isTakebackMethod: boolean
   companyTotalPay: number
+  transactionSource: TransactionSourceEnum
 }
 
 export interface TotalizerData {
@@ -202,6 +204,7 @@ export function CashbackReport() {
               <Th>Cashback</Th>
               <Th>Troco</Th>
               <Th>V. a pagar</Th>
+              <Th>Origem</Th>
               <Th>Dt. de emissão</Th>
             </Tr>
           </Thead>
@@ -220,6 +223,11 @@ export function CashbackReport() {
                 <Td fontSize="xs">{currencyFormat(cashback.backAmount)}</Td>
                 <Td fontSize="xs">
                   {currencyFormat(cashback.companyTotalPay)}
+                </Td>
+                <Td px="2" fontSize="xs" textTransform="capitalize">
+                  {cashback.transactionSource
+                    ? cashback.transactionSource.toLowerCase()
+                    : '-'}
                 </Td>
                 <Td fontSize="xs">
                   {new Date(cashback.createdAt).toLocaleDateString()}

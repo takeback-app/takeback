@@ -61,6 +61,20 @@ export class ExpireTransactionsUseCase {
           break
         }
 
+        const hasPaymentOrder = await prisma.paymentOrder.count({
+          where: {
+            transactions: {
+              some: {
+                id: transaction.id,
+              },
+            },
+          },
+        })
+
+        if (hasPaymentOrder) {
+          continue
+        }
+
         transactionIDs.push(transaction.id)
       }
 

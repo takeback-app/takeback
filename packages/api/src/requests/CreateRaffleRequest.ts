@@ -16,6 +16,7 @@ export const CreateRaffleRequest = z
     drawDate: z.string().datetime(),
     pickUpLocation: z.string(),
     isOpenToOtherCompanies: z.boolean(),
+    openToOtherCompanies: z.string().array().optional(),
     isOpenToEmployees: z.boolean(),
     items: ItemSchema.array(),
   })

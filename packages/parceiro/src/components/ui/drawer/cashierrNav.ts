@@ -7,6 +7,7 @@ import { FaRegBookmark, FaShoppingBag } from 'react-icons/fa'
 import { IoCart, IoCartOutline } from 'react-icons/io5'
 import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
 import { Nav } from '../layout/SidebarContent'
+import { AccessControlEnum } from './managerNav'
 
 // accessChecker habilita a checagem, se canAccessClientReport a sidebar só vai exibir essa opção caso a company tenha acesso aos relatórios do cliente
 
@@ -17,7 +18,8 @@ export const cashierNav: Nav[] = [
     activeIcon: BsFillPiggyBankFill,
     inactiveIcon: BsFillPiggyBankFill,
     isActive: true,
-    to: '/caixa'
+    to: '/caixa',
+    accessChecker: []
   },
   {
     id: 5,
@@ -25,7 +27,8 @@ export const cashierNav: Nav[] = [
     activeIcon: FaRegBookmark,
     inactiveIcon: FaRegBookmark,
     isActive: false,
-    to: '/receber-cashback'
+    to: '/receber-cashback',
+    accessChecker: []
   },
   // {
   //   id: 2,
@@ -43,7 +46,8 @@ export const cashierNav: Nav[] = [
     inactiveIcon: IoCartOutline,
     hasDotKey: 'cashbackRequest',
     isActive: false,
-    to: '/solicitações/cashback'
+    to: '/solicitações/cashback',
+    accessChecker: [AccessControlEnum.NOT_INTEGRATION_AND_QRCODE]
   },
   {
     id: 2,
@@ -51,7 +55,8 @@ export const cashierNav: Nav[] = [
     activeIcon: FaShoppingBag,
     inactiveIcon: FaShoppingBag,
     isActive: false,
-    to: '/retirada-ofertas'
+    to: '/retirada-ofertas',
+    accessChecker: [AccessControlEnum.STORE_PRODUCTS]
   },
   {
     id: 4,
@@ -59,6 +64,7 @@ export const cashierNav: Nav[] = [
     activeIcon: RiTimeFill,
     inactiveIcon: RiTimeLine,
     isActive: false,
-    to: '/cashbacks/historico'
+    to: '/cashbacks/historico',
+    accessChecker: []
   }
 ]

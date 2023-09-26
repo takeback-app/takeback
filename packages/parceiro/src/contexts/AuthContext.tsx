@@ -4,6 +4,7 @@ import React, {
   SetStateAction,
   ReactNode
 } from 'react'
+import { AccessControlTypes } from '../components/ui/drawer/managerNav'
 
 interface IAuth {
   isSignedIn: boolean
@@ -33,17 +34,8 @@ interface IAuth {
   userId: string
   setUserId: React.Dispatch<SetStateAction<string>>
 
-  canAccessClientReport: boolean
-  setCanAccessClientReport: React.Dispatch<SetStateAction<boolean>>
-
-  canHaveStoreProducts: boolean
-  setCanHaveStoreProducts: React.Dispatch<SetStateAction<boolean>>
-
-  canSendBirthdayNotification: boolean
-  setCanSendBirthdayNotification: React.Dispatch<SetStateAction<boolean>>
-
-  canUseIntegration: boolean
-  setCanUseIntegration: React.Dispatch<SetStateAction<boolean>>
+  accessControl: AccessControlTypes
+  setAccessControl: React.Dispatch<SetStateAction<AccessControlTypes>>
 }
 
 export const AuthContext = createContext<IAuth>({} as IAuth)
@@ -62,11 +54,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const [office, setOffice] = useState('')
   const [userId, setUserId] = useState('')
   const [companyName, setCompanyName] = useState('')
-  const [canAccessClientReport, setCanAccessClientReport] = useState(false)
-  const [canHaveStoreProducts, setCanHaveStoreProducts] = useState(false)
-  const [canSendBirthdayNotification, setCanSendBirthdayNotification] =
-    useState(false)
-  const [canUseIntegration, setCanUseIntegration] = useState(false)
+  const [accessControl, setAccessControl] = useState<AccessControlTypes>([])
 
   return (
     <AuthContext.Provider
@@ -89,14 +77,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         setCompanyName,
         generateCashback,
         setGenerateCashback,
-        canAccessClientReport,
-        setCanAccessClientReport,
-        canHaveStoreProducts,
-        setCanHaveStoreProducts,
-        canSendBirthdayNotification,
-        setCanSendBirthdayNotification,
-        canUseIntegration,
-        setCanUseIntegration
+        accessControl,
+        setAccessControl
       }}
     >
       {children}

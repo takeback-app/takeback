@@ -16,6 +16,7 @@ import { LineChart } from '../../../components/charts/lineChart'
 import { DoughnutChart } from '../../../components/charts/doughnutChart'
 
 import * as S from './styles'
+import { BarChart } from '../../../components/charts/barChart'
 
 interface IReports {
   labels: Array<string>
@@ -33,17 +34,21 @@ export const Dashboard: React.FC = () => {
   const { userName } = useContext(AuthContext)
 
   const [cashbacksByPeriod, setCashbacksByPeriod] = useState({} as IReports)
-  const [cashbacksByMethod, setCashbacksByMethod] = useState({} as IReports)
+  const [billingsByPeriod, setBillingsByPeriod] = useState({} as IReports)
   const [companyAmount, setCompanyAmount] = useState({} as IAmount)
 
   const [loading, setLoading] = useState(true)
 
+  const currentMonth = new Intl.DateTimeFormat('pt-BR', {
+    month: 'long'
+  }).format(new Date())
+
   const findData = () => {
     API.get(`/company/data/dashboard`)
       .then(response => {
-        setCashbacksByMethod({
-          labels: response.data.cashbacksByMethods.labels,
-          values: response.data.cashbacksByMethods.values
+        setBillingsByPeriod({
+          labels: response.data.billingsByPeriod.labels,
+          values: response.data.billingsByPeriod.values
         })
 
         setCashbacksByPeriod({
@@ -80,8 +85,8 @@ export const Dashboard: React.FC = () => {
       <S.Container>
         <S.SmallCardsWrapper>
           <SmallCard
-            title="Faturamento"
-            label="Total em faturamento"
+            title={'Faturamento de ' + currentMonth}
+            label="Total em faturamento do mês"
             description={Intl.NumberFormat('pt-BR', {
               style: 'currency',
               currency: 'BRL',
@@ -104,7 +109,7 @@ export const Dashboard: React.FC = () => {
             loading={loading}
           />
           <SmallCard
-            title="Cashback"
+            title={'Cashbacks de ' + currentMonth}
             label="Total dos cashbacks emitidos"
             description={Intl.NumberFormat('pt-BR', {
               style: 'currency',
@@ -131,27 +136,19 @@ export const Dashboard: React.FC = () => {
 
         <S.LargeCardsWrapper>
           <LargeCard
-            title="Cashbacks por forma de pagamento"
-            subtitle="Últimos sete dias"
+            title="Faturamento"
+            subtitle="Resultado por mês"
             loading={loading}
           >
-            {cashbacksByMethod.values && cashbacksByMethod.values.length > 0 ? (
-              <DoughnutChart
+            {billingsByPeriod.values && billingsByPeriod.values.length > 0 ? (
+              <BarChart
                 data={{
-                  labels: cashbacksByMethod.labels,
+                  labels: billingsByPeriod.labels,
                   datasets: [
                     {
-                      data: cashbacksByMethod.values,
+                      data: billingsByPeriod.values,
                       label: '',
                       backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                      ],
-                      borderColor: [
                         'rgba(255, 99, 132, 1)',
                         'rgba(54, 162, 235, 1)',
                         'rgba(255, 206, 86, 1)',
@@ -159,35 +156,46 @@ export const Dashboard: React.FC = () => {
                         'rgba(153, 102, 255, 1)',
                         'rgba(255, 159, 64, 1)'
                       ],
-                      borderWidth: 1
+                      borderWidth: 0,
+                      borderRadius: 10
                     }
                   ]
                 }}
-                tooltipFormat="decimal"
+                tooltipFormat="currency"
+                datalabels={false}
               />
             ) : (
               <S.NoDataLabel>Nenhum cashback</S.NoDataLabel>
             )}
           </LargeCard>
           <LargeCard
-            title="Cashbacks emitidos por dia"
-            subtitle="Últimos sete dias"
+            title="Cashbacks emitidos"
+            subtitle="Resultado por mês"
             loading={loading}
           >
             {cashbacksByPeriod.values && cashbacksByPeriod.values.length > 0 ? (
-              <LineChart
+              <BarChart
                 data={{
                   labels: cashbacksByPeriod.labels,
                   datasets: [
                     {
                       data: cashbacksByPeriod.values,
                       label: '',
-                      borderColor: 'rgb(255, 99, 132)',
-                      fill: false,
-                      tension: 0.4
+                      backgroundColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                      ],
+                      borderWidth: 0,
+                      borderRadius: 10
                     }
                   ]
                 }}
+                tooltipFormat="currency"
+                datalabels={false}
               />
             ) : (
               <S.NoDataLabel>Nenhum cashback</S.NoDataLabel>

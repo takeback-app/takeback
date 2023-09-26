@@ -46,7 +46,7 @@ export const SmallCardsWrapper = styled.div`
 `
 export const LargeCardsWrapper = styled.div`
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1fr 1fr;
   width: 100%;
   height: 80%;
   min-height: 63vh;

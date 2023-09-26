@@ -1,4 +1,8 @@
-import { Transaction, TransactionSolicitation } from '@prisma/client'
+import {
+  Transaction,
+  TransactionSolicitation,
+  TransactionSource,
+} from '@prisma/client'
 import { GenerateCashbackUseCase } from './GenerateCashbackUseCase'
 import { prisma } from '../../prisma'
 
@@ -25,6 +29,8 @@ export class ApproveSolicitationUseCase {
       consumerId: solicitation.consumerId,
       totalAmount,
       paymentMethods,
+      createdAt: solicitation.createdAt,
+      transactionSource: TransactionSource.APP,
     })
 
     await prisma.transactionSolicitation.update({
