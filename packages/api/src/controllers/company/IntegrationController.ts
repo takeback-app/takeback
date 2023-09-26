@@ -9,6 +9,7 @@ export class IntegrationController {
       where: { id: companyId },
       select: {
         useQRCode: true,
+        useCMM: true,
         integrationSettings: { select: { id: true } },
       },
     })
@@ -19,10 +20,10 @@ export class IntegrationController {
       integrationType = 'DESKTOP'
     }
 
-    if (company.useQRCode) {
-      integrationType = 'QRCODE'
-    }
-
-    return response.json({ integrationType })
+    return response.json({
+      integrationType,
+      useQRCode: company.useQRCode,
+      useCMM: company.useCMM,
+    })
   }
 }
