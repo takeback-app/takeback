@@ -45,6 +45,10 @@ import { TransactionSourceEnum } from '../../../enums/TransactionSource.enum'
 
 export type NfceValidationStatus = 'IN_PROGRESS' | 'NOT_FOUND' | 'VALIDATED'
 
+interface CmmSells {
+  sellId: string
+}
+
 interface TransactionProps {
   id: number
   totalAmount: string
@@ -66,6 +70,7 @@ interface TransactionProps {
   }
   qrCodeId: string | null
   transactionSource: TransactionSourceEnum
+  cmmSells?: CmmSells[]
 }
 
 interface TransactionPaymentMethod {
@@ -100,6 +105,7 @@ export const Cashback: React.FC = () => {
   const [allChecked, setAllChecked] = useState(false)
   const [hasIntegration, setHasIntegration] = useState(false)
   const [useQRCode, setUseQRCode] = useState(false)
+  const [useCMM, setUseCMM] = useState(false)
 
   const [modalCancelVisible, setModalCancelVisible] = useState(false)
   const [modalPaymentVisible, setModalPaymentVisible] = useState(false)
@@ -325,9 +331,10 @@ export const Cashback: React.FC = () => {
     })
   }
 
-  const getUseQRCode = () => {
+  const getIntegrations = () => {
     API.get('/company/integrations/type').then(response => {
-      setUseQRCode(response.data.integrationType === 'QRCODE')
+      setUseQRCode(response.data.useQRCode)
+      setUseCMM(response.data.useCMM)
     })
   }
 
@@ -362,7 +369,7 @@ export const Cashback: React.FC = () => {
   useEffect(() => {
     cashbacksSelected = []
     findCashbacks()
-    getUseQRCode()
+    getIntegrations()
     getCompanyData()
     getPaymentOrderMethods()
 
@@ -414,10 +421,9 @@ export const Cashback: React.FC = () => {
                       <S.Th>Status</S.Th>
                       <S.Th>Cliente</S.Th>
                       <S.Th>Vendedor</S.Th>
-                      {hasIntegration && <S.Th>Validação por NFC-e</S.Th>}
-                      {!hasIntegration && useQRCode && (
-                        <S.Th>Solicitado via QRCode</S.Th>
-                      )}
+                      {/* {hasIntegration && <S.Th>Validação por NFC-e</S.Th>} */}
+                      {useQRCode && <S.Th>Solicitado via QRCode</S.Th>}
+                      {useCMM && <S.Th>Número de Venda</S.Th>}
                       <S.Th>Valor da Compra</S.Th>
                       <S.Th>Método de Pagamento</S.Th>
                       <S.Th>Cashback</S.Th>
@@ -451,20 +457,27 @@ export const Cashback: React.FC = () => {
                         </S.Td>
                         <S.Td>{item.consumer?.fullName ?? '-'}</S.Td>
                         <S.Td>{item.companyUser?.name ?? '-'}</S.Td>
-                        {hasIntegration && (
+                        {/* {hasIntegration && (
                           <S.Td>
                             <ValidationNfce
                               nfceValidationStatus={item.nfceValidationStatus}
                             />
                           </S.Td>
-                        )}
-                        {!hasIntegration && useQRCode && (
+                        )} */}
+                        {useQRCode && (
                           <S.Td>
                             <Badge
                               colorScheme={item.qrCodeId ? 'green' : 'yellow'}
                             >
                               {item.qrCodeId ? 'Sim' : 'Não'}
                             </Badge>
+                          </S.Td>
+                        )}
+                        {useCMM && (
+                          <S.Td>
+                            {item.cmmSells?.length
+                              ? item.cmmSells[0].sellId
+                              : ''}
                           </S.Td>
                         )}
                         <S.Td>
