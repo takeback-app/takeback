@@ -48,6 +48,7 @@ class FindOneCompanyUseCase {
         'plan.id',
         'plan.description',
         'plan.value',
+        'plan."canUseIntegration"',
       ])
       .leftJoin(Industries, 'industry', 'industry.id = company.industry')
       .leftJoin(CompanyStatus, 'status', 'status.id = company.status')

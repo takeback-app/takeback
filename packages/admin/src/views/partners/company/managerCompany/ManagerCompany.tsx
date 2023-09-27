@@ -65,7 +65,7 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [modalMontlyVisible, setModalMontlyVisible] = useState(false)
   const [modalForgotPassVisible, setModalForgotPassVisible] = useState(false)
   const [modalProvisionalAccess, setModalProvisionalAccess] = useState(false)
-
+  const [canUseIntegration, setCanUseIntegration] = useState(false)
   const [registeredNumber, setRegisteredNumber] = useState('')
 
   const [loading, setLoading] = useState(false)
@@ -91,7 +91,7 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
         setCompany(response.data.company)
         setCompanyUsers(response.data.users)
         setRepresentatives(response.data.representatives)
-
+        setCanUseIntegration(response.data.company.canUseIntegration)
         formRef.current?.setData({
           fantasyName: response.data.company.company_fantasyName,
           corporateName: response.data.company.company_corporateName,
@@ -305,24 +305,26 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
                 label="Solicitação por QRCode"
                 name="useQRCode"
               />
-              <SelectInputWithBorder
-                options={[
-                  {
-                    id: 'NONE',
-                    name: 'Inativo'
-                  },
-                  {
-                    id: 'DESKTOP',
-                    name: 'NFCe'
-                  },
-                  {
-                    id: 'CMM',
-                    name: 'CMM'
-                  }
-                ]}
-                label="Integração"
-                name="integrationType"
-              />
+              {canUseIntegration && (
+                <SelectInputWithBorder
+                  options={[
+                    {
+                      id: 'NONE',
+                      name: 'Inativo'
+                    },
+                    {
+                      id: 'DESKTOP',
+                      name: 'NFCe'
+                    },
+                    {
+                      id: 'CMM',
+                      name: 'CMM'
+                    }
+                  ]}
+                  label="Integração"
+                  name="integrationType"
+                />
+              )}
             </S.InfoWrapper>
 
             <S.InfoTitle>Endereço</S.InfoTitle>

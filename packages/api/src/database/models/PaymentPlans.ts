@@ -5,50 +5,53 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from "typeorm";
-import { ColumnNumericTransformer } from "../../config/TransformerDecimal";
+} from 'typeorm'
 
-import { Companies } from "./Company";
-import { CompanyMonthlyPayment } from "./CompanyMonthlyPayment";
+import { Companies } from './Company'
+import { CompanyMonthlyPayment } from './CompanyMonthlyPayment'
+import { ColumnNumericTransformer } from '../../config/TransformerDecimal'
 
 @Entity()
 export class PaymentPlans {
-  @PrimaryGeneratedColumn("increment")
-  id: number;
+  @PrimaryGeneratedColumn('increment')
+  id: number
 
   @Column()
-  description: string;
+  description: string
 
   @Column({
-    type: "decimal",
+    type: 'decimal',
     precision: 10,
     scale: 4,
     default: 0.0,
     transformer: new ColumnNumericTransformer(),
   })
-  takebackBonus: number;
+  takebackBonus: number
 
   @Column({
-    type: "decimal",
+    type: 'decimal',
     precision: 10,
     scale: 4,
     default: 0.0,
     transformer: new ColumnNumericTransformer(),
   })
-  value: number;
+  value: number
+
+  @Column({ default: false })
+  canUseIntegration: boolean
 
   @OneToMany(() => Companies, (companies) => companies.paymentPlan)
-  company: Companies[];
+  company: Companies[]
 
   @OneToMany(
     () => CompanyMonthlyPayment,
-    (monthlyPayment) => monthlyPayment.plan
+    (monthlyPayment) => monthlyPayment.plan,
   )
-  companyMonthlyPayment: CompanyMonthlyPayment[];
+  companyMonthlyPayment: CompanyMonthlyPayment[]
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt: Date
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt: Date
 }
