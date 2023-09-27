@@ -80,6 +80,9 @@ class SignInCompanyUseCase {
     // TODO: mudar a verificação para acesso às opções da sidebar
 
     const accessControl: AccessControlTypes = []
+    const hasNotIntegrations =
+      !company.paymentPlan.canUseIntegration ||
+      (!company.integrationType && !integrationCount)
 
     if (company.paymentPlan.canAccessClientReport) {
       accessControl.push(AccessControlEnum.CLIENT_REPORT)
@@ -101,7 +104,7 @@ class SignInCompanyUseCase {
       accessControl.push(AccessControlEnum.QR_CODE)
     }
 
-    if (!integrationCount && !company.useQRCode) {
+    if (hasNotIntegrations) {
       accessControl.push(AccessControlEnum.NOT_INTEGRATION_AND_QRCODE)
     }
 

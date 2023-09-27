@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express'
-import { IntegrationType } from '@prisma/client'
 import { InternalError } from '../config/GenerateErros'
 import { prisma } from '../prisma'
 
@@ -25,10 +24,6 @@ export const AuthIntegrationMiddleware = async (
 
   if (!company || !company.paymentPlan.canUseIntegration) {
     throw new InternalError('Não autorizado', 401)
-  }
-
-  if (company.integrationType !== IntegrationType.DESKTOP) {
-    throw new InternalError('Integração não compatível', 401)
   }
 
   if (!company.integrationSettings) {

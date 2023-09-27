@@ -81,6 +81,12 @@ interface TransactionPaymentMethod {
   }
 }
 
+enum IntegrationTypes {
+  DESKTOP = 'DESKTOP',
+  NONE = 'NONE',
+  CMM = 'CMM'
+}
+
 let cashbacksSelected: Array<number> = []
 const localColors = ['#0984E3', '#2f9d94', '#cc0066', '#00cc00']
 const icons = [IoLogoUsd, IoSparklesOutline, BsUpcScan, IoReaderOutline]
@@ -105,7 +111,9 @@ export const Cashback: React.FC = () => {
   const [allChecked, setAllChecked] = useState(false)
   const [hasIntegration, setHasIntegration] = useState(false)
   const [useQRCode, setUseQRCode] = useState(false)
-  const [useCMM, setUseCMM] = useState(false)
+  const [integrationType, setIntegrationType] = useState<IntegrationTypes>(
+    IntegrationTypes.NONE
+  )
 
   const [modalCancelVisible, setModalCancelVisible] = useState(false)
   const [modalPaymentVisible, setModalPaymentVisible] = useState(false)
@@ -334,7 +342,7 @@ export const Cashback: React.FC = () => {
   const getIntegrations = () => {
     API.get('/company/integrations/type').then(response => {
       setUseQRCode(response.data.useQRCode)
-      setUseCMM(response.data.useCMM)
+      setIntegrationType(response.data.integrationType)
     })
   }
 
@@ -423,7 +431,9 @@ export const Cashback: React.FC = () => {
                       <S.Th>Vendedor</S.Th>
                       {/* {hasIntegration && <S.Th>Validação por NFC-e</S.Th>} */}
                       {useQRCode && <S.Th>Solicitado via QRCode</S.Th>}
-                      {useCMM && <S.Th>Número de Venda</S.Th>}
+                      {integrationType === IntegrationTypes.CMM && (
+                        <S.Th>Número de Venda</S.Th>
+                      )}
                       <S.Th>Valor da Compra</S.Th>
                       <S.Th>Método de Pagamento</S.Th>
                       <S.Th>Cashback</S.Th>
@@ -473,7 +483,7 @@ export const Cashback: React.FC = () => {
                             </Badge>
                           </S.Td>
                         )}
-                        {useCMM && (
+                        {integrationType === IntegrationTypes.CMM && (
                           <S.Td>
                             {item.cmmSells?.length
                               ? item.cmmSells[0].sellId

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import { IntegrationType } from '@prisma/client'
 import { prisma } from '../../prisma'
 
 export class IntegrationController {
@@ -9,6 +10,7 @@ export class IntegrationController {
       where: { id: companyId },
       select: {
         useQRCode: true,
+        integrationType: true,
         useCMM: true,
         integrationSettings: { select: { id: true } },
       },
@@ -16,14 +18,20 @@ export class IntegrationController {
 
     let integrationType = 'NONE'
 
-    if (company.integrationSettings) {
+    if (
+      company.integrationSettings &&
+      company.integrationType === IntegrationType.DESKTOP
+    ) {
       integrationType = 'DESKTOP'
+    }
+
+    if (company.integrationType === IntegrationType.CMM) {
+      integrationType = 'CMM'
     }
 
     return response.json({
       integrationType,
       useQRCode: company.useQRCode,
-      useCMM: company.useCMM,
     })
   }
 }

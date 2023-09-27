@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { Decimal } from '@prisma/client/runtime'
-import { TransactionSource } from '@prisma/client'
+import { IntegrationType, TransactionSource } from '@prisma/client'
 import { DateTime } from 'luxon'
 import { CMMSellRequest } from '../../../requests/CMMSellRequest'
 import { prisma } from '../../../prisma'
@@ -14,12 +14,10 @@ class SellController {
     const { cnpj, consumerCpf, companyUserCpf, ...cashbackData } =
       CMMSellRequest.getDataFormatted(data)
 
-    // TODO: mudar lógica de validação useCMM
-
     const company = await prisma.company.findFirst({
       where: {
         registeredNumber: cnpj,
-        useCMM: true,
+        integrationType: IntegrationType.CMM,
         paymentPlan: {
           canUseIntegration: true,
         },

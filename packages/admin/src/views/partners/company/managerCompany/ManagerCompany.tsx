@@ -109,7 +109,11 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
           feeValue: response.data.company.plan_value,
           status: response.data.company.status_description,
           contactPhone: response.data.company.company_contactPhone,
-          useQRCode: response.data.company.company_useQRCode
+          useQRCode: response.data.company.company_useQRCode,
+          integrationType:
+            response.data.company.integrationType !== null
+              ? response.data.company.integrationType
+              : 'NONE'
         })
 
         setRegisteredNumber(response.data.company.company_registeredNumber)
@@ -139,7 +143,9 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
       longitude: data.longitude,
       latitude: data.latitude,
       contactPhone: data.contactPhone,
-      useQRCode: data.useQRCode
+      useQRCode: data.useQRCode,
+      integrationType:
+        data.integrationType !== 'NONE' ? data.integrationType : null
     })
       .then(response => {
         notifySuccess(response.data.message)
@@ -296,8 +302,26 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
                     name: 'Inativo'
                   }
                 ]}
-                label="Integração QRCode"
+                label="Solicitação por QRCode"
                 name="useQRCode"
+              />
+              <SelectInputWithBorder
+                options={[
+                  {
+                    id: 'NONE',
+                    name: 'Inativo'
+                  },
+                  {
+                    id: 'DESKTOP',
+                    name: 'NFCe'
+                  },
+                  {
+                    id: 'CMM',
+                    name: 'CMM'
+                  }
+                ]}
+                label="Integração"
+                name="integrationType"
               />
             </S.InfoWrapper>
 
