@@ -4,7 +4,10 @@ export interface RequestBody {
   Cnpj: string
   Num_Venda: string
   CPF: string
-  CPF_Vendedor: string
+  Vendedores_Venda: {
+    Vendedor: string
+    CPF_Vendedor: string
+  }[]
   Data_hora_compra: string
   Valor_total: string
   Troco_Cash: string
@@ -36,7 +39,10 @@ export class CMMSellRequest {
       cnpj: data.Cnpj,
       sellId: data.Num_Venda,
       consumerCpf: data.CPF,
-      companyUserCpf: data.CPF_Vendedor,
+      companyUserCpf: data.Vendedores_Venda[0].CPF_Vendedor.replace(
+        /[.-]/g,
+        '',
+      ),
       createdAt: DateTime.fromFormat(
         data.Data_hora_compra,
         'dd-MM-yyyy HH:mm:ss',
