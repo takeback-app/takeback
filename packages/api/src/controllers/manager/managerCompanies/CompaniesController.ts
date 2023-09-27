@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import { IntegrationType } from '@prisma/client'
 import { AllowCompanyFirstAccessUseCase } from './AllowCompanyFirstAccessUseCase'
 import { RegisterCompanyDefaultPaymentMethodsUseCase } from './RegisterCompanyDefaultPaymentMethodsUseCase'
 import { UpdateCompanyUseCase } from './UpdateCompanyUseCase'
@@ -189,7 +190,10 @@ class CompaniesController {
     if (!integration) {
       const company = await prisma.company.findFirstOrThrow({
         where: { id },
-        select: { paymentPlan: { select: { canUseIntegration: true } } },
+        select: {
+          integrationType: true,
+          paymentPlan: { select: { canUseIntegration: true } },
+        },
       })
 
       if (!company.paymentPlan.canUseIntegration) {
@@ -197,6 +201,10 @@ class CompaniesController {
           'O plano de pagamento dessa empresa não permite integração NFC-e',
           403,
         )
+      }
+
+      if (company.integrationType !== IntegrationType.DESKTOP) {
+        throw new InternalError('Integração não compatível', 401)
       }
 
       return response.json({ url: `${process.env.API_URL}/integration/nfc-e` })

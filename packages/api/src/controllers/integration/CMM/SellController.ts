@@ -14,6 +14,8 @@ class SellController {
     const { cnpj, consumerCpf, companyUserCpf, ...cashbackData } =
       CMMSellRequest.getDataFormatted(data)
 
+    // TODO: mudar lógica de validação useCMM
+
     const company = await prisma.company.findFirst({
       where: {
         registeredNumber: cnpj,

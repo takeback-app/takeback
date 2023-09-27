@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import bcrypt from 'bcrypt'
 import { DateTime } from 'luxon'
+import { IntegrationType } from '@prisma/client'
 import { InternalError } from '../../../config/GenerateErros'
 import { generateToken } from '../../../config/JWT'
 
@@ -60,7 +61,10 @@ class SignInCompanyUseCase {
     const integrationCount = await prisma.integrationSettings.count({
       where: {
         companyId: company.id,
-        company: { paymentPlan: { canUseIntegration: true } },
+        company: {
+          integrationType: IntegrationType.DESKTOP,
+          paymentPlan: { canUseIntegration: true },
+        },
       },
     })
 
@@ -72,6 +76,8 @@ class SignInCompanyUseCase {
         },
       },
     })
+
+    // TODO: mudar a verificação para acesso às opções da sidebar
 
     const accessControl: AccessControlTypes = []
 

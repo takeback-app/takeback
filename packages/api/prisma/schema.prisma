@@ -52,6 +52,7 @@ model Company {
   useCashbackAsBack           Boolean                     @default(true)
   useQRCode                   Boolean                     @default(false)
   useCMM                      Boolean                     @default(false)
+  integrationType             IntegrationType?
   paymentPlan                 PaymentPlan?                @relation(fields: [paymentPlanId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_0d4ef1a2673e3fc3b1934baaea5")
   companyAddress              CompanyAddress?             @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_2bb6583d4cf35554e19694c8a9b")
   companyStatus               CompanyStatus?              @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_78f70c4376dbfc35f8ba9257295")
@@ -975,6 +976,7 @@ model IntegrationSettings {
 
 enum IntegrationType {
   QRCODE
+  CMM
   DESKTOP
 }
 
