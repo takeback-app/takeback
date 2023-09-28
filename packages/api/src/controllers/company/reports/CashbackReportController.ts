@@ -1,19 +1,19 @@
-import { Request, Response, response } from "express";
-import { CompanyCashbackReportRequest } from "../../../requests/reports/CompanyCashbackReportRequest";
-import { InternalError } from "../../../config/GenerateErros";
-import { CompanyCashbacksReport } from "../../../reports/CompanyCashbacksReport";
-import { prisma } from "../../../prisma";
-import { filterNumber } from "../../../utils";
-import { DateTime } from "luxon";
+import { Request, Response } from 'express'
+import { DateTime } from 'luxon'
+import { CompanyCashbackReportRequest } from '../../../requests/reports/CompanyCashbackReportRequest'
+import { InternalError } from '../../../config/GenerateErros'
+import { CompanyCashbacksReport } from '../../../reports/CompanyCashbacksReport'
+import { prisma } from '../../../prisma'
+import { filterNumber } from '../../../utils'
 
 export class CashbackReportController {
   async index(request: Request, response: Response) {
-    const { companyId } = request["tokenPayload"];
+    const { companyId } = request['tokenPayload']
 
-    const form = CompanyCashbackReportRequest.safeParse(request.query);
+    const form = CompanyCashbackReportRequest.safeParse(request.query)
 
     if (!form.success) {
-      throw new InternalError("Existem erros nos filtros", 400);
+      throw new InternalError('Existem erros nos filtros', 400)
     }
 
     const {
@@ -24,9 +24,9 @@ export class CashbackReportController {
       page,
       cashbackStatus,
       paymentMethodType,
-    } = form.data;
+    } = form.data
 
-    const report = new CompanyCashbacksReport(companyId);
+    const report = new CompanyCashbacksReport(companyId)
 
     const paginated = await report.getPaginated(
       { page: Number(page) },
@@ -37,19 +37,19 @@ export class CashbackReportController {
         orderByColumn,
         cashbackStatus: filterNumber(cashbackStatus),
         paymentMethodType: filterNumber(paymentMethodType),
-      }
-    );
+      },
+    )
 
-    return response.status(200).json(paginated);
+    return response.status(200).json(paginated)
   }
 
   async getExcel(request: Request, response: Response) {
-    const { companyId } = request["tokenPayload"];
+    const { companyId } = request['tokenPayload']
 
-    const form = CompanyCashbackReportRequest.safeParse(request.query);
+    const form = CompanyCashbackReportRequest.safeParse(request.query)
 
     if (!form.success) {
-      throw new InternalError("Existem erros nos filtros", 400);
+      throw new InternalError('Existem erros nos filtros', 400)
     }
 
     const {
@@ -59,9 +59,9 @@ export class CashbackReportController {
       orderByColumn,
       paymentMethodType,
       cashbackStatus,
-    } = form.data;
+    } = form.data
 
-    const report = new CompanyCashbacksReport(companyId);
+    const report = new CompanyCashbacksReport(companyId)
 
     const excel = await report.getExcel({
       dateEnd,
@@ -70,18 +70,18 @@ export class CashbackReportController {
       orderByColumn,
       paymentMethodType: filterNumber(paymentMethodType),
       cashbackStatus: filterNumber(cashbackStatus),
-    });
+    })
 
-    excel.write("Relatório de Vendedor.xlsx", response);
+    excel.write('Relatório de Vendedor.xlsx', response)
   }
 
   async getPdf(request: Request, response: Response) {
-    const { companyId } = request["tokenPayload"];
+    const { companyId } = request['tokenPayload']
 
-    const form = CompanyCashbackReportRequest.safeParse(request.query);
+    const form = CompanyCashbackReportRequest.safeParse(request.query)
 
     if (!form.success) {
-      throw new InternalError("Existem erros nos filtros", 400);
+      throw new InternalError('Existem erros nos filtros', 400)
     }
 
     const {
@@ -91,9 +91,9 @@ export class CashbackReportController {
       orderByColumn,
       paymentMethodType,
       cashbackStatus,
-    } = form.data;
+    } = form.data
 
-    const report = new CompanyCashbacksReport(companyId);
+    const report = new CompanyCashbacksReport(companyId)
 
     const pdf = await report.getPdf({
       dateEnd,
@@ -102,30 +102,30 @@ export class CashbackReportController {
       orderByColumn,
       paymentMethodType: filterNumber(paymentMethodType),
       cashbackStatus: filterNumber(cashbackStatus),
-    });
+    })
 
-    response.setHeader("Content-type", "application/pdf");
+    response.setHeader('Content-type', 'application/pdf')
     response.setHeader(
-      "Content-disposition",
-      'inline; filename="Relatório de Vendedor.pdf"'
-    );
+      'Content-disposition',
+      'inline; filename="Relatório de Vendedor.pdf"',
+    )
 
-    pdf.pipe(response);
-    pdf.end();
+    pdf.pipe(response)
+    pdf.end()
   }
 
   async totalizer(request: Request, response: Response) {
-    const { companyId } = request["tokenPayload"];
+    const { companyId } = request['tokenPayload']
 
     const { dateEnd, dateStart, paymentMethodType, cashbackStatus } =
-      request.query as Record<string, string>;
+      request.query as Record<string, string>
 
     const startDate = dateStart
-      ? DateTime.fromISO(dateStart).startOf("day").toJSDate()
-      : undefined;
+      ? DateTime.fromISO(dateStart).startOf('day').toJSDate()
+      : undefined
     const endDate = dateEnd
-      ? DateTime.fromISO(dateEnd).startOf("day").toJSDate()
-      : undefined;
+      ? DateTime.fromISO(dateEnd).startOf('day').toJSDate()
+      : undefined
 
     const cashbacks = await prisma.transaction.aggregate({
       where: {
@@ -147,12 +147,12 @@ export class CashbackReportController {
         backAmount: true,
         cashbackAmount: true,
       },
-    });
+    })
 
     const totalToPay =
       +cashbacks._sum.cashbackAmount +
       +cashbacks._sum.takebackFeeAmount +
-      +cashbacks._sum.backAmount;
+      +cashbacks._sum.backAmount
 
     return response.json({
       totalCashbackCount: cashbacks._count,
@@ -161,6 +161,6 @@ export class CashbackReportController {
       totalBackAmount: cashbacks._sum.backAmount,
       totalCashbackAmount: cashbacks._sum.cashbackAmount,
       totalToPay,
-    });
+    })
   }
 }

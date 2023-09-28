@@ -479,8 +479,14 @@ model Transaction {
   commissions                  Commission[]
   nfce                         NFCe?                      @relation(fields: [nfceId], references: [id])
   qrCode                       QRCode?                    @relation(fields: [qrCodeId], references: [id])
+  transactionSource            TransactionSource?
 
   @@map("transactions")
+}
+
+enum TransactionSource {
+  APP
+  CHECKOUT
 }
 
 enum NFCeValidationStatus {
