@@ -11,7 +11,7 @@ import SellController from '../controllers/integration/CMM/SellController'
 
 const routes = Router()
 
-routes.post('/cmm/cashback', SellController.handle)
+routes.post('/cmm/cashback', AccessTokenMiddleware, SellController.handle)
 
 routes.post('/login', LoginController.handle)
 routes.get('/updater/:target/:arch/:currentVersion', UpdaterController.handle)

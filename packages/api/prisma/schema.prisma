@@ -953,10 +953,10 @@ enum ReferralStatus {
 model AccessToken {
   id        String   @id @default(uuid()) @db.Uuid
   token     String?
-  companyId String   @db.Uuid
+  companyId String?  @db.Uuid
   createdAt DateTime @default(now())
 
-  company Company @relation(fields: [companyId], references: [id])
+  company Company? @relation(fields: [companyId], references: [id])
 
   @@map("access_tokens")
 }
