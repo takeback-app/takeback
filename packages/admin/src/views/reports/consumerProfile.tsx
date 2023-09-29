@@ -1,5 +1,5 @@
 import React from 'react'
-import { IoLogoUsd } from 'react-icons/io5'
+import { IoFilterSharp, IoLogoUsd } from 'react-icons/io5'
 import * as S from './components/consumerProfile/styles'
 import useSWR from 'swr'
 
@@ -9,6 +9,15 @@ import BarChart from '../../components/charts/BarChart'
 import { currencyFormat } from '../../utils/currencytFormat'
 import SmallCard from '../../components/cards/SmallCard'
 import LargeCard from '../../components/cards/LargeCard'
+import { FilterDrawer } from './components/consumerProfile/FilterDrawer'
+import {
+  ButtonGroup,
+  Flex,
+  IconButton,
+  Tooltip,
+  useDisclosure
+} from '@chakra-ui/react'
+import { useConsumerProfileReport } from './components/consumerProfile/state'
 
 interface Graph {
   labels: string[]
@@ -25,13 +34,34 @@ interface GraphResponse {
 }
 
 export function ConsumerProfile() {
-  const { data: graphData, isLoading } = useSWR<GraphResponse>(
-    'manager/report/consumers-profile'
-  )
+  const { cityId, companyId, stateId } = useConsumerProfileReport()
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const filter = {
+    cityId,
+    companyId,
+    stateId
+  }
+  const { data: graphData, isLoading } = useSWR<GraphResponse>([
+    'manager/report/consumers-profile',
+    filter
+  ])
 
   return (
     <Layout title="Perfil do Cliente">
       <S.Container>
+        <Flex align="center" justify="flex-end">
+          <ButtonGroup>
+            <Tooltip label="Filtrar">
+              <IconButton
+                size="lg"
+                aria-label="show"
+                colorScheme="twitter"
+                icon={<IoFilterSharp />}
+                onClick={onOpen}
+              />
+            </Tooltip>
+          </ButtonGroup>
+        </Flex>
         <S.SmallCardsWrapper>
           <SmallCard
             title="Compra média por cliente"
@@ -165,6 +195,7 @@ export function ConsumerProfile() {
           </LargeCard>
         </S.LargeCardsWrapper>
       </S.Container>
+      <FilterDrawer isOpen={isOpen} onClose={onClose} />
     </Layout>
   )
 }
