@@ -1,23 +1,22 @@
-import "reflect-metadata";
-import "express-async-errors";
+import 'reflect-metadata'
+import 'express-async-errors'
 
-import { createServer } from "http";
+import dotenv from 'dotenv'
+import { createServer } from 'http'
 
-import dotenv from "dotenv";
+import { app } from './app'
 
-dotenv.config();
+import { connectTypeorm } from './database'
 
-import { app } from "./app";
+dotenv.config()
 
-import { connectTypeorm } from "./database";
+connectTypeorm()
 
-connectTypeorm();
+const httpServer = createServer(app)
 
-const httpServer = createServer(app);
+const PORT = +process.env.PORT || 3333
+const HOST = '0.0.0.0'
 
-const PORT = +process.env.PORT || 3333;
-const HOST = "0.0.0.0";
+httpServer.listen({ port: PORT, host: HOST })
 
-httpServer.listen({ port: PORT, host: HOST });
-
-console.log(`🚀 Server is running in HOST: ${HOST} on PORT: ${PORT}`);
+console.log(`🚀 Server is running in HOST: ${HOST} on PORT: ${PORT}`)

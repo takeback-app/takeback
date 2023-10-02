@@ -32,6 +32,7 @@ import { StoreProductsController } from '../controllers/costumer/store/StoreProd
 import { StoreOrderController } from '../controllers/costumer/store/StoreOrderController'
 import { QRCodeController } from '../controllers/costumer/qrcode/QRCodeController'
 import { IntegrationController } from '../controllers/costumer/IntegrationController'
+import { PixController } from '../controllers/costumer/pix/PixController'
 
 const costumerAuth = new ConstumerAuthenticationController()
 const costumerAccount = new CostumerAccountController()
@@ -52,6 +53,7 @@ const referralController = new ReferralController()
 
 const storeProductController = new StoreProductsController()
 const storeOrderController = new StoreOrderController()
+const pixController = new PixController()
 const qrCodeController = new QRCodeController()
 const integrationController = new IntegrationController()
 
@@ -162,6 +164,8 @@ routes.get('/store/orders', storeOrderController.index)
 routes.get('/store/orders/:id', storeOrderController.show)
 routes.get('/store/orders/:id/withdrawal', storeOrderController.withdrawal)
 routes.post('/store/orders', storeOrderController.store)
+
+routes.post('/pix', pixController.store)
 
 routes.post('/nfce/qrcode', qrCodeController.store)
 routes.get(

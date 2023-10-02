@@ -2,8 +2,11 @@
 import axios, { AxiosError } from 'axios'
 import { API } from './API'
 import { CreateAccountFormData } from '../screens/public/createAccount/state'
+import { PixTransaction } from '../screens/private/deposit/state'
 
-type ReturnApi<T = Record<string, any>> = [boolean, T]
+type ReturnApi<T = Record<string, any>> =
+  | [true, T]
+  | [false, { message: string }]
 
 export async function checkPassword(password: string): Promise<ReturnApi> {
   try {
@@ -79,7 +82,7 @@ export async function createStoreOrder<T>(
       false,
       {
         message: error.response?.data.message || 'Contate um administrador'
-      } as T
+      }
     ]
   }
 }
@@ -91,6 +94,23 @@ export async function createPaymentSolicitation(
     await API.post('costumer/solicitations/payment', data)
 
     return [true, { message: '' }]
+  } catch (err) {
+    const error = err as AxiosError
+
+    return [
+      false,
+      { message: error.response?.data.message || 'Contate um administrador' }
+    ]
+  }
+}
+
+export async function createPixPayment(data: {
+  value: number
+}): Promise<ReturnApi<PixTransaction>> {
+  try {
+    const response = await API.post<PixTransaction>('costumer/pix', data)
+
+    return [true, response.data]
   } catch (err) {
     const error = err as AxiosError
 

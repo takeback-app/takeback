@@ -19,10 +19,18 @@ const cardsItems = [
   },
   {
     id: 1,
+    title: 'Adicionar Saldo',
+    icon: 'cash-outline',
+    comingSoon: false,
+    isNew: true,
+    to: 'deposit'
+  },
+  {
+    id: 2,
     title: 'Ofertas',
     icon: 'cart-outline',
     comingSoon: false,
-    isNew: true,
+    isNew: false,
     to: 'storeProducts'
   },
   // {

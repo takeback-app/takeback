@@ -233,6 +233,7 @@ model Consumer {
   fatherReferrals               Referral[]                @relation("ReferralConsumer")
   storeOrders                   StoreOrder[]
   qrCodes                       QRCode[]
+  deposits                      Deposit[]
 
   @@map("consumers")
 }
@@ -1079,4 +1080,51 @@ model StoreOrder {
   createdAt    DateTime  @default(now())
 
   @@map("store_orders")
+}
+
+model PixTransaction {
+  id          BigInt               @id() @default(autoincrement())
+  reference   String
+  txId        String
+  locId       Int
+  value       Decimal              @db.Decimal(10, 2)
+  status      PixTransactionStatus @default(WAITING)
+  copiaCola   String
+  qrCodeImage String
+  data        Json
+
+  createdAt DateTime  @default(now())
+  deposits  Deposit[]
+
+  @@map("pix_transactions")
+}
+
+enum PixTransactionStatus {
+  WAITING
+  PAID
+  CANCELED
+  EXPIRED
+}
+
+model Deposit {
+  id               String  @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  consumerId       String  @db.Uuid
+  value            Decimal @db.Decimal(10, 2)
+  pixTransactionId BigInt?
+  isPaid           Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  consumer Consumer        @relation(fields: [consumerId], references: [id])
+  pix      PixTransaction? @relation(fields: [pixTransactionId], references: [id])
+
+  @@map("deposits")
+}
+
+model EfiWebhookEvent {
+  id        BigInt   @id() @default(autoincrement())
+  event     Json
+  createdAt DateTime @default(now())
+
+  @@map("efi_webhook_events")
 }
