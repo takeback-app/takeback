@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 
+import { IntegrationType } from '@prisma/client'
 import { GetConsumerInfoUseCase } from './GetConsumerInfoUseCase'
 import { CancelCashBackUseCase } from './CancelCashBackUseCase'
 import { FindPendingCashbacksUseCase } from './FindPendingCashbacksUseCase'
@@ -80,7 +81,10 @@ class CashbackController {
     const integrationCount = await prisma.integrationSettings.count({
       where: {
         companyId,
-        company: { paymentPlan: { canUseIntegration: true } },
+        company: {
+          integrationType: IntegrationType.DESKTOP,
+          paymentPlan: { canUseIntegration: true },
+        },
       },
     })
 

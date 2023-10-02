@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 
 import bcrypt from 'bcrypt'
+import { IntegrationType } from '@prisma/client'
 import { createHash } from 'node:crypto'
 
 import { prisma } from '../../prisma'
@@ -15,6 +16,7 @@ class LoginController {
       include: {
         company: {
           select: {
+            integrationType: true,
             paymentPlan: { select: { canUseIntegration: true } },
             integrationSettings: true,
           },
@@ -28,6 +30,10 @@ class LoginController {
 
     if (!user.isActive) {
       throw new InternalError('Usuário não ativo', 401)
+    }
+
+    if (user.company.integrationType !== IntegrationType.DESKTOP) {
+      throw new InternalError('Integração não compatível', 401)
     }
 
     if (!user.company.paymentPlan.canUseIntegration) {

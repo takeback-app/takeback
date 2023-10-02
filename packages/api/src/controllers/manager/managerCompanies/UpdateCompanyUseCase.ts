@@ -1,4 +1,5 @@
 import { getRepository } from 'typeorm'
+import { IntegrationType } from '@prisma/client'
 import { InternalError } from '../../../config/GenerateErros'
 import { City } from '../../../database/models/City'
 import { Companies } from '../../../database/models/Company'
@@ -22,6 +23,7 @@ interface UpdateProps {
   latitude?: string
   contactPhone: string
   useQRCode?: boolean
+  integrationType: IntegrationType
 }
 
 class UpdateCompanyUseCase {
@@ -80,6 +82,7 @@ class UpdateCompanyUseCase {
         phone: props.phone.replace(/[^\d]/g, ''),
         contactPhone: props.contactPhone.replace(/[^\d]/g, ''),
         useQRCode: props.useQRCode,
+        integrationType: props.integrationType,
       },
     )
 

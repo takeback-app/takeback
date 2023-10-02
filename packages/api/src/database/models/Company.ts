@@ -184,4 +184,7 @@ export class Companies {
     default: false,
   })
   useQRCode: boolean
+
+  @Column()
+  integrationType: string
 }
