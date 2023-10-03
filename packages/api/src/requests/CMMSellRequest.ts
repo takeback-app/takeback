@@ -39,7 +39,7 @@ export class CMMSellRequest {
       cnpj: data.Cnpj,
       sellId: data.Num_Venda,
       consumerCpf: data.CPF,
-      companyUserCpf: data.CPF_oper_caixa.replace(/[.-]/g, ''),
+      companyUserCpf: data.CPF_oper_caixa,
       createdAt: DateTime.fromFormat(
         data.Data_hora_compra,
         'dd-MM-yyyy HH:mm:ss',
