@@ -72,6 +72,28 @@ export function DepositCheckout({ navigation }) {
           </Stack>
         </HStack>
         <Flex borderBottomWidth="1.5" borderColor="gray.300" />
+        <HStack px={4} py={4}>
+          <Stack>
+            <Text fontWeight="medium" color="gray.600" fontSize="14px">
+              Total creditado
+            </Text>
+            <Text mt={1} fontWeight="semibold" color="gray.800" fontSize="15px">
+              {maskCurrency(totalAmount)}
+            </Text>
+          </Stack>
+        </HStack>
+        <Flex borderBottomWidth="1.5" borderColor="gray.300" />
+        <HStack px={4} py={4}>
+          <Stack>
+            <Text fontWeight="medium" color="gray.600" fontSize="14px">
+              Total a pagar
+            </Text>
+            <Text mt={1} fontWeight="semibold" color="gray.800" fontSize="15px">
+              {maskCurrency(totalAmount * (1 + TAX_PERCENTAGE / 100))}
+            </Text>
+          </Stack>
+        </HStack>
+        <Flex borderBottomWidth="1.5" borderColor="gray.300" />
       </Flex>
 
       <Flex
@@ -80,21 +102,12 @@ export function DepositCheckout({ navigation }) {
         justify="flex-end"
       >
         <HStack
-          borderTopWidth="2"
           px={6}
           pt={6}
           borderTopColor="gray.300"
           alignItems="center"
-          justifyContent="space-between"
+          justifyContent="flex-end"
         >
-          <Stack>
-            <Text fontWeight="semibold" fontSize="lg">
-              {maskCurrency(totalAmount * (1 + TAX_PERCENTAGE / 100))}
-            </Text>
-            <Text color="gray.600" fontWeight="medium">
-              Total a pagar
-            </Text>
-          </Stack>
           <Button
             px={6}
             py={3}

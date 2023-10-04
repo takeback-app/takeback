@@ -109,7 +109,7 @@ export function DepositConfirmation({ navigation }) {
             <TouchableOpacity onPress={handleCopy}>
               <HStack alignItems="center" justifyContent="center" space={2}>
                 <Text fontWeight="bold" fontSize="md" color="blue.400">
-                  Copiar Pix Copia e Colaaa
+                  Copiar Pix Copia e Cola
                 </Text>
                 <Icon as={Feather} name="copy" size="lg" color="blue.400" />
               </HStack>
