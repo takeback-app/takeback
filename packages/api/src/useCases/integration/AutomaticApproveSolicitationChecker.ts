@@ -1,4 +1,4 @@
-import { TransactionSolicitation } from '@prisma/client'
+import { IntegrationType, TransactionSolicitation } from '@prisma/client'
 import { prisma } from '../../prisma'
 import { ApproveSolicitationUseCase } from '../cashback/ApproveSolicitationUseCase'
 
@@ -13,7 +13,10 @@ class AutomaticApproveSolicitationChecker {
     const integrationCount = await prisma.integrationSettings.count({
       where: {
         companyId: solicitation.companyId,
-        company: { paymentPlan: { canUseIntegration: true } },
+        company: {
+          integrationType: IntegrationType.DESKTOP,
+          paymentPlan: { canUseIntegration: true },
+        },
       },
     })
 

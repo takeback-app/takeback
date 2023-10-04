@@ -193,6 +193,7 @@ export class CompanyController {
       number: number,
       street: street,
       contactPhone: props.contactPhone,
+      integrationType: props.integrationType,
     })
 
     return response.status(200).json({ message })

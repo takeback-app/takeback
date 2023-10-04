@@ -51,6 +51,8 @@ model Company {
   representativeId            String?                     @db.Uuid
   useCashbackAsBack           Boolean                     @default(true)
   useQRCode                   Boolean                     @default(false)
+  useCMM                      Boolean                     @default(false)
+  integrationType             IntegrationType?
   paymentPlan                 PaymentPlan?                @relation(fields: [paymentPlanId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_0d4ef1a2673e3fc3b1934baaea5")
   companyAddress              CompanyAddress?             @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_2bb6583d4cf35554e19694c8a9b")
   companyStatus               CompanyStatus?              @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_78f70c4376dbfc35f8ba9257295")
@@ -480,8 +482,15 @@ model Transaction {
   commissions                  Commission[]
   nfce                         NFCe?                      @relation(fields: [nfceId], references: [id])
   qrCode                       QRCode?                    @relation(fields: [qrCodeId], references: [id])
+  transactionSource            TransactionSource?
+  cmmSells                     CmmSells[]
 
   @@map("transactions")
+}
+
+enum TransactionSource {
+  APP
+  CHECKOUT
 }
 
 enum NFCeValidationStatus {
@@ -945,10 +954,10 @@ enum ReferralStatus {
 model AccessToken {
   id        String   @id @default(uuid()) @db.Uuid
   token     String?
-  companyId String   @db.Uuid
+  companyId String?  @db.Uuid
   createdAt DateTime @default(now())
 
-  company Company @relation(fields: [companyId], references: [id])
+  company Company? @relation(fields: [companyId], references: [id])
 
   @@map("access_tokens")
 }
@@ -968,6 +977,7 @@ model IntegrationSettings {
 
 enum IntegrationType {
   QRCODE
+  CMM
   DESKTOP
 }
 
@@ -1127,4 +1137,15 @@ model EfiWebhookEvent {
   createdAt DateTime @default(now())
 
   @@map("efi_webhook_events")
+}
+
+model CmmSells {
+  id            Int    @id @default(autoincrement())
+  sellId        String
+  sell          Json
+  transactionId Int
+
+  transaction Transaction? @relation(fields: [transactionId], references: [id])
+
+  @@map("cmm_sells")
 }

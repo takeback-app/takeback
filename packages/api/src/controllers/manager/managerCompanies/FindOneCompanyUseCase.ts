@@ -30,6 +30,7 @@ class FindOneCompanyUseCase {
         'company.representativeId',
         'company.logoUrl',
         'company.useQRCode',
+        'company."integrationType"',
       ])
       .addSelect([
         'industry.id',
@@ -47,6 +48,7 @@ class FindOneCompanyUseCase {
         'plan.id',
         'plan.description',
         'plan.value',
+        'plan."canUseIntegration"',
       ])
       .leftJoin(Industries, 'industry', 'industry.id = company.industry')
       .leftJoin(CompanyStatus, 'status', 'status.id = company.status')

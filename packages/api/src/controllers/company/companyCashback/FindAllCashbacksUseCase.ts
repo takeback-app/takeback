@@ -66,6 +66,7 @@ class FindAllCashbacksUseCase {
         companyUser: { select: { name: true } },
         consumer: { select: { fullName: true } },
         transactionStatus: { select: { description: true } },
+        transactionSource: true,
       },
       where,
       orderBy: { id: order },
