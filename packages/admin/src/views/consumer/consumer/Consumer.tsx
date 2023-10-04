@@ -186,7 +186,7 @@ const Consumer: React.FC<React.PropsWithChildren<unknown>> = () => {
                       color={PALLET.COLOR_08}
                       icon={IoSettingsOutline}
                       onClick={() => {
-                        navigateTo(`/clientes/${item.consumer_id}`)
+                        navigateTo(`/usuarios/clientes/${item.consumer_id}`)
                       }}
                     />
                   </S.Td>

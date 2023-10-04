@@ -157,6 +157,7 @@ routes.put(
 
 routes.get('/consumers/find', managerConsumers.findConsumers)
 routes.get('/consumers/find/one/:id', managerConsumers.findOneConsumer)
+routes.get('/consumers/deposits', managerConsumers.findDeposits)
 routes.put(
   '/consumers/update/status/:id',
   managerConsumers.updateConsumerStatus,
