@@ -4,6 +4,9 @@ import { ListCitiesUseCase } from './ListCitiesUseCase'
 import { FindConsumersUseCase } from './FindConsumersUseCase'
 import { UpdateStatusConsumerUseCase } from './UpdateStatusConsumerUseCase'
 import { ForgotCostumerPasswordUseCase } from './ForgotConsumerPasswortUseCase'
+import { FindDepositsUseCase } from './FindDepositsUseCase'
+import { FindDepositsRequest } from '../../../requests/reports/manager/consumers/FindDepositsRequest'
+import { InternalError } from '../../../config/GenerateErros'
 
 class ConsumersController {
   async findConsumers(request: Request, response: Response) {
@@ -65,6 +68,29 @@ class ConsumersController {
     const message = await forgot.execute({ id, email })
 
     return response.status(200).json({ message })
+  }
+
+  async findDeposits(request: Request, response: Response) {
+    const form = FindDepositsRequest.safeParse(request.query)
+
+    if (!form.success) {
+      throw new InternalError('Existem erros nos filtros', 400)
+    }
+
+    const { dateEnd, dateStart, order, orderByColumn, page, isPaid } = form.data
+
+    const find = new FindDepositsUseCase()
+
+    const result = await find.execute({
+      dateEnd,
+      dateStart,
+      order,
+      orderByColumn,
+      page: Number(page),
+      isPaid: isPaid ? isPaid === 'true' : undefined,
+    })
+
+    return response.status(200).json(result)
   }
 }
 

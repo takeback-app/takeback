@@ -78,6 +78,7 @@ export type PrivateRouteParam = {
   balanceSaved: undefined
   newPayment: undefined
   takebackPayment: undefined
+  deposit: undefined
   electricDiscount: undefined
 
   referrals: undefined

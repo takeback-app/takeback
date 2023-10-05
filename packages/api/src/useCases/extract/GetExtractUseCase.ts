@@ -60,6 +60,11 @@ interface QRCodeData {
   type: QRCodeType
 }
 
+interface DepositData {
+  id: string
+  value: number
+}
+
 type ExtractItemType =
   | { type: 'TRANSACTION'; data: TransactionData }
   | { type: 'TRANSFER'; data: TransferData }
@@ -68,6 +73,7 @@ type ExtractItemType =
   | { type: 'SOLICITATION'; data: SolicitationData }
   | { type: 'STORE_ORDER'; data: StoreOrderData }
   | { type: 'QRCODE'; data: QRCodeData }
+  | { type: 'DEPOSIT'; data: DepositData }
 
 type ExtractItem = ExtractItemType & {
   id: string
@@ -116,6 +122,7 @@ export class GetExtractUseCase {
     const solicitations = await this.solicitations()
     const storeOrders = await this.storeOrders()
     const qrCodes = await this.qrCodes()
+    const deposits = await this.deposits()
 
     return transactions
       .concat(
@@ -125,6 +132,7 @@ export class GetExtractUseCase {
         solicitations,
         storeOrders,
         qrCodes,
+        deposits,
       )
       .sort((a, b) => b.referenceDate.getTime() - a.referenceDate.getTime())
   }
@@ -161,6 +169,31 @@ export class GetExtractUseCase {
         status: t.transactionStatus.description,
       },
       referenceDate: t.createdAt,
+    }))
+  }
+
+  async deposits(): Promise<ExtractItem[]> {
+    const deposits = await prisma.deposit.findMany({
+      where: {
+        consumerId: this.consumerId,
+        isPaid: true,
+        createdAt: { gte: this.startPageDate, lte: this.endPageDate },
+      },
+      select: {
+        id: true,
+        value: true,
+        createdAt: true,
+      },
+    })
+
+    return deposits.map((d) => ({
+      id: randomUUID(),
+      type: 'DEPOSIT',
+      data: {
+        id: d.id,
+        value: d.value.toNumber(),
+      },
+      referenceDate: d.createdAt,
     }))
   }
 

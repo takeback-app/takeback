@@ -20,6 +20,7 @@ import { TransferItem } from './components/ExtractItem/TransferItem'
 import { SectionHeader } from './components/SectionHeader'
 import { ExtractItem, ExtractType } from './types'
 import { QRCodeItem } from './components/ExtractItem/QRCodeItem'
+import { DepositItem } from './components/ExtractItem/DepositItem'
 
 const renderItem: ListRenderItem<ExtractItem | undefined | string> = ({
   item
@@ -56,6 +57,8 @@ const renderItem: ListRenderItem<ExtractItem | undefined | string> = ({
       )
     case ExtractType.QRCODE:
       return <QRCodeItem {...item.data} referenceDate={item.referenceDate} />
+    case ExtractType.DEPOSIT:
+      return <DepositItem {...item.data} referenceDate={item.referenceDate} />
     default:
       return null
   }

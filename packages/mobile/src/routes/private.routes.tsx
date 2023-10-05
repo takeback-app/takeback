@@ -42,6 +42,7 @@ import { CreateReferral } from '../screens/private/consumerReferrals/CreateRefer
 import { StoreProductTabs } from '../screens/private/storeProducts/tabs'
 import { ProductDetailStack } from '../screens/private/storeProductDetail'
 import { OrderDetailStack } from '../screens/private/storeOrderDetail'
+import { DepositStack } from '../screens/private/deposit'
 
 export function PrivateRoutes() {
   const { isAccountUpdated } = useStorage()
@@ -70,6 +71,7 @@ export function PrivateRoutes() {
       <Group screenOptions={{ presentation: 'modal', gestureEnabled: false }}>
         <Screen name="newPayment" component={PaymentStack} />
         <Screen name="takebackPayment" component={TakebackPaymentStack} />
+        <Screen name="deposit" component={DepositStack} />
         <Screen name="askPassword" component={AskPassword} />
       </Group>
       <Group>
