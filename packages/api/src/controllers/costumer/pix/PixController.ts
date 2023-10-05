@@ -8,7 +8,6 @@ export class PixController {
     const { id: consumerId } = request['tokenPayload']
 
     const today = DateTime.now().minus({ hour: 3 }).startOf('day').toJSDate()
-    console.log(today)
     const dailyDeposits = await prisma.deposit.aggregate({
       where: {
         consumerId,
@@ -27,7 +26,6 @@ export class PixController {
 
     const totalDailyDeposit = Number(dailyDeposits._sum.value) + Number(value)
 
-    console.log({ dailyDeposits, totalDailyDeposit })
     if (totalDailyDeposit >= Number(depositMaxDailyValue)) {
       return response.status(400).json({
         message:
