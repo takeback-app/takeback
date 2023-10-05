@@ -40,6 +40,7 @@ import { CompanyUserTypeController } from '../controllers/manager/CompanyUserTyp
 import { TransactionStatusController } from '../controllers/manager/TransactionStatusController'
 import { CompanyReportController } from '../controllers/manager/reports/CompanyReportController'
 import { FinancialReportController } from '../controllers/manager/reports/FinancialReportController'
+import { CosumersProfileReportsController } from '../controllers/manager/consumersReports/CosumersReportsController'
 
 const paymentMethod = new PaymentMethodController()
 const managerAuth = new ManagerAuthController()
@@ -70,6 +71,7 @@ const companyReportController = new CompanyReportController()
 const reportFilterController = new ReportFilterController()
 const companyUserTypeController = new CompanyUserTypeController()
 const transactionStatusController = new TransactionStatusController()
+const cosumersProfileReportsController = new CosumersProfileReportsController()
 
 const notificationSolicitationController =
   new NotificationSolicitationController()
@@ -271,6 +273,7 @@ routes.get(
   '/report/financial/totalizer',
   financialReportController.getTotalizer,
 )
+routes.get('/report/consumers-profile', cosumersProfileReportsController.index)
 
 routes.get('/company-user-types', companyUserTypeController.index)
 routes.get('/transaction-status', transactionStatusController.index)

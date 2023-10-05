@@ -253,6 +253,15 @@ export const drawerNav = [
         isActive: false,
         to: '/relatorios/financeiro',
         userBlocked: 0
+      },
+      {
+        id: 5,
+        label: 'Perfil do Cliente',
+        activeIcon: IoBagAdd,
+        inactiveIcon: IoBagAddOutline,
+        isActive: false,
+        to: '/relatorios/perfil-cliente',
+        userBlocked: 0
       }
     ]
   },
