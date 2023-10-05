@@ -9,12 +9,15 @@ export class GeneratePixFromConsumerUseCase {
       where: { id: consumerId },
     })
 
+    const { depositFeePercentage } = await prisma.setting.findFirst()
+
     const efiPay = Efipay.make()
 
     const { isOK, response } = await efiPay.pixCreateImmediateCharge({
       document: consumer.cpf,
       name: consumer.fullName,
       value,
+      tax: +depositFeePercentage,
     })
 
     if (!isOK) {

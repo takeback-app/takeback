@@ -3,17 +3,17 @@ import { API } from '../../../../services/API'
 
 type ReturnApi = [boolean, { message?: string }]
 
-export async function updateReferralBonusPercentage(
-  data: any
+interface TransferConfig {
+  percentage: string
+  maxDailyValue: number
+}
+
+export async function updateTransferConfig(
+  data: TransferConfig
 ): Promise<ReturnApi> {
   try {
-    /* const { data: response } = await API.put(
-      `manager/referral-percentage`,
-      data
-    ) */
-    console.log(data)
-
-    return [true, data]
+    const { data: response } = await API.put(`manager/transfer-config`, data)
+    return [true, response]
   } catch (err) {
     const error = err as AxiosError
 

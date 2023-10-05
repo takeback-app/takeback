@@ -41,9 +41,10 @@ export class Efipay {
       value,
       expirationInSeconds = 3600,
       message,
+      tax,
     } = dto
 
-    const money = new Decimal(value).times(1 + this.tax)
+    const money = new Decimal(value).times(1 + tax)
 
     const body: PixCreateImmediateChargeBody = {
       calendario: { expiracao: expirationInSeconds },

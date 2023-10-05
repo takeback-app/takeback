@@ -57,6 +57,7 @@ export interface PixCreateImmediateChargeDTO {
   name: string
   value: number
   message?: string
+  tax: number
 }
 
 export interface PixEvent {

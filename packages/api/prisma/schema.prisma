@@ -368,6 +368,8 @@ model Setting {
   takebackQRCode        String?  @db.VarChar
 
   referralBonusPercentage Decimal? @default(0) @db.Decimal(10, 4)
+  depositFeePercentage    Decimal? @default(0) @db.Decimal(10, 4)
+  depositMaxDailyValue    Decimal? @default(0) @db.Decimal(10, 4)
 
   @@map("settings")
 }

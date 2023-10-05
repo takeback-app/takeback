@@ -21,14 +21,14 @@ import { ChakraInput } from '../../../components/chakra/ChakraInput'
 import { axiosFetcher } from '../../../services/API'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { updateReferralBonusPercentage } from './services/api'
+import { updateTransferConfig } from './services/api'
 import { BsFillGearFill } from 'react-icons/bs'
-import { maskCurrency } from '../../../utils/masks'
+import { maskCurrency, unMaskCurrency } from '../../../utils/masks'
 
 const schema = z
   .object({
     percentage: z.string().nonempty(),
-    value: z.string().nonempty()
+    maxDailyValue: z.string().nonempty()
   })
   .refine(data => Number(data.percentage) <= 100, {
     message: 'A porcentagem deve ser menor ou igual a 100',
@@ -46,12 +46,15 @@ export function OptionsButton() {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const { register, handleSubmit, formState, setValue } = useForm<FormValues>({
-    defaultValues: () => axiosFetcher('manager/referral-percentage'),
+    defaultValues: () => axiosFetcher('manager/transfer-config'),
     resolver: zodResolver(schema)
   })
 
   async function onSubmit(data: FormValues) {
-    const [isOk, response] = await updateReferralBonusPercentage(data)
+    const [isOk, response] = await updateTransferConfig({
+      percentage: data.percentage,
+      maxDailyValue: unMaskCurrency(data.maxDailyValue)
+    })
 
     if (!isOk) {
       return toast({
@@ -76,11 +79,7 @@ export function OptionsButton() {
 
   return (
     <>
-      <Button
-        colorScheme="orange"
-        onClick={onOpen}
-        leftIcon={<BsFillGearFill />}
-      >
+      <Button colorScheme="blue" onClick={onOpen} leftIcon={<BsFillGearFill />}>
         Configurações
       </Button>
       <Modal size="2xl" isOpen={isOpen} onClose={handleClose}>
@@ -104,12 +103,15 @@ export function OptionsButton() {
               <ChakraInput
                 isRequired
                 size="sm"
-                error={formState.errors.value?.message}
+                error={formState.errors.maxDailyValue?.message}
                 autoComplete="off"
                 label="Limite diário (R$)"
-                {...register('value', {
+                {...register('maxDailyValue', {
                   onChange: e =>
-                    setValue('value', maskCurrency(e.currentTarget.value))
+                    setValue(
+                      'maxDailyValue',
+                      maskCurrency(e.currentTarget.value)
+                    )
                 })}
               />
             </Stack>

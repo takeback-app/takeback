@@ -17,12 +17,18 @@ import { Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { maskCurrency } from '../../../utils/masks'
 import { useDepositStore } from './state'
+import useSWR from 'swr'
 
 const TAX_PERCENTAGE = 2
 
 export function DepositCheckout({ navigation }) {
   const { totalAmount } = useDepositStore()
   const { bottom: bottomHeight, top: topHeight } = useSafeAreaInsets()
+
+  const { data: depositConfig } = useSWR<{
+    percentage: string
+    maxDailyValue: string
+  }>('costumer/transfer-config')
 
   return (
     <Flex flex={1} bg="white">
@@ -67,7 +73,7 @@ export function DepositCheckout({ navigation }) {
               Taxa de operação
             </Text>
             <Text mt={1} fontWeight="semibold" color="gray.800" fontSize="15px">
-              {TAX_PERCENTAGE}%
+              {Number(depositConfig?.percentage)}%
             </Text>
           </Stack>
         </HStack>
@@ -89,7 +95,9 @@ export function DepositCheckout({ navigation }) {
               Total a pagar
             </Text>
             <Text mt={1} fontWeight="semibold" color="gray.800" fontSize="15px">
-              {maskCurrency(totalAmount * (1 + TAX_PERCENTAGE / 100))}
+              {maskCurrency(
+                totalAmount * (1 + Number(depositConfig?.percentage) / 100)
+              )}
             </Text>
           </Stack>
         </HStack>

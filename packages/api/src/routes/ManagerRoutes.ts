@@ -40,6 +40,7 @@ import { CompanyUserTypeController } from '../controllers/manager/CompanyUserTyp
 import { TransactionStatusController } from '../controllers/manager/TransactionStatusController'
 import { CompanyReportController } from '../controllers/manager/reports/CompanyReportController'
 import { FinancialReportController } from '../controllers/manager/reports/FinancialReportController'
+import { TransferConfigController } from '../controllers/manager/TransferConfigController'
 
 const paymentMethod = new PaymentMethodController()
 const managerAuth = new ManagerAuthController()
@@ -80,6 +81,7 @@ const dashboardController = new DashboardController()
 const notificationController = new NotificationController()
 
 const storeProductController = new StoreProductController()
+const transferConfig = new TransferConfigController()
 
 const fileController = new FileController()
 
@@ -354,6 +356,9 @@ routes.put(
 
 routes.get('/referral-percentage', referralBonusController.index)
 routes.put('/referral-percentage', referralBonusController.update)
+
+routes.get('/transfer-config', transferConfig.index)
+routes.put('/transfer-config', transferConfig.update)
 
 routes.get('/store/companies', storeProductController.listCompanies)
 routes.get('/store/products', storeProductController.index)

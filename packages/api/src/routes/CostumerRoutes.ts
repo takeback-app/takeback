@@ -33,6 +33,7 @@ import { StoreOrderController } from '../controllers/costumer/store/StoreOrderCo
 import { QRCodeController } from '../controllers/costumer/qrcode/QRCodeController'
 import { IntegrationController } from '../controllers/costumer/IntegrationController'
 import { PixController } from '../controllers/costumer/pix/PixController'
+import { TransferConfigController } from '../controllers/manager/TransferConfigController'
 
 const costumerAuth = new ConstumerAuthenticationController()
 const costumerAccount = new CostumerAccountController()
@@ -56,6 +57,8 @@ const storeOrderController = new StoreOrderController()
 const pixController = new PixController()
 const qrCodeController = new QRCodeController()
 const integrationController = new IntegrationController()
+
+const transferConfig = new TransferConfigController()
 
 const routes = Router()
 
@@ -166,6 +169,8 @@ routes.get('/store/orders/:id/withdrawal', storeOrderController.withdrawal)
 routes.post('/store/orders', storeOrderController.store)
 
 routes.post('/pix', pixController.store)
+
+routes.get('/transfer-config', transferConfig.index)
 
 routes.post('/nfce/qrcode', qrCodeController.store)
 routes.get(

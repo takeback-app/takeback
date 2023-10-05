@@ -19,7 +19,6 @@ import Loader from 'react-spinners/PulseLoader'
 import { IoFilterSharp } from 'react-icons/io5'
 import { FilterDrawer } from './FilterDrawer'
 import { Paginated } from '../../../types'
-import { TransactionSourceEnum } from '../../../enums/TransactionSource.enum'
 import { useTransfer } from './state'
 import Layout from '../../../components/ui/Layout'
 import { AppTable } from '../../../components/tables'
@@ -110,6 +109,7 @@ export function Transfers() {
               <Th>Nome</Th>
               <Th>Cidade</Th>
               <Th>Valor Creditado</Th>
+              <Th>Valor Taxa</Th>
               <Th>Valor Pago</Th>
               <Th>Foi Pago?</Th>
               <Th>Dt. de emissão</Th>
@@ -125,6 +125,9 @@ export function Transfers() {
                   </TextBreak>
                 </Td>
                 <Td fontSize="xs">{currencyFormat(transfer.value)}</Td>
+                <Td fontSize="xs">
+                  {currencyFormat(transfer.pix.value - transfer.value)}
+                </Td>
                 <Td fontSize="xs">{currencyFormat(transfer.pix.value)}</Td>
                 <Td fontSize="xs">{transfer.isPaid ? 'Sim' : 'Não'}</Td>
                 <Td fontSize="xs">
