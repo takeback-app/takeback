@@ -11,7 +11,7 @@ import {
   IoTrashOutline,
   IoWalletOutline
 } from 'react-icons/io5'
-import { IoLogoUsd } from 'react-icons/io'
+import { IoLogoUsd, IoMdWallet } from 'react-icons/io'
 import { BsUpcScan } from 'react-icons/bs'
 import { useTheme } from 'styled-components'
 
@@ -131,6 +131,8 @@ export const Cashback: React.FC = () => {
 
   const [pageLoading, setPageLoading] = useState(true)
   const [buttonLoading, setButtonLoading] = useState(false)
+
+  const [isShowButtonFill, setIsShowButtonFill] = useState(false)
 
   const transactions = useMemo(() => {
     if (typeFilter === 'ALL') return allTransactions
@@ -388,6 +390,44 @@ export const Cashback: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => {
+    function verifyIsShowCashbacksWithBalance() {
+      const positiveBalance = companyData.positiveBalance
+      const totalToPay =
+        parseFloat(transactions[0]?.cashbackAmount) +
+        parseFloat(transactions[0]?.takebackFeeAmount) +
+        parseFloat(transactions[0]?.backAmount)
+
+      if (positiveBalance > totalToPay) {
+        setIsShowButtonFill(true)
+        return
+      }
+      setIsShowButtonFill(false)
+    }
+    verifyIsShowCashbacksWithBalance()
+  }, [companyData, transactions])
+
+  function fillCashbacksWithBalance() {
+    let positiveBalance = companyData.positiveBalance
+    let totalSelected = total
+    if (total !== 0) {
+      cashbacksSelected = []
+      setTotal(0)
+      return
+    }
+    for (const transaction of transactions) {
+      const totalToPay =
+        parseFloat(transaction.cashbackAmount) +
+        parseFloat(transaction.takebackFeeAmount) +
+        parseFloat(transaction.backAmount)
+      if (positiveBalance <= 0 || positiveBalance < totalToPay) break
+      cashbacksSelected.push(transaction.id)
+      totalSelected = totalSelected + totalToPay
+      positiveBalance = positiveBalance - totalToPay
+    }
+    setTotal(totalSelected)
+  }
+
   return (
     <Layout title="Cashbacks à Pagar">
       {pageLoading ? (
@@ -405,6 +445,13 @@ export const Cashback: React.FC = () => {
                 )}`}
                 color="#009900"
               />
+              <Button
+                leftIcon={<IoMdWallet />}
+                onClick={fillCashbacksWithBalance}
+                colorScheme="teal"
+              >
+                Selecionar cashbacks com saldo
+              </Button>
               <Button
                 leftIcon={<FiFilter />}
                 onClick={onOpen}

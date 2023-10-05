@@ -10,7 +10,8 @@ import {
   BarElement
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
-import { maskCurrency } from '../../../utils/masks'
+import { currencyFormat } from '../../../utils/currencytFormat'
+import ChartDataLabels from 'chartjs-plugin-datalabels'
 
 ChartJS.register(
   ArcElement,
@@ -19,7 +20,8 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
-  BarElement
+  BarElement,
+  ChartDataLabels
 )
 
 interface DataSetsProps {
@@ -38,14 +40,48 @@ interface DataProps {
 
 interface Props {
   data: DataProps
+  tooltipFormat?: 'decimal' | 'percent' | 'currency'
+  datalabels?: boolean
 }
 
-const BarChart: React.FC<React.PropsWithChildren<Props>> = ({ data }) => (
+const BarChart: React.FC<React.PropsWithChildren<Props>> = ({
+  data,
+  tooltipFormat = 'currency',
+  datalabels = false
+}) => (
   <Bar
     options={{
       responsive: true,
       maintainAspectRatio: false,
+      layout: {
+        padding: {
+          top: 30
+        }
+      },
       plugins: {
+        datalabels: {
+          display: datalabels,
+          formatter: function (value) {
+            if (tooltipFormat === 'percent') {
+              const formatedNumber = value * 100
+              return `${formatedNumber.toFixed(2)}%`
+            }
+            if (tooltipFormat === 'currency') {
+              return currencyFormat(value)
+            }
+            return value
+          },
+          anchor: 'end',
+          align: 'top',
+          labels: {
+            title: {
+              font: {
+                weight: 'bold',
+                size: 16
+              }
+            }
+          }
+        },
         legend: {
           position: 'bottom',
           display: false
@@ -53,7 +89,15 @@ const BarChart: React.FC<React.PropsWithChildren<Props>> = ({ data }) => (
         tooltip: {
           callbacks: {
             label(tooltipItem) {
-              return maskCurrency(tooltipItem.raw as number)
+              const value = tooltipItem.raw as number
+              if (tooltipFormat === 'percent') {
+                const formatedNumber = value * 100
+                return `${formatedNumber.toFixed(2)}%`
+              }
+              if (tooltipFormat === 'currency') {
+                return currencyFormat(value)
+              }
+              return `${value}`
             }
           }
         }
