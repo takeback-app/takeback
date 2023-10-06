@@ -16,13 +16,16 @@ export class QRCodeController {
     })
 
     if (alreadyExistQRCode) {
-      return response.status(400).json({ message: 'QRCode já lido' })
+      return response.status(400).json({ message: 'QRCode já utilizado' })
     }
 
     const isValidLink = nfceLinks.some((l) => link.includes(l))
 
     if (!isValidLink) {
-      return response.status(400).json({ message: 'QRCode invalido' })
+      return response.status(400).json({
+        message:
+          'QRCode em contingencia ou inválido. Solicite do estabelecimento o lançamento manual.',
+      })
     }
 
     await prisma.qRCode.create({

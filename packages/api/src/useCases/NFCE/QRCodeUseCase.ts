@@ -53,7 +53,8 @@ export class QRCodeUseCase {
       const issuedAt = DateTime.fromFormat(
         issuedAtString,
         'dd/MM/yyyy HH:mm:ss',
-      ).setZone('America/Sao_Paulo')
+        { zone: 'UTC-3' },
+      )
 
       const diffNow = DateTime.now().diff(issuedAt).as('days')
 
@@ -62,7 +63,8 @@ export class QRCodeUseCase {
           where: { id: this.qrCode.id },
           data: {
             type: 'NOT_VALIDATED',
-            description: 'Cupom descartado após 24 horas da compra',
+            description:
+              'Cupom descartado. A compra foi feita a mais de 24 hrs.',
           },
         })
 
@@ -91,8 +93,6 @@ export class QRCodeUseCase {
           return acc
         }, [])
 
-      console.log(nfcePayments)
-
       const company = await prisma.company.findFirst({
         select: { id: true },
         where: { registeredNumber: cnpj, id: this.qrCode.companyId },
@@ -110,10 +110,14 @@ export class QRCodeUseCase {
         return false
       }
 
-      const transaction = await this.saveTransaction(company.id, {
-        issuedAt: issuedAt.toJSDate(),
-        nfcePayments,
-      })
+      const transaction = await this.saveTransaction(
+        company.id,
+        {
+          issuedAt: issuedAt.toJSDate(),
+          nfcePayments,
+        },
+        this.qrCode.companyUserId,
+      )
 
       await prisma.transaction.update({
         where: { id: transaction.id },
@@ -143,12 +147,26 @@ export class QRCodeUseCase {
     for (const nfcePayment of nfcePayments) {
       totalAmount = totalAmount.plus(nfcePayment.value)
 
-      const { id } = await prisma.companyPaymentMethod.findFirstOrThrow({
-        select: { id: true },
-        where: { companyId, tPag: nfcePayment.tPag },
-      })
+      const companyPaymentMethod =
+        await prisma.companyPaymentMethod.findFirstOrThrow({
+          select: { id: true },
+          where: { companyId, tPag: nfcePayment.tPag },
+        })
 
-      paymentMethods.push({ id, value: nfcePayment.value })
+      if (!companyPaymentMethod) {
+        await prisma.qRCode.update({
+          where: { id: this.qrCode.id },
+          data: {
+            type: 'NOT_VALIDATED',
+            description: 'Cupom não valido. Forma de pagamento não cadastrada',
+          },
+        })
+      }
+
+      paymentMethods.push({
+        id: companyPaymentMethod.id,
+        value: nfcePayment.value,
+      })
     }
 
     let transaction = await prisma.transaction.findFirst({
