@@ -1,5 +1,7 @@
 import { prisma } from '../../prisma'
 import { PixEvent } from '../../@types/efipay'
+import { Notify } from '../../notifications'
+import { NewDepositConfirmed } from '../../notifications/NewDepositConfirmed'
 
 export class PixEventUseCase {
   public static async handle(pixEvent: PixEvent) {
@@ -34,5 +36,7 @@ export class PixEventUseCase {
       where: { id: deposit.id },
       data: { isPaid: true },
     })
+
+    await Notify.send(deposit.consumerId, new NewDepositConfirmed(deposit))
   }
 }
