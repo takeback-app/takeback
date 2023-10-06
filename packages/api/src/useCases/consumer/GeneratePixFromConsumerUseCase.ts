@@ -9,7 +9,8 @@ export class GeneratePixFromConsumerUseCase {
       where: { id: consumerId },
     })
 
-    const { depositFeePercentage } = await prisma.setting.findFirst()
+    const { depositFeePercentage, bankPixFeePercentage } =
+      await prisma.setting.findFirst()
 
     const efiPay = Efipay.make()
 
@@ -18,6 +19,7 @@ export class GeneratePixFromConsumerUseCase {
       name: consumer.fullName,
       value,
       tax: +depositFeePercentage,
+      bankTax: +bankPixFeePercentage,
     })
 
     if (!isOK) {

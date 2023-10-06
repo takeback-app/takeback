@@ -20,7 +20,8 @@ export class PixController {
       },
     })
 
-    const { depositMaxDailyValue } = await prisma.setting.findFirst()
+    const { depositMaxDailyValue, depositFeePercentage, bankPixFeePercentage } =
+      await prisma.setting.findFirst()
 
     const value = request.body.value as number
 
@@ -45,6 +46,8 @@ export class PixController {
       data: {
         consumerId,
         value,
+        depositFeePercentage,
+        bankPixFeePercentage,
         pixTransactionId: pix.id,
       },
     })

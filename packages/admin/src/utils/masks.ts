@@ -51,3 +51,7 @@ export const maskPhone = (value: string) => {
 export const removeMask = (value: string): string => {
   return value.replace(/\D/g, '')
 }
+
+export const removeComma = (value: string): number => {
+  return Number(value.replace(',', '.'))
+}

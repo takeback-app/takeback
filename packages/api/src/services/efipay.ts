@@ -18,13 +18,11 @@ type ReturnDTO<T> =
 
 export class Efipay {
   protected efipaySdk: EfipaySdk
-  protected tax: number
   protected pixKey: string
 
   constructor() {
     this.efipaySdk = new EfipaySdk(config)
     this.pixKey = process.env.EFI_PIX_KEY || ''
-    this.tax = 0.02
   }
 
   public static make() {
@@ -42,15 +40,17 @@ export class Efipay {
       expirationInSeconds = 3600,
       message,
       tax,
+      bankTax,
     } = dto
 
     const money = new Decimal(value).times(1 + tax)
+    const moneyWithBankTax = money.dividedBy(1 - bankTax)
 
     const body: PixCreateImmediateChargeBody = {
       calendario: { expiracao: expirationInSeconds },
       chave: this.pixKey,
       devedor: { [documentKey]: document, nome: name },
-      valor: { original: money.toFixed(2) },
+      valor: { original: moneyWithBankTax.toFixed(2) },
       solicitacaoPagador: message,
     }
 
