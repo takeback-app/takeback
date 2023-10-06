@@ -26,8 +26,9 @@ export function DepositCheckout({ navigation }) {
   const { bottom: bottomHeight, top: topHeight } = useSafeAreaInsets()
 
   const { data: depositConfig } = useSWR<{
-    percentage: string
-    maxDailyValue: string
+    depositFeePercentage: string
+    depositMaxDailyValue: string
+    bankPixFeePercentage: string
   }>('costumer/transfer-config')
 
   return (
@@ -73,7 +74,18 @@ export function DepositCheckout({ navigation }) {
               Taxa de operação
             </Text>
             <Text mt={1} fontWeight="semibold" color="gray.800" fontSize="15px">
-              {Number(depositConfig?.percentage)}%
+              {Number(depositConfig?.depositFeePercentage)}%
+            </Text>
+          </Stack>
+        </HStack>
+        <Flex borderBottomWidth="1.5" borderColor="gray.300" />
+        <HStack px={4} py={4}>
+          <Stack>
+            <Text fontWeight="medium" color="gray.600" fontSize="14px">
+              Taxa do banco
+            </Text>
+            <Text mt={1} fontWeight="semibold" color="gray.800" fontSize="15px">
+              {Number(depositConfig?.bankPixFeePercentage)}%
             </Text>
           </Stack>
         </HStack>
@@ -96,7 +108,9 @@ export function DepositCheckout({ navigation }) {
             </Text>
             <Text mt={1} fontWeight="semibold" color="gray.800" fontSize="15px">
               {maskCurrency(
-                totalAmount * (1 + Number(depositConfig?.percentage) / 100)
+                (totalAmount *
+                  (1 + Number(depositConfig?.depositFeePercentage) / 100)) /
+                  (1 - Number(depositConfig?.bankPixFeePercentage) / 100)
               )}
             </Text>
           </Stack>

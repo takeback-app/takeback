@@ -4,8 +4,9 @@ import { API } from '../../../../services/API'
 type ReturnApi = [boolean, { message?: string }]
 
 interface TransferConfig {
-  percentage: string
-  maxDailyValue: number
+  depositFeePercentage: number
+  depositMaxDailyValue: number
+  bankPixFeePercentage: number
 }
 
 export async function updateTransferConfig(

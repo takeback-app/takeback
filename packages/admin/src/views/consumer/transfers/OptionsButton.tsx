@@ -23,20 +23,37 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { updateTransferConfig } from './services/api'
 import { BsFillGearFill } from 'react-icons/bs'
-import { maskCurrency, unMaskCurrency } from '../../../utils/masks'
+import { maskCurrency, removeComma, unMaskCurrency } from '../../../utils/masks'
 
 const schema = z
   .object({
-    percentage: z.string().nonempty(),
-    maxDailyValue: z.string().nonempty()
+    depositFeePercentage: z.string().nonempty(),
+    depositMaxDailyValue: z.string().nonempty(),
+    bankPixFeePercentage: z.string().nonempty()
   })
-  .refine(data => Number(data.percentage) <= 100, {
+  .refine(data => !isNaN(removeComma(data.depositFeePercentage)), {
+    message: 'Insira um número válido',
+    path: ['depositFeePercentage']
+  })
+  .refine(data => removeComma(data.depositFeePercentage) <= 100, {
     message: 'A porcentagem deve ser menor ou igual a 100',
-    path: ['percentage']
+    path: ['depositFeePercentage']
   })
-  .refine(data => Number(data.percentage) > 0, {
+  .refine(data => removeComma(data.depositFeePercentage) > 0, {
     message: 'A porcentagem deve ser maior ou igual a 0',
-    path: ['percentage']
+    path: ['depositFeePercentage']
+  })
+  .refine(data => !isNaN(removeComma(data.bankPixFeePercentage)), {
+    message: 'Insira um número válido',
+    path: ['bankPixFeePercentage']
+  })
+  .refine(data => removeComma(data.bankPixFeePercentage) <= 100, {
+    message: 'A porcentagem deve ser menor ou igual a 100',
+    path: ['bankPixFeePercentage']
+  })
+  .refine(data => removeComma(data.bankPixFeePercentage) > 0, {
+    message: 'A porcentagem deve ser maior ou igual a 0',
+    path: ['bankPixFeePercentage']
   })
 
 export type FormValues = z.infer<typeof schema>
@@ -46,14 +63,21 @@ export function OptionsButton() {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const { register, handleSubmit, formState, setValue } = useForm<FormValues>({
-    defaultValues: () => axiosFetcher('manager/transfer-config'),
+    defaultValues: () =>
+      axiosFetcher('manager/transfer-config').then(value => {
+        return {
+          ...value,
+          depositMaxDailyValue: maskCurrency(value.depositMaxDailyValue)
+        }
+      }),
     resolver: zodResolver(schema)
   })
 
   async function onSubmit(data: FormValues) {
     const [isOk, response] = await updateTransferConfig({
-      percentage: data.percentage,
-      maxDailyValue: unMaskCurrency(data.maxDailyValue)
+      depositFeePercentage: removeComma(data.depositFeePercentage),
+      depositMaxDailyValue: unMaskCurrency(data.depositMaxDailyValue),
+      bankPixFeePercentage: removeComma(data.bankPixFeePercentage)
     })
 
     if (!isOk) {
@@ -92,24 +116,33 @@ export function OptionsButton() {
           <ModalBody>
             <Stack spacing={4}>
               <ChakraInput
-                label="Taxa (Porcentagem)"
+                label="Taxa Takeback (Porcentagem)"
                 size="sm"
                 isRequired
-                {...register('percentage')}
-                error={formState.errors.percentage?.message}
+                {...register('depositFeePercentage')}
+                error={formState.errors.depositFeePercentage?.message}
+              />
+            </Stack>
+            <Stack spacing={4}>
+              <ChakraInput
+                label="Taxa do Banco (Porcentagem)"
+                size="sm"
+                isRequired
+                {...register('bankPixFeePercentage')}
+                error={formState.errors.bankPixFeePercentage?.message}
               />
             </Stack>
             <Stack spacing={4}>
               <ChakraInput
                 isRequired
                 size="sm"
-                error={formState.errors.maxDailyValue?.message}
+                error={formState.errors.depositMaxDailyValue?.message}
                 autoComplete="off"
                 label="Limite diário (R$)"
-                {...register('maxDailyValue', {
+                {...register('depositMaxDailyValue', {
                   onChange: e =>
                     setValue(
-                      'maxDailyValue',
+                      'depositMaxDailyValue',
                       maskCurrency(e.currentTarget.value)
                     )
                 })}

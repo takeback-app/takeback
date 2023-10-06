@@ -370,6 +370,7 @@ model Setting {
   referralBonusPercentage Decimal? @default(0) @db.Decimal(10, 4)
   depositFeePercentage    Decimal? @default(0) @db.Decimal(10, 4)
   depositMaxDailyValue    Decimal? @default(0) @db.Decimal(10, 4)
+  bankPixFeePercentage    Decimal? @default(0) @db.Decimal(10, 4)
 
   @@map("settings")
 }
@@ -1119,11 +1120,13 @@ enum PixTransactionStatus {
 }
 
 model Deposit {
-  id               String  @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  consumerId       String  @db.Uuid
-  value            Decimal @db.Decimal(10, 2)
-  pixTransactionId BigInt?
-  isPaid           Boolean @default(false)
+  id                   String   @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  consumerId           String   @db.Uuid
+  value                Decimal  @db.Decimal(10, 2)
+  depositFeePercentage Decimal? @db.Decimal(10, 4)
+  bankPixFeePercentage Decimal? @db.Decimal(10, 4)
+  pixTransactionId     BigInt?
+  isPaid               Boolean  @default(false)
 
   createdAt DateTime @default(now())
 

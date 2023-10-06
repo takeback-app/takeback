@@ -29,11 +29,13 @@ import { OptionsButton } from './OptionsButton'
 
 export interface TransfersData {
   id: number
-  value: number
+  value: string
   createdAt: string
   isPaid: boolean
+  bankPixFeePercentage: string
+  depositFeePercentage: string
   pix: {
-    value: number
+    value: string
   }
   consumer: {
     fullName: string
@@ -109,7 +111,8 @@ export function Transfers() {
               <Th>Nome</Th>
               <Th>Cidade</Th>
               <Th>Valor Creditado</Th>
-              <Th>Valor Taxa</Th>
+              <Th>Valor Taxa Takeback</Th>
+              <Th>Valor Taxa Banco</Th>
               <Th>Valor Pago</Th>
               <Th>Foi Pago?</Th>
               <Th>Dt. de emissão</Th>
@@ -124,11 +127,23 @@ export function Transfers() {
                     {transfer.consumer.consumerAddress.city.name}
                   </TextBreak>
                 </Td>
-                <Td fontSize="xs">{currencyFormat(transfer.value)}</Td>
+                <Td fontSize="xs">{currencyFormat(Number(transfer.value))}</Td>
                 <Td fontSize="xs">
-                  {currencyFormat(transfer.pix.value - transfer.value)}
+                  {currencyFormat(
+                    Number(transfer.value) *
+                      Number(transfer.depositFeePercentage)
+                  )}
                 </Td>
-                <Td fontSize="xs">{currencyFormat(transfer.pix.value)}</Td>
+                <Td fontSize="xs">
+                  {currencyFormat(
+                    Number(transfer.pix.value) -
+                      Number(transfer.value) *
+                        (1 + Number(transfer.depositFeePercentage))
+                  )}
+                </Td>
+                <Td fontSize="xs">
+                  {currencyFormat(Number(transfer.pix.value))}
+                </Td>
                 <Td fontSize="xs">{transfer.isPaid ? 'Sim' : 'Não'}</Td>
                 <Td fontSize="xs">
                   {new Date(transfer.createdAt).toLocaleString()}

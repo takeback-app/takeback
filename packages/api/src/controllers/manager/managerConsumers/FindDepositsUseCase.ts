@@ -56,6 +56,8 @@ class FindDepositsUseCase {
         value: true,
         createdAt: true,
         isPaid: true,
+        depositFeePercentage: true,
+        bankPixFeePercentage: true,
         pix: {
           select: {
             value: true,
