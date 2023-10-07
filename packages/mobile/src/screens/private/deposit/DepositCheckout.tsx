@@ -36,10 +36,10 @@ export function DepositCheckout({ navigation }) {
     bankFeePercent: number
   ): number {
     const bankFactor = 1 - bankFeePercent / 100
-    const takebackFeeValue = (totalAmount * takebackFeePercent) / 100
+    const takebackFeeValue = (takebackFeePercent / 100) * totalAmount
     const totalValue = (totalAmount + takebackFeeValue) / bankFactor
-    const totalFee = totalValue / totalAmount - 1
-    return +(totalFee * 100).toFixed(2)
+    const totalFeePercent = totalValue / totalAmount - 1
+    return +(totalFeePercent * 100).toFixed(2)
   }
 
   return (
