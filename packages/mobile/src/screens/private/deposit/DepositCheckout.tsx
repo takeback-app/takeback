@@ -31,6 +31,17 @@ export function DepositCheckout({ navigation }) {
     bankPixFeePercentage: string
   }>('costumer/transfer-config')
 
+  function getFeePercent(
+    takebackFeePercent: number,
+    bankFeePercent: number
+  ): number {
+    const bankFactor = 1 - bankFeePercent / 100
+    const takebackFeeValue = (totalAmount * takebackFeePercent) / 100
+    const totalValue = (totalAmount + takebackFeeValue) / bankFactor
+    const totalFee = totalValue / totalAmount - 1
+    return +(totalFee * 100).toFixed(2)
+  }
+
   return (
     <Flex flex={1} bg="white">
       <StatusBar style="auto" />
@@ -74,18 +85,11 @@ export function DepositCheckout({ navigation }) {
               Taxa de operação
             </Text>
             <Text mt={1} fontWeight="semibold" color="gray.800" fontSize="15px">
-              {Number(depositConfig?.depositFeePercentage)}%
-            </Text>
-          </Stack>
-        </HStack>
-        <Flex borderBottomWidth="1.5" borderColor="gray.300" />
-        <HStack px={4} py={4}>
-          <Stack>
-            <Text fontWeight="medium" color="gray.600" fontSize="14px">
-              Taxa do banco
-            </Text>
-            <Text mt={1} fontWeight="semibold" color="gray.800" fontSize="15px">
-              {Number(depositConfig?.bankPixFeePercentage)}%
+              {getFeePercent(
+                Number(depositConfig?.depositFeePercentage),
+                Number(depositConfig?.bankPixFeePercentage)
+              )}
+              %
             </Text>
           </Stack>
         </HStack>
