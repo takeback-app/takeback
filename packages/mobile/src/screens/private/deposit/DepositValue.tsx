@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   // ActivityIndicator,
   KeyboardAvoidingView,
@@ -18,13 +18,24 @@ import { useDepositStore } from './state'
 // import { validateBalance } from '../../../services'
 // import { AlertComponent } from '../../../components/alert'
 import { Layout } from '../../../components/layout'
+import { AlertComponent } from '../../../components/alert'
+
+const MINIMUM_DEPOSIT_AMOUNT = 10
 
 export function DepositValue({ navigation }) {
   const { bottom: bottomHeight, top: topHeight } = useSafeAreaInsets()
-
+  const [error, setError] = useState('')
   const { setTotalAmount, totalAmount } = useDepositStore()
 
   async function handleNext() {
+    setError('')
+    const isDepositValid = totalAmount >= MINIMUM_DEPOSIT_AMOUNT
+    if (!isDepositValid) {
+      return setError(
+        `Valor mínimo de depósito e de R$ ${MINIMUM_DEPOSIT_AMOUNT}.`
+      )
+    }
+
     navigation.navigate('depositCheckout')
   }
 
@@ -79,13 +90,13 @@ export function DepositValue({ navigation }) {
               selectionColor="#449FE7"
             />
             <Flex mt={4}>
-              {/* <AlertComponent
+              <AlertComponent
                 status="warning"
                 title="Não foi possível continuar"
                 message={error}
                 showAlert={!!error}
                 closeAlert={() => setError('')}
-              /> */}
+              />
             </Flex>
           </Flex>
           <Flex flex={1} pb={4} justify="flex-end" align="flex-end">

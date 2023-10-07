@@ -19,8 +19,6 @@ import { maskCurrency } from '../../../utils/masks'
 import { useDepositStore } from './state'
 import useSWR from 'swr'
 
-const TAX_PERCENTAGE = 2
-
 export function DepositCheckout({ navigation }) {
   const { totalAmount } = useDepositStore()
   const { bottom: bottomHeight, top: topHeight } = useSafeAreaInsets()
