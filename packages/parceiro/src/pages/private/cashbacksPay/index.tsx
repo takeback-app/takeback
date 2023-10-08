@@ -11,7 +11,7 @@ import {
   IoTrashOutline,
   IoWalletOutline
 } from 'react-icons/io5'
-import { IoLogoUsd } from 'react-icons/io'
+import { IoLogoUsd, IoMdWallet } from 'react-icons/io'
 import { BsUpcScan } from 'react-icons/bs'
 import { useTheme } from 'styled-components'
 
@@ -45,6 +45,10 @@ import { TransactionSourceEnum } from '../../../enums/TransactionSource.enum'
 
 export type NfceValidationStatus = 'IN_PROGRESS' | 'NOT_FOUND' | 'VALIDATED'
 
+interface CmmSells {
+  sellId: string
+}
+
 interface TransactionProps {
   id: number
   totalAmount: string
@@ -66,6 +70,7 @@ interface TransactionProps {
   }
   qrCodeId: string | null
   transactionSource: TransactionSourceEnum
+  cmmSells?: CmmSells[]
 }
 
 interface TransactionPaymentMethod {
@@ -74,6 +79,12 @@ interface TransactionPaymentMethod {
       description: string
     }
   }
+}
+
+enum IntegrationTypes {
+  DESKTOP = 'DESKTOP',
+  NONE = 'NONE',
+  CMM = 'CMM'
 }
 
 let cashbacksSelected: Array<number> = []
@@ -100,6 +111,9 @@ export const Cashback: React.FC = () => {
   const [allChecked, setAllChecked] = useState(false)
   const [hasIntegration, setHasIntegration] = useState(false)
   const [useQRCode, setUseQRCode] = useState(false)
+  const [integrationType, setIntegrationType] = useState<IntegrationTypes>(
+    IntegrationTypes.NONE
+  )
 
   const [modalCancelVisible, setModalCancelVisible] = useState(false)
   const [modalPaymentVisible, setModalPaymentVisible] = useState(false)
@@ -117,6 +131,8 @@ export const Cashback: React.FC = () => {
 
   const [pageLoading, setPageLoading] = useState(true)
   const [buttonLoading, setButtonLoading] = useState(false)
+
+  const [isShowButtonFill, setIsShowButtonFill] = useState(false)
 
   const transactions = useMemo(() => {
     if (typeFilter === 'ALL') return allTransactions
@@ -325,9 +341,10 @@ export const Cashback: React.FC = () => {
     })
   }
 
-  const getUseQRCode = () => {
+  const getIntegrations = () => {
     API.get('/company/integrations/type').then(response => {
-      setUseQRCode(response.data.integrationType === 'QRCODE')
+      setUseQRCode(response.data.useQRCode)
+      setIntegrationType(response.data.integrationType)
     })
   }
 
@@ -362,7 +379,7 @@ export const Cashback: React.FC = () => {
   useEffect(() => {
     cashbacksSelected = []
     findCashbacks()
-    getUseQRCode()
+    getIntegrations()
     getCompanyData()
     getPaymentOrderMethods()
 
@@ -372,6 +389,44 @@ export const Cashback: React.FC = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    function verifyIsShowCashbacksWithBalance() {
+      const positiveBalance = companyData.positiveBalance
+      const totalToPay =
+        parseFloat(transactions[0]?.cashbackAmount) +
+        parseFloat(transactions[0]?.takebackFeeAmount) +
+        parseFloat(transactions[0]?.backAmount)
+
+      if (positiveBalance > totalToPay) {
+        setIsShowButtonFill(true)
+        return
+      }
+      setIsShowButtonFill(false)
+    }
+    verifyIsShowCashbacksWithBalance()
+  }, [companyData, transactions])
+
+  function fillCashbacksWithBalance() {
+    let positiveBalance = companyData.positiveBalance
+    let totalSelected = total
+    if (total !== 0) {
+      cashbacksSelected = []
+      setTotal(0)
+      return
+    }
+    for (const transaction of transactions) {
+      const totalToPay =
+        parseFloat(transaction.cashbackAmount) +
+        parseFloat(transaction.takebackFeeAmount) +
+        parseFloat(transaction.backAmount)
+      if (positiveBalance <= 0 || positiveBalance < totalToPay) break
+      cashbacksSelected.push(transaction.id)
+      totalSelected = totalSelected + totalToPay
+      positiveBalance = positiveBalance - totalToPay
+    }
+    setTotal(totalSelected)
+  }
 
   return (
     <Layout title="Cashbacks à Pagar">
@@ -390,6 +445,13 @@ export const Cashback: React.FC = () => {
                 )}`}
                 color="#009900"
               />
+              <Button
+                leftIcon={<IoMdWallet />}
+                onClick={fillCashbacksWithBalance}
+                colorScheme="teal"
+              >
+                Selecionar cashbacks com saldo
+              </Button>
               <Button
                 leftIcon={<FiFilter />}
                 onClick={onOpen}
@@ -414,9 +476,10 @@ export const Cashback: React.FC = () => {
                       <S.Th>Status</S.Th>
                       <S.Th>Cliente</S.Th>
                       <S.Th>Vendedor</S.Th>
-                      {hasIntegration && <S.Th>Validação por NFC-e</S.Th>}
-                      {!hasIntegration && useQRCode && (
-                        <S.Th>Solicitado via QRCode</S.Th>
+                      {/* {hasIntegration && <S.Th>Validação por NFC-e</S.Th>} */}
+                      {useQRCode && <S.Th>Solicitado via QRCode</S.Th>}
+                      {integrationType === IntegrationTypes.CMM && (
+                        <S.Th>Número de Venda</S.Th>
                       )}
                       <S.Th>Valor da Compra</S.Th>
                       <S.Th>Método de Pagamento</S.Th>
@@ -451,20 +514,27 @@ export const Cashback: React.FC = () => {
                         </S.Td>
                         <S.Td>{item.consumer?.fullName ?? '-'}</S.Td>
                         <S.Td>{item.companyUser?.name ?? '-'}</S.Td>
-                        {hasIntegration && (
+                        {/* {hasIntegration && (
                           <S.Td>
                             <ValidationNfce
                               nfceValidationStatus={item.nfceValidationStatus}
                             />
                           </S.Td>
-                        )}
-                        {!hasIntegration && useQRCode && (
+                        )} */}
+                        {useQRCode && (
                           <S.Td>
                             <Badge
                               colorScheme={item.qrCodeId ? 'green' : 'yellow'}
                             >
                               {item.qrCodeId ? 'Sim' : 'Não'}
                             </Badge>
+                          </S.Td>
+                        )}
+                        {integrationType === IntegrationTypes.CMM && (
+                          <S.Td>
+                            {item.cmmSells?.length
+                              ? item.cmmSells[0].sellId
+                              : ''}
                           </S.Td>
                         )}
                         <S.Td>

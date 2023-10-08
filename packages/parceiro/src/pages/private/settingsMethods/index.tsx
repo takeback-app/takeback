@@ -131,7 +131,7 @@ export function PaymentMethods() {
                       />
                     </Tooltip>
 
-                    {integrationData?.integrationType !== 'NONE' && (
+                    {integrationData?.integrationType === 'DESKTOP' && (
                       <Tooltip label="Editar Equivalência na integração">
                         <IconButton
                           size="sm"

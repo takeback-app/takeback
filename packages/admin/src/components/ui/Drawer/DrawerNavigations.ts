@@ -54,8 +54,28 @@ export const drawerNav = [
     activeIcon: IoPerson,
     inactiveIcon: IoPersonOutline,
     isActive: false,
-    to: '/clientes',
-    userBlocked: 0
+    to: '/usuarios',
+    userBlocked: 0,
+    pages: [
+      {
+        id: 0,
+        label: 'Clientes',
+        activeIcon: IoPerson,
+        inactiveIcon: IoPersonOutline,
+        isActive: false,
+        to: '/usuarios/clientes',
+        userBlocked: 0
+      },
+      {
+        id: 1,
+        label: 'Transferências',
+        activeIcon: IoWallet,
+        inactiveIcon: IoWalletOutline,
+        isActive: false,
+        to: '/usuarios/transferencias',
+        userBlocked: 0
+      }
+    ]
   },
   {
     id: 2,
@@ -252,6 +272,15 @@ export const drawerNav = [
         inactiveIcon: IoBagAddOutline,
         isActive: false,
         to: '/relatorios/financeiro',
+        userBlocked: 0
+      },
+      {
+        id: 5,
+        label: 'Perfil do Cliente',
+        activeIcon: IoBagAdd,
+        inactiveIcon: IoBagAddOutline,
+        isActive: false,
+        to: '/relatorios/perfil-cliente',
         userBlocked: 0
       }
     ]

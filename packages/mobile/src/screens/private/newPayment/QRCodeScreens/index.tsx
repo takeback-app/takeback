@@ -40,7 +40,7 @@ export function QRCode({ navigation }) {
 
   return (
     <Layout withoutKeyboardDismiss>
-      <ModalHeader title="Leitor de QRCode" onPress={navigation.goBack} />
+      <ModalHeader title="Leitor de QR Code" onPress={navigation.goBack} />
 
       {hasPermission ? (
         <>
@@ -51,7 +51,7 @@ export function QRCode({ navigation }) {
           />
           <Card>
             <Text fontWeight="medium" textAlign="center">
-              Leia o <Text color="blue.700">QRCode</Text> da sua nota fiscal
+              Leia o <Text color="blue.700">QR Code</Text> da sua nota fiscal
               para fazer o lançamento automático dos valores
             </Text>
           </Card>
@@ -75,7 +75,7 @@ export function QRCode({ navigation }) {
               fontWeight="medium"
               mt="2"
             >
-              Precisamos do acesso a sua câmera para conseguir ler o QRCode da
+              Precisamos do acesso a sua câmera para conseguir ler o QR Code da
               usa notinha.
             </Text>
           </Center>

@@ -88,6 +88,7 @@ class CompaniesController {
       latitude: props.latitude,
       contactPhone: props.contactPhone,
       useQRCode: props.useQRCode === 'true',
+      integrationType: props.integrationType,
     })
 
     const companies = await find.execute({ companyId })
@@ -189,7 +190,10 @@ class CompaniesController {
     if (!integration) {
       const company = await prisma.company.findFirstOrThrow({
         where: { id },
-        select: { paymentPlan: { select: { canUseIntegration: true } } },
+        select: {
+          integrationType: true,
+          paymentPlan: { select: { canUseIntegration: true } },
+        },
       })
 
       if (!company.paymentPlan.canUseIntegration) {

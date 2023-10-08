@@ -72,6 +72,11 @@ export interface QRCodeData {
   type: 'WAITING' | 'NOT_VALIDATED'
 }
 
+export interface DepositData {
+  id: string
+  value: number
+}
+
 type ExtractItemType =
   | { type: 'TRANSACTION'; data: TransactionData }
   | { type: 'TRANSFER'; data: TransferData }
@@ -80,6 +85,7 @@ type ExtractItemType =
   | { type: 'SOLICITATION'; data: SolicitationData }
   | { type: 'STORE_ORDER'; data: StoreOrderData }
   | { type: 'QRCODE'; data: QRCodeData }
+  | { type: 'DEPOSIT'; data: DepositData }
 
 export enum ExtractType {
   TRANSACTION = 'TRANSACTION',
@@ -88,7 +94,8 @@ export enum ExtractType {
   BONUS = 'BONUS',
   SOLICITATION = 'SOLICITATION',
   QRCODE = 'QRCODE',
-  STORE_ORDER = 'STORE_ORDER'
+  STORE_ORDER = 'STORE_ORDER',
+  DEPOSIT = 'DEPOSIT'
 }
 
 export type ExtractItem = ExtractItemType & {

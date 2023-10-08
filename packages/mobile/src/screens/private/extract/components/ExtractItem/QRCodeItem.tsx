@@ -7,8 +7,8 @@ import { QRCodeType, QRCodeData } from '../../types'
 import { dateFormatSimple } from '../../../../../utils'
 
 const titleByType: { [key in QRCodeType]: string } = {
-  WAITING: 'Analisando QRCode ',
-  NOT_VALIDATED: 'QRCode invalido'
+  WAITING: 'Analisando QR Code',
+  NOT_VALIDATED: 'QR Code invalido'
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

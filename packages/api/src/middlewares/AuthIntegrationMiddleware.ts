@@ -16,6 +16,7 @@ export const AuthIntegrationMiddleware = async (
   const company = await prisma.company.findUnique({
     where: { id: companyId },
     select: {
+      integrationType: true,
       paymentPlan: { select: { canUseIntegration: true } },
       integrationSettings: true,
     },

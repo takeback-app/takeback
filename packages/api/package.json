@@ -52,6 +52,7 @@
     "pino": "^8.11.0",
     "pino-caller": "^3.4.0",
     "reflect-metadata": "^0.1.10",
+    "sdk-typescript-apis-efi": "^1.0.2",
     "sharp": "^0.32.1",
     "typeorm": "0.2.37",
     "uuid": "^8.3.2",

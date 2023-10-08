@@ -44,6 +44,9 @@ const LineChart: React.FC<React.PropsWithChildren<Props>> = ({ data }) => (
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
+        datalabels: {
+          display: false
+        },
         legend: {
           position: 'bottom',
           display: false

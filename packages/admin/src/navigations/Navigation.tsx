@@ -50,6 +50,8 @@ import { SellerReport } from '../views/reports/seller'
 import { CashbackReport } from '../views/reports/cashback'
 import { CompanyReport } from '../views/reports/company'
 import { FinancialReport } from '../views/reports/financial'
+import { Transfers } from '../views/consumer/transfers/transfers'
+import { ConsumerProfile } from '../views/reports/consumerProfile'
 
 interface Props {
   children: JSX.Element
@@ -80,7 +82,7 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
       />
 
       <Route
-        path="/clientes"
+        path="/usuarios/clientes"
         element={
           <PrivateRoute>
             <Consumer />
@@ -112,7 +114,7 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         }
       />
       <Route
-        path="/clientes/:id"
+        path="/usuarios/clientes/:id"
         element={
           <PrivateRoute>
             <ManagerConsumer />
@@ -352,6 +354,22 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <FinancialReport />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/relatorios/perfil-cliente"
+        element={
+          <PrivateRoute>
+            <ConsumerProfile />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/usuarios/transferencias"
+        element={
+          <PrivateRoute>
+            <Transfers />
           </PrivateRoute>
         }
       />

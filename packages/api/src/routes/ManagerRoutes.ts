@@ -40,6 +40,8 @@ import { CompanyUserTypeController } from '../controllers/manager/CompanyUserTyp
 import { TransactionStatusController } from '../controllers/manager/TransactionStatusController'
 import { CompanyReportController } from '../controllers/manager/reports/CompanyReportController'
 import { FinancialReportController } from '../controllers/manager/reports/FinancialReportController'
+import { TransferConfigController } from '../controllers/manager/TransferConfigController'
+import { CosumersProfileReportsController } from '../controllers/manager/consumersReports/CosumersReportsController'
 
 const paymentMethod = new PaymentMethodController()
 const managerAuth = new ManagerAuthController()
@@ -70,6 +72,7 @@ const companyReportController = new CompanyReportController()
 const reportFilterController = new ReportFilterController()
 const companyUserTypeController = new CompanyUserTypeController()
 const transactionStatusController = new TransactionStatusController()
+const cosumersProfileReportsController = new CosumersProfileReportsController()
 
 const notificationSolicitationController =
   new NotificationSolicitationController()
@@ -80,6 +83,7 @@ const dashboardController = new DashboardController()
 const notificationController = new NotificationController()
 
 const storeProductController = new StoreProductController()
+const transferConfig = new TransferConfigController()
 
 const fileController = new FileController()
 
@@ -157,6 +161,7 @@ routes.put(
 
 routes.get('/consumers/find', managerConsumers.findConsumers)
 routes.get('/consumers/find/one/:id', managerConsumers.findOneConsumer)
+routes.get('/consumers/deposits', managerConsumers.findDeposits)
 routes.put(
   '/consumers/update/status/:id',
   managerConsumers.updateConsumerStatus,
@@ -271,6 +276,7 @@ routes.get(
   '/report/financial/totalizer',
   financialReportController.getTotalizer,
 )
+routes.get('/report/consumers-profile', cosumersProfileReportsController.index)
 
 routes.get('/company-user-types', companyUserTypeController.index)
 routes.get('/transaction-status', transactionStatusController.index)
@@ -353,6 +359,9 @@ routes.put(
 
 routes.get('/referral-percentage', referralBonusController.index)
 routes.put('/referral-percentage', referralBonusController.update)
+
+routes.get('/transfer-config', transferConfig.index)
+routes.put('/transfer-config', transferConfig.update)
 
 routes.get('/store/companies', storeProductController.listCompanies)
 routes.get('/store/products', storeProductController.index)
