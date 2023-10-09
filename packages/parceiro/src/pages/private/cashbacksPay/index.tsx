@@ -438,13 +438,6 @@ export const Cashback: React.FC = () => {
         <>
           <S.Container>
             <S.Header>
-              <SmallCardButton
-                icon={IoWalletOutline}
-                title={`Saldo no TakeBack ${currencyFormat(
-                  companyData.positiveBalance
-                )}`}
-                color="#009900"
-              />
               <Button
                 leftIcon={<IoMdWallet />}
                 onClick={fillCashbacksWithBalance}
@@ -452,6 +445,10 @@ export const Cashback: React.FC = () => {
               >
                 Selecionar cashbacks com saldo
               </Button>
+              <div>
+                Saldo no TakeBack:{' '}
+                <strong>{currencyFormat(companyData.positiveBalance)}</strong>
+              </div>
               <Button
                 leftIcon={<FiFilter />}
                 onClick={onOpen}
@@ -476,11 +473,15 @@ export const Cashback: React.FC = () => {
                       <S.Th>Status</S.Th>
                       <S.Th>Cliente</S.Th>
                       <S.Th>Vendedor</S.Th>
-                      {/* {hasIntegration && <S.Th>Validação por NFC-e</S.Th>} */}
+                      {hasIntegration &&
+                        integrationType !== IntegrationTypes.CMM && (
+                          <S.Th>Validação por NFC-e</S.Th>
+                        )}
                       {useQRCode && <S.Th>Solicitado via QRCode</S.Th>}
-                      {integrationType === IntegrationTypes.CMM && (
-                        <S.Th>Número de Venda</S.Th>
-                      )}
+                      {!hasIntegration &&
+                        integrationType === IntegrationTypes.CMM && (
+                          <S.Th>Número de Venda</S.Th>
+                        )}
                       <S.Th>Valor da Compra</S.Th>
                       <S.Th>Método de Pagamento</S.Th>
                       <S.Th>Cashback</S.Th>
@@ -514,13 +515,14 @@ export const Cashback: React.FC = () => {
                         </S.Td>
                         <S.Td>{item.consumer?.fullName ?? '-'}</S.Td>
                         <S.Td>{item.companyUser?.name ?? '-'}</S.Td>
-                        {/* {hasIntegration && (
-                          <S.Td>
-                            <ValidationNfce
-                              nfceValidationStatus={item.nfceValidationStatus}
-                            />
-                          </S.Td>
-                        )} */}
+                        {hasIntegration &&
+                          integrationType !== IntegrationTypes.CMM && (
+                            <S.Td>
+                              <ValidationNfce
+                                nfceValidationStatus={item.nfceValidationStatus}
+                              />
+                            </S.Td>
+                          )}
                         {useQRCode && (
                           <S.Td>
                             <Badge
@@ -530,13 +532,14 @@ export const Cashback: React.FC = () => {
                             </Badge>
                           </S.Td>
                         )}
-                        {integrationType === IntegrationTypes.CMM && (
-                          <S.Td>
-                            {item.cmmSells?.length
-                              ? item.cmmSells[0].sellId
-                              : ''}
-                          </S.Td>
-                        )}
+                        {!hasIntegration &&
+                          integrationType === IntegrationTypes.CMM && (
+                            <S.Td>
+                              {item.cmmSells?.length
+                                ? item.cmmSells[0].sellId
+                                : ''}
+                            </S.Td>
+                          )}
                         <S.Td>
                           {currencyFormat(parseFloat(item.totalAmount))}
                         </S.Td>
