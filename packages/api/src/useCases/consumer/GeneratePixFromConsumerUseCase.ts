@@ -23,7 +23,6 @@ export class GeneratePixFromConsumerUseCase {
     })
 
     if (!isOK) {
-      console.log({ response })
       return null
     }
 
@@ -31,8 +30,6 @@ export class GeneratePixFromConsumerUseCase {
       await efiPay.pixGenerateQRCode(response.loc.id)
 
     if (!isQRCodeOk) {
-      console.log({ qrCodeResponse })
-
       return null
     }
 
