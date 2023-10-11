@@ -67,6 +67,7 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [modalProvisionalAccess, setModalProvisionalAccess] = useState(false)
   const [canUseIntegration, setCanUseIntegration] = useState(false)
   const [registeredNumber, setRegisteredNumber] = useState('')
+  const [integrationTypeApi, setIntegrationTypeApi] = useState('')
 
   const [loading, setLoading] = useState(false)
 
@@ -92,6 +93,12 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
         setCompanyUsers(response.data.users)
         setRepresentatives(response.data.representatives)
         setCanUseIntegration(response.data.company.canUseIntegration)
+        const integrationType =
+          response.data.company.integrationType === null
+            ? 'NONE'
+            : response.data.company.integrationType
+        setIntegrationTypeApi(integrationType)
+
         formRef.current?.setData({
           fantasyName: response.data.company.company_fantasyName,
           corporateName: response.data.company.company_corporateName,
@@ -110,10 +117,7 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
           status: response.data.company.status_description,
           contactPhone: response.data.company.company_contactPhone,
           useQRCode: response.data.company.company_useQRCode,
-          integrationType:
-            response.data.company.integrationType !== null
-              ? response.data.company.integrationType
-              : 'NONE'
+          integrationType
         })
 
         setRegisteredNumber(response.data.company.company_registeredNumber)
@@ -213,6 +217,12 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
       findIndustries()
     }
   }, [])
+
+  useEffect(() => {
+    formRef.current?.setData({
+      integrationType: integrationTypeApi
+    })
+  }, [canUseIntegration, integrationTypeApi])
 
   return (
     <Layout
