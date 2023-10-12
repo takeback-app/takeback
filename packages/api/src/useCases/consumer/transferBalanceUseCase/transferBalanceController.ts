@@ -1,30 +1,30 @@
-import { Request, Response } from "express";
-import { TransferBalanceUseCase } from "./transferBalanceUseCase";
-import { GetConsumerDataInfoUseCase } from "../getConsumerDataInfo/getConsumerDataInfoUseCase";
-import { UpdateBalanceExpireDate } from "../UpdateBalanceExpireDate";
+import { Request, Response } from 'express'
+import { TransferBalanceUseCase } from './transferBalanceUseCase'
+import { GetConsumerDataInfoUseCase } from '../getConsumerDataInfo/getConsumerDataInfoUseCase'
+import { UpdateBalanceExpireDate } from '../UpdateBalanceExpireDate'
 
 export class TransferBalanceController {
   async handle(request: Request, response: Response) {
-    const consumerId = request["tokenPayload"].id;
-    const { password, sentConsumerId, value } = request.body;
+    const consumerId = request['tokenPayload'].id
+    const { password, sentConsumerId, value } = request.body
 
-    const useCase = new TransferBalanceUseCase();
+    const useCase = new TransferBalanceUseCase()
 
     await useCase.execute({
       consumerId,
       password,
       sentConsumerId,
       value,
-    });
+    })
 
-    const getUserDataUseCase = new GetConsumerDataInfoUseCase();
+    const getUserDataUseCase = new GetConsumerDataInfoUseCase()
 
-    const data = await getUserDataUseCase.execute(consumerId);
+    const data = await getUserDataUseCase.execute(consumerId)
 
-    const updateBalanceExpireDate = new UpdateBalanceExpireDate();
+    const updateBalanceExpireDate = new UpdateBalanceExpireDate()
 
-    await updateBalanceExpireDate.execute(consumerId);
+    await updateBalanceExpireDate.execute(consumerId)
 
-    return response.status(200).json(data);
+    return response.status(200).json(data)
   }
 }
