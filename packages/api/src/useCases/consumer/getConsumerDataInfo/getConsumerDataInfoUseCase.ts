@@ -6,9 +6,31 @@ export class GetConsumerDataInfoUseCase {
       where: {
         id: consumerId,
       },
-      include: {
+      select: {
+        id: true,
+        fullName: true,
+        sex: true,
+        phone: true,
+        email: true,
+        cpf: true,
+        birthDate: true,
+        balance: true,
+        blockedBalance: true,
+        emailConfirmated: true,
+        signatureRegistered: true,
+        phoneConfirmated: true,
+        codeToConfirmEmail: true,
+        deactivatedAccount: true,
+        createdAt: true,
+        updatedAt: true,
         consumerAddress: {
-          include: {
+          select: {
+            id: true,
+            street: true,
+            district: true,
+            number: true,
+            complement: true,
+            zipCode: true,
             city: true,
           },
         },
@@ -27,8 +49,16 @@ export class GetConsumerDataInfoUseCase {
       },
     })
 
+    const parsedConsumerData = {
+      ...consumerData,
+      balance: Number(consumerData.balance),
+      blockedBalance: Number(consumerData.blockedBalance),
+      address: consumerData.consumerAddress,
+    }
+    delete parsedConsumerData.consumerAddress
+
     return {
-      consumerData,
+      consumerData: parsedConsumerData,
       totalSaved: parseFloat(String(transactions._sum.cashbackAmount)),
     }
   }
