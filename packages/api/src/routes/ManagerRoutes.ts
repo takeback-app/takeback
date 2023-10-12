@@ -369,4 +369,6 @@ routes.get('/store/products/:id', storeProductController.show)
 routes.post('/store/products', storeProductController.store)
 routes.delete('/store/products/:id', storeProductController.delete)
 
+routes.put('/cashback/cancel/:id', managerCashback.cancelOneCashback)
+
 export default routes
