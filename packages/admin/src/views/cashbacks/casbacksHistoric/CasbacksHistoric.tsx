@@ -253,7 +253,7 @@ export function CashbacksHistoric() {
         </Thead>
         <Tbody>
           {cashbacks?.data.map(cashback => (
-            <Tr color="gray.500" key={cashback.id}>
+            <Tr height={49} color="gray.500" key={cashback.id}>
               <Td>
                 {TransactionStatusEnum.PENDING ===
                   cashback.transactionStatus.description && (
