@@ -295,3 +295,33 @@ export const InputDateWrapper = styled.div`
   width: 100%;
   gap: 15px;
 `
+
+export const ModalConfirmMain = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0 0 0;
+`
+export const ModalFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+  gap: 10px;
+  margin-bottom: 10px;
+`
+
+export const ContentConfimModal = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 0;
+`
+
+export const ContainerModal = styled.div`
+  padding: 1rem 0 0 0;
+
+  @media (max-width: 450px) {
+    border-top: 1px solid #e0e5eb;
+  }
+`
