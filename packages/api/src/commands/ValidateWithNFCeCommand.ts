@@ -5,10 +5,10 @@ import { DateTime } from 'luxon'
 import { NFCeValidationStatus } from '@prisma/client'
 import { prisma } from '../prisma'
 import { TransactionStatusEnum } from '../enum/TransactionStatusEnum'
-import { AutomaticCancelTransactionsUseCase } from '../useCases/integration/AutomaticCancelTransactionsUseCase'
+// import { AutomaticCancelTransactionsUseCase } from '../useCases/integration/AutomaticCancelTransactionsUseCase'
 
 async function main() {
-  await new AutomaticCancelTransactionsUseCase().handle()
+  // await new AutomaticCancelTransactionsUseCase().handle()
 
   const dateLimit = DateTime.now().minus({ minutes: 30 }).toJSDate()
 
