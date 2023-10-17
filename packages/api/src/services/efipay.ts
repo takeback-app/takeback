@@ -23,6 +23,8 @@ export class Efipay {
   constructor() {
     this.efipaySdk = new EfipaySdk(config)
     this.pixKey = process.env.EFI_PIX_KEY || ''
+
+    console.log({ config, pixKey: this.pixKey })
   }
 
   public static make() {
