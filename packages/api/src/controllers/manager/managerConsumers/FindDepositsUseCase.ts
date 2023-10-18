@@ -24,10 +24,10 @@ class FindDepositsUseCase {
     isPaid,
   }: Props) {
     const startDate = dateStart
-      ? DateTime.fromISO(dateStart).startOf('day').toJSDate()
+      ? DateTime.fromISO(dateStart).startOf('day').plus({ hours: 3 }).toJSDate()
       : undefined
     const endDate = dateEnd
-      ? DateTime.fromISO(dateEnd).endOf('day').toJSDate()
+      ? DateTime.fromISO(dateEnd).endOf('day').plus({ hours: 3 }).toJSDate()
       : undefined
     const orderByTypes: Prisma.Enumerable<Prisma.DepositOrderByWithRelationInput>[] =
       []

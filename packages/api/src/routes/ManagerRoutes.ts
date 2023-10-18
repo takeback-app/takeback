@@ -200,6 +200,7 @@ routes.put(
   '/order/update/status/:id',
   managerPaymentOrder.updatePaymentOrderStatus,
 )
+routes.put('/order/cancel/:id', managerPaymentOrder.cancelOrder)
 
 routes.get('/cashback/find', managerCashback.findCashbacks)
 routes.get('/cashback/find/status', managerCashback.findStatus)
@@ -368,5 +369,7 @@ routes.get('/store/products', storeProductController.index)
 routes.get('/store/products/:id', storeProductController.show)
 routes.post('/store/products', storeProductController.store)
 routes.delete('/store/products/:id', storeProductController.delete)
+
+routes.put('/cashback/cancel/:id', managerCashback.cancelOneCashback)
 
 export default routes

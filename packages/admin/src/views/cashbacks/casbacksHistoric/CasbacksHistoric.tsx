@@ -24,18 +24,40 @@ import {
   Th,
   Thead,
   Tr,
-  useDisclosure
+  useDisclosure,
+  useToast
 } from '@chakra-ui/react'
 import { AppTable } from '../../../components/tables'
 import { Pagination } from '../../../components/tables/Pagination'
 
-import useSWR from 'swr'
+import useSWR, { mutate } from 'swr'
 import { Paginated } from '../../../types'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ChakraInput } from '../../../components/chakra/ChakraInput'
 import { ChakraSelect } from '../../../components/chakra/ChakraSelect'
+import { MdOutlineCancel } from 'react-icons/md'
+import { DefaultModalChakra } from '../../../components/modals/DefaultModal/DefaultModalChakra'
+
+import * as S from './styles'
+import QuartenaryButton from '../../../components/buttons/QuartenaryButton'
+import PALLET from '../../../styles/ColorPallet'
+import { notifyError } from '../../../components/ui/Toastify'
+import { API } from '../../../services/API'
+import { chakraToastConfig } from '../../../styles/chakraToastConfig'
+
+enum TransactionStatusEnum {
+  PENDING = 'Pendente',
+  APPROVED = 'Aprovada',
+  PAID_WITH_TAKEBACK = 'Pago com takeback',
+  WAITING = 'Aguardando',
+  CANCELED_BY_PARTNER = 'Cancelada pelo parceiro',
+  CANCELED_BY_CLIENT = 'Cancelada pelo cliente',
+  PROCESSING = 'Em processamento',
+  ON_DELAY = 'Em atraso',
+  NOT_PAID = 'Não paga pelo parceiro'
+}
 
 interface Transaction {
   id: number
@@ -94,13 +116,16 @@ const schema = z.object({
 export type FilterData = z.infer<typeof schema>
 
 export function CashbacksHistoric() {
+  const toast = useToast(chakraToastConfig)
   const { register, handleSubmit, setValue } = useForm<FilterData>({
     resolver: zodResolver(schema),
     defaultValues: formInitialData
   })
 
   const { isOpen, onClose, onOpen } = useDisclosure()
-
+  const [modalConfirmVisible, setModalConfirmVisible] = useState(false)
+  const [transactionIdCancel, setTransactionIdCancel] = useState(0)
+  const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
 
   const [cashbacks, setCashbacks] = useState<Paginated<Transaction>>({
@@ -146,6 +171,47 @@ export function CashbacksHistoric() {
     setFilters(formInitialData)
   }
 
+  function openCancelModal(id: number) {
+    setTransactionIdCancel(id)
+    setModalConfirmVisible(true)
+  }
+
+  function cancelTransaction() {
+    setLoading(true)
+
+    API.put(`/manager/cashback/cancel/${transactionIdCancel}`)
+      .then(() => {
+        setModalConfirmVisible(false)
+        mutate([
+          'manager/cashback/find',
+          {
+            page,
+            ...filters,
+            status: filters.status !== '0' ? filters.status : undefined
+          }
+        ])
+        toast({
+          title: 'Sucesso',
+          description: 'Cashback cancelado com sucesso!',
+          status: 'success'
+        })
+      })
+      .catch(error => {
+        if (error.isAxiosError) {
+          notifyError(error.response.data.message)
+        }
+        toast({
+          title: 'Atenção',
+          description: error.response.data.message,
+          status: 'error'
+        })
+      })
+      .finally(() => {
+        setTransactionIdCancel(0)
+        setLoading(false)
+      })
+  }
+
   return (
     <Layout title="Histórico de cashbacks" p={4}>
       <Flex mb={4} align="center" justify="flex-end">
@@ -172,6 +238,7 @@ export function CashbacksHistoric() {
       >
         <Thead>
           <Tr>
+            <Th></Th>
             <Th>Data da Emissão</Th>
             <Th>Status</Th>
             <Th>Empresa</Th>
@@ -186,9 +253,19 @@ export function CashbacksHistoric() {
         </Thead>
         <Tbody>
           {cashbacks?.data.map(cashback => (
-            <Tr color="gray.500" key={cashback.id}>
+            <Tr height={49} color="gray.500" key={cashback.id}>
+              <Td>
+                {TransactionStatusEnum.PENDING ===
+                  cashback.transactionStatus.description && (
+                  <IconButton
+                    icon={<MdOutlineCancel />}
+                    onClick={() => openCancelModal(cashback.id)}
+                    aria-label="cancel"
+                    size="sm"
+                  />
+                )}
+              </Td>
               <Td>{new Date(cashback.createdAt).toLocaleString()}</Td>
-
               <Td>{cashback.transactionStatus.description}</Td>
               <Td>{cashback.company.fantasyName}</Td>
               <Td>{cashback.consumer.fullName}</Td>
@@ -279,6 +356,33 @@ export function CashbacksHistoric() {
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
+
+      <DefaultModalChakra
+        title="Confime a operação"
+        visible={modalConfirmVisible}
+        onClose={() => setModalConfirmVisible(false)}
+      >
+        <S.ContainerModal>
+          <S.ContentConfimModal>
+            <S.Title>Confirma o cancelamento do cashback?</S.Title>
+          </S.ContentConfimModal>
+          <S.FooterModal>
+            <QuartenaryButton
+              label="Cancelar"
+              color={PALLET.COLOR_17}
+              type="button"
+              onClick={() => setModalConfirmVisible(false)}
+            />
+            <QuartenaryButton
+              label="Confirmar"
+              color={PALLET.COLOR_08}
+              type="button"
+              loading={loading}
+              onClick={cancelTransaction}
+            />
+          </S.FooterModal>
+        </S.ContainerModal>
+      </DefaultModalChakra>
     </Layout>
   )
 }

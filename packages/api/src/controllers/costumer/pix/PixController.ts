@@ -7,7 +7,7 @@ export class PixController {
   async store(request: Request, response: Response) {
     const { id: consumerId } = request['tokenPayload']
 
-    const today = DateTime.now().minus({ hour: 3 }).startOf('day').toJSDate()
+    const today = DateTime.now().startOf('day').toJSDate()
     const dailyDeposits = await prisma.deposit.aggregate({
       where: {
         consumerId,

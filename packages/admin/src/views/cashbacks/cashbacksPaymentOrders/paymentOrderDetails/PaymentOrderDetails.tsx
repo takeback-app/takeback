@@ -51,8 +51,12 @@ const PaymentOrderDetails: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   const [loading, setLoading] = useState(false)
   const [pageLoading, setPageLoading] = useState(true)
-  const [modalNotifyVisible, setModalNotifyVisible] = useState(false)
+  const [modalNotifyConfirmVisible, setModalNotifyConfirmVisible] =
+    useState(false)
+  const [modalNotifyCancelVisible, setModalNotifyCancelVisible] =
+    useState(false)
   const [modalConfirmVisible, setModalConfirmVisible] = useState(false)
+  const [modalCancelVisible, setModalCancelVisible] = useState(false)
 
   const defaultOptions = {
     loop: false,
@@ -84,7 +88,24 @@ const PaymentOrderDetails: React.FC<React.PropsWithChildren<unknown>> = () => {
     API.put(`/manager/order/approve/${paymentOrderDetails.paymentOrder_id}`)
       .then(() => {
         setModalConfirmVisible(false)
-        setModalNotifyVisible(true)
+        setModalNotifyConfirmVisible(true)
+      })
+      .catch(error => {
+        if (error.isAxiosError) {
+          notifyError(error.response.data.message)
+        }
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
+
+  const cancelOrder = () => {
+    setLoading(true)
+    API.put(`/manager/order/cancel/${paymentOrderDetails.paymentOrder_id}`)
+      .then(() => {
+        setModalCancelVisible(false)
+        setModalNotifyCancelVisible(true)
       })
       .catch(error => {
         if (error.isAxiosError) {
@@ -213,6 +234,12 @@ const PaymentOrderDetails: React.FC<React.PropsWithChildren<unknown>> = () => {
         </S.TotalValue>
         <S.ButtonsWrapper>
           <QuartenaryButton
+            label="Cancelar ordem"
+            color={PALLET.COLOR_17}
+            icon={IoCheckmarkCircleOutline}
+            onClick={() => setModalCancelVisible(true)}
+          />
+          <QuartenaryButton
             label="Confirmar o recebimento"
             color={PALLET.COLOR_05}
             icon={IoCheckmarkCircleOutline}
@@ -220,6 +247,37 @@ const PaymentOrderDetails: React.FC<React.PropsWithChildren<unknown>> = () => {
           />
         </S.ButtonsWrapper>
       </S.Footer>
+
+      <DefaultModalChakra
+        title="Confime a operação"
+        visible={modalCancelVisible}
+        onClose={() => setModalCancelVisible(false)}
+      >
+        <S.ContainerModal>
+          <S.ContentConfimModal>
+            <S.Title>Confirma o canelamento essa ordem?</S.Title>
+            <S.Label>
+              Ao confirmar, os cashbacks contidos nessa ordem de pagamento,
+              voltarão ao status pendente ou em atraso
+            </S.Label>
+          </S.ContentConfimModal>
+          <S.FooterModal>
+            <QuartenaryButton
+              label="Cancelar"
+              color={PALLET.COLOR_17}
+              type="button"
+              onClick={() => setModalCancelVisible(false)}
+            />
+            <QuartenaryButton
+              label="Confirmar"
+              color={PALLET.COLOR_08}
+              type="button"
+              loading={loading}
+              onClick={cancelOrder}
+            />
+          </S.FooterModal>
+        </S.ContainerModal>
+      </DefaultModalChakra>
 
       <DefaultModalChakra
         title="Confime a operação"
@@ -256,7 +314,9 @@ const PaymentOrderDetails: React.FC<React.PropsWithChildren<unknown>> = () => {
         </S.ContainerModal>
       </DefaultModalChakra>
 
-      <DefaultModalChakra visible={modalNotifyVisible}>
+      <DefaultModalChakra
+        visible={modalNotifyConfirmVisible || modalNotifyCancelVisible}
+      >
         <S.ModalConfirmMain>
           <Lottie
             options={defaultOptions}
@@ -266,7 +326,8 @@ const PaymentOrderDetails: React.FC<React.PropsWithChildren<unknown>> = () => {
             isPaused={false}
             isClickToPauseDisabled
           />
-          <h5>Cashbacks liberados!</h5>
+          {modalNotifyConfirmVisible && <h5>Cashbacks liberados!</h5>}
+          {modalNotifyCancelVisible && <h5>Ordem Cancelada!</h5>}
         </S.ModalConfirmMain>
         <S.ModalFooter>
           <QuartenaryButton

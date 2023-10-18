@@ -57,7 +57,7 @@ export type UpdateProfileData = {
 export function ProfileData({ navigation }) {
   const toast = useToast()
 
-  const { control, handleSubmit, setError, setFocus } =
+  const { control, handleSubmit, setError, setFocus, setValue } =
     useForm<UpdateProfileData>({
       defaultValues: async () => axiosFetcher('costumer/me')
     })
@@ -80,6 +80,17 @@ export function ProfileData({ navigation }) {
     if (!isOk) {
       return setError('name', { message: response.message })
     }
+
+    setValue('name', response.name)
+    setValue('sex', response.sex)
+    setValue('birthday', response.birthday)
+    setValue('hasChildren', response.hasChildren)
+    setValue('maritalStatus', response.maritalStatus)
+    setValue('phone', response.phone)
+    setValue('monthlyIncomeId', response.monthlyIncomeId)
+    setValue('schooling', response.schooling)
+    setValue('address.city', response.address?.city)
+    setValue('address.zipCode', response.address?.zipCode)
 
     toast.show({
       render: () => (
