@@ -263,7 +263,7 @@ export function Dashboard() {
         </S.LargeCardsWrapper2>
         <S.LargeCardsWrapper2>
           <LargeCard
-            title="Despesa de Loja"
+            title="Faturamento loja de ofertas"
             subtitle="Resultado por mês"
             loading={isStoreValueGraphLoading}
           >
@@ -289,7 +289,7 @@ export function Dashboard() {
             />
           </LargeCard>
           <LargeCard
-            title="Crédito de Loja"
+            title="Despesa loja de ofertas"
             subtitle="Resultado por mês"
             loading={isStoreCreditGraphLoading}
           >
