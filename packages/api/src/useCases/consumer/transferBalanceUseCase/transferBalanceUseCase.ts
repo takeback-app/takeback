@@ -1,10 +1,11 @@
 import bcrypt from 'bcrypt'
+import { DateTime } from 'luxon'
 import { InternalError } from '../../../config/GenerateErros'
 import { prisma } from '../../../prisma'
 
 interface TransferBalanceProps {
   consumerId: string
-  sentConsumerId: string
+  consumerReceivedId: string
   value: number
   password: string
 }
@@ -12,7 +13,7 @@ interface TransferBalanceProps {
 export class TransferBalanceUseCase {
   async execute(props: TransferBalanceProps) {
     if (
-      !props.sentConsumerId ||
+      !props.consumerReceivedId ||
       !props.consumerId ||
       !props.password ||
       !props.value ||
@@ -21,7 +22,6 @@ export class TransferBalanceUseCase {
     ) {
       throw new InternalError('Dados incompletos', 400)
     }
-
     const consumer = await prisma.consumer.findUnique({
       where: {
         id: props.consumerId,
@@ -46,9 +46,9 @@ export class TransferBalanceUseCase {
       throw new InternalError('Erro ao confirmar transferência', 400)
     }
 
-    const consumerTransfer = await prisma.consumer.findUnique({
+    const consumerReceived = await prisma.consumer.findUnique({
       where: {
-        id: props.sentConsumerId,
+        id: props.consumerReceivedId,
       },
       select: {
         id: true,
@@ -57,52 +57,73 @@ export class TransferBalanceUseCase {
       },
     })
 
-    if (!consumerTransfer) {
+    if (!consumerReceived) {
       throw new InternalError('Usuário não encontrado', 400)
     }
 
-    if (consumerTransfer.deactivatedAccount) {
+    if (consumerReceived.deactivatedAccount) {
       throw new InternalError('Usuário inativo', 400)
     }
 
-    if (consumerTransfer.id === props.consumerId) {
+    if (consumerReceived.id === props.consumerId) {
       throw new InternalError('Não é possível transferir para si mesmo', 400)
     }
 
-    const newTransfer = await prisma.transfer.create({
-      data: {
-        value: props.value,
-        consumerReceivedId: consumerTransfer.id,
-        consumerSentId: consumer.id,
-      },
-    })
+    try {
+      await prisma.$transaction(async (tx) => {
+        const sentConsumerUpdate = await tx.consumer.update({
+          where: { id: consumer.id },
+          data: {
+            balance: Number(consumer.balance) - props.value,
+          },
+        })
 
-    if (!newTransfer) {
-      throw new InternalError('erro ao efetuar transferência', 400)
+        if (!sentConsumerUpdate) {
+          throw new InternalError('erro ao efetuar transferência', 400)
+        }
+
+        const receivedConsumerUpdate = await tx.consumer.update({
+          where: { id: consumerReceived.id },
+          data: {
+            balance: Number(consumerReceived.balance) + props.value,
+          },
+        })
+
+        if (!receivedConsumerUpdate) {
+          throw new InternalError('erro ao efetuar transferência', 400)
+        }
+
+        const minuteAgo = DateTime.now().minus({ minutes: 1 }).toJSDate()
+
+        const alreadyHasTransfer = await prisma.transfer.findMany({
+          where: {
+            consumerSentId: consumer.id,
+            createdAt: {
+              gte: minuteAgo,
+            },
+          },
+        })
+
+        if (alreadyHasTransfer.length) {
+          throw new InternalError('Por favor, tente mais tarde', 400)
+        }
+
+        const newTransfer = await tx.transfer.create({
+          data: {
+            value: props.value,
+            consumerReceivedId: consumerReceived.id,
+            consumerSentId: consumer.id,
+          },
+        })
+
+        if (!newTransfer) {
+          throw new InternalError('erro ao efetuar transferência', 400)
+        }
+
+        return 'Sucesso'
+      })
+    } catch (err) {
+      throw new InternalError(err, 400)
     }
-
-    const sentConsumerUpdate = await prisma.consumer.update({
-      where: { id: consumer.id },
-      data: {
-        balance: Number(consumer.balance) - props.value,
-      },
-    })
-
-    if (!sentConsumerUpdate) {
-      throw new InternalError('erro ao efetuar transferência', 400)
-    }
-
-    const receivedConsumerUpdate = await prisma.consumer.update({
-      where: { id: consumerTransfer.id },
-      data: {
-        balance: Number(consumerTransfer.balance) + props.value,
-      },
-    })
-
-    if (!receivedConsumerUpdate) {
-      throw new InternalError('erro ao efetuar transferência', 400)
-    }
-
-    return 'Sucesso'
   }
 }

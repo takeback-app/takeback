@@ -36,7 +36,7 @@ export function TransferPassword({ navigation, route }: TransferPasswordProps) {
 
     API.post('costumer/transfer/consumer', {
       password,
-      sentConsumerId: userId,
+      consumerReceivedId: userId,
       value
     })
       .then(response => {

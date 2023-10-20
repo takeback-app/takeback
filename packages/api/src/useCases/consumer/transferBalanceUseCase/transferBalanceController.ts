@@ -6,14 +6,14 @@ import { UpdateBalanceExpireDate } from '../UpdateBalanceExpireDate'
 export class TransferBalanceController {
   async handle(request: Request, response: Response) {
     const consumerId = request['tokenPayload'].id
-    const { password, sentConsumerId, value } = request.body
+    const { password, consumerReceivedId, value } = request.body
 
     const useCase = new TransferBalanceUseCase()
 
     await useCase.execute({
       consumerId,
       password,
-      sentConsumerId,
+      consumerReceivedId,
       value,
     })
 
