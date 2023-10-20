@@ -13,7 +13,7 @@ export class TransferBalanceController {
     await useCase.execute({
       consumerId,
       password,
-      sentConsumerId,
+      consumerReceivedId: sentConsumerId,
       value,
     })
 
