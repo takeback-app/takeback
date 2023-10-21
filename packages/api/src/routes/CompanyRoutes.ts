@@ -267,7 +267,8 @@ routes.put(
 )
 
 routes.get('/store/orders', storeOrderController.index)
-routes.put('/store/orders/:id', storeOrderController.update)
+routes.get('/store/orders/data/:id', storeOrderController.getStoreOrder)
+routes.put('/store/orders/withdraw/:id', storeOrderController.update)
 
 routes.get('/extract/filter-period', extractController.filterPeriod)
 routes.get('/extract', extractController.index)

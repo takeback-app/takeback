@@ -28,9 +28,10 @@ import { IoEye, IoEyeOff } from 'react-icons/io5'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { checkPassword, withdrawlProduct } from '../service/api'
+import { withdrawlProduct } from '../service/api'
 import { chakraToastOptions } from '../../../../components/ui/toast'
 import { StoreOrderResponse } from '../StoreOrders'
+import { maskCurrency } from '../../../../utils/masks'
 
 interface ConfirmationModalProps {
   isOpen: boolean
@@ -67,17 +68,13 @@ export function WithdrawModal({
   } = useForm<ConfirmationModalData>({ resolver: zodResolver(schema) })
 
   async function onSubmit({ password }: ConfirmationModalData) {
-    const [isPasswordOk, passwordData] = await checkPassword(password)
-
-    if (!isPasswordOk) {
-      return setError('password', { message: passwordData.message })
-    }
-
-    const [isGenerateOk, generateData] = await withdrawlProduct({
-      id: storeOrder?.id,
-      validationCode: storeOrder?.validationCode,
-      companyUserPassword: password
-    })
+    const [isGenerateOk, generateData] = await withdrawlProduct(
+      storeOrder?.id,
+      {
+        validationCode: storeOrder?.validationCode,
+        companyUserPassword: password
+      }
+    )
 
     if (!isGenerateOk) {
       return toast({
@@ -137,7 +134,7 @@ export function WithdrawModal({
 
               <Flex justify="space-between" align="center" fontSize={'sm'}>
                 <Text fontWeight="semibold">Produto</Text>
-                <Text fontWeight="bold">{storeOrder.storeProduct.name}</Text>
+                <Text fontWeight="bold">{storeOrder.product.name}</Text>
               </Flex>
 
               <Divider h="1px" my={2} />
@@ -145,7 +142,7 @@ export function WithdrawModal({
               <Flex justify="space-between" align="center" fontSize={'sm'}>
                 <Text fontWeight="semibold">Valor</Text>
                 <Text fontWeight="bold">
-                  {storeOrder.storeProduct.buyPrice}
+                  {maskCurrency(storeOrder.product.buyPrice.toString())}
                 </Text>
               </Flex>
               <Divider h="1px" my={2} />
@@ -154,7 +151,7 @@ export function WithdrawModal({
                   <Flex justify="space-between" align="center" fontSize={'sm'}>
                     <Text fontWeight="semibold">Data da retirada</Text>
                     <Text fontWeight="bold">
-                      {storeOrder.storeProduct.dateLimitWithdrawal}
+                      {new Date(storeOrder.withdrawalAt).toLocaleString()}
                     </Text>
                   </Flex>
 
@@ -165,7 +162,9 @@ export function WithdrawModal({
                 <>
                   <Flex justify="space-between" align="center" fontSize={'sm'}>
                     <Text fontWeight="semibold">Funcionário</Text>
-                    <Text fontWeight="bold">{storeOrder.companyUser.name}</Text>
+                    <Text fontWeight="bold">
+                      {storeOrder.companyUser?.name}
+                    </Text>
                   </Flex>
                 </>
               )}
@@ -175,55 +174,71 @@ export function WithdrawModal({
                   <Flex justify="space-between" align="center" fontSize={'sm'}>
                     <Text fontWeight="semibold">Retirar até</Text>
                     <Text fontWeight="bold">
-                      {storeOrder.storeProduct.dateLimitWithdrawal}
+                      {new Date(
+                        storeOrder.product.dateLimitWithdrawal
+                      ).toLocaleString()}
                     </Text>
                   </Flex>
                 </>
               )}
             </Box>
 
-            <FormControl isInvalid={!!errors.password}>
-              <FormLabel fontSize="xs" fontWeight="semibold" color="gray.600">
-                Sua senha
-              </FormLabel>
-              <InputGroup size="md">
-                <Input
-                  pr="4.5rem"
-                  variant="flushed"
-                  fontSize="sm"
-                  size="xs"
-                  autoComplete="off"
-                  type={show ? 'text' : 'password'}
-                  autoFocus
-                  {...register('password')}
-                />
-                <InputRightElement width="2.5rem">
-                  <IconButton
-                    h="1.75rem"
-                    mt={-8}
-                    size="sm"
-                    aria-label=""
-                    icon={show ? <IoEyeOff /> : <IoEye />}
-                    onClick={() => setShow(state => !state)}
-                  />
-                </InputRightElement>
-              </InputGroup>
-              <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
-            </FormControl>
+            {!storeOrder.wasWithdrawn && (
+              <>
+                <FormControl isInvalid={!!errors.password}>
+                  <FormLabel
+                    fontSize="xs"
+                    fontWeight="semibold"
+                    color="gray.600"
+                  >
+                    Sua senha
+                  </FormLabel>
+                  <InputGroup size="md">
+                    <Input
+                      pr="4.5rem"
+                      variant="flushed"
+                      fontSize="sm"
+                      size="xs"
+                      autoComplete="off"
+                      type={show ? 'text' : 'password'}
+                      autoFocus
+                      {...register('password')}
+                    />
+                    <InputRightElement width="2.5rem">
+                      <IconButton
+                        h="1.75rem"
+                        mt={-8}
+                        size="sm"
+                        aria-label=""
+                        icon={show ? <IoEyeOff /> : <IoEye />}
+                        onClick={() => setShow(state => !state)}
+                      />
+                    </InputRightElement>
+                  </InputGroup>
+                  <FormErrorMessage>
+                    {errors.password?.message}
+                  </FormErrorMessage>
+                </FormControl>
+              </>
+            )}
           </ModalBody>
 
           <ModalFooter>
-            <Button isDisabled={isSubmitting} onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button
-              colorScheme="green"
-              isLoading={isSubmitting}
-              type="submit"
-              ml={3}
-            >
-              Confirmar
-            </Button>
+            {!storeOrder.wasWithdrawn && (
+              <>
+                <Button isDisabled={isSubmitting} onClick={onClose}>
+                  Cancelar
+                </Button>
+                <Button
+                  colorScheme="green"
+                  isLoading={isSubmitting}
+                  type="submit"
+                  ml={3}
+                >
+                  Confirmar
+                </Button>
+              </>
+            )}
           </ModalFooter>
         </form>
       </ModalContent>

@@ -21,6 +21,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { chakraToastOptions } from '../../../components/ui/toast'
 import { WithdrawModal } from './components/WithdrawModal'
+import { getStoreProduct } from './service/api'
 
 export interface StoreOrderResponse {
   id: string
@@ -29,7 +30,7 @@ export interface StoreOrderResponse {
     cpf: string
   }
   quantity: number
-  storeProduct: {
+  product: {
     name: string
     sellPrice: number
     buyPrice: number
@@ -38,7 +39,7 @@ export interface StoreOrderResponse {
   validationCode: string
   createdAt: string
   withdrawalAt: string
-  companyUser: {
+  companyUser?: {
     name: string
   }
   wasWithdrawn: boolean
@@ -61,7 +62,7 @@ export function StoreOrders() {
       cpf: ''
     },
     quantity: 0,
-    storeProduct: {
+    product: {
       name: '',
       sellPrice: 0,
       buyPrice: 0,
@@ -86,8 +87,23 @@ export function StoreOrders() {
 
   const toast = useToast(chakraToastOptions)
 
-  function handleSubmit({ validationCode }: CashRegisterData) {
-    console.log(validationCode)
+  async function handleSubmit({ validationCode }: CashRegisterData) {
+    setIsLoading(true)
+    const [isStoreOrderResponseOk, storeOrderResponse] = await getStoreProduct(
+      validationCode
+    )
+
+    if (!isStoreOrderResponseOk || !storeOrderResponse.storeOrder) {
+      setIsLoading(false)
+      return toast({
+        title: 'Produto nao encontrado com o código informado.',
+        description: storeOrderResponse.message,
+        status: 'error'
+      })
+    }
+
+    setStoreOrder(storeOrderResponse.storeOrder)
+    setIsLoading(false)
     withdrawModal.onOpen()
   }
 
