@@ -41,7 +41,6 @@ export async function getStoreProduct(
     return [true, { storeOrder: data }]
   } catch (err) {
     const error = err as AxiosError
-    console.log(error)
     return [
       false,
       { message: error.response?.data.message || 'Contate um administrador' }
