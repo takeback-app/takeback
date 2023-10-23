@@ -1,28 +1,117 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import {
-  Box,
+  Button,
   ButtonGroup,
+  Card,
+  CardBody,
+  Divider,
   Flex,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tooltip,
-  Tr
+  Heading,
+  Spinner,
+  Stack,
+  useDisclosure,
+  useToast
 } from '@chakra-ui/react'
 import Loader from 'react-spinners/PulseLoader'
-import useSWR from 'swr'
-import { AppTable } from '../../../components/table'
 import { Layout } from '../../../components/ui/layout'
-import { StoreOrder } from '../../../types'
-import { currencyFormat } from '../../../utils/currencyFormat'
-import { ConfirmationWithdrawalButton } from '../raffles/components/ConfirmationWithdrawalButton'
+import { ChakraInput } from './components/ChakraInput'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { chakraToastOptions } from '../../../components/ui/toast'
+import { WithdrawModal } from './components/WithdrawModal'
+import { getStoreProduct } from './service/api'
+
+export interface StoreOrderResponse {
+  id: string
+  consumer: {
+    fullName: string
+    cpf: string
+  }
+  quantity: number
+  product: {
+    name: string
+    sellPrice: number
+    buyPrice: number
+    dateLimitWithdrawal: string
+  }
+  validationCode: string
+  createdAt: string
+  withdrawalAt: string
+  companyUser?: {
+    name: string
+  }
+  wasWithdrawn: boolean
+}
+
+const schema = z.object({
+  validationCode: z
+    .string()
+    .nonempty({ message: 'Campo não pode estar em branco' })
+})
+
+export type CashRegisterData = z.infer<typeof schema>
 
 export function StoreOrders() {
-  const { data, isLoading } = useSWR<StoreOrder[]>('company/store/orders')
+  const [isLoading, setIsLoading] = useState(false)
+  const [storeOrder, setStoreOrder] = useState<StoreOrderResponse>({
+    id: '',
+    consumer: {
+      fullName: '',
+      cpf: ''
+    },
+    quantity: 0,
+    product: {
+      name: '',
+      sellPrice: 0,
+      buyPrice: 0,
+      dateLimitWithdrawal: ''
+    },
+    validationCode: '',
+    createdAt: '',
+    withdrawalAt: '',
+    companyUser: {
+      name: ''
+    },
+    wasWithdrawn: false
+  })
+  const withdrawModal = useDisclosure()
 
-  if (isLoading || !data) {
+  const { ...form } = useForm<CashRegisterData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      validationCode: ''
+    }
+  })
+
+  const toast = useToast(chakraToastOptions)
+
+  async function handleSubmit({ validationCode }: CashRegisterData) {
+    setIsLoading(true)
+    const [isStoreOrderResponseOk, storeOrderResponse] = await getStoreProduct(
+      validationCode
+    )
+
+    if (!isStoreOrderResponseOk || !storeOrderResponse.storeOrder) {
+      setIsLoading(false)
+      return toast({
+        title: 'Produto nao encontrado com o código informado.',
+        description: storeOrderResponse.message,
+        status: 'error'
+      })
+    }
+
+    setStoreOrder(storeOrderResponse.storeOrder)
+    setIsLoading(false)
+    withdrawModal.onOpen()
+  }
+
+  async function handleConfirmation() {
+    form.reset()
+  }
+
+  if (isLoading) {
     return (
       <Layout title="Retirada de produtos">
         <Flex w="full" h="70vh" align="center" justify="center">
@@ -33,47 +122,56 @@ export function StoreOrders() {
   }
 
   return (
-    <Layout title="Sorteios">
-      <Box p={4}>
-        <AppTable
-          dataLength={data.length}
-          noDataMessage="Nenhuma retirada"
-          mt={4}
+    <Layout title="Loja de Ofertas">
+      <Flex flex="1 1 auto">
+        <form
+          style={{
+            width: '100%'
+          }}
+          onSubmit={form.handleSubmit(handleSubmit)}
         >
-          <Thead>
-            <Tr>
-              <Th>Produto</Th>
-              <Th>Qtd</Th>
-              <Th>Unidade</Th>
-              <Th>Cliente</Th>
-              <Th>Valor creditado</Th>
-              <Th isNumeric></Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {data?.map(order => (
-              <Tr color="gray.500" key={order.id}>
-                <Td fontSize="xs">{order.product.name}</Td>
-                <Td fontSize="xs">{order.quantity}</Td>
-                <Td fontSize="xs">{order.product.unit}</Td>
-                <Td fontSize="xs">{order.consumer.fullName}</Td>
-                <Td fontSize="xs">
-                  {currencyFormat(
-                    order.quantity * Number(order.product.buyPrice)
-                  )}
-                </Td>
-                <Td isNumeric>
-                  <ButtonGroup>
-                    <Tooltip label="Cancelar">
-                      <ConfirmationWithdrawalButton id={order.id} />
-                    </Tooltip>
+          <Stack spacing={4} p={4}>
+            <Card bg="white">
+              <Flex
+                px={4}
+                py={3}
+                gap={2}
+                justify="space-between"
+                align="center"
+              >
+                <Heading size="sm">Insira o código</Heading>
+                {isLoading && <Spinner color="blue.500" size="sm" />}
+              </Flex>
+              <Divider borderColor="gray.400" />
+              <CardBody>
+                <Flex>
+                  <Flex width={200} marginRight={5}>
+                    <ChakraInput
+                      isRequired
+                      error={form.formState.errors.validationCode?.message}
+                      autoComplete="off"
+                      borderColor="gray.500"
+                      label="Código de retirada"
+                      {...form.register('validationCode')}
+                    />
+                  </Flex>
+                  <ButtonGroup size="sm" alignItems={'end'}>
+                    <Button colorScheme="green" type="submit">
+                      Buscar
+                    </Button>
                   </ButtonGroup>
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </AppTable>
-      </Box>
+                </Flex>
+              </CardBody>
+            </Card>
+          </Stack>
+        </form>
+      </Flex>
+      <WithdrawModal
+        isOpen={withdrawModal.isOpen}
+        storeOrder={storeOrder}
+        onClose={withdrawModal.onClose}
+        handleConfirmation={handleConfirmation}
+      />
     </Layout>
   )
 }
