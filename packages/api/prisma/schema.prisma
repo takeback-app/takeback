@@ -172,6 +172,7 @@ model CompanyUser {
   TransactionSolicitation       TransactionSolicitation[]
   notifications                 Notification[]
   qrCodes                       QRCode[]
+  StoreOrder                    StoreOrder[]
 
   @@map("company_users")
 }
@@ -1082,13 +1083,15 @@ model StoreOrder {
   id                 String  @id @default(uuid()) @db.Uuid
   consumerId         String  @db.Uuid
   storeProductId     String  @db.Uuid
+  companyUserId      String? @db.Uuid
   quantity           Int
   value              Decimal @db.Decimal(10, 2)
   companyCreditValue Decimal @default(0) @db.Decimal(10, 2)
   validationCode     String
 
-  product  StoreProduct @relation(fields: [storeProductId], references: [id])
-  consumer Consumer     @relation(fields: [consumerId], references: [id])
+  product     StoreProduct @relation(fields: [storeProductId], references: [id])
+  consumer    Consumer     @relation(fields: [consumerId], references: [id])
+  companyUser CompanyUser? @relation(fields: [companyUserId], references: [id])
 
   withdrawalAt DateTime?
   createdAt    DateTime  @default(now())
