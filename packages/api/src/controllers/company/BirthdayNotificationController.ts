@@ -12,6 +12,17 @@ export class BirthdayNotificationController {
 
     const date = DateTime.now().setZone('America/Sao_Paulo')
 
+    const companyAddress = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: {
+        companyAddress: {
+          select: {
+            cityId: true,
+          },
+        },
+      },
+    })
+
     const customers = await db
       .select('consumers.id')
       .from('consumers')
@@ -21,8 +32,10 @@ export class BirthdayNotificationController {
           companyId,
         )
       })
+      .join('consumer_address', 'consumer_address.id', 'consumers.addressId')
       .whereRaw('extract(month from consumers."birthDate") = ?', [date.month])
       .whereRaw('extract(day from consumers."birthDate") = ?', [date.day])
+      .where('consumer_address.cityId', companyAddress.companyAddress.cityId)
       .groupBy('consumers.id')
 
     const nonCustomers = await db
@@ -34,9 +47,11 @@ export class BirthdayNotificationController {
           companyId,
         )
       })
+      .join('consumer_address', 'consumer_address.id', 'consumers.addressId')
       .whereNull('transactions.id')
       .whereRaw('extract(month from consumers."birthDate") = ?', [date.month])
       .whereRaw('extract(day from consumers."birthDate") = ?', [date.day])
+      .where('consumer_address.cityId', companyAddress.companyAddress.cityId)
       .groupBy('consumers.id')
 
     const plan = await prisma.paymentPlan.findFirst({
