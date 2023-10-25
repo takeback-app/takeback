@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import { QRCodeType } from '@prisma/client'
 import { prisma } from '../../../prisma'
 import { nfceLinks } from '../../../config/nfce-links'
 
@@ -16,7 +17,30 @@ export class QRCodeController {
     })
 
     if (alreadyExistQRCode) {
-      return response.status(400).json({ message: 'QRCode já utilizado' })
+      if (alreadyExistQRCode.companyId !== companyId) {
+        return response.status(400).json({
+          message: 'O QRCode pertence a outra empresa',
+        })
+      }
+      if (alreadyExistQRCode.consumerId !== consumerId) {
+        return response.status(400).json({
+          message: 'O QRCode já foi usado por outro usuário',
+        })
+      }
+      if (alreadyExistQRCode.type === QRCodeType.WAITING) {
+        return response.status(400).json({
+          message: 'O QRCode já foi utilizado e está aguardando validação',
+        })
+      }
+      if (alreadyExistQRCode.type === QRCodeType.NOT_VALIDATED) {
+        return response.status(400).json({
+          message:
+            'O QRCode inválido. Solicite do estabelecimento o lançamento manual.',
+        })
+      }
+      return response.status(400).json({
+        message: 'O QRCode já foi utilizado',
+      })
     }
 
     const isValidLink = nfceLinks.some((l) => link.includes(l))
