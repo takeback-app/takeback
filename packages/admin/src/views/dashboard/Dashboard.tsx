@@ -60,6 +60,14 @@ export function Dashboard() {
   const { data: storeCreditGraph, isLoading: isStoreCreditGraphLoading } =
     useSWR<GraphResponse>('manager/dashboard/store-credit')
 
+  const { data: consumerDailyGraph, isLoading: isConsumerDailyGraphLoading } =
+    useSWR<GraphResponse>('manager/dashboard/consumer-graph/daily')
+
+  const {
+    data: consumerMonthlyGraph,
+    isLoading: isConsumerMonthlyGraphLoading
+  } = useSWR<GraphResponse>('manager/dashboard/consumer-graph/monthly')
+
   return (
     <Layout title="Bem vindo!">
       <S.Container>
@@ -375,6 +383,54 @@ export function Dashboard() {
             label="Empresas inadimplentes por cashback ou mensalidade"
           />
         </S.SmallCardsWrapper2>
+        <S.LargeCardsWrapper3>
+          <LargeCard
+            title="Novos cadastros de usuários"
+            subtitle="Resultado por mês"
+            loading={isConsumerMonthlyGraphLoading}
+          >
+            <BarChart
+              data={{
+                labels: consumerMonthlyGraph?.labels,
+                datasets: [
+                  {
+                    data: consumerMonthlyGraph?.values || [],
+                    label: '',
+                    backgroundColor: [
+                      'rgba(255, 99, 132, 1)',
+                      'rgba(54, 162, 235, 1)',
+                      'rgba(255, 206, 86, 1)',
+                      'rgba(75, 192, 192, 1)',
+                      'rgba(153, 102, 255, 1)',
+                      'rgba(255, 159, 64, 1)'
+                    ],
+                    borderRadius: 4
+                  }
+                ]
+              }}
+              tooltipFormat="decimal"
+            />
+          </LargeCard>
+          <LargeCard
+            title="Novos cadastros de usuários"
+            subtitle="Resultado por mês"
+            loading={isConsumerDailyGraphLoading}
+          >
+            <LineChart
+              data={{
+                labels: consumerDailyGraph?.labels,
+                datasets: [
+                  {
+                    data: consumerDailyGraph?.values || [],
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.4
+                  }
+                ]
+              }}
+            />
+          </LargeCard>
+        </S.LargeCardsWrapper3>
       </S.Container>
     </Layout>
   )
