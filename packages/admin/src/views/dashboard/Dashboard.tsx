@@ -35,7 +35,9 @@ interface TotalizerResponse {
   overdueCompanies: number
   activeConsumers: number
   inactiveConsumers: number
-  newConsumers: number
+  newUsers: number
+  inactiveUsers: number
+  placeholderUsers: number
 }
 
 export function Dashboard() {
@@ -340,23 +342,39 @@ export function Dashboard() {
             icon={IoPeopleOutline}
             color="#00BF78"
             loading={isTotalizerLoading}
-            label="Clientes que usaram o app nos ultimos 4 meses"
+            label="Clientes que tiveram alguma movimentação nos últimos 2 meses"
           />
           <SmallCard
             title="Clientes Inativos"
             description={(totalizer?.inactiveConsumers || 0).toString()}
             icon={IoPeopleOutline}
-            color="#ff0000"
+            color="#ff9f40"
             loading={isTotalizerLoading}
-            label="Clientes que não usaram o app nos ultimos 4 meses"
+            label="Clientes que tiveram alguma movimentação a mais de 2 meses"
           />
           <SmallCard
-            title="Novos Clientes"
-            description={(totalizer?.newConsumers || 0).toString()}
+            title="Novos Usuários"
+            description={(totalizer?.newUsers || 0).toString()}
+            icon={IoPeopleOutline}
+            color="#00BF78"
+            loading={isTotalizerLoading}
+            label="Usuários que fizeram cadastro mas ainda não tiveram movimentação nos últimos 2 meses"
+          />
+          <SmallCard
+            title="Usuários Inativos"
+            description={(totalizer?.inactiveUsers || 0).toString()}
             icon={IoPeopleOutline}
             color="#ff9f40"
             loading={isTotalizerLoading}
-            label="Clientes que ainda não baixaram o app"
+            label="Usuários que fizeram cadastro mas ainda não tiveram movimentação a mais de 2 meses"
+          />
+          <SmallCard
+            title="Usuários Placeholder"
+            description={(totalizer?.placeholderUsers || 0).toString()}
+            icon={IoPeopleOutline}
+            color="#ff0000"
+            loading={isTotalizerLoading}
+            label="Usuários que não baixaram o app"
           />
           <SmallCard
             title="Empresas Ativas"

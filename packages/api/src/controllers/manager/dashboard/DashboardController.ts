@@ -13,38 +13,138 @@ import { StoreValueGraphUseCase } from '../../../useCases/graphs/StoreValueGraph
 
 export class DashboardController {
   async totalizer(_request: Request, response: Response) {
-    const currentDate = DateTime.now()
+    const currentDate = DateTime.now().toJSDate()
+    const twoMonthsAgo = DateTime.now().minus({ months: 2 }).toJSDate()
 
     const consumers = await prisma.consumer.aggregate({
       _sum: { balance: true },
       _count: true,
     })
 
+    // são os que fizeram cadastro, fizeram alguma movimentação (transação ou oferta), mas que há mais de 2 meses não movimentaram mais
     const inactiveConsumers = await prisma.consumer.count({
       where: {
+        isPlaceholderConsumer: false,
         OR: [
           {
-            expireBalanceDate: {
-              lt: currentDate.toJSDate(),
+            transactions: {
+              some: {
+                createdAt: {
+                  lt: twoMonthsAgo,
+                },
+              },
             },
           },
           {
-            expireBalanceDate: null,
+            storeOrders: {
+              some: {
+                createdAt: {
+                  lt: twoMonthsAgo,
+                },
+              },
+            },
           },
         ],
       },
     })
 
+    // são os que fizeram cadastro, fizeram alguma movimentação (transação ou oferta) nos últimos 2 meses
     const activeConsumers = await prisma.consumer.count({
       where: {
         isPlaceholderConsumer: false,
-        expireBalanceDate: {
-          gte: currentDate.toJSDate(),
-        },
+        OR: [
+          {
+            transactions: {
+              some: {
+                createdAt: {
+                  gte: twoMonthsAgo,
+                },
+              },
+            },
+          },
+          {
+            storeOrders: {
+              some: {
+                createdAt: {
+                  gte: twoMonthsAgo,
+                },
+              },
+            },
+          },
+        ],
       },
     })
 
-    const newConsumers = await prisma.consumer.count({
+    // são aqueles que baixaram o app, fizeram o cadastro mas que nos últimos 2 meses ainda não movimentaram
+    const newUsers = await prisma.consumer.count({
+      where: {
+        isPlaceholderConsumer: false,
+        createdAt: {
+          gte: twoMonthsAgo,
+        },
+        OR: [
+          {
+            NOT: {
+              transactions: {
+                some: {
+                  createdAt: {
+                    lte: currentDate,
+                  },
+                },
+              },
+            },
+          },
+          {
+            NOT: {
+              storeOrders: {
+                some: {
+                  createdAt: {
+                    lte: currentDate,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+    })
+
+    // são aqueles que baixaram o app, fizeram o cadastro mas que a mais de 2 meses ainda não movimentaram
+    const inactiveUsers = await prisma.consumer.count({
+      where: {
+        isPlaceholderConsumer: false,
+        createdAt: {
+          lt: twoMonthsAgo,
+        },
+        OR: [
+          {
+            NOT: {
+              transactions: {
+                some: {
+                  createdAt: {
+                    lte: currentDate,
+                  },
+                },
+              },
+            },
+          },
+          {
+            NOT: {
+              storeOrders: {
+                some: {
+                  createdAt: {
+                    lte: currentDate,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+    })
+
+    // somente usuários placeholder
+    const placeholderUsers = await prisma.consumer.count({
       where: {
         isPlaceholderConsumer: true,
       },
@@ -106,7 +206,9 @@ export class DashboardController {
       pendingFeeAmount: +pendingCashbacks._sum.takebackFeeAmount,
       activeConsumers,
       inactiveConsumers,
-      newConsumers,
+      newUsers,
+      inactiveUsers,
+      placeholderUsers,
       activeCompanies,
       overdueCompanies,
     })
