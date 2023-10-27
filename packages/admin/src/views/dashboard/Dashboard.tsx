@@ -413,7 +413,7 @@ export function Dashboard() {
           </LargeCard>
           <LargeCard
             title="Novos cadastros de usuários"
-            subtitle="Resultado por mês"
+            subtitle="Resultado por dia"
             loading={isConsumerDailyGraphLoading}
           >
             <LineChart
