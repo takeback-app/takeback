@@ -35,7 +35,9 @@ interface TotalizerResponse {
   overdueCompanies: number
   activeConsumers: number
   inactiveConsumers: number
-  newConsumers: number
+  newUsers: number
+  inactiveUsers: number
+  placeholderUsers: number
 }
 
 export function Dashboard() {
@@ -59,6 +61,14 @@ export function Dashboard() {
 
   const { data: storeCreditGraph, isLoading: isStoreCreditGraphLoading } =
     useSWR<GraphResponse>('manager/dashboard/store-credit')
+
+  const { data: consumerDailyGraph, isLoading: isConsumerDailyGraphLoading } =
+    useSWR<GraphResponse>('manager/dashboard/consumer-graph/daily')
+
+  const {
+    data: consumerMonthlyGraph,
+    isLoading: isConsumerMonthlyGraphLoading
+  } = useSWR<GraphResponse>('manager/dashboard/consumer-graph/monthly')
 
   return (
     <Layout title="Bem vindo!">
@@ -340,23 +350,39 @@ export function Dashboard() {
             icon={IoPeopleOutline}
             color="#00BF78"
             loading={isTotalizerLoading}
-            label="Clientes que usaram o app nos ultimos 4 meses"
+            label="Clientes que tiveram alguma movimentação nos últimos 2 meses"
           />
           <SmallCard
             title="Clientes Inativos"
             description={(totalizer?.inactiveConsumers || 0).toString()}
             icon={IoPeopleOutline}
-            color="#ff0000"
+            color="#ff9f40"
             loading={isTotalizerLoading}
-            label="Clientes que não usaram o app nos ultimos 4 meses"
+            label="Clientes que tiveram alguma movimentação a mais de 2 meses"
           />
           <SmallCard
-            title="Novos Clientes"
-            description={(totalizer?.newConsumers || 0).toString()}
+            title="Novos Usuários"
+            description={(totalizer?.newUsers || 0).toString()}
+            icon={IoPeopleOutline}
+            color="#00BF78"
+            loading={isTotalizerLoading}
+            label="Usuários que fizeram cadastro mas ainda não tiveram movimentação nos últimos 2 meses"
+          />
+          <SmallCard
+            title="Usuários Inativos"
+            description={(totalizer?.inactiveUsers || 0).toString()}
             icon={IoPeopleOutline}
             color="#ff9f40"
             loading={isTotalizerLoading}
-            label="Clientes que ainda não baixaram o app"
+            label="Usuários que fizeram cadastro mas ainda não tiveram movimentação a mais de 2 meses"
+          />
+          <SmallCard
+            title="Usuários Placeholder"
+            description={(totalizer?.placeholderUsers || 0).toString()}
+            icon={IoPeopleOutline}
+            color="#ff0000"
+            loading={isTotalizerLoading}
+            label="Usuários que não baixaram o app"
           />
           <SmallCard
             title="Empresas Ativas"
@@ -375,6 +401,54 @@ export function Dashboard() {
             label="Empresas inadimplentes por cashback ou mensalidade"
           />
         </S.SmallCardsWrapper2>
+        <S.LargeCardsWrapper3>
+          <LargeCard
+            title="Novos cadastros de usuários"
+            subtitle="Resultado por mês"
+            loading={isConsumerMonthlyGraphLoading}
+          >
+            <BarChart
+              data={{
+                labels: consumerMonthlyGraph?.labels,
+                datasets: [
+                  {
+                    data: consumerMonthlyGraph?.values || [],
+                    label: '',
+                    backgroundColor: [
+                      'rgba(255, 99, 132, 1)',
+                      'rgba(54, 162, 235, 1)',
+                      'rgba(255, 206, 86, 1)',
+                      'rgba(75, 192, 192, 1)',
+                      'rgba(153, 102, 255, 1)',
+                      'rgba(255, 159, 64, 1)'
+                    ],
+                    borderRadius: 4
+                  }
+                ]
+              }}
+              tooltipFormat="decimal"
+            />
+          </LargeCard>
+          <LargeCard
+            title="Novos cadastros de usuários"
+            subtitle="Resultado por dia"
+            loading={isConsumerDailyGraphLoading}
+          >
+            <LineChart
+              data={{
+                labels: consumerDailyGraph?.labels,
+                datasets: [
+                  {
+                    data: consumerDailyGraph?.values || [],
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.4
+                  }
+                ]
+              }}
+            />
+          </LargeCard>
+        </S.LargeCardsWrapper3>
       </S.Container>
     </Layout>
   )
