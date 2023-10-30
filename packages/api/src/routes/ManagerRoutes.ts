@@ -322,6 +322,14 @@ routes.get(
 )
 routes.get('/dashboard/store-value', dashboardController.storeValue)
 routes.get('/dashboard/store-credit', dashboardController.storeCredit)
+routes.get(
+  '/dashboard/consumer-graph/monthly',
+  dashboardController.consumerMonthlyGraph,
+)
+routes.get(
+  '/dashboard/consumer-graph/daily',
+  dashboardController.consumerDailyGraph,
+)
 
 routes.get(
   '/notification-solicitations',

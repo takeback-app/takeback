@@ -56,3 +56,18 @@ export const LargeCardsWrapper2 = styled(LargeCardsWrapper)`
     gap: 1rem;
   }
 `
+
+export const LargeCardsWrapper3 = styled(LargeCardsWrapper)`
+  grid-template-columns: 1fr 2fr;
+  gap: 5px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr 2fr);
+    gap: 1rem;
+  }
+
+  @media (max-width: 450px) {
+    grid-template-columns: repeat(1, 1fr 2fr);
+    gap: 1rem;
+  }
+`
