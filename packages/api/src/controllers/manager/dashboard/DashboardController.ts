@@ -12,6 +12,7 @@ import { StoreCreditGraphUseCase } from '../../../useCases/graphs/StoreCreditGra
 import { StoreValueGraphUseCase } from '../../../useCases/graphs/StoreValueGraphUseCase'
 import { ConsumerMonthlyGraphUseCase } from '../../../useCases/graphs/ConsumerMonthlyGraphUseCase'
 import { ConsumerDailyGraphUseCase } from '../../../useCases/graphs/ConsumerDailyGraphUseCase'
+import { FinancialDataUseCase } from '../../../useCases/graphs/financialGraph/FinancialDataUseCase'
 
 export class DashboardController {
   async totalizer(_request: Request, response: Response) {
@@ -284,6 +285,14 @@ export class DashboardController {
     const useCase = new ConsumerDailyGraphUseCase()
 
     const data = await useCase.execute(30)
+
+    return response.json(data)
+  }
+
+  async financialGraph(_request: Request, response: Response) {
+    const useCase = new FinancialDataUseCase()
+
+    const data = await useCase.execute(6)
 
     return response.json(data)
   }
