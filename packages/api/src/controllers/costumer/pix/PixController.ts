@@ -47,7 +47,9 @@ export class PixController {
         consumerId,
         value,
         depositFeePercentage,
+        depositFeeValue: value * Number(depositFeePercentage),
         bankPixFeePercentage,
+        bankPixFeeValue: value * Number(bankPixFeePercentage),
         pixTransactionId: pix.id,
       },
     })
