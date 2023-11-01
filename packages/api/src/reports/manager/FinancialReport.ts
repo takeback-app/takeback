@@ -30,6 +30,8 @@ interface ReportResponse {
   referralBonus: number
   storeBuyValue: number
   commissionValue: number
+  expiredBalances: number
+  depositFeeValue: number
 }
 
 const HEADERS = [
@@ -37,6 +39,8 @@ const HEADERS = [
   'Taxas',
   'Mensalidades',
   'Loja de Ofertas',
+  'Saldos Expirados',
+  'Taxa de Depósitos',
   'Grati. por compra',
   'Grati. novo usuário',
   'Grati. represen.',
@@ -53,12 +57,15 @@ export class FinancialReport extends BaseReportWithTotalizer<
     super(HEADERS)
   }
 
+  // TODO Saldo expirado, deposit e consertar storeOrder
   protected excelRow(record: ReportResponse) {
     return {
       city: record.city,
       takebackFeeAmount: parseNumberToExcelString(record.takebackFeeAmount),
       monthlyPayment: parseNumberToExcelString(record.monthlyPayment),
       storeSellValue: parseNumberToExcelString(record.storeSellValue),
+      expiredBalances: parseNumberToExcelString(record.expiredBalances),
+      depositFeeValue: parseNumberToExcelString(record.depositFeeValue),
       sellBonus: parseNumberToExcelString(record.sellBonus),
       newUserBonus: parseNumberToExcelString(record.newUserBonus),
       consultantBonus: parseNumberToExcelString(
@@ -163,7 +170,7 @@ export class FinancialReport extends BaseReportWithTotalizer<
       monthlyPaymentsQuery.where(
         'company_monthly_payment.isPaid',
         '=',
-        db.raw('?', [monthlyPayment]),
+        db.raw('?', [monthlyPayment === 'true']),
       )
     }
     return monthlyPaymentsQuery
@@ -208,7 +215,9 @@ export class FinancialReport extends BaseReportWithTotalizer<
       .select(
         'companies_address.cityId',
         db.raw('sum(store_orders."value") as "sellValue"'),
-        db.raw('sum(store_orders."companyCreditValue") as "buyValue"'),
+        db.raw(
+          'sum(store_orders."companyCreditValue")  filter (where store_orders."withdrawalAt" IS NOT NULL) as "buyValue"',
+        ),
       )
       .from('store_orders')
       .join(
@@ -240,7 +249,7 @@ export class FinancialReport extends BaseReportWithTotalizer<
     return storeOrdersQuery
   }
 
-  private getCommissions(dateStart: string, dateEnd: string) {
+  private getCommissionsQuery(dateStart: string, dateEnd: string) {
     const commissionsQuery = db
       .select(
         'representative_addresses.cityId',
@@ -277,6 +286,60 @@ export class FinancialReport extends BaseReportWithTotalizer<
     }
 
     return commissionsQuery
+  }
+
+  private depositsQuery(dateStart: string, dateEnd: string) {
+    const depositsQuery = db
+      .select(
+        'consumer_address.cityId',
+        db.raw('sum(deposits."depositFeeValue") as "depositFeeValue"'),
+      )
+      .from('deposits')
+      .join('consumers', 'consumers.id', 'deposits.consumerId')
+      .join('consumer_address', 'consumer_address.id', 'consumers.addressId')
+      .groupBy('consumer_address.cityId')
+      .as('deposits')
+
+    if (dateStart) {
+      depositsQuery.where('deposits.createdAt', '>=', db.raw('?', [dateStart]))
+    }
+
+    if (dateEnd) {
+      depositsQuery.where('deposits.createdAt', '<=', db.raw('?', [dateEnd]))
+    }
+
+    return depositsQuery
+  }
+
+  private getConsumerExpiredBalancesQuery(dateStart: string, dateEnd: string) {
+    const consumerExpiredBalancesQuery = db
+      .select(
+        'consumer_address.cityId',
+        db.raw('sum(consumer_expired_balances."balance") as "expiredBalances"'),
+      )
+      .from('consumer_expired_balances')
+      .join('consumers', 'consumers.id', 'consumer_expired_balances.consumerId')
+      .join('consumer_address', 'consumer_address.id', 'consumers.addressId')
+      .groupBy('consumer_address.cityId')
+      .as('consumer_expired_balances')
+
+    if (dateStart) {
+      consumerExpiredBalancesQuery.where(
+        'consumer_expired_balances.expireAt',
+        '>=',
+        db.raw('?', [dateStart]),
+      )
+    }
+
+    if (dateEnd) {
+      consumerExpiredBalancesQuery.where(
+        'consumer_expired_balances.expireAt',
+        '<=',
+        db.raw('?', [dateEnd]),
+      )
+    }
+
+    return consumerExpiredBalancesQuery
   }
 
   private baseQuery(dto: Filter & BaseQueryDto) {
@@ -316,10 +379,18 @@ export class FinancialReport extends BaseReportWithTotalizer<
       formatedDateEnd,
     )
 
-    const commissionsQuery = this.getCommissions(
+    const commissionsQuery = this.getCommissionsQuery(
       formatedDateStart,
       formatedDateEnd,
     )
+
+    const consumerExpiredBalancesQuery = this.getConsumerExpiredBalancesQuery(
+      formatedDateStart,
+      formatedDateEnd,
+    )
+
+    const depositQuery = this.depositsQuery(formatedDateStart, formatedDateEnd)
+
     const query = db
       .from('city')
       .leftJoin(feeAmountQuery, function () {
@@ -337,6 +408,12 @@ export class FinancialReport extends BaseReportWithTotalizer<
       .leftJoin(commissionsQuery, function () {
         this.on('commissions.cityId', '=', 'city.id')
       })
+      .leftJoin(consumerExpiredBalancesQuery, function () {
+        this.on('consumer_expired_balances.cityId', '=', 'city.id')
+      })
+      .leftJoin(depositQuery, function () {
+        this.on('deposits.cityId', '=', 'city.id')
+      })
       .where(function () {
         this.where('takebackFeeAmount', '>', 0)
           .orWhere('amountPaid', '>', 0)
@@ -347,6 +424,8 @@ export class FinancialReport extends BaseReportWithTotalizer<
           .orWhere('buyValue', '>', 0)
           .orWhere('sellValue', '>', 0)
           .orWhere('commissionValue', '>', 0)
+          .orWhere('expiredBalances', '>', 0)
+          .orWhere('depositFeeValue', '>', 0)
       })
 
     return query
@@ -374,6 +453,10 @@ export class FinancialReport extends BaseReportWithTotalizer<
         db.raw(
           'coalesce(commissions."commissionValue", 0) as "commissionValue"',
         ),
+        db.raw('coalesce(deposits."depositFeeValue", 0) as "depositFeeValue"'),
+        db.raw(
+          'coalesce(consumer_expired_balances."expiredBalances", 0) as "expiredBalances"',
+        ),
       )
       .groupBy(
         'city.id',
@@ -386,6 +469,8 @@ export class FinancialReport extends BaseReportWithTotalizer<
         'buyValue',
         'sellValue',
         'commissionValue',
+        'depositFeeValue',
+        'expiredBalances',
       )
       .orderBy(orderByColumn, order)
 
@@ -416,6 +501,12 @@ export class FinancialReport extends BaseReportWithTotalizer<
       ),
       db.raw(
         'coalesce(sum(commissions."commissionValue"), 0) as "commissionValueAmount"',
+      ),
+      db.raw(
+        'coalesce(sum(deposits."depositFeeValue"), 0) as "depositFeeValue"',
+      ),
+      db.raw(
+        'coalesce(sum(consumer_expired_balances."expiredBalances"), 0) as "expiredBalances"',
       ),
     )
 
