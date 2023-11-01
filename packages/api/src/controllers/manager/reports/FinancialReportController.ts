@@ -14,6 +14,8 @@ export interface FinancialTotalizer {
   consultantBonusAmount: number
   referralBonusAmount: number
   commissionValueAmount: number
+  depositFeeValue: number
+  expiredBalances: number
 }
 
 export class FinancialReportController {

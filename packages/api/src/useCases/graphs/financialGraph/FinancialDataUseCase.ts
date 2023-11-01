@@ -4,147 +4,57 @@ import {
 } from './BaseFinancialGraphUseCase'
 import { prisma } from '../../../prisma'
 import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
+import { FinancialReport } from '../../../reports/manager/FinancialReport'
+import { FinancialTotalizer } from '../../../controllers/manager/reports/FinancialReportController'
 
+interface TotalizerResponse {
+  revenuesValue: number
+  expensesValue: number
+}
 export class FinancialDataUseCase extends BaseFinancialGraphUseCase {
   async getMonthlyValue(
     monthStart: Date,
     monthEnd: Date,
   ): Promise<IMonthlyValue> {
-    const revenuesValue = await this.getRevenuesData(monthStart, monthEnd)
-    const expensesValue = await this.getExpensesData(monthStart, monthEnd)
-
-    return { revenuesValue, expensesValue }
+    const totalizer = await this.getTotalizerData(monthStart, monthEnd)
+    return {
+      revenuesValue: totalizer.revenuesValue,
+      expensesValue: totalizer.expensesValue,
+    }
   }
 
-  private async getExpensesData(
+  private async getTotalizerData(
     monthStart: Date,
     monthEnd: Date,
-  ): Promise<number> {
-    const bonuses = await prisma.bonus.aggregate({
+  ): Promise<TotalizerResponse> {
+    const transactionStatus = await prisma.transactionStatus.findFirst({
       where: {
-        createdAt: {
-          lte: monthEnd,
-          gte: monthStart,
-        },
-      },
-      _sum: {
-        value: true,
+        description: TransactionStatusEnum.APPROVED,
       },
     })
+    const report = new FinancialReport()
 
-    const commissions = await prisma.commission.aggregate({
-      where: {
-        createdAt: {
-          lte: monthEnd,
-          gte: monthStart,
-        },
-      },
-      _sum: {
-        value: true,
-      },
+    const [totalizer] = await report.getTotalizer<FinancialTotalizer>({
+      dateEnd: monthEnd.toISOString(),
+      dateStart: monthStart.toISOString(),
+      monthlyPayment: 'true',
+      transactionStatusId: transactionStatus.id,
     })
 
-    const storeOrder = await prisma.storeOrder.aggregate({
-      where: {
-        createdAt: {
-          lte: monthEnd,
-          gte: monthStart,
-        },
-      },
-      _sum: {
-        companyCreditValue: true,
-      },
-    })
-
-    return (
-      Number(bonuses._sum.value) +
-      Number(commissions._sum.value) +
-      Number(storeOrder._sum.companyCreditValue)
-    )
-  }
-
-  private async getRevenuesData(
-    monthStart: Date,
-    monthEnd: Date,
-  ): Promise<number> {
-    const transactions = await prisma.transaction.aggregate({
-      where: {
-        createdAt: {
-          lte: monthEnd,
-          gte: monthStart,
-        },
-        transactionStatus: {
-          description: TransactionStatusEnum.APPROVED,
-        },
-      },
-      _sum: {
-        takebackFeeAmount: true,
-      },
-    })
-
-    const monthlyPayments = await prisma.companyMonthlyPayment.aggregate({
-      where: {
-        createdAt: {
-          lte: monthEnd,
-          gte: monthStart,
-        },
-        isPaid: true,
-      },
-      _sum: {
-        amountPaid: true,
-      },
-    })
-
-    const expireBalances = await prisma.consumerExpireBalances.aggregate({
-      where: {
-        expireAt: {
-          lte: monthEnd,
-          gte: monthStart,
-        },
-      },
-      _sum: {
-        balance: true,
-      },
-    })
-
-    const storeOrder = await prisma.storeOrder.aggregate({
-      where: {
-        createdAt: {
-          lte: monthEnd,
-          gte: monthStart,
-        },
-      },
-      _sum: {
-        value: true,
-      },
-    })
-
-    const deposits = await prisma.deposit.findMany({
-      where: {
-        createdAt: {
-          lte: monthEnd,
-          gte: monthStart,
-        },
-        isPaid: true,
-      },
-      select: {
-        value: true,
-        depositFeePercentage: true,
-      },
-    })
-
-    const depositValues = deposits.reduce(
-      (acc, curr) =>
-        (acc = acc + Number(curr.value) * Number(curr.depositFeePercentage)),
-      0,
-    )
-
-    return (
-      Number(transactions._sum.takebackFeeAmount) +
-      Number(monthlyPayments._sum.amountPaid) +
-      Number(expireBalances._sum.balance) +
-      depositValues +
-      Number(storeOrder._sum.value)
-    )
+    return {
+      revenuesValue:
+        totalizer.totalTakebackFeeAmount +
+        totalizer.companyMonthlyPaymentsAmount +
+        totalizer.totalStoreSellValue +
+        totalizer.depositFeeValue +
+        totalizer.expiredBalances,
+      expensesValue:
+        totalizer.sellBonusAmount +
+        totalizer.newUserBonusAmount +
+        totalizer.consultantBonusAmount +
+        totalizer.commissionValueAmount +
+        totalizer.referralBonusAmount +
+        totalizer.totalStoreBuyValue,
+    }
   }
 }
