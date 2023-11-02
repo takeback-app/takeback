@@ -40,6 +40,8 @@ export interface FinancialData {
   referralBonus: number
   storeBuyValue: number
   commissionValue: number
+  depositFeeValue: number
+  expiredBalances: number
 }
 
 export interface TotalizerData {
@@ -52,6 +54,8 @@ export interface TotalizerData {
   consultantBonusAmount: number
   referralBonusAmount: number
   commissionValueAmount: number
+  expiredBalances: number
+  depositFeeValue: number
 }
 
 export function FinancialReport() {
@@ -186,6 +190,12 @@ export function FinancialReport() {
                 Loja de <br /> Ofertas
               </Th>
               <Th>
+                Saldos <br /> Expirados
+              </Th>
+              <Th>
+                Taxas de <br /> Depósitos
+              </Th>
+              <Th>
                 Grati. por <br /> compra
               </Th>
               <Th>
@@ -224,6 +234,16 @@ export function FinancialReport() {
                 <Td fontSize="xs">
                   <Text color="green.500">
                     {currencyFormat(financial?.storeSellValue)}
+                  </Text>
+                </Td>
+                <Td fontSize="xs">
+                  <Text color="green.500">
+                    {currencyFormat(financial?.expiredBalances)}
+                  </Text>
+                </Td>
+                <Td fontSize="xs">
+                  <Text color="green.500">
+                    {currencyFormat(financial?.depositFeeValue)}
                   </Text>
                 </Td>
                 <Td fontSize="xs">
@@ -273,7 +293,7 @@ export function FinancialReport() {
           </Tbody>
         </AppTable>
         {financials?.data.length && !!totalizer ? (
-          <SimpleGrid columns={[4, 5, 9]} spacing="4" mt="6">
+          <SimpleGrid columns={[4, 5, 8]} spacing="4" mt="6">
             <Box>
               <Text fontSize="md" fontWeight="bold">
                 T. Fatura. <br /> Taxas:
@@ -298,6 +318,22 @@ export function FinancialReport() {
               </Text>
               <Text fontSize="sm">
                 {currencyFormat(totalizer.totalStoreSellValue)}
+              </Text>
+            </Box>
+            <Box>
+              <Text fontSize="md" fontWeight="bold">
+                T. Saldos <br /> Expirados
+              </Text>
+              <Text fontSize="sm">
+                {currencyFormat(totalizer.expiredBalances)}
+              </Text>
+            </Box>
+            <Box>
+              <Text fontSize="md" fontWeight="bold">
+                T. Taxas de <br /> Depósitos
+              </Text>
+              <Text fontSize="sm">
+                {currencyFormat(totalizer.depositFeeValue)}
               </Text>
             </Box>
             <Box>
@@ -351,7 +387,9 @@ export function FinancialReport() {
                 {currencyFormat(
                   totalizer.totalTakebackFeeAmount +
                     totalizer.companyMonthlyPaymentsAmount +
-                    totalizer.totalStoreSellValue -
+                    totalizer.totalStoreSellValue +
+                    totalizer.expiredBalances +
+                    totalizer.depositFeeValue -
                     totalizer.sellBonusAmount -
                     totalizer.newUserBonusAmount -
                     totalizer.consultantBonusAmount -
