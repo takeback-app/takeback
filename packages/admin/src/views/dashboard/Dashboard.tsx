@@ -22,6 +22,12 @@ interface GraphResponse {
   values: [number]
 }
 
+interface FinancingGraphResponse {
+  labels: [string]
+  revenues: [number]
+  expenses: [number]
+}
+
 interface TotalizerResponse {
   consumerBalance: number
   companyBalance: number
@@ -64,6 +70,9 @@ export function Dashboard() {
 
   const { data: consumerDailyGraph, isLoading: isConsumerDailyGraphLoading } =
     useSWR<GraphResponse>('manager/dashboard/consumer-graph/daily')
+
+  const { data: financialGraph, isLoading: isFinancialGraphLoading } =
+    useSWR<FinancingGraphResponse>('manager/dashboard/financial-graph')
 
   const {
     data: consumerMonthlyGraph,
@@ -164,6 +173,33 @@ export function Dashboard() {
             loading={isTotalizerLoading}
           />
         </S.SmallCardsWrapper>
+        <S.LargeCardsWrapper4>
+          <LargeCard
+            title="Financeiro"
+            subtitle="Taxas por mês"
+            loading={isFinancialGraphLoading}
+          >
+            <BarChart
+              data={{
+                labels: financialGraph?.labels,
+                datasets: [
+                  {
+                    data: financialGraph?.revenues || [],
+                    label: 'Faturamento',
+                    backgroundColor: 'rgba(54, 162, 235, 1)',
+                    borderRadius: 4
+                  },
+                  {
+                    data: financialGraph?.expenses || [],
+                    label: 'Despesas',
+                    backgroundColor: 'rgba(255, 99, 132, 1)',
+                    borderRadius: 4
+                  }
+                ]
+              }}
+            />
+          </LargeCard>
+        </S.LargeCardsWrapper4>
         <S.LargeCardsWrapper2>
           <LargeCard
             title="Faturamento Takeback"

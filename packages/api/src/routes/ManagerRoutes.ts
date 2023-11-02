@@ -331,6 +331,8 @@ routes.get(
   dashboardController.consumerDailyGraph,
 )
 
+routes.get('/dashboard/financial-graph', dashboardController.financialGraph)
+
 routes.get(
   '/notification-solicitations',
   notificationSolicitationController.index,

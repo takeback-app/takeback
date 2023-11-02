@@ -28,7 +28,7 @@ interface DataSetsProps {
   label?: string
   data: Array<number>
   borderColor?: Array<string>
-  backgroundColor?: Array<string>
+  backgroundColor?: Array<string> | string
   borderWidth?: number
   borderRadius?: number
 }

@@ -71,3 +71,7 @@ export const LargeCardsWrapper3 = styled(LargeCardsWrapper)`
     gap: 1rem;
   }
 `
+
+export const LargeCardsWrapper4 = styled(LargeCardsWrapper)`
+  grid-template-columns: 1fr;
+`
