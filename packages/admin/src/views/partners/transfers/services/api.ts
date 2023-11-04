@@ -9,10 +9,6 @@ interface TransferPayload {
   value: number
 }
 
-interface ICompanyBalanceResponse {
-  positiveBalance?: string
-}
-
 export async function createTransfer(
   data: TransferPayload
 ): Promise<ReturnApi> {
@@ -34,14 +30,12 @@ export async function createTransfer(
 
 export async function getCompanyBalance(
   companyId: string
-): Promise<[boolean, ICompanyBalanceResponse]> {
+): Promise<[boolean, string]> {
   try {
     const response = await API.get(`manager/company/balance/${companyId}`)
-    console.log(response)
-    return [true, response.data]
+    return [true, response.data.positiveBalance]
   } catch (err) {
     const error = err as AxiosError
-    console.log(error)
-    return [false, {}]
+    return [false, error.message]
   }
 }

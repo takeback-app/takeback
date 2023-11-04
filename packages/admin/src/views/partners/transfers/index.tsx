@@ -67,7 +67,7 @@ export function CompanyTransfers() {
         </Flex>
         <AppTable
           dataLength={transfers?.data.length}
-          noDataMessage="Nenhum cashback"
+          noDataMessage="Nenhuma transferência"
           mt={4}
           overflowY="scroll"
           maxH="650px"

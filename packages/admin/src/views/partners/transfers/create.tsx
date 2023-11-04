@@ -91,7 +91,7 @@ export function CreateCompanyTransfers() {
           status: 'error'
         })
       }
-      setCompanyBalance(response.positiveBalance || '')
+      setCompanyBalance(response || '')
     }
     if (companySentId) {
       handleCompanyBalance(companySentId)
@@ -213,7 +213,7 @@ export function CreateCompanyTransfers() {
       >
         <S.ContainerModal>
           <S.ContentConfimModal>
-            <S.Title>Confirma o cancelamento do cashback?</S.Title>
+            <S.Title>Confirma a tranferência entre as empresas?</S.Title>
           </S.ContentConfimModal>
           <S.FooterModal>
             <QuartenaryButton
