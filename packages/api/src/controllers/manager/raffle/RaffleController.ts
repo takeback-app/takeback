@@ -1,15 +1,15 @@
-import { Request, Response } from "express";
-import { InternalError } from "../../../config/GenerateErros";
-import { prisma } from "../../../prisma";
-import { NotifyNewRaffleUseCase } from "../../../useCases/raffle/NotifyNewRaffleUseCase";
+import { Request, Response } from 'express'
+import { InternalError } from '../../../config/GenerateErros'
+import { prisma } from '../../../prisma'
+import { NotifyNewRaffleUseCase } from '../../../useCases/raffle/NotifyNewRaffleUseCase'
 
-const PER_PAGE = 25;
+const PER_PAGE = 25
 
 export class RaffleController {
   async index(request: Request, response: Response) {
-    const pageQuery = request.query.page;
+    const pageQuery = request.query.page
 
-    const page = Number(pageQuery) || 1;
+    const page = Number(pageQuery) || 1
 
     const raffles = await prisma.raffle.findMany({
       select: {
@@ -29,21 +29,21 @@ export class RaffleController {
           },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       take: PER_PAGE,
       skip: (page - 1) * PER_PAGE,
-    });
+    })
 
-    const count = await prisma.raffle.count();
+    const count = await prisma.raffle.count()
 
     return response.json({
       data: raffles,
       meta: { lastPage: Math.ceil(count / PER_PAGE) },
-    });
+    })
   }
 
   async show(request: Request, response: Response) {
-    const { id } = request.params;
+    const { id } = request.params
 
     const raffle = await prisma.raffle.findUnique({
       where: { id },
@@ -52,7 +52,7 @@ export class RaffleController {
         company: { select: { fantasyName: true } },
 
         items: {
-          orderBy: { order: "asc" },
+          orderBy: { order: 'asc' },
           include: {
             raffleItemDelivery: {
               include: { companyUser: { select: { name: true } } },
@@ -63,16 +63,16 @@ export class RaffleController {
           },
         },
       },
-    });
+    })
 
     if (!raffle) {
-      throw new InternalError("Sorteio não encontrado", 400);
+      throw new InternalError('Sorteio não encontrado', 400)
     }
 
     const consumers = await prisma.consumer.findMany({
       where: {
         raffleTickets: {
-          some: { raffleId: raffle.id, status: { not: "CANCELED" } },
+          some: { raffleId: raffle.id, status: { not: 'CANCELED' } },
         },
       },
       select: {
@@ -82,50 +82,50 @@ export class RaffleController {
         _count: {
           select: {
             raffleTickets: {
-              where: { raffleId: raffle.id, status: { not: "CANCELED" } },
+              where: { raffleId: raffle.id, status: { not: 'CANCELED' } },
             },
           },
         },
       },
-    });
+    })
 
-    return response.json({ ...raffle, consumers });
+    return response.json({ ...raffle, consumers })
   }
 
   async update(request: Request, response: Response) {
-    const { id } = request.params;
+    const { id } = request.params
 
-    const { statusId } = request.body;
+    const { statusId } = request.body
 
     const raffle = await prisma.raffle.findFirst({
       where: { id },
       select: { id: true },
-    });
+    })
 
     if (!raffle) {
-      throw new InternalError("Sorteio não encontrado", 400);
+      throw new InternalError('Sorteio não encontrado', 400)
     }
 
     const status = await prisma.raffleStatus.findFirst({
       where: { id: statusId },
-    });
+    })
 
     if (!status) {
       throw new InternalError(
-        "Sistema não configurado. Procure um administrador",
-        400
-      );
+        'Sistema não configurado. Procure um administrador',
+        400,
+      )
     }
 
     const updatedRaffle = await prisma.raffle.update({
       where: { id: raffle.id },
       data: { statusId: status.id },
-    });
+    })
 
-    const useCase = new NotifyNewRaffleUseCase();
+    const useCase = new NotifyNewRaffleUseCase()
 
-    await useCase.execute(updatedRaffle);
+    await useCase.execute(updatedRaffle)
 
-    return response.json({ message: "Sorteio atualizado" });
+    return response.json({ message: 'Sorteio atualizado' })
   }
 }
