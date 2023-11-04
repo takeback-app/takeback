@@ -42,6 +42,7 @@ import { CompanyReportController } from '../controllers/manager/reports/CompanyR
 import { FinancialReportController } from '../controllers/manager/reports/FinancialReportController'
 import { TransferConfigController } from '../controllers/manager/TransferConfigController'
 import { CosumersProfileReportsController } from '../controllers/manager/consumersReports/CosumersReportsController'
+import { CompanyTransferBalanceController } from '../controllers/manager/companyTransferBalance/CompanyTransferBalanceController'
 
 const paymentMethod = new PaymentMethodController()
 const managerAuth = new ManagerAuthController()
@@ -86,6 +87,8 @@ const storeProductController = new StoreProductController()
 const transferConfig = new TransferConfigController()
 
 const fileController = new FileController()
+
+const companyTransferBalanceController = new CompanyTransferBalanceController()
 
 const routes = Router()
 
@@ -381,5 +384,19 @@ routes.post('/store/products', storeProductController.store)
 routes.delete('/store/products/:id', storeProductController.delete)
 
 routes.put('/cashback/cancel/:id', managerCashback.cancelOneCashback)
+
+routes.get('/company/balance/:id', companyTransferBalanceController.getBalance)
+routes.get(
+  '/company/transfer/list',
+  companyTransferBalanceController.getTransfers,
+)
+routes.get(
+  '/company/transfer/companies',
+  companyTransferBalanceController.listCompanies,
+)
+routes.post(
+  '/company/transfer/balance',
+  companyTransferBalanceController.handleTransfer,
+)
 
 export default routes
