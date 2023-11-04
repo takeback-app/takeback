@@ -30,6 +30,8 @@ import { useExtractReport } from './components/filter/state'
 import { IoFilterSharp } from 'react-icons/io5'
 import { Loader } from '../../../components/ui/loader'
 import { currencyFormat } from '../../../utils/currencyFormat'
+import { SentTransferItem } from './components/SentTransferItem'
+import { ReceiveTransferItem } from './components/ReceiveTransferItem'
 
 export interface PaymentOrdersData {
   id: number
@@ -61,6 +63,18 @@ export interface WithdrawOrderData {
   status: string
 }
 
+export interface SentTransferData {
+  id: number
+  value: number
+  receiveCompany: string
+}
+
+export interface ReceiveTransferData {
+  id: number
+  value: number
+  sentCompany: string
+}
+
 interface Totalizer {
   currentBalance: number
   endPeriodBalance: number
@@ -73,6 +87,8 @@ type ExtractItemType =
   | { type: 'STORE_ORDER'; data: StoreOrderData }
   | { type: 'TRANSACTION'; data: TransactionData }
   | { type: 'WITHDRAW_ORDER'; data: WithdrawOrderData }
+  | { type: 'SENT_TRANSFER'; data: SentTransferData }
+  | { type: 'RECEIVE_TRANSFER'; data: ReceiveTransferData }
 
 export type ExtractItem = ExtractItemType & {
   id: string
@@ -90,7 +106,9 @@ enum ExtractTypes {
   STORE_ORDER = 'STORE_ORDER',
   MONTHLY_PAYMENTS = 'MONTHLY_PAYMENTS',
   TRANSACTION = 'TRANSACTION',
-  WITHDRAW_ORDER = 'WITHDRAW_ORDER'
+  WITHDRAW_ORDER = 'WITHDRAW_ORDER',
+  RECEIVE_TRANSFER = 'RECEIVE_TRANSFER',
+  SENT_TRANSFER = 'SENT_TRANSFER'
 }
 
 enum ExtractDescriptionTypes {
@@ -98,7 +116,9 @@ enum ExtractDescriptionTypes {
   STORE_ORDER = 'Ofertas',
   MONTHLY_PAYMENTS = 'Mensalidades',
   TRANSACTION = 'Venda',
-  WITHDRAW_ORDER = 'Saque'
+  WITHDRAW_ORDER = 'Saque',
+  SENT_TRANSFER = 'Envio de Saldo',
+  RECEIVE_TRANSFER = 'Recebimento de Saldo'
 }
 
 export function Extract() {
@@ -186,6 +206,24 @@ export function Extract() {
                     referenceDate={item?.referenceDate}
                     type={ExtractDescriptionTypes[item.type]}
                   ></WithdrawOrderItem>
+                )
+              case ExtractTypes.SENT_TRANSFER:
+                return (
+                  <SentTransferItem
+                    key={item.id}
+                    data={item?.data}
+                    referenceDate={item?.referenceDate}
+                    type={ExtractDescriptionTypes[item.type]}
+                  ></SentTransferItem>
+                )
+              case ExtractTypes.RECEIVE_TRANSFER:
+                return (
+                  <ReceiveTransferItem
+                    key={item.id}
+                    data={item?.data}
+                    referenceDate={item?.referenceDate}
+                    type={ExtractDescriptionTypes[item.type]}
+                  ></ReceiveTransferItem>
                 )
               default:
                 return null
