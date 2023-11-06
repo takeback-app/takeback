@@ -104,6 +104,13 @@ export class UpdateCostumerUseCase {
         fullName,
         addressId: address.id,
       },
+      include: {
+        consumerAddress: {
+          include: {
+            city: true,
+          },
+        },
+      },
     })
 
     return {
@@ -112,13 +119,13 @@ export class UpdateCostumerUseCase {
       sex: updatedUser.sex,
       phone: updatedUser.phone,
       birthday: updatedUser.birthDate,
-      hasChildren: updatedUser.hasChildren,
+      hasChildren: updatedUser.hasChildren ? 'sim' : 'não',
       maritalStatus: updatedUser.maritalStatus,
-      monthlyIncomeId: updatedUser.monthlyIncomeId,
+      monthlyIncomeId: String(updatedUser.monthlyIncomeId),
       schooling: updatedUser.schooling,
       address: {
-        zipCode: address.zipCode,
-        city: newCity.name,
+        zipCode: updatedUser.consumerAddress.zipCode,
+        city: updatedUser.consumerAddress.city.name,
       },
     }
   }
