@@ -23,7 +23,8 @@
         "backgroundColor": "#ffffff"
       },
       "googleServicesFile": "./google-services.json",
-      "package": "com.takeback"
+      "package": "com.takeback",
+      "softwareKeyboardLayoutMode": "pan"
     },
     "splash": {
       "image": "./assets/splashScreen.png",
