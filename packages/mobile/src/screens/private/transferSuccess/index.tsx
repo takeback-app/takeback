@@ -1,22 +1,14 @@
 import React, { useEffect } from 'react'
 import { BackHandler } from 'react-native'
 import { Center, Heading, Stack, Text } from 'native-base'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import { Layout } from '../../../components/layout'
 import { Header } from '../../../components/header'
 
-import { PrivateRouteParam, PrivateRouteProps } from '../../../@types/routes'
-
 import Illustration from '../../../assets/illustration7.svg'
 import { masks } from '../../../utils'
 
-interface TransferSuccessProps {
-  navigation: NativeStackNavigationProp<PrivateRouteParam>
-  route: PrivateRouteProps<'transferSuccess'>
-}
-
-export function TransferSuccess({ navigation, route }: TransferSuccessProps) {
+export function TransferSuccess({ navigation, route }) {
   const { userName, value } = route?.params
 
   function navigateToHome() {
