@@ -22,7 +22,7 @@ interface UserDataProps {
   schooling: Schooling
   phone?: string
   fullName: string
-  consumerAddress: ConsumerAddressData
+  consumerAddress?: ConsumerAddressData
   consumerId: string
 }
 
@@ -43,10 +43,54 @@ export class UpdateCostumerUseCase {
       where: { id: consumerId },
     })
 
+    const addressData = await this.updateAddress(
+      consumer.addressId,
+      consumerAddress?.zipCode,
+    )
+
+    const updatedUser = await prisma.consumer.update({
+      where: { id: consumer.id },
+      data: {
+        sex,
+        birthDate,
+        hasChildren,
+        maritalStatus,
+        monthlyIncomeId,
+        schooling,
+        phone,
+        fullName,
+        addressId: addressData ? addressData.address.id : undefined,
+      },
+    })
+
+    return {
+      name: updatedUser.fullName,
+      cpf: updatedUser.cpf,
+      sex: updatedUser.sex,
+      phone: updatedUser.phone,
+      birthday: updatedUser.birthDate,
+      hasChildren: updatedUser.hasChildren,
+      maritalStatus: updatedUser.maritalStatus,
+      monthlyIncomeId: updatedUser.monthlyIncomeId,
+      schooling: updatedUser.schooling,
+      address: addressData
+        ? {
+            zipCode: addressData.address.zipCode,
+            city: addressData.newCity.name,
+          }
+        : null,
+    }
+  }
+
+  async updateAddress(consumerAddressId: number, zipCodeString?: string) {
+    if (!zipCodeString) {
+      return null
+    }
+
     const {
       data: { bairro, localidade, logradouro, uf, ibge, complemento },
     }: apiCorreiosResponseType = await axios.get(
-      `https://viacep.com.br/ws/${consumerAddress.zipCode}/json/`,
+      `https://viacep.com.br/ws/${zipCodeString}/json/`,
     )
 
     if (!uf) {
@@ -70,18 +114,18 @@ export class UpdateCostumerUseCase {
 
     const zipCode = await prisma.zipCode.findFirst({
       where: {
-        zipCode: consumerAddress.zipCode,
+        zipCode: zipCodeString,
       },
     })
 
     const newZipCode =
       zipCode ||
       (await prisma.zipCode.create({
-        data: { zipCode: consumerAddress.zipCode, citiesId: newCity.id },
+        data: { zipCode: zipCodeString, citiesId: newCity.id },
       }))
 
     const address = await prisma.consumerAddress.update({
-      where: { id: consumer.addressId },
+      where: { id: consumerAddressId },
       data: {
         cityId: newCity.id,
         street: logradouro,
@@ -91,35 +135,6 @@ export class UpdateCostumerUseCase {
       },
     })
 
-    const updatedUser = await prisma.consumer.update({
-      where: { id: consumer.id },
-      data: {
-        sex,
-        birthDate,
-        hasChildren,
-        maritalStatus,
-        monthlyIncomeId,
-        schooling,
-        phone,
-        fullName,
-        addressId: address.id,
-      },
-    })
-
-    return {
-      name: updatedUser.fullName,
-      cpf: updatedUser.cpf,
-      sex: updatedUser.sex,
-      phone: updatedUser.phone,
-      birthday: updatedUser.birthDate,
-      hasChildren: updatedUser.hasChildren,
-      maritalStatus: updatedUser.maritalStatus,
-      monthlyIncomeId: updatedUser.monthlyIncomeId,
-      schooling: updatedUser.schooling,
-      address: {
-        zipCode: address.zipCode,
-        city: newCity.name,
-      },
-    }
+    return { address, newCity }
   }
 }
