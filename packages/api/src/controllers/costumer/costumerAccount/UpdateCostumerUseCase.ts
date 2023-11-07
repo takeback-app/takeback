@@ -61,6 +61,13 @@ export class UpdateCostumerUseCase {
         fullName,
         addressId: addressData ? addressData.address.id : undefined,
       },
+      include: {
+        consumerAddress: {
+          include: {
+            city: true,
+          },
+        },
+      },
     })
 
     return {
@@ -69,9 +76,9 @@ export class UpdateCostumerUseCase {
       sex: updatedUser.sex,
       phone: updatedUser.phone,
       birthday: updatedUser.birthDate,
-      hasChildren: updatedUser.hasChildren,
+      hasChildren: updatedUser.hasChildren ? 'sim' : 'não',
       maritalStatus: updatedUser.maritalStatus,
-      monthlyIncomeId: updatedUser.monthlyIncomeId,
+      monthlyIncomeId: String(updatedUser.monthlyIncomeId),
       schooling: updatedUser.schooling,
       address: addressData
         ? {
