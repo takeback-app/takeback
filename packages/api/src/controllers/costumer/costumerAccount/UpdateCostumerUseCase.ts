@@ -80,12 +80,10 @@ export class UpdateCostumerUseCase {
       maritalStatus: updatedUser.maritalStatus,
       monthlyIncomeId: String(updatedUser.monthlyIncomeId),
       schooling: updatedUser.schooling,
-      address: addressData
-        ? {
-            zipCode: addressData.address.zipCode,
-            city: addressData.newCity.name,
-          }
-        : null,
+      address: {
+        zipCode: updatedUser.consumerAddress.zipCode,
+        city: updatedUser.consumerAddress.city.name,
+      },
     }
   }
 
