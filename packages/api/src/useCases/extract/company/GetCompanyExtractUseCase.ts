@@ -36,12 +36,26 @@ interface WithdrawOrderData {
   status: string
 }
 
+interface SentTransferData {
+  id: number
+  value: number
+  receiveCompany: string
+}
+
+interface ReceiveTransferData {
+  id: number
+  value: number
+  sentCompany: string
+}
+
 type ExtractItemType =
   | { type: 'PAYMENT_ORDERS'; data: PaymentOrdersData }
   | { type: 'MONTHLY_PAYMENTS'; data: MonthlyPaymentsData }
   | { type: 'STORE_ORDER'; data: StoreOrderData }
   | { type: 'TRANSACTION'; data: TransactionData }
   | { type: 'WITHDRAW_ORDER'; data: WithdrawOrderData }
+  | { type: 'SENT_TRANSFER'; data: SentTransferData }
+  | { type: 'RECEIVE_TRANSFER'; data: ReceiveTransferData }
 
 type ExtractItem = ExtractItemType & {
   id: string
@@ -100,6 +114,8 @@ export class GetCompanyExtractUseCase {
     const withdrawOrders = await this.withdrawOrders()
     const transactionsPartialBalancePaid =
       await this.transactionsPartialBalancePaid()
+    const sentTransfer = await this.sentCompanyTransfers()
+    const receiveTransfer = await this.receiveCompanyTransfers()
 
     return paymentOrders
       .concat(
@@ -107,6 +123,8 @@ export class GetCompanyExtractUseCase {
         transactionsFullBalancePaid,
         withdrawOrders,
         transactionsPartialBalancePaid,
+        sentTransfer,
+        receiveTransfer,
       )
       .sort((a, b) => a.referenceDate.getTime() - b.referenceDate.getTime())
   }
@@ -234,6 +252,40 @@ export class GetCompanyExtractUseCase {
       },
     })
 
+    const sentTransfers = await prisma.companyTransfer.aggregate({
+      where: {
+        companySentId: this.companyId,
+        createdAt: { lte: referenceDate },
+      },
+      _sum: {
+        value: true,
+      },
+    })
+
+    const receiveTransfers = await prisma.companyTransfer.aggregate({
+      where: {
+        companyReceivedId: this.companyId,
+        createdAt: { lte: referenceDate },
+      },
+      _sum: {
+        value: true,
+      },
+    })
+
+    const expenses =
+      Number(paymentOrdersTotalizer._sum.value) +
+      Number(withdrawOrdersTotalizer._sum.value) +
+      Number(sentTransfers._sum.value)
+
+    const revenues =
+      Number(storeOrdersTotalizer._sum.value) +
+      Number(transactionsFullBalancePaidTotalizer._sum.totalAmount) +
+      Number(
+        transactionsPartialBalancePaidTotalizer._sum
+          .amountPayWithTakebackBalance,
+      ) +
+      Number(receiveTransfers._sum.value)
+
     // Ainda não há diferenciação de pagamento por takeback e outros no banco
     /* const monthlyPayments = await prisma.companyMonthlyPayment.aggregate({
       where: {
@@ -247,17 +299,8 @@ export class GetCompanyExtractUseCase {
     }) */
 
     // Soma tudo que adiciona ao positiveBalance e subtrai o que retira
-    const totalizer =
-      Number(storeOrdersTotalizer._sum.value) +
-      Number(transactionsFullBalancePaidTotalizer._sum.totalAmount) +
-      Number(
-        transactionsPartialBalancePaidTotalizer._sum
-          .amountPayWithTakebackBalance,
-      ) -
-      Number(paymentOrdersTotalizer._sum.value) -
-      Number(withdrawOrdersTotalizer._sum.value)
 
-    return totalizer
+    return revenues - expenses
   }
 
   private async paymentOrders(): Promise<ExtractItem[]> {
@@ -444,6 +487,66 @@ export class GetCompanyExtractUseCase {
         status: withdrawOrder.status.description,
       },
       referenceDate: withdrawOrder.createdAt,
+    }))
+  }
+
+  private async sentCompanyTransfers(): Promise<ExtractItem[]> {
+    const transfers = await prisma.companyTransfer.findMany({
+      where: {
+        companySentId: this.companyId,
+        createdAt: { gte: this.startPageDate, lte: this.endPageDate },
+      },
+      select: {
+        id: true,
+        value: true,
+        createdAt: true,
+        receiverCompany: {
+          select: {
+            fantasyName: true,
+          },
+        },
+      },
+    })
+
+    return transfers.map((transfer) => ({
+      id: randomUUID(),
+      type: 'SENT_TRANSFER',
+      data: {
+        id: transfer.id,
+        value: +transfer.value,
+        receiveCompany: transfer.receiverCompany.fantasyName,
+      },
+      referenceDate: transfer.createdAt,
+    }))
+  }
+
+  private async receiveCompanyTransfers(): Promise<ExtractItem[]> {
+    const transfers = await prisma.companyTransfer.findMany({
+      where: {
+        companyReceivedId: this.companyId,
+        createdAt: { gte: this.startPageDate, lte: this.endPageDate },
+      },
+      select: {
+        id: true,
+        value: true,
+        createdAt: true,
+        senderCompany: {
+          select: {
+            fantasyName: true,
+          },
+        },
+      },
+    })
+
+    return transfers.map((transfer) => ({
+      id: randomUUID(),
+      type: 'RECEIVE_TRANSFER',
+      data: {
+        id: transfer.id,
+        value: +transfer.value,
+        sentCompany: transfer.senderCompany.fantasyName,
+      },
+      referenceDate: transfer.createdAt,
     }))
   }
 }

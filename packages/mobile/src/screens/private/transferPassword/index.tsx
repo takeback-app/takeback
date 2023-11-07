@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react'
 import { KeyboardAvoidingView, Platform } from 'react-native'
 import { Button, Flex, Heading, VStack } from 'native-base'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import { API } from '../../../services/API'
 import { UserDataContext } from '../../../contexts/UserDataContext'
@@ -11,14 +10,7 @@ import { Header } from '../../../components/header'
 import { CustomInput } from '../../../components/input'
 import { AlertComponent } from '../../../components/alert'
 
-import { PrivateRouteParam, PrivateRouteProps } from '../../../@types/routes'
-
-interface TransferPasswordProps {
-  navigation: NativeStackNavigationProp<PrivateRouteParam>
-  route: PrivateRouteProps<'transferPassword'>
-}
-
-export function TransferPassword({ navigation, route }: TransferPasswordProps) {
+export function TransferPassword({ navigation, route }) {
   const { userId, userName, value } = route?.params
   const { setUserData } = useContext(UserDataContext)
 

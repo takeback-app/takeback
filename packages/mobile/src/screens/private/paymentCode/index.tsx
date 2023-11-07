@@ -8,7 +8,6 @@ import {
   Text,
   VStack
 } from 'native-base'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import { API } from '../../../services/API'
 
@@ -16,14 +15,7 @@ import { Layout } from '../../../components/layout'
 import { Header } from '../../../components/header'
 import { Dialog } from '../../../components/dialog'
 
-import { PrivateRouteParam, PrivateRouteProps } from '../../../@types/routes'
-
-interface PaymentCodeProps {
-  navigation: NativeStackNavigationProp<PrivateRouteParam>
-  route: PrivateRouteProps<'paymentCode'>
-}
-
-export function PaymentCode({ navigation, route }: PaymentCodeProps) {
+export function PaymentCode({ navigation, route }) {
   const { code, transactionId } = route?.params
 
   const [showConfirm, setShowConfirm] = useState(false)

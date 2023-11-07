@@ -1,22 +1,12 @@
 import React from 'react'
 import { Button, Heading, Text, VStack } from 'native-base'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import { Layout } from '../../../components/layout'
 import { Header } from '../../../components/header'
 
-import { PrivateRouteParam, PrivateRouteProps } from '../../../@types/routes'
 import { masks } from '../../../utils'
 
-interface TransferConfirmationProps {
-  navigation: NativeStackNavigationProp<PrivateRouteParam>
-  route: PrivateRouteProps<'transferConfirmation'>
-}
-
-export function TransferConfirmation({
-  navigation,
-  route
-}: TransferConfirmationProps) {
+export function TransferConfirmation({ navigation, route }) {
   const { userId, userName, value } = route?.params
 
   function goBack() {
