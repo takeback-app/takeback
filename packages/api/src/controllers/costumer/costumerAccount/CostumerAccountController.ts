@@ -63,7 +63,7 @@ class CostumerAccountController {
       consumerId: id,
     })
 
-    return response.status(204).json(consumer)
+    return response.status(200).json(consumer)
   }
 
   async desactiveCostumer(request: Request, response: Response) {

@@ -12,12 +12,7 @@ import { masks } from '../../../utils'
 import { MaskedTextInput } from 'react-native-mask-text'
 import { AlertComponent } from '../../../components/alert'
 
-interface TransferValueProps {
-  navigation: NativeStackNavigationProp<PrivateRouteParam>
-  route: PrivateRouteProps<'transferValue'>
-}
-
-export function TransferValue({ navigation, route }: TransferValueProps) {
+export function TransferValue({ navigation, route }) {
   const { userId, userName } = route?.params
   const { balance } = useContext(UserDataContext)
 
