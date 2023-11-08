@@ -3,11 +3,24 @@ import { GetBalanceUseCase } from '../../../useCases/company/transfer/GetBalance
 import { TransferBalanceUseCase } from '../../../useCases/company/transfer/TransferBalanceUseCase'
 import { GetTransfersUseCase } from '../../../useCases/company/transfer/GetTransfersUseCase'
 import { ListCompaniesUseCase } from '../../../useCases/company/transfer/ListCompaniesUseCase'
+import { ValidateUserPasswordUseCase } from '../companyCashback/ValidateUserPasswordUseCase'
+import { InternalError } from '../../../config/GenerateErros'
 
 export class TransferController {
   async handleTransfer(request: Request, response: Response) {
     const { companyId } = request['tokenPayload']
-    const { companyReceivedId, value } = request.body
+    const { companyReceivedId, value, password } = request.body
+
+    const validateUserPassword = new ValidateUserPasswordUseCase()
+
+    const companyUser = await validateUserPassword.findCompanyUserByPassword(
+      companyId,
+      password,
+    )
+
+    if (!companyUser) {
+      throw new InternalError('Senha inválida', 400)
+    }
 
     const useCase = new TransferBalanceUseCase()
 
@@ -15,6 +28,7 @@ export class TransferController {
       companySentId: companyId,
       companyReceivedId,
       value,
+      companyUserId: companyUser.id,
     })
 
     return response.status(200).json(result)

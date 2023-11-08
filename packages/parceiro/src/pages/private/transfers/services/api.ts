@@ -6,6 +6,7 @@ type ReturnApi = [boolean, { message?: string }]
 interface TransferPayload {
   companyReceivedId: string
   value: number
+  password: string
 }
 
 export async function createTransfer(

@@ -5,6 +5,7 @@ interface TransferBalanceProps {
   companySentId: string
   companyReceivedId: string
   value: number
+  companyUserId: string
 }
 
 export class TransferBalanceUseCase {
@@ -12,6 +13,7 @@ export class TransferBalanceUseCase {
     companySentId,
     companyReceivedId,
     value,
+    companyUserId,
   }: TransferBalanceProps) {
     const companySent = await prisma.company.findUnique({
       where: {
@@ -70,6 +72,7 @@ export class TransferBalanceUseCase {
             value,
             companySentId: companySent.id,
             companyReceivedId: companyRecived.id,
+            companySentUserId: companyUserId,
           },
         })
 

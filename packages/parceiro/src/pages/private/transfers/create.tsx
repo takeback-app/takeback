@@ -7,7 +7,14 @@ import {
   CardBody,
   CardHeader,
   Divider,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
   Heading,
+  IconButton,
+  Input,
+  InputGroup,
+  InputRightElement,
   SimpleGrid,
   Stack,
   UseToastOptions,
@@ -16,7 +23,7 @@ import {
 import { useNavigate } from 'react-router'
 
 import { useForm } from 'react-hook-form'
-import { IoCheckmarkSharp } from 'react-icons/io5'
+import { IoCheckmarkSharp, IoEye, IoEyeOff } from 'react-icons/io5'
 import { maskCurrency, unMaskCurrency } from '../../../utils/masks'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -35,6 +42,13 @@ const schema = z.object({
   value: z.string()
 })
 
+const passwordSchema = z.object({
+  password: z
+    .string()
+    .nonempty({ message: 'Senha deve ter no mínimo 3 caracteres' })
+    .min(3, { message: 'Senha deve ter no mínimo 3 caracteres' })
+})
+
 const chakraToastConfig: UseToastOptions = {
   position: 'top-right',
   duration: 5000,
@@ -50,10 +64,16 @@ interface ITransferData {
   value: number
 }
 
+interface IPasswordData {
+  password: string
+}
+
 type CreateStoreProductForm = z.infer<typeof schema>
+type PasswordForm = z.infer<typeof passwordSchema>
 
 export function CreateTransfer() {
   const [modalConfirmVisible, setModalConfirmVisible] = useState(false)
+  const [show, setShow] = useState(false)
   const [transferData, setTransferData] = useState<ITransferData>({
     companyReceivedId: '',
     value: 0
@@ -74,11 +94,20 @@ export function CreateTransfer() {
     }
   )
 
-  async function handleCreate() {
+  const {
+    register: passwordRegister,
+    handleSubmit: passwordHandleSubmit,
+    formState: passwordFormState
+  } = useForm<PasswordForm>({ resolver: zodResolver(passwordSchema) })
+
+  async function handleCreate(data: PasswordForm) {
     setLoading(true)
-    const [isOk, response] = await createTransfer(transferData)
+    const password = data.password
+    const [isOk, response] = await createTransfer({ ...transferData, password })
 
     if (!isOk) {
+      setModalConfirmVisible(false)
+      setLoading(false)
       return toast({
         title: 'Atenção',
         description: response.message,
@@ -172,26 +201,64 @@ export function CreateTransfer() {
         visible={modalConfirmVisible}
         onClose={() => setModalConfirmVisible(false)}
       >
-        <S.ContainerModal>
-          <S.ContentConfimModal>
-            <S.Title>Confirma a tranferência entre as empresas?</S.Title>
-          </S.ContentConfimModal>
-          <S.FooterModal>
-            <QuartenaryButton
-              label="Cancelar"
-              color="#ff0000"
-              type="button"
-              onClick={() => setModalConfirmVisible(false)}
-            />
-            <QuartenaryButton
-              label="Confirmar"
-              color="#0984E3"
-              type="button"
-              loading={loading}
-              onClick={handleCreate}
-            />
-          </S.FooterModal>
-        </S.ContainerModal>
+        <form
+          style={{ margin: 0 }}
+          onSubmit={passwordHandleSubmit(handleCreate)}
+        >
+          <S.ContainerModal>
+            <S.ContentConfimModal>
+              <S.Title>Confirma a tranferência entre as empresas?</S.Title>
+
+              <FormControl isInvalid={!!passwordFormState.errors.password}>
+                <FormLabel fontSize="xs" fontWeight="semibold" color="gray.600">
+                  Sua senha
+                </FormLabel>
+                <InputGroup size="md">
+                  <Input
+                    pr="4.5rem"
+                    variant="flushed"
+                    fontSize="sm"
+                    size="xs"
+                    autoComplete="off"
+                    type={show ? 'text' : 'password'}
+                    autoFocus
+                    {...passwordRegister('password')}
+                  />
+                  <InputRightElement width="2.5rem">
+                    <IconButton
+                      h="1.75rem"
+                      mt={-8}
+                      size="sm"
+                      aria-label=""
+                      icon={show ? <IoEyeOff /> : <IoEye />}
+                      onClick={() => setShow(state => !state)}
+                    />
+                  </InputRightElement>
+                </InputGroup>
+                <FormErrorMessage>
+                  {passwordFormState.errors.password?.message}
+                </FormErrorMessage>
+              </FormControl>
+            </S.ContentConfimModal>
+
+            <S.FooterModal>
+              <Button
+                isDisabled={loading}
+                onClick={() => setModalConfirmVisible(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                colorScheme="green"
+                isLoading={loading}
+                type="submit"
+                ml={3}
+              >
+                Confirmar
+              </Button>
+            </S.FooterModal>
+          </S.ContainerModal>
+        </form>
       </DefaultModalChakra>
     </Layout>
   )
