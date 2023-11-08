@@ -224,6 +224,7 @@ model Consumer {
   resetPasswordTokenExpiresDate DateTime?                 @db.Date
   firstExtractItemDate          DateTime?
   expoNotificationToken         String?
+  appVersion                    String?
   consumerAddress               ConsumerAddress?          @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_3ffc911cff52ac729e01188ea1c")
   refreshToken                  RefreshToken?
   transactions                  Transaction[]
