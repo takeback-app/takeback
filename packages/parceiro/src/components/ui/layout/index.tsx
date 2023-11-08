@@ -11,6 +11,7 @@ import * as S from './styles'
 interface Props {
   title?: string
   children: ReactNode
+  goBack?: () => void
 }
 
 export const Layout: React.FC<Props> = ({ children, title }) => {

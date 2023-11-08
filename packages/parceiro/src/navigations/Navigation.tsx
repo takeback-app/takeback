@@ -37,6 +37,8 @@ import { StoreOrders } from '../pages/private/store/StoreOrders'
 import { Extract } from '../pages/private/extract'
 import { ConsumerProfile } from '../pages/private/consumerProfile'
 import { RecognizeSales } from '../pages/private/recognizeSales'
+import { Transfers } from '../pages/private/transfers'
+import { CreateTransfer } from '../pages/private/transfers/create'
 
 interface Props {
   children: JSX.Element
@@ -311,6 +313,22 @@ const Navigation: React.FC = () => {
         element={
           <PrivateRoute>
             <ConsumerProfile />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/transferencias"
+        element={
+          <PrivateRoute>
+            <Transfers />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/transferencias/criar"
+        element={
+          <PrivateRoute>
+            <CreateTransfer />
           </PrivateRoute>
         }
       />
