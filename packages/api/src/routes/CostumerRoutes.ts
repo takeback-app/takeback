@@ -178,4 +178,6 @@ routes.get(
   integrationController.getIntegrationType,
 )
 
+routes.post('/app-version', costumerData.updateAppVersion)
+
 export default routes
