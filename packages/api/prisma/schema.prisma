@@ -175,6 +175,7 @@ model CompanyUser {
   notifications                 Notification[]
   qrCodes                       QRCode[]
   StoreOrder                    StoreOrder[]
+  CompanyTransfer               CompanyTransfer[]
 
   @@map("company_users")
 }
@@ -1164,14 +1165,16 @@ model CmmSells {
 }
 
 model CompanyTransfer {
-  id                Int      @id @default(autoincrement())
-  value             Decimal? @default(0) @db.Decimal(10, 4)
-  createdAt         DateTime @default(now()) @db.Timestamp(6)
-  updatedAt         DateTime @default(now()) @db.Timestamp(6)
-  companySentId     String?  @db.Uuid
-  companyReceivedId String?  @db.Uuid
-  senderCompany     Company? @relation("company_transfers_companySentIdTocompanies", fields: [companySentId], references: [id])
-  receiverCompany   Company? @relation("company_transfers_companyReceivedIdTocompanies", fields: [companyReceivedId], references: [id])
+  id                Int          @id @default(autoincrement())
+  value             Decimal?     @default(0) @db.Decimal(10, 4)
+  createdAt         DateTime     @default(now()) @db.Timestamp(6)
+  updatedAt         DateTime     @default(now()) @db.Timestamp(6)
+  companySentId     String?      @db.Uuid
+  companyReceivedId String?      @db.Uuid
+  companySentUserId String?      @db.Uuid
+  senderCompany     Company?     @relation("company_transfers_companySentIdTocompanies", fields: [companySentId], references: [id])
+  receiverCompany   Company?     @relation("company_transfers_companyReceivedIdTocompanies", fields: [companyReceivedId], references: [id])
+  companyUser       CompanyUser? @relation(fields: [companySentUserId], references: [id])
 
   @@map("company_transfers")
 }
