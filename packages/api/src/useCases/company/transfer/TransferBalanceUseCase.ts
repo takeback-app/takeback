@@ -7,7 +7,7 @@ interface TransferBalanceProps {
   value: number
 }
 
-export class CompanyTransferBalanceUseCase {
+export class TransferBalanceUseCase {
   async execute({
     companySentId,
     companyReceivedId,

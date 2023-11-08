@@ -26,9 +26,6 @@ export interface TransfersData {
   receiverCompany: {
     fantasyName: string
   }
-  senderCompany: {
-    fantasyName: string
-  }
 }
 
 export function Transfers() {
@@ -39,7 +36,7 @@ export function Transfers() {
   }
 
   const { data: transfers, isLoading } = useSWR<Paginated<TransfersData>>([
-    'manager/company/transfer/list',
+    'company/transfer/list',
     filter
   ])
 
@@ -81,8 +78,7 @@ export function Transfers() {
         >
           <Thead>
             <Tr>
-              <Th>Número</Th>
-              <Th>Empresa que enviou</Th>
+              <Th>ID</Th>
               <Th>Empresa que recebeu</Th>
               <Th>Valor</Th>
               <Th>Dt. de emissão</Th>
@@ -92,7 +88,6 @@ export function Transfers() {
             {transfers?.data.map(transfer => (
               <Tr color="gray.500" key={transfer.id}>
                 <Td fontSize="xs">{transfer.id}</Td>
-                <Td fontSize="xs">{transfer.senderCompany.fantasyName}</Td>
                 <Td fontSize="xs">{transfer.receiverCompany.fantasyName}</Td>
                 <Td fontSize="xs">{currencyFormat(Number(transfer.value))}</Td>
                 <Td fontSize="xs">

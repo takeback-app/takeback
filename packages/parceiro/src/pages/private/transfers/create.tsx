@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import {
   Button,
@@ -23,7 +23,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import useSWR from 'swr'
 import { ChakraSelect } from '../../../components/chakra/ChakraSelect'
 import { ChakraInput } from '../../../components/chakra/ChakraInput'
-import { createTransfer, getCompanyBalance } from './services/api'
+import { createTransfer } from './services/api'
 import * as S from './styles'
 import { Layout } from '../../../components/ui/layout'
 import { currencyFormat } from '../../../utils/currencyFormat'
@@ -31,7 +31,6 @@ import { DefaultModalChakra } from './components/DefaultModalChakra'
 import QuartenaryButton from './components/QuartenaryButton'
 
 const schema = z.object({
-  companySentId: z.string(),
   companyReceivedId: z.string(),
   value: z.string()
 })
@@ -47,7 +46,6 @@ interface ICompanies {
   fantasyName: string
 }
 interface ITransferData {
-  companySentId: string
   companyReceivedId: string
   value: number
 }
@@ -55,53 +53,26 @@ interface ITransferData {
 type CreateStoreProductForm = z.infer<typeof schema>
 
 export function CreateTransfer() {
-  const [isCompanySentIdFilled, setIsCompanySentIdFilled] = useState(false)
-  const [companyBalance, setCompanyBalance] = useState('')
-  const [companiesReceive, setCompaniesReceive] = useState<ICompanies[]>([])
   const [modalConfirmVisible, setModalConfirmVisible] = useState(false)
   const [transferData, setTransferData] = useState<ITransferData>({
-    companySentId: '',
     companyReceivedId: '',
     value: 0
   })
   const [loading, setLoading] = useState(false)
   const navigateTo = useNavigate()
 
-  const { data: companies } = useSWR<ICompanies[]>(
-    `manager/company/transfer/companies`
+  const { data: companies } = useSWR<ICompanies[]>(`company/transfer/companies`)
+  const { data: companyBalance } = useSWR<{ positiveBalance: string }>(
+    `company/balance`
   )
 
   const toast = useToast(chakraToastConfig)
 
-  const { register, handleSubmit, formState, watch } =
-    useForm<CreateStoreProductForm>({
+  const { register, handleSubmit, formState } = useForm<CreateStoreProductForm>(
+    {
       resolver: zodResolver(schema)
-    })
-
-  const companySentId = watch('companySentId')
-  useEffect(() => {
-    const companiesReceiveSelect = companies?.filter(
-      company => company.id !== companySentId
-    )
-    setCompaniesReceive(companiesReceiveSelect || [])
-    setIsCompanySentIdFilled(!!companySentId)
-
-    async function handleCompanyBalance(companyId: string) {
-      const [isOk, response] = await getCompanyBalance(companyId)
-
-      if (!isOk) {
-        return toast({
-          title: 'Atenção',
-          description: 'Não foi possível buscar o saldo da empresa',
-          status: 'error'
-        })
-      }
-      setCompanyBalance(response || '')
     }
-    if (companySentId) {
-      handleCompanyBalance(companySentId)
-    }
-  }, [companySentId, companies, setIsCompanySentIdFilled, toast])
+  )
 
   async function handleCreate() {
     setLoading(true)
@@ -128,7 +99,6 @@ export function CreateTransfer() {
 
   function handleClick(data: CreateStoreProductForm) {
     setTransferData({
-      companySentId: data.companySentId,
       companyReceivedId: data.companyReceivedId,
       value: unMaskCurrency(data.value)
     })
@@ -149,15 +119,16 @@ export function CreateTransfer() {
             {!companyBalance && <Heading fontSize="md">Enviar saldo</Heading>}
             {companyBalance && (
               <Heading fontSize="md">
-                Saldo disponível: {currencyFormat(Number(companyBalance))}
+                Saldo disponível:{' '}
+                {currencyFormat(Number(companyBalance.positiveBalance))}
               </Heading>
             )}
           </CardHeader>
           <Divider borderColor="gray.300" />
           <CardBody>
-            <SimpleGrid columns={[1, 2, 3, 3]} gap={8}>
+            <SimpleGrid columns={[1, 2, 2, 2]} gap={8}>
               <ChakraSelect
-                label="Empresa a enviar"
+                label="Empresa a receber"
                 size="sm"
                 isRequired
                 placeholderOption="Nenhuma empresa selecionado"
@@ -167,21 +138,6 @@ export function CreateTransfer() {
                     value: c.id
                   })) || []
                 }
-                error={formState.errors.companySentId?.message}
-                {...register('companySentId')}
-              />
-              <ChakraSelect
-                label="Empresa a receber"
-                size="sm"
-                isRequired
-                placeholderOption="Nenhuma empresa selecionado"
-                options={
-                  companiesReceive?.map(c => ({
-                    text: c.fantasyName,
-                    value: c.id
-                  })) || []
-                }
-                isDisabled={!isCompanySentIdFilled}
                 error={formState.errors.companyReceivedId?.message}
                 {...register('companyReceivedId')}
               />

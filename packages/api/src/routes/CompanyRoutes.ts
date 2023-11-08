@@ -37,6 +37,7 @@ import { IntegrationController } from '../controllers/company/IntegrationControl
 import { CosumersReportsController } from '../controllers/company/consumersReports/CosumersReportsController'
 import { RecognizeSalesController } from '../controllers/company/recognizeSales/RecognizeSalesController'
 import { CityCompaniesController } from '../controllers/company/cityCompanies/CityCompaniesController'
+import { TransferController } from '../controllers/company/transfer/TransferController'
 
 const auth = new AuthCompanyController()
 const reports = new ReportsController()
@@ -78,6 +79,8 @@ const recognizeSalesController = new RecognizeSalesController()
 const fileController = new FileController()
 
 const cityCompaniesController = new CityCompaniesController()
+
+const transferController = new TransferController()
 
 const routes = Router()
 
@@ -286,5 +289,10 @@ routes.put(
   recognizeSalesController.recognizeSales,
 )
 routes.get('/find/city/companies', cityCompaniesController.index)
+
+routes.get('/balance', transferController.getBalance)
+routes.get('/transfer/list', transferController.getTransfers)
+routes.get('/transfer/companies', transferController.listCompanies)
+routes.post('/transfer/balance', transferController.handleTransfer)
 
 export default routes
