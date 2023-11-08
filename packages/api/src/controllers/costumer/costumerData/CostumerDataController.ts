@@ -10,7 +10,7 @@ import { CostumerUpdatePhoneUseCase } from './CostumerUpdatePhoneUseCase'
 import { CostumerUpdateSignatureUseCase } from './CostumerUpdateSignatureUseCase'
 import { ForgotSignatureUseCase } from './ForgotSignatureUseCase'
 import { ResetSignatureUseCase } from './ResetSignatureUseCase'
-import { UpdateAppVersionUseCase } from './UpdateAppVersionUseCase'
+import { ConsumerAppVersionUseCase } from './UpdateAppVersionUseCase'
 import { prisma } from '../../../prisma'
 
 class CostumerDataController {
@@ -199,11 +199,21 @@ class CostumerDataController {
     const consumerID = request['tokenPayload'].id
     const { appVersion } = request.body
 
-    const useCase = new UpdateAppVersionUseCase()
+    const useCase = new ConsumerAppVersionUseCase()
 
-    const res = useCase.execute({ appVersion, consumerID })
+    const res = await useCase.updateAppVersion({ appVersion, consumerID })
 
     return response.status(204).json(res)
+  }
+
+  async getAppVersion(request: Request, response: Response) {
+    const consumerID = request['tokenPayload'].id
+
+    const useCase = new ConsumerAppVersionUseCase()
+
+    const res = await useCase.getAppVersion(consumerID)
+
+    return response.status(200).json(res)
   }
 }
 

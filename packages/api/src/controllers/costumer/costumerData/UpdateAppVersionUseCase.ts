@@ -5,8 +5,8 @@ interface Props {
   consumerID: string
 }
 
-export class UpdateAppVersionUseCase {
-  async execute({ appVersion, consumerID }: Props) {
+export class ConsumerAppVersionUseCase {
+  async updateAppVersion({ appVersion, consumerID }: Props) {
     await prisma.consumer.update({
       where: {
         id: consumerID,
@@ -17,5 +17,18 @@ export class UpdateAppVersionUseCase {
     })
 
     return 'ok'
+  }
+
+  async getAppVersion(consumerID: string) {
+    const appVersion = await prisma.consumer.findUnique({
+      where: {
+        id: consumerID,
+      },
+      select: {
+        appVersion: true,
+      },
+    })
+
+    return appVersion
   }
 }
