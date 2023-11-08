@@ -27,10 +27,19 @@ import { PrivateRouteParam } from '../../../@types/routes'
 import { getInitials, sendWhatsAppMessage } from '../../../utils'
 import { DeactivateAccount } from './components/DeactivateAccount'
 import { TermsOfUse } from '../../public/createAccount/components/termsOfUse'
+import useSWR from 'swr'
+
+type AppVersionResponse = {
+  appVersion: string
+}
 
 export function Profile() {
   const { userData } = useContext(UserDataContext)
   const { isOpen, onClose, onOpen } = useDisclose()
+
+  const { data: appVersion } = useSWR<AppVersionResponse>(
+    'costumer/app-version'
+  )
 
   const navigation =
     useNavigation<NativeStackNavigationProp<PrivateRouteParam>>()
@@ -100,6 +109,7 @@ export function Profile() {
           <LogoutComponent />
         </View>
       </ScrollView>
+      <Text textAlign="center">Versão - {appVersion?.appVersion}</Text>
 
       <Fab
         renderInPortal={false}
