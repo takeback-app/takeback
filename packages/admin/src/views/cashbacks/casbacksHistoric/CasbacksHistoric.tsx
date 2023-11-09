@@ -59,6 +59,11 @@ enum TransactionStatusEnum {
   NOT_PAID = 'Não paga pelo parceiro'
 }
 
+const eligibleToCancel: string[] = [
+  TransactionStatusEnum.PENDING,
+  TransactionStatusEnum.ON_DELAY
+]
+
 interface Transaction {
   id: number
   totalAmount: string
@@ -255,8 +260,9 @@ export function CashbacksHistoric() {
           {cashbacks?.data.map(cashback => (
             <Tr height={49} color="gray.500" key={cashback.id}>
               <Td>
-                {TransactionStatusEnum.PENDING ===
-                  cashback.transactionStatus.description && (
+                {eligibleToCancel.includes(
+                  cashback.transactionStatus.description
+                ) && (
                   <IconButton
                     icon={<MdOutlineCancel />}
                     onClick={() => openCancelModal(cashback.id)}
