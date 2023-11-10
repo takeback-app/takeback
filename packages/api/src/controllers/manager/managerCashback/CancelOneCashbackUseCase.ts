@@ -2,6 +2,11 @@ import { InternalError } from '../../../config/GenerateErros'
 import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
 import { prisma } from '../../../prisma'
 
+const eligibleToCancel: string[] = [
+  TransactionStatusEnum.PENDING,
+  TransactionStatusEnum.ON_DELAY,
+]
+
 export class CancelOneCashbackUseCase {
   async execute(transactionId: string) {
     const transaction = await prisma.transaction.findUnique({
@@ -17,10 +22,7 @@ export class CancelOneCashbackUseCase {
       throw new InternalError('Cashback não encontrado', 400)
     }
 
-    if (
-      transaction.transactionStatus.description !==
-      TransactionStatusEnum.PENDING
-    ) {
+    if (!eligibleToCancel.includes(transaction.transactionStatus.description)) {
       throw new InternalError('Só é possível cancelar cashbacks pendentes', 400)
     }
 

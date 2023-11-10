@@ -52,8 +52,6 @@ import { CompanyReport } from '../views/reports/company'
 import { FinancialReport } from '../views/reports/financial'
 import { Transfers } from '../views/consumer/transfers/transfers'
 import { ConsumerProfile } from '../views/reports/consumerProfile'
-import { CompanyTransfers } from '../views/partners/transfers'
-import { CreateCompanyTransfers } from '../views/partners/transfers/create'
 
 interface Props {
   children: JSX.Element
@@ -372,22 +370,6 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <Transfers />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/parceiros/transferencias"
-        element={
-          <PrivateRoute>
-            <CompanyTransfers />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/parceiros/transferencias/criar"
-        element={
-          <PrivateRoute>
-            <CreateCompanyTransfers />
           </PrivateRoute>
         }
       />

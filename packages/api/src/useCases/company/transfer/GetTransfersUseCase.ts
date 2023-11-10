@@ -2,19 +2,21 @@ import { InternalError } from '../../../config/GenerateErros'
 import { prisma } from '../../../prisma'
 
 const PER_PAGE = 25
+interface Props {
+  page: number
+  companyId: string
+}
 
 export class GetTransfersUseCase {
-  async execute(page: number) {
+  async execute({ page, companyId }: Props) {
     const transfers = await prisma.companyTransfer.findMany({
+      where: {
+        companySentId: companyId,
+      },
       select: {
         id: true,
         value: true,
         createdAt: true,
-        senderCompany: {
-          select: {
-            fantasyName: true,
-          },
-        },
         receiverCompany: {
           select: {
             fantasyName: true,

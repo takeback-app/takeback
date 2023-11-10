@@ -1,7 +1,7 @@
 import { InternalError } from '../../../config/GenerateErros'
 import { prisma } from '../../../prisma'
 
-export class GetCompanyBalanceUseCase {
+export class GetBalanceUseCase {
   async execute(companyId: string) {
     const company = await prisma.company.findUnique({
       where: {

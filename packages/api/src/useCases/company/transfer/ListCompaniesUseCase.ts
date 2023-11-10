@@ -3,9 +3,10 @@ import { CompanyStatusEnum } from '../../../enum/CompanyStatusEnum'
 import { prisma } from '../../../prisma'
 
 export class ListCompaniesUseCase {
-  async execute() {
+  async execute(companyId: string) {
     const companies = await prisma.company.findMany({
       where: {
+        id: { not: companyId },
         companyStatus: { description: CompanyStatusEnum.ACTIVE },
       },
       select: {

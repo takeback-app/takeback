@@ -206,7 +206,7 @@ export class GetCompanyExtractUseCase {
         },
       },
       _sum: {
-        value: true,
+        companyCreditValue: true,
       },
     })
 
@@ -278,7 +278,7 @@ export class GetCompanyExtractUseCase {
       Number(sentTransfers._sum.value)
 
     const revenues =
-      Number(storeOrdersTotalizer._sum.value) +
+      Number(storeOrdersTotalizer._sum.companyCreditValue) +
       Number(transactionsFullBalancePaidTotalizer._sum.totalAmount) +
       Number(
         transactionsPartialBalancePaidTotalizer._sum
