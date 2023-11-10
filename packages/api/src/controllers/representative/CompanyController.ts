@@ -95,12 +95,14 @@ export class CompanyController {
         fantasyName: true,
         corporateName: true,
         registeredNumber: true,
+        integrationType: true,
         email: true,
         phone: true,
         statusId: true,
         industryId: true,
         contactPhone: true,
         companyAddress: true,
+        useQRCode: true,
         companyStatus: { select: { description: true } },
         paymentPlan: { select: { description: true, value: true } },
       },
@@ -134,6 +136,8 @@ export class CompanyController {
       consultantId,
       paymentPlanId,
       companyUserData,
+      longitude,
+      latitude,
     } = request.body
 
     const useCase = new CreateCompanyUseCase()
@@ -148,6 +152,8 @@ export class CompanyController {
       zipCode,
       paymentPlanId,
       representativeId,
+      longitude,
+      latitude,
     })
 
     if (consultantId) {
@@ -175,7 +181,8 @@ export class CompanyController {
     const { id } = request['tokenPayload']
     const companyId = request.params.id
 
-    const { cityId, district, number, street } = props.companyAddress
+    const { cityId, district, number, street, longitude, latitude } =
+      props.companyAddress
 
     const update = new UpdateCompanyUseCase()
 
@@ -187,12 +194,15 @@ export class CompanyController {
       fantasyName: props.fantasyName,
       phone: props.phone,
       registeredNumber: props.registeredNumber,
-      industryId: props.industryId,
-      cityId: cityId,
+      industryId: String(props.industryId),
+      cityId: String(cityId),
       district: district,
       number: number,
       street: street,
+      longitude,
+      latitude,
       contactPhone: props.contactPhone,
+      useQRCode: props.useQRCode === 'true',
       integrationType: props.integrationType,
     })
 

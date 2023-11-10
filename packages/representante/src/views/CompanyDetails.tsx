@@ -50,12 +50,16 @@ interface CompanyDetail {
     number: string
     complement: string
     cityId: number
+    latitude: number
+    longitude: number
   }
   paymentPlan: {
     id?: number
     description: string
     value: string
   }
+  useQRCode: boolean
+  integrationType: string
 }
 
 export function CompanyDetails() {
@@ -70,16 +74,30 @@ export function CompanyDetails() {
 
   const toast = useToast(chakraToastConfig)
 
-  const { register, handleSubmit, formState } = useForm<CompanyDetail>({
-    defaultValues: async () => axiosFetcher(`representative/companies/${id}`)
-  })
+  const { register, handleSubmit, formState, setError } =
+    useForm<CompanyDetail>({
+      defaultValues: async () => axiosFetcher(`representative/companies/${id}`)
+    })
 
   async function handleUpdate(data: CompanyDetail) {
     if (!id) return
+    const latitude = Number(data.companyAddress.latitude)
+    const longitude = Number(data.companyAddress.longitude)
+    const error = {
+      message: 'Valor inválido. Use apenas números e um ponto decimal opcional.'
+    }
+    if (isNaN(latitude)) {
+      return setError('companyAddress.latitude', error)
+    }
+    if (isNaN(longitude)) {
+      return setError('companyAddress.longitude', error)
+    }
 
     data.registeredNumber = data.registeredNumber.replace(/\D/g, '')
     data.phone = data.phone.replace(/\D/g, '')
     data.contactPhone = data.contactPhone.replace(/\D/g, '')
+    data.companyAddress.latitude = latitude
+    data.companyAddress.longitude = longitude
 
     const [isOk, response] = await updateCompany(id, data)
 
@@ -235,6 +253,20 @@ export function CompanyDetails() {
                 options={cities ?? []}
                 isRequired
                 {...register('companyAddress.cityId')}
+              />
+              <ChakraInput
+                label="Longitude"
+                size="sm"
+                isReadOnly={!isAdmin}
+                {...register('companyAddress.longitude')}
+                error={formState.errors.companyAddress?.longitude?.message}
+              />
+              <ChakraInput
+                label="Latitude"
+                size="sm"
+                isReadOnly={!isAdmin}
+                {...register('companyAddress.latitude')}
+                error={formState.errors.companyAddress?.latitude?.message}
               />
             </SimpleGrid>
           </CardBody>
