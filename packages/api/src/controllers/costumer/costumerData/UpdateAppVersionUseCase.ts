@@ -18,17 +18,4 @@ export class ConsumerAppVersionUseCase {
 
     return 'ok'
   }
-
-  async getAppVersion(consumerID: string) {
-    const appVersion = await prisma.consumer.findUnique({
-      where: {
-        id: consumerID,
-      },
-      select: {
-        appVersion: true,
-      },
-    })
-
-    return appVersion
-  }
 }

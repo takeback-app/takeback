@@ -205,16 +205,6 @@ class CostumerDataController {
 
     return response.status(204).json(res)
   }
-
-  async getAppVersion(request: Request, response: Response) {
-    const consumerID = request['tokenPayload'].id
-
-    const useCase = new ConsumerAppVersionUseCase()
-
-    const res = await useCase.getAppVersion(consumerID)
-
-    return response.status(200).json(res)
-  }
 }
 
 export { CostumerDataController }
