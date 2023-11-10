@@ -33,7 +33,9 @@ import {
   IoGiftOutline,
   IoImage,
   IoImageOutline,
-  IoNewspaperOutline
+  IoNewspaperOutline,
+  IoWallet,
+  IoWalletOutline
 } from 'react-icons/io5'
 import { RiTimeFill, RiTimeLine } from 'react-icons/ri'
 import { FaCashRegister, FaRegBookmark, FaShoppingBag } from 'react-icons/fa'
@@ -126,6 +128,15 @@ export const managerNav: Nav[] = [
     inactiveIcon: IoNewspaperOutline,
     isActive: false,
     to: '/extrato',
+    accessChecker: []
+  },
+  {
+    id: 12,
+    label: 'Transferências',
+    activeIcon: IoWallet,
+    inactiveIcon: IoWalletOutline,
+    isActive: false,
+    to: '/transferencias',
     accessChecker: []
   },
   {

@@ -13,11 +13,11 @@ import {
 import useSWR from 'swr'
 import Loader from 'react-spinners/PulseLoader'
 import { Paginated } from '../../../types'
-import Layout from '../../../components/ui/Layout'
-import { AppTable } from '../../../components/tables'
-import { Pagination } from '../../../components/tables/Pagination'
-import { currencyFormat } from '../../../utils/currencytFormat'
 import { useNavigate } from 'react-router'
+import { Layout } from '../../../components/ui/layout'
+import { AppTable } from '../../../components/table'
+import { Pagination } from '../../../components/table/Pagination'
+import { currencyFormat } from '../../../utils/currencyFormat'
 
 export interface TransfersData {
   id: number
@@ -26,12 +26,9 @@ export interface TransfersData {
   receiverCompany: {
     fantasyName: string
   }
-  senderCompany: {
-    fantasyName: string
-  }
 }
 
-export function CompanyTransfers() {
+export function Transfers() {
   const navigateTo = useNavigate()
   const [page, setPage] = useState(1)
   const filter = {
@@ -39,7 +36,7 @@ export function CompanyTransfers() {
   }
 
   const { data: transfers, isLoading } = useSWR<Paginated<TransfersData>>([
-    'manager/company/transfer/list',
+    'company/transfer/list',
     filter
   ])
 
@@ -59,7 +56,7 @@ export function CompanyTransfers() {
           <ButtonGroup>
             <Button
               colorScheme="blue"
-              onClick={() => navigateTo('/parceiros/transferencias/criar')}
+              onClick={() => navigateTo('/transferencias/criar')}
             >
               Criar
             </Button>
@@ -81,8 +78,7 @@ export function CompanyTransfers() {
         >
           <Thead>
             <Tr>
-              <Th>Número</Th>
-              <Th>Empresa que enviou</Th>
+              <Th>ID</Th>
               <Th>Empresa que recebeu</Th>
               <Th>Valor</Th>
               <Th>Dt. de emissão</Th>
@@ -92,7 +88,6 @@ export function CompanyTransfers() {
             {transfers?.data.map(transfer => (
               <Tr color="gray.500" key={transfer.id}>
                 <Td fontSize="xs">{transfer.id}</Td>
-                <Td fontSize="xs">{transfer.senderCompany.fantasyName}</Td>
                 <Td fontSize="xs">{transfer.receiverCompany.fantasyName}</Td>
                 <Td fontSize="xs">{currencyFormat(Number(transfer.value))}</Td>
                 <Td fontSize="xs">

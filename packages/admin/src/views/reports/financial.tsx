@@ -120,7 +120,7 @@ export function FinancialReport() {
   }
 
   return (
-    <Layout title="Financials">
+    <Layout title="Financeiro">
       <Flex
         w="full"
         h="70vh"
@@ -278,9 +278,11 @@ export function FinancialReport() {
                     {currencyFormat(
                       financial?.takebackFeeAmount +
                         financial?.monthlyPayment +
-                        financial?.storeSellValue -
-                        financial?.newUserBonus -
+                        financial?.storeSellValue +
+                        financial?.expiredBalances +
+                        financial?.depositFeeValue -
                         financial?.sellBonus -
+                        financial?.newUserBonus -
                         financial?.consultantBonus -
                         financial?.commissionValue -
                         financial?.referralBonus -

@@ -113,15 +113,6 @@ export const drawerNav = [
         isActive: false,
         to: '/parceiros/representantes',
         userBlocked: 0
-      },
-      {
-        id: 3,
-        label: 'Transferências',
-        activeIcon: IoWallet,
-        inactiveIcon: IoWalletOutline,
-        isActive: false,
-        to: '/parceiros/transferencias',
-        userBlocked: 0
       }
       // {
       //   id: 3,

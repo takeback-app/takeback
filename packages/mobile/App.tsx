@@ -24,12 +24,13 @@ import UserDataContext from './src/contexts/UserDataContext'
 import { RootNavigation } from './src/routes'
 
 import { SWRConfig } from 'swr'
-import { axiosFetcher } from './src/services/API'
+import { API, axiosFetcher } from './src/services/API'
 import { useNotification } from './src/stores/useNotification'
 import { theme } from './src/styles/theme'
 import { cacheImages } from './src/utils/cache'
 import { initFocus } from './src/utils/initFocus'
 import { registerForPushNotificationsAsync } from './src/utils/notifications'
+import * as Application from 'expo-application'
 
 moment.locale('pt-BR')
 
@@ -75,6 +76,9 @@ const App: React.FC = () => {
         setToken(token)
 
         await Promise.all([...imageAssets])
+        await API.post('costumer/app-version', {
+          appVersion: Application.nativeApplicationVersion
+        })
       } catch (e) {
         // console.warn(e)
       } finally {
