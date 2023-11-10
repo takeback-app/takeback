@@ -179,6 +179,5 @@ routes.get(
 )
 
 routes.post('/app-version', costumerData.updateAppVersion)
-routes.get('/app-version', costumerData.getAppVersion)
 
 export default routes
