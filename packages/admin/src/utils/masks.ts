@@ -55,3 +55,7 @@ export const removeMask = (value: string): string => {
 export const removeComma = (value: string): number => {
   return Number(value.replace(',', '.'))
 }
+
+export const maskLatitudeLongitude = (value: string): string => {
+  return value.replace(/[^\d.]|(?<=\.\d*)\./g, '')
+}
