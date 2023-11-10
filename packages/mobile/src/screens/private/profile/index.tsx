@@ -27,6 +27,7 @@ import { PrivateRouteParam } from '../../../@types/routes'
 import { getInitials, sendWhatsAppMessage } from '../../../utils'
 import { DeactivateAccount } from './components/DeactivateAccount'
 import { TermsOfUse } from '../../public/createAccount/components/termsOfUse'
+import * as Application from 'expo-application'
 
 export function Profile() {
   const { userData } = useContext(UserDataContext)
@@ -100,6 +101,9 @@ export function Profile() {
           <LogoutComponent />
         </View>
       </ScrollView>
+      <Text textAlign="center">
+        Versão - {Application.nativeApplicationVersion}
+      </Text>
 
       <Fab
         renderInPortal={false}
