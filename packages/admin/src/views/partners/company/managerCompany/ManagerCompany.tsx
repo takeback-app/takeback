@@ -21,7 +21,7 @@ import {
 
 import { API } from '../../../../services/API'
 import { CCompany } from '../../../../contexts/CCompany'
-import { maskCNPJ } from '../../../../utils/masks'
+import { maskCNPJ, maskLatitudeLongitude } from '../../../../utils/masks'
 import { CAppData } from '../../../../contexts/CAppData'
 
 import Layout from '../../../../components/ui/Layout'
@@ -67,6 +67,8 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [modalProvisionalAccess, setModalProvisionalAccess] = useState(false)
   const [canUseIntegration, setCanUseIntegration] = useState(false)
   const [registeredNumber, setRegisteredNumber] = useState('')
+  const [latitude, setLatitude] = useState('')
+  const [longitude, setLongitude] = useState('')
   const [integrationTypeApi, setIntegrationTypeApi] = useState('')
 
   const [loading, setLoading] = useState(false)
@@ -98,6 +100,8 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
             ? 'NONE'
             : response.data.company.integrationType
         setIntegrationTypeApi(integrationType)
+        setLatitude(String(response.data.company.address_latitude))
+        setLongitude(String(response.data.company.address_longitude))
 
         formRef.current?.setData({
           fantasyName: response.data.company.company_fantasyName,
@@ -109,8 +113,6 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
           district: response.data.company.address_district,
           street: response.data.company.address_street,
           number: response.data.company.address_number,
-          longitude: response.data.company.address_longitude,
-          latitude: response.data.company.address_latitude,
           industry: response.data.company.industry_id,
           feeDescription: response.data.company.plan_description,
           feeValue: response.data.company.plan_value,
@@ -144,8 +146,8 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
       district: data.district,
       street: data.street,
       number: data.number,
-      longitude: data.longitude,
-      latitude: data.latitude,
+      longitude: Number(data.longitude),
+      latitude: Number(data.latitude),
       contactPhone: data.contactPhone,
       useQRCode: data.useQRCode,
       integrationType:
@@ -347,8 +349,18 @@ const ManagerCompany: React.FC<React.PropsWithChildren<unknown>> = () => {
               <TertiaryInput label="Bairro" name="district" />
               <TertiaryInput label="Rua" name="street" />
               <TertiaryInput label="Número" name="number" />
-              <TertiaryInput label="Longitude" name="longitude" />
-              <TertiaryInput label="Latitude" name="latitude" />
+              <TertiaryInput
+                label="Longitude"
+                name="longitude"
+                value={maskLatitudeLongitude(longitude)}
+                onChange={e => setLongitude(e.currentTarget.value)}
+              />
+              <TertiaryInput
+                label="Latitude"
+                name="latitude"
+                value={maskLatitudeLongitude(latitude)}
+                onChange={e => setLatitude(e.currentTarget.value)}
+              />
             </S.InfoWrapper>
 
             <S.InfoTitle>Taxas e planos</S.InfoTitle>

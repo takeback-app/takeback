@@ -19,8 +19,8 @@ interface UpdateProps {
   street: string
   number: string
   district: string
-  longitude?: string
-  latitude?: string
+  longitude?: number
+  latitude?: number
   contactPhone: string
   useQRCode?: boolean
   integrationType: IntegrationType

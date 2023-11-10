@@ -51,7 +51,23 @@ const schema = z
       useCustomFee: z.boolean().optional(),
       customFee: z.number().optional(),
       cpf: z.string().min(14, 'CPF inválido')
-    })
+    }),
+    latitude: z
+      .string()
+      .refine(value => /^\d*\.?\d*$/.test(value), {
+        message:
+          'Valor inválido. Use apenas números e um ponto decimal opcional.'
+      })
+      .transform(value => parseFloat(value))
+      .optional(),
+    longitude: z
+      .string()
+      .refine(value => /^\d*\.?\d*$/.test(value), {
+        message:
+          'Valor inválido. Use apenas números e um ponto decimal opcional.'
+      })
+      .transform(value => parseFloat(value))
+      .optional()
   })
   .refine(({ registeredNumber }) => validCnpj(registeredNumber), {
     path: ['registeredNumber'],
@@ -215,6 +231,18 @@ export function CreateCompany() {
                   }
                 })}
                 error={formState.errors.zipCode?.message}
+              />
+              <ChakraInput
+                label="Longitude"
+                size="sm"
+                {...register('longitude')}
+                error={formState.errors.longitude?.message}
+              />
+              <ChakraInput
+                label="Latitude"
+                size="sm"
+                {...register('latitude')}
+                error={formState.errors.latitude?.message}
               />
             </SimpleGrid>
           </CardBody>
