@@ -7,15 +7,14 @@
     "privacy": "unlisted",
     "userInterfaceStyle": "light",
     "icon": "./assets/icon.png",
+    "jsEngine": "hermes",
     "ios": {
-      "jsEngine": "jsc",
       "buildNumber": "2.7.1",
       "userInterfaceStyle": "automatic",
       "supportsTablet": false,
       "bundleIdentifier": "com.takeback"
     },
     "android": {
-      "jsEngine": "hermes",
       "versionCode": 35,
       "userInterfaceStyle": "light",
       "adaptiveIcon": {
