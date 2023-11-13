@@ -1,21 +1,28 @@
 import { DateTime } from 'luxon'
+import { z } from 'zod'
+import { InternalError } from '../config/GenerateErros'
+import { parseNumber, unMaskCpfAndCnpj } from '../utils/Masks'
 
-export interface RequestBody {
-  Cnpj: string
-  Num_Venda: string
-  CPF: string
-  Data_hora_compra: string
-  Valor_total: string
-  Operador_caixa: string
-  CPF_oper_caixa: string
-  Vendedor: string
-  CPF_vendedor: string
-  Troco_Cash: string
-  Cond_Pag: {
-    Condicao: string
-    Valor_pag_cond: string
-  }[]
-}
+const RequestBodySchema = z.object({
+  Cnpj: z.string(),
+  Num_Venda: z.string(),
+  CPF: z.string(),
+  Data_hora_compra: z.string(),
+  Valor_total: z.string(),
+  Operador_caixa: z.string().optional(),
+  CPF_oper_caixa: z.string().optional(),
+  Vendedor: z.string().optional(),
+  CPF_vendedor: z.string().optional(),
+  Troco_Cash: z.string(),
+  Cond_Pag: z.array(
+    z.object({
+      Condicao: z.string(),
+      Valor_pag_cond: z.string(),
+    }),
+  ),
+})
+
+export type RequestBody = z.infer<typeof RequestBodySchema>
 
 interface SellDto {
   cnpj: string
@@ -34,22 +41,28 @@ interface SellDto {
 
 export class CMMSellRequest {
   public static getDataFormatted(data: RequestBody): SellDto {
-    const hasBackAmount = data.Troco_Cash === 'Sim'
+    const form = RequestBodySchema.safeParse(data)
+
+    if (!form.success) {
+      throw new InternalError('Existem erros nos dados enviados', 400)
+    }
+
+    const hasBackAmount = form.data.Troco_Cash === 'Sim'
     return {
-      cnpj: data.Cnpj,
-      sellId: data.Num_Venda,
-      consumerCpf: data.CPF,
-      companyUserCpf: data.CPF_oper_caixa,
+      cnpj: unMaskCpfAndCnpj(form.data.Cnpj),
+      sellId: form.data.Num_Venda,
+      consumerCpf: unMaskCpfAndCnpj(form.data.CPF),
+      companyUserCpf: unMaskCpfAndCnpj(form.data.CPF_oper_caixa),
       createdAt: DateTime.fromFormat(
-        data.Data_hora_compra,
+        form.data.Data_hora_compra,
         'dd-MM-yyyy HH:mm:ss',
       ).toJSDate(),
-      totalAmount: Number(data.Valor_total),
+      totalAmount: parseNumber(form.data.Valor_total),
       hasBackAmount,
       backAmount: hasBackAmount ? 0 : undefined,
-      paymentMethods: data.Cond_Pag.map((pag) => ({
+      paymentMethods: form.data.Cond_Pag.map((pag) => ({
         tPag: Number(pag.Condicao.split(' - ')[0]),
-        value: Number(pag.Valor_pag_cond),
+        value: parseNumber(pag.Valor_pag_cond),
       })),
     }
   }
