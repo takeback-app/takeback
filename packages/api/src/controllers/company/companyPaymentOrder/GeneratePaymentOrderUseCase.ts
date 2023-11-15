@@ -1,112 +1,230 @@
-import { getRepository, ILike } from 'typeorm'
+/* eslint-disable no-unused-vars */
 import hbs from 'handlebars'
+import { Decimal } from '@prisma/client/runtime'
+import { TransactionStatus } from '@prisma/client'
 import path from 'path'
 import fs from 'fs'
+import { MonthlyPaymentUseCase } from '../../../useCases/company/MonthlyPaymentUseCase'
+import { FindPendingCashbacksUseCase } from '../companyCashback/FindPendingCashbacksUseCase'
+import { FindCompanyDataUseCase } from '../companyData/FindCompanyDataUseCase'
+
 import { InternalError } from '../../../config/GenerateErros'
-import { Companies } from '../../../database/models/Company'
-import { PaymentOrderMethods } from '../../../database/models/PaymentOrderMethods'
-import { PaymentOrder } from '../../../database/models/PaymentOrder'
-import { PaymentOrderStatus } from '../../../database/models/PaymentOrderStatus'
-import { Transactions } from '../../../database/models/Transaction'
-import { TransactionStatus } from '../../../database/models/TransactionStatus'
-import { currency } from '../../../utils/Masks'
+import { applyCurrencyMask, currency } from '../../../utils/Masks'
 import transporter from '../../../config/SMTP'
-import { Settings } from '../../../database/models/Settings'
 import { prisma } from '../../../prisma'
 import { Notify } from '../../../notifications'
 import { NewPaymentOrder } from '../../../notifications/NewPaymentOrder'
+import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
+import { PaymentOrderStatusEnum } from '../../../enum/PaymentOrderStatusEnum'
+import { UpdateCompanyStatusByTransactionsUseCase } from '../companyCashback/UpdateCompanyStatusByTransactionsUseCase'
+import { ApproveTransactionUseCase } from '../../../useCases/cashback/ApproveTransactionUseCase'
 
-interface Props {
+const TAKEBACK_METHOD = 1
+
+interface GeneratePaymentOrderProps {
   transactionIDs: number[]
   companyId: string
   paymentMethodId: number
 }
 
-class GeneratePaymentOrderUseCase {
-  async execute({ transactionIDs, companyId, paymentMethodId }: Props) {
+interface Props {
+  companyId: string
+  transactionIDs: number[]
+  paymentMethodId: number
+  monthlyPayment: any[]
+}
+
+interface GeneratePaymentOrderWithTakebackBalanceProps {
+  transactionIDs: number[]
+  companyId: string
+  paymentMethodId: number
+}
+
+interface ITransactions {
+  id: number
+  transactionStatus: TransactionStatus
+  takebackFeeAmount: Decimal
+  cashbackAmount: Decimal
+  backAmount: Decimal
+  totalAmount: Decimal
+}
+
+interface ConsumerToChangeBalanceProps extends ITransactions {
+  consumersId: string
+}
+
+interface TransactionPerConsumer {
+  consumerId: string
+  transactions: ITransactions[]
+}
+
+interface ConsumerToChangeBalance {
+  consumerId: string
+  value: number
+}
+
+interface CalculateValues {
+  transactionsInProcess: number[]
+  takebackFeeAmount: number
+  cashbackAmount: number
+  backAmount: number
+}
+
+interface HtmlTemplate {
+  title: string
+  sectionOne: string
+  sectionTwo: string
+  sectionThree: string
+}
+
+enum GeneratePaymentOrderEnum {
+  TAKEBACK = 'takebackOrder',
+  PIX = 'pixOrder',
+}
+
+export class GeneratePaymentOrderUseCase {
+  async execute({
+    companyId,
+    transactionIDs,
+    paymentMethodId,
+    monthlyPayment,
+  }: Props) {
+    const that = this
+    const monthlyPaymentUseCase = new MonthlyPaymentUseCase()
+    const findData = new FindCompanyDataUseCase()
+    const findCashbacks = new FindPendingCashbacksUseCase()
+
+    const paymentOrderEnum =
+      paymentMethodId === TAKEBACK_METHOD
+        ? GeneratePaymentOrderEnum.TAKEBACK
+        : GeneratePaymentOrderEnum.PIX
+
+    const paymentOrderFunctions = {
+      async pixOrder(props: GeneratePaymentOrderProps) {
+        return that.generatePaymentOrder(props)
+      },
+      async takebackOrder(props: GeneratePaymentOrderProps) {
+        return that.generatePaymentOrderWithTakebackBalance(props)
+      },
+    }
+
+    const monthlyPaymentFunctions = {
+      async pixOrder(props: number[]) {
+        return monthlyPaymentUseCase.payMany(props)
+      },
+      async takebackOrder(props: number[]) {
+        return monthlyPaymentUseCase.payManyWithTakeback(props)
+      },
+    }
+
+    const defaultMesseges = {
+      pixOrder:
+        'Estamos processando o pagamento, isso pode levar algumas horas.',
+      takebackOrder: 'Cashbacks liberados 🤑',
+    }
+
+    const message = transactionIDs.length
+      ? await paymentOrderFunctions[paymentOrderEnum]({
+          transactionIDs,
+          companyId,
+          paymentMethodId,
+        })
+      : defaultMesseges[paymentOrderEnum]
+
+    if (monthlyPayment.length) {
+      const parsedMonthlyPayment = monthlyPayment.map((m) =>
+        Number(m.replace(/\D/g, '')),
+      )
+      await monthlyPaymentFunctions[paymentOrderEnum](parsedMonthlyPayment)
+    }
+
+    const companyData = await findData.execute({
+      companyId,
+    })
+
+    const transactions = await findCashbacks.execute({ companyId })
+
+    return { message, companyData, transactions }
+  }
+
+  async generatePaymentOrder({
+    transactionIDs,
+    companyId,
+    paymentMethodId,
+  }: GeneratePaymentOrderProps) {
     if (!paymentMethodId || transactionIDs.length === 0) {
       throw new InternalError('Campos incompletos', 400)
     }
 
-    const company = await getRepository(Companies).findOne(companyId)
+    const company = await prisma.company.findUnique({
+      where: {
+        id: companyId,
+      },
+    })
 
     if (!company) {
       throw new InternalError('Empresa inexistente', 404)
     }
 
-    const processStatus = await getRepository(TransactionStatus).findOne({
-      where: { description: 'Em processamento' },
+    const processStatus = await prisma.transactionStatus.findFirst({
+      where: {
+        description: TransactionStatusEnum.PROCESSING,
+      },
     })
 
-    // Buscando transações da ordem de pagamento
-    const transactionsLocalized = await getRepository(Transactions)
-      .createQueryBuilder('transaction')
-      .select([
-        'transaction.id',
-        'transaction.transactionStatus',
-        'transaction.takebackFeeAmount',
-        'transaction.cashbackAmount',
-        'transaction.backAmount',
-      ])
-      .leftJoin(
-        TransactionStatus,
-        'status',
-        'status.id = transaction.transactionStatus',
-      )
-      .where('transaction.id IN (:...transactionIDs)', {
-        transactionIDs,
-      })
-      .getRawMany()
+    const transactionsLocalized = await this.findTransactions(transactionIDs)
 
-    // Variáveis para receber os valores da taxa takeback, cashback e do troco
-    let takebackFeeAmount = 0
-    let cashbackAmount = 0
-    let backAmount = 0
+    const {
+      transactionsInProcess,
+      takebackFeeAmount,
+      cashbackAmount,
+      backAmount,
+    } = await this.calculateValues(transactionsLocalized, processStatus.id)
 
-    // Pegando os IDs das transações da ordem de pagamento
-    const transactionsInProcess = []
-    transactionsLocalized.map((item) => {
-      if (item.transactionStatusId === processStatus.id) {
-        transactionsInProcess.push(item.transaction_id)
-      }
-
-      // Inserindo valor da taxa takeback na transação
-      takebackFeeAmount =
-        takebackFeeAmount + parseFloat(item.transaction_takebackFeeAmount)
-
-      // Inserindo valor do cashback na transação
-      cashbackAmount =
-        cashbackAmount + parseFloat(item.transaction_cashbackAmount)
-
-      // Inserindo o valor do troco na transação
-      backAmount = backAmount + parseFloat(item.transaction_backAmount)
-    })
-
-    // Verificando se algum transação selecionada
-    // para uma ordem de pagamento já está
-    // em outra ordem de pagamento
     if (transactionsInProcess.length !== 0) {
       return 'Há cashbacks em processamento'
     }
 
-    const awaitingStatus = await getRepository(PaymentOrderStatus).findOne({
-      where: { description: ILike('aguardando confirmacao') },
+    const awaitingStatus = await prisma.paymentOrderStatus.findFirst({
+      where: {
+        description: PaymentOrderStatusEnum.WAITING_CONFIRMATION,
+      },
     })
 
-    // Buscando a ordem de pagamento pelo ID
-    const paymentMethod = await getRepository(PaymentOrderMethods).findOne({
-      where: { id: paymentMethodId },
+    const paymentMethod = await prisma.paymentOrderMethod.findUnique({
+      where: {
+        id: paymentMethodId,
+      },
     })
 
-    // Criando a ordem de pagamento
-    const paymentOrder = await getRepository(PaymentOrder).save({
-      value: takebackFeeAmount + cashbackAmount + backAmount,
-      company,
-      status: awaitingStatus,
-      paymentMethod,
+    const paymentOrder = await prisma.paymentOrder.create({
+      data: {
+        value: takebackFeeAmount + cashbackAmount + backAmount,
+        company: {
+          connect: {
+            id: company.id,
+          },
+        },
+        paymentOrderStatus: {
+          connect: {
+            id: awaitingStatus.id,
+          },
+        },
+        paymentOrderMethod: {
+          connect: {
+            id: paymentMethod.id,
+          },
+        },
+      },
+      include: {
+        company: {
+          select: {
+            fantasyName: true,
+          },
+        },
+      },
     })
 
-    // Atualizando as transações
     await prisma.transaction.updateMany({
       where: { id: { in: transactionIDs } },
       data: {
@@ -124,11 +242,294 @@ class GeneratePaymentOrderUseCase {
       new NewPaymentOrder(paymentOrder, company.fantasyName),
     )
 
-    const settings = await getRepository(Settings).findOne({
-      select: ['takebackPixKey'],
-      where: { id: 1 },
+    const settings = await prisma.setting.findUnique({
+      where: {
+        id: 1,
+      },
+      select: {
+        takebackPixKey: true,
+      },
     })
 
+    const htmlTemplate = {
+      title: `Solicitação de Pagamento`,
+      sectionOne: `Recebemos a sua solicitação de pagamento referente à ordem N°${
+        paymentOrder.id
+      } no valor de ${currency(Number(paymentOrder.value))}`,
+      sectionTwo: `Estamos processando o seu pagamento, caso ainda não tenha o efetuado segue a nossa chave PIX: ${settings.takebackPixKey}`,
+      sectionThree: 'Abraços! Equipe TakeBack :)',
+    }
+
+    this.sendMail(
+      htmlTemplate,
+      'TakeBack | Pagamento de Cashbacks',
+      company.email,
+    )
+
+    return 'Estamos processando o pagamento, isso pode levar algumas horas.'
+  }
+
+  async generatePaymentOrderWithTakebackBalance({
+    companyId,
+    paymentMethodId,
+    transactionIDs,
+  }: GeneratePaymentOrderWithTakebackBalanceProps) {
+    if (!paymentMethodId || transactionIDs.length === 0) {
+      throw new InternalError('Campos incompletos', 400)
+    }
+
+    const company = await prisma.company.findUnique({
+      where: {
+        id: companyId,
+      },
+    })
+
+    if (!company) {
+      throw new InternalError('Empresa inexistente', 404)
+    }
+
+    const approvedStatusTransaction = await prisma.transactionStatus.findFirst({
+      where: {
+        description: TransactionStatusEnum.APPROVED,
+      },
+    })
+
+    const transactions = await this.findTransactions(transactionIDs)
+
+    const consumerToChangeBalance =
+      this.generateConsumerToChangeBalance(transactions)
+
+    const {
+      transactionsInProcess,
+      takebackFeeAmount,
+      cashbackAmount,
+      backAmount,
+    } = await this.calculateValues(transactions, approvedStatusTransaction.id)
+
+    if (transactionsInProcess.length !== 0) {
+      return {
+        message: 'Há cashbacks em processamento',
+        cashbacks: transactionsInProcess,
+      }
+    }
+
+    const approvedStatus = await prisma.paymentOrderStatus.findFirst({
+      where: {
+        description: PaymentOrderStatusEnum.AUTHORIZED,
+      },
+    })
+
+    const paymentMethod = await prisma.paymentOrderMethod.findUnique({
+      where: {
+        id: TAKEBACK_METHOD,
+      },
+    })
+
+    if (
+      Number(company.positiveBalance) <
+      takebackFeeAmount + cashbackAmount + backAmount
+    ) {
+      throw new InternalError('Saldo Takeback insuficiente', 400)
+    }
+
+    const paymentOrder = await prisma.paymentOrder.create({
+      data: {
+        value: takebackFeeAmount + cashbackAmount + backAmount,
+        company: {
+          connect: {
+            id: company.id,
+          },
+        },
+        paymentOrderStatus: {
+          connect: {
+            id: approvedStatus.id,
+          },
+        },
+        paymentOrderMethod: {
+          connect: {
+            id: paymentMethod.id,
+          },
+        },
+      },
+      include: {
+        company: {
+          select: {
+            fantasyName: true,
+          },
+        },
+      },
+    })
+
+    const useCase = new ApproveTransactionUseCase(paymentOrder.id)
+
+    for (const item of transactions) {
+      await useCase.execute({
+        companyName: paymentOrder.company.fantasyName,
+        consumersId: item.consumersId,
+        totalAmount: Number(item.totalAmount),
+        transactionId: item.id,
+      })
+    }
+
+    consumerToChangeBalance.map(async (item) => {
+      const balanceUpdated = await prisma.consumer.update({
+        where: {
+          id: item.consumerId,
+        },
+        data: {
+          blockedBalance: {
+            decrement: item.value,
+          },
+          balance: {
+            increment: item.value,
+          },
+        },
+      })
+
+      if (!balanceUpdated) {
+        throw new InternalError(
+          'Houve um erro ao atualizar o saldo do consumidor',
+          400,
+        )
+      }
+    })
+
+    const updateBalance = await prisma.company.update({
+      where: {
+        id: companyId,
+      },
+      data: {
+        positiveBalance: {
+          decrement: takebackFeeAmount + cashbackAmount + backAmount,
+        },
+        negativeBalance: takebackFeeAmount + cashbackAmount + backAmount,
+      },
+    })
+
+    if (!updateBalance) {
+      throw new InternalError(
+        'Houve um erro ao atualizar o saldo da empresa',
+        400,
+      )
+    }
+
+    await new UpdateCompanyStatusByTransactionsUseCase().execute(companyId)
+
+    const htmlTemplate = {
+      title: `Cashbacks liberados 🤑`,
+      sectionOne: `Você acabou de alegrar o dia de ${consumerToChangeBalance.length} dos seus clientes disponibilizando o saldo deles.`,
+      sectionTwo: `Ordem de pagamento N°${
+        paymentOrder.id
+      } | Valor liberado: ${applyCurrencyMask(
+        cashbackAmount,
+      )} | Taxas operacionais: ${applyCurrencyMask(
+        takebackFeeAmount,
+      )} | Total: ${applyCurrencyMask(Number(paymentOrder.value))}`,
+      sectionThree: 'Abraços! Equipe TakeBack :)',
+    }
+
+    this.sendMail(
+      htmlTemplate,
+      'TakeBack | Liberação de Cashbacks',
+      company.email,
+    )
+
+    return 'Cashbacks liberados 🤑'
+  }
+
+  private async findTransactions(
+    transactionIDs: number[],
+  ): Promise<ConsumerToChangeBalanceProps[]> {
+    const transaction = await prisma.transaction.findMany({
+      where: {
+        id: {
+          in: transactionIDs,
+        },
+      },
+      select: {
+        id: true,
+        transactionStatus: true,
+        takebackFeeAmount: true,
+        cashbackAmount: true,
+        backAmount: true,
+        totalAmount: true,
+        consumersId: true,
+      },
+    })
+    return transaction
+  }
+
+  private generateConsumerToChangeBalance(
+    transactions: ConsumerToChangeBalanceProps[],
+  ): ConsumerToChangeBalance[] {
+    const transactionsGrouped = transactions.reduce((acc, currentValue) => {
+      const { consumersId, ...rest } = currentValue
+
+      if (!acc[consumersId]) {
+        acc[consumersId] = { consumerId: consumersId, transactions: [] }
+      }
+
+      acc[consumersId].transactions.push({ consumersId, ...rest })
+
+      return acc
+    }, {})
+
+    const transactionGroupedPerConsumer = Object.values(
+      transactionsGrouped,
+    ) as TransactionPerConsumer[]
+
+    const consumerToChangeBalance = transactionGroupedPerConsumer.map(
+      (item) => {
+        const value = item.transactions.reduce(
+          (total, transaction) =>
+            total +
+            Number(transaction.cashbackAmount) +
+            Number(transaction.backAmount),
+          0,
+        )
+
+        return {
+          consumerId: item.consumerId,
+          value: value,
+        }
+      },
+    )
+
+    return consumerToChangeBalance
+  }
+
+  private async calculateValues(
+    transactions: ITransactions[],
+    statusTransactionId: number,
+  ): Promise<CalculateValues> {
+    const transactionsInProcess = []
+    let takebackFeeAmount = 0
+    let cashbackAmount = 0
+    let backAmount = 0
+
+    for (const item of transactions) {
+      if (item.transactionStatus.id === statusTransactionId) {
+        transactionsInProcess.push(item.id)
+      }
+
+      takebackFeeAmount += Number(item.takebackFeeAmount)
+      cashbackAmount += Number(item.cashbackAmount)
+      backAmount += Number(item.backAmount)
+    }
+
+    return {
+      transactionsInProcess,
+      takebackFeeAmount,
+      cashbackAmount,
+      backAmount,
+    }
+  }
+
+  private async sendMail(
+    htmlTemplate: HtmlTemplate,
+    subject: string,
+    companyEmail: string,
+  ) {
     const emailTemplate = fs.readFileSync(
       path.resolve('src/utils/emailTemplates/template1.hbs'),
       'utf-8',
@@ -136,19 +537,12 @@ class GeneratePaymentOrderUseCase {
 
     const template = hbs.compile(emailTemplate)
 
-    const html = template({
-      title: `Solicitação de Pagamento`,
-      sectionOne: `Recebemos a sua solicitação de pagamento referente à ordem N°${
-        paymentOrder.id
-      } no valor de ${currency(paymentOrder.value)}`,
-      sectionTwo: `Estamos processando o seu pagamento, caso ainda não tenha o efetuado segue a nossa chave PIX: ${settings.takebackPixKey}`,
-      sectionThree: 'Abraços! Equipe TakeBack :)',
-    })
+    const html = template(htmlTemplate)
 
     const mailOptions = {
       from: process.env.MAIL_CONFIG_USER,
-      to: company.email,
-      subject: 'TakeBack | Pagamento de Cashbacks',
+      to: companyEmail,
+      subject,
       html,
     }
 
@@ -159,9 +553,5 @@ class GeneratePaymentOrderUseCase {
         return 'Email enviado.'
       }
     })
-
-    return 'Estamos processando o pagamento, isso pode levar algumas horas.'
   }
 }
-
-export { GeneratePaymentOrderUseCase }
