@@ -1,18 +1,39 @@
-import { getRepository } from "typeorm";
-import { Companies } from "../../../database/models/Company";
+import { prisma } from '../../../prisma'
 
 interface Props {
-  companyId: string;
+  companyId: string
 }
 
 class FindCompanyDataUseCase {
   async execute({ companyId }: Props) {
-    const company = await getRepository(Companies).findOne(companyId, {
-      relations: ["industry", "paymentPlan", "status", "address"],
-    });
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: {
+        id: true,
+        corporateName: true,
+        fantasyName: true,
+        registeredNumber: true,
+        email: true,
+        phone: true,
+        customIndustryFee: true,
+        customIndustryFeeActive: true,
+        positiveBalance: true,
+        negativeBalance: true,
+        monthlyPayment: true,
+        createdAt: true,
+        updatedAt: true,
+        industry: {
+          select: {
+            id: true,
+            description: true,
+            industryFee: true,
+          },
+        },
+      },
+    })
 
-    return company;
+    return company
   }
 }
 
-export { FindCompanyDataUseCase };
+export { FindCompanyDataUseCase }
