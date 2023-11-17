@@ -8,11 +8,9 @@ export type CompanyDataTypes = {
   email: string
   industry: IndustryTypes
   zipCode: string
-  acceptanceTerm: string
   positiveBalance: number
   negativeBalance: number
   cashbackPercentDefault: number
-  socialContract: string
   firstAccessAllowedAt: string
   createdAt: string
   currentMonthlyPaymentPaid: boolean

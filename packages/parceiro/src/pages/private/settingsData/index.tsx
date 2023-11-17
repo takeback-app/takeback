@@ -56,12 +56,10 @@ export const Company: React.FC = () => {
           zipCode: response.data.zipCode,
           longitude: response.data.address.longitude,
           latitude: response.data.address.latitude,
-          acceptanceTerm: response.data.acceptanceTerm,
           balance: response.data.balance,
           blockedBalance: response.data.blockedBalance,
           cashbackPercentDefault: response.data.cashbackPercentDefault,
-          monthlyPayment: response.data.monthlyPayment,
-          socialContract: response.data.socialContract
+          monthlyPayment: response.data.monthlyPayment
         })
 
         setCnpj(maskCNPJ(response.data.registeredNumber))

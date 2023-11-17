@@ -3,14 +3,13 @@ import { Prisma } from '@prisma/client'
 import { TransactionStatusEnum } from '../../enum/TransactionStatusEnum'
 import { prisma } from '../../prisma'
 import { CompanyStatusEnum } from '../../enum/CompanyStatusEnum'
-import { GeneratePaymentOrderWithTakebackBalanceUseCase } from '../../controllers/company/companyPaymentOrder/GeneratePaymentOrderWithTakebackBalanceUseCase'
+import { GeneratePaymentOrderUseCase } from '../../controllers/company/companyPaymentOrder/GeneratePaymentOrderUseCase'
 
 export class ExpireTransactionsUseCase {
-  protected generatePaymentOrderWithTakebackBalanceUseCase: GeneratePaymentOrderWithTakebackBalanceUseCase
+  protected generatePaymentOrderUseCase: GeneratePaymentOrderUseCase
 
   constructor() {
-    this.generatePaymentOrderWithTakebackBalanceUseCase =
-      new GeneratePaymentOrderWithTakebackBalanceUseCase()
+    this.generatePaymentOrderUseCase = new GeneratePaymentOrderUseCase()
   }
 
   async execute() {
@@ -82,11 +81,13 @@ export class ExpireTransactionsUseCase {
         continue
       }
 
-      await this.generatePaymentOrderWithTakebackBalanceUseCase.execute({
-        companyId: company.id,
-        paymentMethodId: 1,
-        transactionIDs,
-      })
+      await this.generatePaymentOrderUseCase.generatePaymentOrderWithTakebackBalance(
+        {
+          companyId: company.id,
+          paymentMethodId: 1,
+          transactionIDs,
+        },
+      )
     }
 
     const transactionStatus = await prisma.transactionStatus.findFirst({

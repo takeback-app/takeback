@@ -11,8 +11,6 @@ export type TCompanyData = {
   registeredNumber: string
   email: string
   phone: string
-  socialContract: string
-  acceptanceTerm: string
   customIndustryFee: number
   customIndustryFeeActive: boolean
   positiveBalance: number
