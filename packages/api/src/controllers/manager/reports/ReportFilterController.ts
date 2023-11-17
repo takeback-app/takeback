@@ -125,6 +125,9 @@ export class ReportFilterController {
         id: true,
         fantasyName: true,
       },
+      orderBy: {
+        fantasyName: 'asc',
+      },
     })
 
     return response.json(companies)

@@ -32,6 +32,9 @@ export class CityCompaniesController {
         id: true,
         fantasyName: true,
       },
+      orderBy: {
+        fantasyName: 'asc',
+      },
     })
 
     return response.status(200).json(companies)
