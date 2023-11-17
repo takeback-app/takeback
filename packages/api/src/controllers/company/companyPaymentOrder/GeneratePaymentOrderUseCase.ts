@@ -20,6 +20,7 @@ import { UpdateCompanyStatusByTransactionsUseCase } from '../companyCashback/Upd
 import { ApproveTransactionUseCase } from '../../../useCases/cashback/ApproveTransactionUseCase'
 
 const TAKEBACK_METHOD = 1
+const ADMIN_TAKEBACK_USER = 2
 
 interface GeneratePaymentOrderProps {
   transactionIDs: number[]
@@ -204,7 +205,7 @@ export class GeneratePaymentOrderUseCase {
     })
 
     const users = await prisma.takebackUser.findMany({
-      where: { userTypeId: 2, isActive: true },
+      where: { userTypeId: ADMIN_TAKEBACK_USER, isActive: true },
     })
 
     Notify.sendMany(
@@ -213,7 +214,7 @@ export class GeneratePaymentOrderUseCase {
     )
 
     const settings = await prisma.setting.findUnique({
-      where: { id: 1 },
+      where: { id: 1 }, // só há um registro na tabela
       select: { takebackPixKey: true },
     })
 
