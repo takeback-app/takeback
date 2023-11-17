@@ -64,7 +64,7 @@ interface ConsumerToChangeBalance {
 }
 
 interface CalculateValues {
-  transactionsInProcess: number[]
+  preventedTransactions: number[]
   takebackFeeAmount: number
   cashbackAmount: number
   backAmount: number
@@ -78,10 +78,14 @@ interface HtmlTemplate {
 }
 
 enum GeneratePaymentOrderEnum {
-  TAKEBACK = 'takebackOrder',
-  PIX = 'pixOrder',
+  TAKEBACK = 'generatePaymentOrderWithTakebackBalance',
+  PIX = 'generatePaymentOrder',
 }
 
+enum MonthlyPaymentEnum {
+  TAKEBACK = 'payManyWithTakeback',
+  PIX = 'payMany',
+}
 export class GeneratePaymentOrderUseCase {
   async execute({
     companyId,
@@ -89,58 +93,42 @@ export class GeneratePaymentOrderUseCase {
     paymentMethodId,
     monthlyPayment,
   }: Props) {
-    const that = this
     const monthlyPaymentUseCase = new MonthlyPaymentUseCase()
     const findData = new FindCompanyDataUseCase()
     const findCashbacks = new FindPendingCashbacksUseCase()
 
-    const paymentOrderEnum =
-      paymentMethodId === TAKEBACK_METHOD
-        ? GeneratePaymentOrderEnum.TAKEBACK
-        : GeneratePaymentOrderEnum.PIX
+    const isTakebackMethod = paymentMethodId === TAKEBACK_METHOD
 
-    const paymentOrderFunctions = {
-      async pixOrder(props: GeneratePaymentOrderProps) {
-        return that.generatePaymentOrder(props)
-      },
-      async takebackOrder(props: GeneratePaymentOrderProps) {
-        return that.generatePaymentOrderWithTakebackBalance(props)
-      },
-    }
+    const paymentOrderType = isTakebackMethod
+      ? GeneratePaymentOrderEnum.TAKEBACK
+      : GeneratePaymentOrderEnum.PIX
 
-    const monthlyPaymentFunctions = {
-      async pixOrder(props: number[]) {
-        return monthlyPaymentUseCase.payMany(props)
-      },
-      async takebackOrder(props: number[]) {
-        return monthlyPaymentUseCase.payManyWithTakeback(props)
-      },
-    }
+    const monthlyPaymentType = isTakebackMethod
+      ? MonthlyPaymentEnum.TAKEBACK
+      : MonthlyPaymentEnum.PIX
 
     const defaultMesseges = {
-      pixOrder:
+      generatePaymentOrder:
         'Estamos processando o pagamento, isso pode levar algumas horas.',
-      takebackOrder: 'Cashbacks liberados 🤑',
+      generatePaymentOrderWithTakebackBalance: 'Cashbacks liberados 🤑',
     }
 
     const message = transactionIDs.length
-      ? await paymentOrderFunctions[paymentOrderEnum]({
+      ? await this[paymentOrderType]({
           transactionIDs,
           companyId,
           paymentMethodId,
         })
-      : defaultMesseges[paymentOrderEnum]
+      : defaultMesseges[paymentOrderType]
 
     if (monthlyPayment.length) {
       const parsedMonthlyPayment = monthlyPayment.map((m) =>
         Number(m.replace(/\D/g, '')),
       )
-      await monthlyPaymentFunctions[paymentOrderEnum](parsedMonthlyPayment)
+      await monthlyPaymentUseCase[monthlyPaymentType](parsedMonthlyPayment)
     }
 
-    const companyData = await findData.execute({
-      companyId,
-    })
+    const companyData = await findData.execute({ companyId })
 
     const transactions = await findCashbacks.execute({ companyId })
 
@@ -157,9 +145,7 @@ export class GeneratePaymentOrderUseCase {
     }
 
     const company = await prisma.company.findUnique({
-      where: {
-        id: companyId,
-      },
+      where: { id: companyId },
     })
 
     if (!company) {
@@ -167,61 +153,45 @@ export class GeneratePaymentOrderUseCase {
     }
 
     const processStatus = await prisma.transactionStatus.findFirst({
-      where: {
-        description: TransactionStatusEnum.PROCESSING,
-      },
+      where: { description: TransactionStatusEnum.PROCESSING },
     })
 
     const transactionsLocalized = await this.findTransactions(transactionIDs)
 
     const {
-      transactionsInProcess,
+      preventedTransactions,
       takebackFeeAmount,
       cashbackAmount,
       backAmount,
     } = await this.calculateValues(transactionsLocalized, processStatus.id)
 
-    if (transactionsInProcess.length !== 0) {
+    if (preventedTransactions.length !== 0) {
       return 'Há cashbacks em processamento'
     }
 
     const awaitingStatus = await prisma.paymentOrderStatus.findFirst({
-      where: {
-        description: PaymentOrderStatusEnum.WAITING_CONFIRMATION,
-      },
+      where: { description: PaymentOrderStatusEnum.WAITING_CONFIRMATION },
     })
 
     const paymentMethod = await prisma.paymentOrderMethod.findUnique({
-      where: {
-        id: paymentMethodId,
-      },
+      where: { id: paymentMethodId },
     })
 
     const paymentOrder = await prisma.paymentOrder.create({
       data: {
         value: takebackFeeAmount + cashbackAmount + backAmount,
         company: {
-          connect: {
-            id: company.id,
-          },
+          connect: { id: company.id },
         },
         paymentOrderStatus: {
-          connect: {
-            id: awaitingStatus.id,
-          },
+          connect: { id: awaitingStatus.id },
         },
         paymentOrderMethod: {
-          connect: {
-            id: paymentMethod.id,
-          },
+          connect: { id: paymentMethod.id },
         },
       },
       include: {
-        company: {
-          select: {
-            fantasyName: true,
-          },
-        },
+        company: { select: { fantasyName: true } },
       },
     })
 
@@ -243,12 +213,8 @@ export class GeneratePaymentOrderUseCase {
     )
 
     const settings = await prisma.setting.findUnique({
-      where: {
-        id: 1,
-      },
-      select: {
-        takebackPixKey: true,
-      },
+      where: { id: 1 },
+      select: { takebackPixKey: true },
     })
 
     const htmlTemplate = {
@@ -279,9 +245,7 @@ export class GeneratePaymentOrderUseCase {
     }
 
     const company = await prisma.company.findUnique({
-      where: {
-        id: companyId,
-      },
+      where: { id: companyId },
     })
 
     if (!company) {
@@ -289,9 +253,7 @@ export class GeneratePaymentOrderUseCase {
     }
 
     const approvedStatusTransaction = await prisma.transactionStatus.findFirst({
-      where: {
-        description: TransactionStatusEnum.APPROVED,
-      },
+      where: { description: TransactionStatusEnum.APPROVED },
     })
 
     const transactions = await this.findTransactions(transactionIDs)
@@ -300,29 +262,25 @@ export class GeneratePaymentOrderUseCase {
       this.generateConsumerToChangeBalance(transactions)
 
     const {
-      transactionsInProcess,
+      preventedTransactions,
       takebackFeeAmount,
       cashbackAmount,
       backAmount,
     } = await this.calculateValues(transactions, approvedStatusTransaction.id)
 
-    if (transactionsInProcess.length !== 0) {
+    if (preventedTransactions.length !== 0) {
       return {
         message: 'Há cashbacks em processamento',
-        cashbacks: transactionsInProcess,
+        cashbacks: preventedTransactions,
       }
     }
 
     const approvedStatus = await prisma.paymentOrderStatus.findFirst({
-      where: {
-        description: PaymentOrderStatusEnum.AUTHORIZED,
-      },
+      where: { description: PaymentOrderStatusEnum.AUTHORIZED },
     })
 
     const paymentMethod = await prisma.paymentOrderMethod.findUnique({
-      where: {
-        id: TAKEBACK_METHOD,
-      },
+      where: { id: TAKEBACK_METHOD },
     })
 
     if (
@@ -336,26 +294,18 @@ export class GeneratePaymentOrderUseCase {
       data: {
         value: takebackFeeAmount + cashbackAmount + backAmount,
         company: {
-          connect: {
-            id: company.id,
-          },
+          connect: { id: company.id },
         },
         paymentOrderStatus: {
-          connect: {
-            id: approvedStatus.id,
-          },
+          connect: { id: approvedStatus.id },
         },
         paymentOrderMethod: {
-          connect: {
-            id: paymentMethod.id,
-          },
+          connect: { id: paymentMethod.id },
         },
       },
       include: {
         company: {
-          select: {
-            fantasyName: true,
-          },
+          select: { fantasyName: true },
         },
       },
     })
@@ -371,33 +321,18 @@ export class GeneratePaymentOrderUseCase {
       })
     }
 
-    consumerToChangeBalance.map(async (item) => {
-      const balanceUpdated = await prisma.consumer.update({
-        where: {
-          id: item.consumerId,
-        },
+    for (const item of consumerToChangeBalance) {
+      await prisma.consumer.update({
+        where: { id: item.consumerId },
         data: {
-          blockedBalance: {
-            decrement: item.value,
-          },
-          balance: {
-            increment: item.value,
-          },
+          blockedBalance: { decrement: item.value },
+          balance: { increment: item.value },
         },
       })
+    }
 
-      if (!balanceUpdated) {
-        throw new InternalError(
-          'Houve um erro ao atualizar o saldo do consumidor',
-          400,
-        )
-      }
-    })
-
-    const updateBalance = await prisma.company.update({
-      where: {
-        id: companyId,
-      },
+    await prisma.company.update({
+      where: { id: companyId },
       data: {
         positiveBalance: {
           decrement: takebackFeeAmount + cashbackAmount + backAmount,
@@ -405,13 +340,6 @@ export class GeneratePaymentOrderUseCase {
         negativeBalance: takebackFeeAmount + cashbackAmount + backAmount,
       },
     })
-
-    if (!updateBalance) {
-      throw new InternalError(
-        'Houve um erro ao atualizar o saldo da empresa',
-        400,
-      )
-    }
 
     await new UpdateCompanyStatusByTransactionsUseCase().execute(companyId)
 
@@ -442,9 +370,7 @@ export class GeneratePaymentOrderUseCase {
   ): Promise<ConsumerToChangeBalanceProps[]> {
     const transaction = await prisma.transaction.findMany({
       where: {
-        id: {
-          in: transactionIDs,
-        },
+        id: { in: transactionIDs },
       },
       select: {
         id: true,
@@ -500,16 +426,16 @@ export class GeneratePaymentOrderUseCase {
 
   private async calculateValues(
     transactions: ITransactions[],
-    statusTransactionId: number,
+    preventedTransactionStatusId: number,
   ): Promise<CalculateValues> {
-    const transactionsInProcess = []
+    const preventedTransactions = []
     let takebackFeeAmount = 0
     let cashbackAmount = 0
     let backAmount = 0
 
     for (const item of transactions) {
-      if (item.transactionStatus.id === statusTransactionId) {
-        transactionsInProcess.push(item.id)
+      if (item.transactionStatus.id === preventedTransactionStatusId) {
+        preventedTransactions.push(item.id)
       }
 
       takebackFeeAmount += Number(item.takebackFeeAmount)
@@ -518,7 +444,7 @@ export class GeneratePaymentOrderUseCase {
     }
 
     return {
-      transactionsInProcess,
+      preventedTransactions,
       takebackFeeAmount,
       cashbackAmount,
       backAmount,
