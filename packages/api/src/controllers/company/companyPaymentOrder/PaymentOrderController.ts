@@ -1,13 +1,9 @@
 import { Request, Response } from 'express'
 import { FindaPaymentMethodUseCase } from './FindPaymentMethodUseCase'
-import { GeneratePaymentOrderUseCase } from './GeneratePaymentOrderUseCase'
-import { GeneratePaymentOrderWithTakebackBalanceUseCase } from './GeneratePaymentOrderWithTakebackBalanceUseCase'
 import { FindPaymentOrderUseCase } from './FindPaymentOrderUseCase'
 import { FindTransactionsInPaymentOrderUseCase } from './FindTransactionsInPaymentOrderUseCase'
-import { FindCompanyDataUseCase } from '../companyData/FindCompanyDataUseCase'
-import { FindPendingCashbacksUseCase } from '../companyCashback/FindPendingCashbacksUseCase'
+import { GeneratePaymentOrderUseCase } from './GeneratePaymentOrderUseCase'
 import { partition } from '../../../utils'
-import { MonthlyPaymentUseCase } from '../../../useCases/company/MonthlyPaymentUseCase'
 import { CancelPaymentOrderUseCase } from '../../commons/paymentOrder/CancelPaymentOrderUseCase'
 
 interface Props {
@@ -23,72 +19,21 @@ class PaymentOrderController {
   async generate(request: Request, response: Response) {
     const { companyId } = request['tokenPayload']
     const { transactionIDs: ids, paymentMethodId }: Props = request.body
-
     const [transactionIDs, monthlyPayment] = partition(
       ids,
       (t) => typeof t === 'number',
     )
 
-    const monthlyPaymentUseCase = new MonthlyPaymentUseCase()
+    const useCase = new GeneratePaymentOrderUseCase()
 
-    if (paymentMethodId === 1) {
-      const generatePaymentOrderWithTakebackBalance =
-        new GeneratePaymentOrderWithTakebackBalanceUseCase()
+    const result = await useCase.execute({
+      companyId,
+      transactionIDs,
+      paymentMethodId,
+      monthlyPayment,
+    })
 
-      const finData = new FindCompanyDataUseCase()
-      const findCashbacks = new FindPendingCashbacksUseCase()
-
-      const message = transactionIDs.length
-        ? await generatePaymentOrderWithTakebackBalance.execute({
-            transactionIDs,
-            companyId,
-            paymentMethodId,
-          })
-        : 'Cashbacks liberados 🤑'
-
-      if (monthlyPayment.length) {
-        await monthlyPaymentUseCase.payManyWithTakeback(
-          monthlyPayment.map((m) => Number(m.replace(/\D/g, ''))), // remove all non numeric characters
-        )
-      }
-
-      const companyData = await finData.execute({
-        companyId,
-      })
-
-      const transactions = await findCashbacks.execute({
-        companyId,
-      })
-
-      return response.status(200).json({ message, companyData, transactions })
-    } else {
-      const generatePaymentOrder = new GeneratePaymentOrderUseCase()
-
-      const finData = new FindCompanyDataUseCase()
-      const findCashbacks = new FindPendingCashbacksUseCase()
-
-      const message = transactionIDs.length
-        ? await generatePaymentOrder.execute({
-            transactionIDs,
-            companyId,
-            paymentMethodId,
-          })
-        : 'Estamos processando o pagamento, isso pode levar algumas horas.'
-
-      if (monthlyPayment.length) {
-        await monthlyPaymentUseCase.payMany(
-          monthlyPayment.map((m) => Number(m.replace(/\D/g, ''))), // remove all non numeric characters
-        )
-      }
-
-      const companyData = await finData.execute({
-        companyId,
-      })
-
-      const transactions = await findCashbacks.execute({ companyId })
-
-      return response.status(200).json({ message, companyData, transactions })
-    }
+    return response.status(200).json(result)
   }
 
   async cancel(request: Request, response: Response) {

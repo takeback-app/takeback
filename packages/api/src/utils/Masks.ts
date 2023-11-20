@@ -53,3 +53,27 @@ export const maskPhone = (value: string) => {
     .replace(/(\d{5})(\d)/, '$1-$2')
     .replace(/(-\d{4})(\d+?)$/, '$1')
 }
+
+export const parseNumber = (value: string): number => {
+  const hasNonDigit = /\D/.test(value)
+
+  if (!hasNonDigit) {
+    return Number(value)
+  }
+
+  const dotIndex = value.indexOf('.')
+  const commaIndex = value.indexOf(',')
+  let divisor = 1
+
+  if (dotIndex !== -1 || commaIndex !== -1) {
+    const decimalIndex = Math.max(dotIndex, commaIndex)
+    const decimalLength = value.length - decimalIndex - 1
+    divisor = Math.pow(10, decimalLength)
+  }
+
+  return Number(value.replace(/\D/g, '')) / divisor
+}
+
+export const unMaskCpfAndCnpj = (value: string): string => {
+  return value.replace(/\D/g, '')
+}
