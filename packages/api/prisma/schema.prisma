@@ -1046,6 +1046,7 @@ model QRCode {
   description   String     @default("")
   retries       Int        @default(0)
   createdAt     DateTime   @default(now())
+  errors        String[]   @default([])
 
   consumer     Consumer      @relation(fields: [consumerId], references: [id])
   companyUser  CompanyUser?  @relation(fields: [companyUserId], references: [id])
