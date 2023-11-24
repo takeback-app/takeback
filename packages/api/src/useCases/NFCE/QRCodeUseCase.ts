@@ -58,14 +58,14 @@ export class QRCodeUseCase {
 
       const diffNow = DateTime.now().diff(issuedAt).as('days')
 
-      if (diffNow >= 60) {
+      if (diffNow >= 1) {
         const error = 'Cupom descartado. A compra foi feita a mais de 24 hrs.'
         await prisma.qRCode.update({
           where: { id: this.qrCode.id },
           data: {
             type: 'NOT_VALIDATED',
             description: error,
-            errors: [...this.qrCode.errors, error],
+            errors: { push: error },
           },
         })
 
@@ -106,7 +106,7 @@ export class QRCodeUseCase {
           data: {
             type: 'NOT_VALIDATED',
             description: error,
-            errors: [...this.qrCode.errors, error],
+            errors: { push: error },
           },
         })
         return false
@@ -132,7 +132,7 @@ export class QRCodeUseCase {
         where: { id: this.qrCode.id },
         data: {
           retries: this.qrCode.retries + 1,
-          errors: [...this.qrCode.errors, e.message],
+          errors: { push: e.message },
         },
       })
 
@@ -165,7 +165,7 @@ export class QRCodeUseCase {
           data: {
             type: 'NOT_VALIDATED',
             description: error,
-            errors: [...this.qrCode.errors, error],
+            errors: { push: error },
           },
         })
       }
