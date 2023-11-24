@@ -58,13 +58,14 @@ export class QRCodeUseCase {
 
       const diffNow = DateTime.now().diff(issuedAt).as('days')
 
-      if (diffNow >= 1) {
+      if (diffNow >= 60) {
+        const error = 'Cupom descartado. A compra foi feita a mais de 24 hrs.'
         await prisma.qRCode.update({
           where: { id: this.qrCode.id },
           data: {
             type: 'NOT_VALIDATED',
-            description:
-              'Cupom descartado. A compra foi feita a mais de 24 hrs.',
+            description: error,
+            errors: [...this.qrCode.errors, error],
           },
         })
 
@@ -99,14 +100,15 @@ export class QRCodeUseCase {
       })
 
       if (!company) {
+        const error = 'Cupom não valido para empresa solicitada'
         await prisma.qRCode.update({
           where: { id: this.qrCode.id },
           data: {
             type: 'NOT_VALIDATED',
-            description: 'Cupom não valido para empresa solicitada',
+            description: error,
+            errors: [...this.qrCode.errors, error],
           },
         })
-
         return false
       }
 
@@ -128,7 +130,10 @@ export class QRCodeUseCase {
     } catch (e) {
       await prisma.qRCode.update({
         where: { id: this.qrCode.id },
-        data: { retries: this.qrCode.retries + 1 },
+        data: {
+          retries: this.qrCode.retries + 1,
+          errors: [...this.qrCode.errors, e.message],
+        },
       })
 
       return false
@@ -154,11 +159,13 @@ export class QRCodeUseCase {
         })
 
       if (!companyPaymentMethod) {
+        const error = 'Cupom não valido. Forma de pagamento não cadastrada'
         await prisma.qRCode.update({
           where: { id: this.qrCode.id },
           data: {
             type: 'NOT_VALIDATED',
-            description: 'Cupom não valido. Forma de pagamento não cadastrada',
+            description: error,
+            errors: [...this.qrCode.errors, error],
           },
         })
       }
@@ -181,7 +188,7 @@ export class QRCodeUseCase {
     if (!transaction) {
       transaction = await this.generateCashbackUseCase.execute({
         companyId,
-        companyUserId,
+        companyUserId: companyUserId || undefined,
         consumerId: this.qrCode.consumerId,
         createdAt: issuedAt,
         totalAmount: totalAmount.toNumber(),
