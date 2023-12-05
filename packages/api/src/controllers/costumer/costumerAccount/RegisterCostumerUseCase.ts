@@ -2,12 +2,7 @@ import { MaritalStatus, Schooling, Sex } from '@prisma/client'
 import axios from 'axios'
 import bcrypt from 'bcrypt'
 import { DateTime } from 'luxon'
-import { getRepository } from 'typeorm'
 import { InternalError } from '../../../config/GenerateErros'
-import { City } from '../../../database/models/City'
-import { ConsumerAddress } from '../../../database/models/ConsumerAddress'
-import { State } from '../../../database/models/State'
-import { ZipCodes } from '../../../database/models/ZipCodes'
 import { prisma } from '../../../prisma'
 import { apiCorreiosResponseType } from '../../../types/ApiCorreiosResponse'
 import { GenerateNewUserBonus } from '../../../useCases/consumer/bonus/GenerateNewUserBonus'
@@ -50,75 +45,25 @@ class RegisterCostumerUseCase {
 
     const client = await prisma.consumer.findFirst({
       where: { cpf },
+      include: {
+        consumerAddress: {
+          select: {
+            id: true,
+          },
+        },
+      },
     })
 
     if (!!client && !client.isPlaceholderConsumer) {
       throw new InternalError('CPF já cadastrado', 302)
     }
 
-    const {
-      data: { bairro, localidade, logradouro, uf, ibge, complemento },
-    }: apiCorreiosResponseType = await axios.get(
-      `https://viacep.com.br/ws/${zipCode}/json/`,
+    const newAddress = await this.updateAddress(
+      client.consumerAddress.id,
+      zipCode,
     )
 
-    if (!uf) {
-      throw new InternalError('Cep não localizado', 404)
-    }
-
-    const city = await getRepository(City).findOne({
-      where: {
-        ibgeCode: ibge,
-      },
-      relations: ['zipCode'],
-    })
-
-    const state = await getRepository(State).findOne({
-      where: {
-        initials: uf,
-      },
-    })
-
-    if (!city) {
-      var newCity = await getRepository(City).save({
-        name: localidade,
-        ibgeCode: ibge,
-        state,
-      })
-
-      await getRepository(ZipCodes).save({
-        zipCode,
-        cities: newCity,
-      })
-
-      if (!newCity) {
-        throw new InternalError(
-          'Houve um erro ao realizar o cadastro da cidade',
-          400,
-        )
-      }
-    } else {
-      const zipCodes = await getRepository(ZipCodes).find({
-        where: { cities: city },
-      })
-
-      const finded = zipCodes.find((item) => item.zipCode === zipCode)
-
-      if (!finded) {
-        await getRepository(ZipCodes).save({
-          zipCode,
-          cities: city,
-        })
-      }
-    }
-
-    const newAddress = await getRepository(ConsumerAddress).save({
-      city: city || newCity,
-      street: logradouro,
-      district: bairro,
-      complement: complemento,
-      zipCode,
-    })
+    console.log(newAddress)
 
     const passwordEncrypted = bcrypt.hashSync(password, 10)
 
@@ -164,6 +109,74 @@ class RegisterCostumerUseCase {
     }
 
     return newClient
+  }
+
+  async updateAddress(consumerAddressId?: number, zipCodeString?: string) {
+    if (!zipCodeString) {
+      return null
+    }
+
+    const {
+      data: { bairro, localidade, logradouro, uf, ibge, complemento },
+    }: apiCorreiosResponseType = await axios.get(
+      `https://viacep.com.br/ws/${zipCodeString}/json/`,
+    )
+
+    if (!uf) {
+      throw new InternalError('Cep não localizado', 404)
+    }
+
+    const city = await prisma.city.findFirst({
+      where: {
+        ibgeCode: ibge,
+      },
+    })
+
+    const state = await prisma.state.findFirst({
+      where: {
+        initials: uf,
+      },
+    })
+
+    const newCity =
+      city ||
+      (await prisma.city.create({
+        data: {
+          ibgeCode: ibge,
+          name: localidade,
+          stateId: state.id,
+        },
+      }))
+
+    const zipCode = await prisma.zipCode.findFirst({
+      where: {
+        zipCode: zipCodeString,
+      },
+    })
+
+    const newZipCode =
+      zipCode ||
+      (await prisma.zipCode.create({
+        data: { zipCode: zipCodeString, citiesId: newCity.id },
+      }))
+
+    const addressData = {
+      cityId: newCity.id,
+      street: logradouro,
+      district: bairro,
+      complement: complemento,
+      zipCode: newZipCode.zipCode,
+    }
+
+    const address = await prisma.consumerAddress.upsert({
+      where: { id: consumerAddressId },
+      update: addressData,
+      create: addressData,
+    })
+
+    console.log(address)
+
+    return address
   }
 }
 

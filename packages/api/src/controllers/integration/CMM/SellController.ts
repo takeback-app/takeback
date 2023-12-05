@@ -1,9 +1,9 @@
-import { Request, Response } from 'express'
-import { Decimal } from '@prisma/client/runtime'
 import { IntegrationType, TransactionSource } from '@prisma/client'
+import { Decimal } from '@prisma/client/runtime'
+import { Request, Response } from 'express'
 import { DateTime } from 'luxon'
-import { CMMSellRequest } from '../../../requests/CMMSellRequest'
 import { prisma } from '../../../prisma'
+import { CMMSellRequest } from '../../../requests/CMMSellRequest'
 import { GenerateCashbackUseCase } from '../../../useCases/cashback/GenerateCashbackUseCase'
 import { PlaceholderConsumer } from '../../../useCases/consumer/CreatePlaceholderConsumer'
 
@@ -81,7 +81,7 @@ class SellController {
     }
 
     if (!consumer) {
-      consumer = await PlaceholderConsumer.create(consumerCpf)
+      consumer = await PlaceholderConsumer.create(consumerCpf, company.id)
     }
 
     const companyUser = await prisma.companyUser.findFirst({
