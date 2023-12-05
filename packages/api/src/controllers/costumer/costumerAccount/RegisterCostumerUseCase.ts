@@ -63,8 +63,6 @@ class RegisterCostumerUseCase {
       zipCode,
     )
 
-    console.log(newAddress)
-
     const passwordEncrypted = bcrypt.hashSync(password, 10)
 
     const { hasChildren, maritalStatus, monthlyIncomeId, schooling } = rest
@@ -173,8 +171,6 @@ class RegisterCostumerUseCase {
       update: addressData,
       create: addressData,
     })
-
-    console.log(address)
 
     return address
   }
