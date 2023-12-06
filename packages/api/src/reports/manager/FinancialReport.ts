@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
 import { DateTime } from 'luxon'
 
-import { BaseQueryDto, BaseReportWithTotalizer } from '../BaseReport'
 import { db } from '../../knex'
 import { parseNumberToExcelString } from '../../utils'
+import { BaseQueryDto, BaseReportWithTotalizer } from '../BaseReport'
 
 export enum OrderByColumn {
   TAKEBACK_FEE_VALUE = 'takebackFeeAmount',
