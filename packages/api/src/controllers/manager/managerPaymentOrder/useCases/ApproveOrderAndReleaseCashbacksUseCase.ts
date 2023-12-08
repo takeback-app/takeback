@@ -1,19 +1,19 @@
 import { getRepository } from "typeorm";
-import { InternalError } from "../../../config/GenerateErros";
-import { Companies } from "../../../database/models/Company";
-import { CompanyStatus } from "../../../database/models/CompanyStatus";
-import { Consumers } from "../../../database/models/Consumer";
-import { PaymentOrder } from "../../../database/models/PaymentOrder";
-import { PaymentOrderStatus } from "../../../database/models/PaymentOrderStatus";
-import { Transactions } from "../../../database/models/Transaction";
-import { TransactionStatus } from "../../../database/models/TransactionStatus";
-import { applyCurrencyMask } from "../../../utils/Masks";
-import transporter from "../../../config/SMTP";
+import { InternalError } from "../../../../config/GenerateErros";
+import { Companies } from "../../../../database/models/Company";
+import { CompanyStatus } from "../../../../database/models/CompanyStatus";
+import { Consumers } from "../../../../database/models/Consumer";
+import { PaymentOrder } from "../../../../database/models/PaymentOrder";
+import { PaymentOrderStatus } from "../../../../database/models/PaymentOrderStatus";
+import { Transactions } from "../../../../database/models/Transaction";
+import { TransactionStatus } from "../../../../database/models/TransactionStatus";
+import { applyCurrencyMask } from "../../../../utils/Masks";
+import transporter from "../../../../config/SMTP";
 import path from "path";
 import fs from "fs";
 import hbs from "handlebars";
-import { logger } from "../../../services/logger";
-import { ApproveTransactionUseCase } from "../../../useCases/cashback/ApproveTransactionUseCase";
+import { logger } from "../../../../services/logger";
+import { ApproveTransactionUseCase } from "../../../../useCases/cashback/ApproveTransactionUseCase";
 
 interface OrderProps {
   paymentOrderId: number;
