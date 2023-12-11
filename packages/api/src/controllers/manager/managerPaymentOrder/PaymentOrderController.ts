@@ -1,13 +1,16 @@
 import { Request, Response } from 'express'
-import { ApproveOrderAndReleaseCashbacksUseCase } from './ApproveOrderAndReleaseCashbacksUseCase'
-import { FindPaymentOrdersUseCase } from './FindPaymentOrdersUseCase'
-import { FindFilterOptionsToPaymentOrderUseCase } from './FindFilterOptionsToPaymentOrderUseCase'
-import { SendTicketToEmailUseCase } from './SendTicketToEmailUseCase'
-import { UpdatePaymentOrderStatusUseCase } from './UpdatePaymentOrderStatusUseCase'
-import { FindTransactionsInPaymentOrderUseCase } from './FindTransactionsInPaymentOrderUseCase'
-import { SendPixToEmailUseCase } from './SendPixToEmailUseCase'
-import { FindPaymentOrderDetailsUseCase } from './FindPaymentOrderDetailsUseCase'
+import { Express } from '@sentry/node/types/tracing/integrations'
+import { ApproveOrderAndReleaseCashbacksUseCase } from './useCases/ApproveOrderAndReleaseCashbacksUseCase'
+import { FindPaymentOrdersUseCase } from './useCases/FindPaymentOrdersUseCase'
+import { FindFilterOptionsToPaymentOrderUseCase } from './useCases/FindFilterOptionsToPaymentOrderUseCase'
+import { SendTicketToEmailUseCase } from './useCases/SendTicketToEmailUseCase'
+import { UpdatePaymentOrderStatusUseCase } from './useCases/UpdatePaymentOrderStatusUseCase'
+import { FindTransactionsInPaymentOrderUseCase } from './useCases/FindTransactionsInPaymentOrderUseCase'
+import { SendPixToEmailUseCase } from './useCases/SendPixToEmailUseCase'
+import { FindPaymentOrderDetailsUseCase } from './useCases/FindPaymentOrderDetailsUseCase'
+import { FindPaymentOrderRequest } from './requests/FindPaymentOrderRequest'
 import { CancelPaymentOrderUseCase } from '../../commons/paymentOrder/CancelPaymentOrderUseCase'
+import { InternalError } from '../../../config/GenerateErros'
 
 interface FileS3 extends Express.Multer.File {
   location?: string
@@ -17,11 +20,15 @@ interface FileS3 extends Express.Multer.File {
 
 class PaymentOrderController {
   async findOrders(request: Request, response: Response) {
-    const filters = request.query
+    const form = FindPaymentOrderRequest.safeParse(request.query)
+
+    if (!form.success) {
+      throw new InternalError('Existem erros nos filtros', 400)
+    }
 
     const find = new FindPaymentOrdersUseCase()
 
-    const result = await find.execute({ filters })
+    const result = await find.execute(form.data)
 
     return response.status(200).json(result)
   }
