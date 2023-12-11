@@ -1,308 +1,198 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { FormHandles } from '@unform/core'
-import { Form } from '@unform/web'
 import {
-  IoFilter,
   IoArrowForwardSharp,
   IoWalletOutline,
-  IoEyeOutline
+  IoEyeOutline,
+  IoFilterSharp
 } from 'react-icons/io5'
 import Loader from 'react-spinners/PulseLoader'
 
-import { API } from '../../../../services/API'
-import { CAppData } from '../../../../contexts/CAppData'
 import { currencyFormat } from '../../../../utils/currencytFormat'
-import { TPaymentOrder } from '../../../../types/TPaymentOrder'
 
 import Layout from '../../../../components/ui/Layout'
-import PageLoader from '../../../../components/loaders/primaryLoader'
 import QuartenaryButton from '../../../../components/buttons/QuartenaryButton'
-import SelectInput from '../../../../components/inputs/SelectInput'
-import FilterModal from '../../../../components/modals/FilterModal'
-import PrimaryInput from '../../../../components/inputs/PrimaryInput'
-import Toastify, { notifyError } from '../../../../components/ui/Toastify'
+import Toastify from '../../../../components/ui/Toastify'
 
 import PALLET from '../../../../styles/ColorPallet'
-import * as S from './styles'
+import { FilterDrawer } from './components/filter/FilterDrawer'
+import {
+  Box,
+  ButtonGroup,
+  Flex,
+  IconButton,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tooltip,
+  Tr,
+  useDisclosure
+} from '@chakra-ui/react'
+import { AppTable } from '../../../../components/tables'
+import { Pagination } from '../../../../components/tables/Pagination'
+import { Paginated } from '../../../../types'
+import useSWR from 'swr'
+import { usePaymentOrders } from './components/filter/state'
 
-interface FilterProps {
-  company?: string
-  paymentMethod?: string
-  status?: string
-  startDate?: string
-  endDate?: string
+export interface PaymentOrdersData {
+  id: number
+  value: number
+  createdAt: string
+  approvedAt: string
+  ticketName: string
+  ticketPath: string
+  pixKey: string
+  company: {
+    id: string
+    fantasyName: string
+    email: string
+  }
+  paymentOrderStatus: {
+    description: string
+  }
+  paymentOrderMethod: {
+    id: number
+    description: string
+  }
 }
 
-const PaymentOrders: React.FC<React.PropsWithChildren<unknown>> = () => {
+export function PaymentOrders() {
   const navigateTo = useNavigate()
-  const formRef = useRef<FormHandles>(null)
-  const {
-    paymentOrderMethods,
-    setPaymentOrderMethods,
-    paymentOrderStatus,
-    setPaymentOrderStatus
-  } = useContext(CAppData)
 
-  const [paymentOrders, setPaymentOrders] = useState(
-    ([] as Array<TPaymentOrder>) || null
-  )
-  const [moreLoading, setMoreLoading] = useState(false)
-  const [pageLoading, setPageLoading] = useState(true)
-  const [filterVisible, setFilterVisible] = useState(false)
-  const [endList, setEndList] = useState(false)
-  const [offset, setOffset] = useState(0)
-  const [filters, setFilters] = useState<FilterProps>({
-    company: '',
-    paymentMethod: '',
-    status: '',
-    endDate: '',
-    startDate: ''
-  })
+  const [page, setPage] = useState(1)
+
+  const { statusId, paymentMethodId, companyId, startDate, endDate } =
+    usePaymentOrders()
+
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   const limit = 60
 
-  const findPaymentOrders = () => {
-    API.get(
-      `/manager/orders/find?offset=${offset}&limit=${limit}&company=${filters.company}&status=${filters.status}&paymentMethod=${filters.paymentMethod}&startDate=${filters.startDate}&endDate=${filters.endDate}`
-    )
-      .then(response => {
-        setOffset(offset + 1)
-        setPaymentOrders([...paymentOrders, ...response.data])
-
-        if (response.data.length < limit) {
-          setEndList(true)
-        }
-      })
-      .catch(error => {
-        if (error.isAxiosError) {
-          notifyError(error.response.data.message)
-        }
-      })
-      .finally(() => {
-        setPageLoading(false)
-        setMoreLoading(false)
-      })
+  const filter = {
+    page,
+    startDate: new Date(startDate).toISOString(),
+    endDate: new Date(endDate).toISOString(),
+    companyId,
+    statusId,
+    paymentMethodId,
+    limit
   }
 
-  // Ação do botão de filtro da busca
-  const findWithFilters = (data?: FilterProps) => {
-    setFilterVisible(false)
-    setPageLoading(true)
-    setEndList(false)
-    setPaymentOrders([])
-    setOffset(0)
-
-    setFilters({
-      company: data?.company ? data?.company : '',
-      paymentMethod: data?.paymentMethod === '0' ? '' : data?.paymentMethod,
-      status: data?.status === '0' ? '' : data?.status,
-      startDate: data?.startDate ? data.startDate : '',
-      endDate: data?.endDate ? data.endDate : ''
-    })
-  }
-
-  // Ação do botão de paginação da busca
-  const findMorePaymentOrders = () => {
-    setMoreLoading(true)
-    findPaymentOrders()
-  }
-
-  useEffect(() => {
-    function findFilters() {
-      API.get('/manager/order/find/filters')
-        .then(response => {
-          setPaymentOrderMethods(response.data.methods)
-          setPaymentOrderStatus(response.data.status)
-        })
-        .catch(error => {
-          if (error.isAxiosError) {
-            notifyError(error.response.data.message)
-          }
-        })
-    }
-
-    findFilters()
-  }, [])
-
-  useEffect(() => {
-    findPaymentOrders()
-  }, [filters])
+  const { data: paymentOrders, isLoading } = useSWR<
+    Paginated<PaymentOrdersData>
+  >(['manager/orders/find', filter])
 
   return (
     <Layout title="Ordens de pagamento">
-      {pageLoading ? (
-        <PageLoader label="Carregando ordens de pagamento" />
-      ) : (
-        <S.Container>
-          <S.SubHeader>
-            <QuartenaryButton
-              label="Filtrar"
-              icon={IoFilter}
-              color={PALLET.COLOR_06}
-              onClick={() => setFilterVisible(true)}
-              noFullWidth
-            />
-          </S.SubHeader>
-
-          <S.Table>
-            <S.THead>
-              <S.Tr>
-                <S.Th>Id</S.Th>
-                <S.Th>Empresa</S.Th>
-                <S.Th>Forma de pagamento</S.Th>
-                <S.Th>Valor</S.Th>
-                <S.Th>Status</S.Th>
-                <S.Th>Data da solicitação</S.Th>
-                <S.Th></S.Th>
-              </S.Tr>
-            </S.THead>
-
-            <S.TBody>
-              {paymentOrders?.map(order => (
-                <S.Tr key={order.order_id}>
-                  <S.Td>{order.order_id}</S.Td>
-                  <S.Td>{order.company_fantasyName}</S.Td>
-                  <S.Td>{order.paymentMethod_description}</S.Td>
-                  <S.Td>{currencyFormat(order.order_value)}</S.Td>
-                  <S.Td>{order.status_description}</S.Td>
-                  <S.Td>
-                    {new Date(order.order_createdAt).toLocaleDateString()}
-                  </S.Td>
-                  <S.Td>
-                    {order.status_description === 'Pagamento solicitado' && (
-                      <QuartenaryButton
-                        color={PALLET.COLOR_08}
-                        icon={IoArrowForwardSharp}
-                        onClick={() =>
-                          navigateTo(`/cashbacks/pagamentos/${order.order_id}`)
-                        }
-                      />
-                    )}
-                    {order.status_description === 'Aguardando confirmacao' && (
-                      <QuartenaryButton
-                        color={PALLET.COLOR_08}
-                        icon={IoWalletOutline}
-                        onClick={() =>
-                          navigateTo(`/cashbacks/pagamentos/${order.order_id}`)
-                        }
-                      />
-                    )}
-                    {order.status_description === 'Autorizada' && (
-                      <QuartenaryButton
-                        color="#009900"
-                        icon={IoEyeOutline}
-                        onClick={() =>
-                          navigateTo(`/cashbacks/pagamentos/${order.order_id}`)
-                        }
-                      />
-                    )}
-                    {order.status_description === 'Cancelada' && (
-                      <QuartenaryButton
-                        color={PALLET.COLOR_17}
-                        icon={IoEyeOutline}
-                        onClick={() =>
-                          navigateTo(`/cashbacks/pagamentos/${order.order_id}`)
-                        }
-                      />
-                    )}
-                  </S.Td>
-                </S.Tr>
-              ))}
-            </S.TBody>
-          </S.Table>
-
-          {!endList && (
-            <S.Footer>
-              <S.LoadMoreButton
-                onClick={findMorePaymentOrders}
-                disabled={moreLoading}
-              >
-                {moreLoading ? (
-                  <Loader color="#3A4D5C" size="0.6rem" />
-                ) : (
-                  'Carregar mais'
-                )}
-              </S.LoadMoreButton>
-            </S.Footer>
-          )}
-        </S.Container>
-      )}
-
-      {/* Modal com os filtros */}
-      <FilterModal
-        title="Filtros"
-        visible={filterVisible}
-        onClose={() => setFilterVisible(false)}
+      <Flex
+        w="full"
+        h="70vh"
+        align="center"
+        justify="center"
+        display={isLoading ? 'flex' : 'none'}
       >
-        <S.Divider />
-        <Form ref={formRef} onSubmit={findWithFilters}>
-          <S.InputsFilterWrapper>
-            <S.InputFilterTitle>Empresa</S.InputFilterTitle>
-            <PrimaryInput
-              label="Nome fantasia ou CNPJ da empresa"
-              name="company"
-              maxLength={40}
-              minLength={3}
+        <Loader color="rgba(54, 162, 235, 1)" />
+      </Flex>
+      <Box p={4} overflow="hidden" display={isLoading ? 'none' : 'block'}>
+        <Flex align="center" justify="flex-end">
+          <ButtonGroup>
+            <Tooltip label="Filtrar">
+              <IconButton
+                mb={4}
+                size="lg"
+                aria-label="show"
+                colorScheme="twitter"
+                icon={<IoFilterSharp />}
+                onClick={onOpen}
+              />
+            </Tooltip>
+          </ButtonGroup>
+        </Flex>
+        <AppTable
+          dataLength={paymentOrders?.data.length}
+          noDataMessage="Nenhum cashback"
+          mt={4}
+          overflowY="scroll"
+          maxH="650px"
+          pagination={
+            <Pagination
+              page={page}
+              setPage={setPage}
+              lastPage={paymentOrders?.meta.lastPage || 0}
             />
-          </S.InputsFilterWrapper>
-
-          <S.Divider />
-
-          <S.InputsFilterWrapper>
-            <S.InputFilterTitle>
-              Status da ordem de pagamento
-            </S.InputFilterTitle>
-            <SelectInput
-              name="status"
-              label="Selecione"
-              options={[{ id: 0, description: 'Todos' }, ...paymentOrderStatus]}
-            />
-          </S.InputsFilterWrapper>
-
-          <S.Divider />
-
-          <S.InputsFilterWrapper>
-            <S.InputFilterTitle>Forma de pagamento</S.InputFilterTitle>
-            <SelectInput
-              label="Selecione"
-              name="paymentMethod"
-              options={[
-                { id: 0, description: 'Todas' },
-                ...paymentOrderMethods
-              ]}
-            />
-          </S.InputsFilterWrapper>
-
-          <S.Divider />
-
-          <S.InputsFilterWrapper>
-            <S.InputFilterTitle>Período</S.InputFilterTitle>
-            <S.InputDateWrapper>
-              <PrimaryInput type="date" name="startDate" label="Início" />
-              <PrimaryInput type="date" name="endDate" label="Fim" />
-            </S.InputDateWrapper>
-          </S.InputsFilterWrapper>
-
-          <S.FooterFilter>
-            <QuartenaryButton
-              type="reset"
-              label="Limpar filtros"
-              color={PALLET.COLOR_10}
-            />
-            <QuartenaryButton
-              type="submit"
-              label="Aplicar filtros"
-              color={PALLET.COLOR_02}
-            />
-          </S.FooterFilter>
-        </Form>
-      </FilterModal>
-
+          }
+        >
+          <Thead>
+            <Tr>
+              <Th>Id</Th>
+              <Th>Empresa</Th>
+              <Th>Forma de pagamento</Th>
+              <Th>Valor</Th>
+              <Th>Status</Th>
+              <Th>Data da solicitação</Th>
+              <Th></Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {paymentOrders?.data.map(order => (
+              <Tr color="gray.500" key={order.id}>
+                <Td fontSize="xs">{order.id}</Td>
+                <Td fontSize="xs">{order.company.fantasyName}</Td>
+                <Td fontSize="xs">{order.paymentOrderMethod.description}</Td>
+                <Td fontSize="xs">{currencyFormat(order.value)}</Td>
+                <Td fontSize="xs">{order.paymentOrderStatus.description}</Td>
+                <Td fontSize="xs">
+                  {new Date(order.createdAt).toLocaleDateString()}
+                </Td>
+                <Td fontSize="xs">
+                  {order.paymentOrderStatus.description ===
+                    'Pagamento solicitado' && (
+                    <QuartenaryButton
+                      color={PALLET.COLOR_08}
+                      icon={IoArrowForwardSharp}
+                      onClick={() =>
+                        navigateTo(`/cashbacks/pagamentos/${order.id}`)
+                      }
+                    />
+                  )}
+                  {order.paymentOrderStatus.description ===
+                    'Aguardando confirmacao' && (
+                    <QuartenaryButton
+                      color={PALLET.COLOR_08}
+                      icon={IoWalletOutline}
+                      onClick={() =>
+                        navigateTo(`/cashbacks/pagamentos/${order.id}`)
+                      }
+                    />
+                  )}
+                  {order.paymentOrderStatus.description === 'Autorizada' && (
+                    <QuartenaryButton
+                      color="#009900"
+                      icon={IoEyeOutline}
+                      onClick={() =>
+                        navigateTo(`/cashbacks/pagamentos/${order.id}`)
+                      }
+                    />
+                  )}
+                  {order.paymentOrderStatus.description === 'Cancelada' && (
+                    <QuartenaryButton
+                      color={PALLET.COLOR_17}
+                      icon={IoEyeOutline}
+                      onClick={() =>
+                        navigateTo(`/cashbacks/pagamentos/${order.id}`)
+                      }
+                    />
+                  )}
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </AppTable>
+      </Box>
+      <FilterDrawer isOpen={isOpen} onClose={onClose} />
       <Toastify />
     </Layout>
   )
 }
-
-export default PaymentOrders

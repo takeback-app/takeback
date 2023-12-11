@@ -14,7 +14,7 @@ import Company from '../views/partners/company/company'
 import ManagerCompany from '../views/partners/company/managerCompany'
 
 // CASHBACKS E ORDENS DE PAGAMENTO
-import PaymentOrders from '../views/cashbacks/cashbacksPaymentOrders/paymentOrders'
+
 import PaymentOrdersDetails from '../views/cashbacks/cashbacksPaymentOrders/paymentOrderDetails'
 import { CashbackWithdraw } from '../views/cashbacks/cashbacksToPay'
 
@@ -52,6 +52,7 @@ import { CompanyReport } from '../views/reports/company'
 import { FinancialReport } from '../views/reports/financial'
 import { Transfers } from '../views/consumer/transfers/transfers'
 import { ConsumerProfile } from '../views/reports/consumerProfile'
+import { PaymentOrders } from '../views/cashbacks/cashbacksPaymentOrders/paymentOrders/PaymentOrders'
 
 interface Props {
   children: JSX.Element
