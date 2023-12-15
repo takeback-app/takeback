@@ -40,6 +40,7 @@ export interface CompanyData {
   cashbackAmount: number
   takebackFeeAmount: number
   positiveBalance: number
+  lastTransactionDate: string
 }
 
 export interface TotalizerData {
@@ -188,6 +189,9 @@ export function CompanyReport() {
               <Th>T. de Cashbacks</Th>
               <Th>Taxas</Th>
               <Th>Saldo Atual</Th>
+              <Th>
+                Ultima <br /> Transação
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -210,6 +214,11 @@ export function CompanyReport() {
                 </Td>
                 <Td fontSize="xs">
                   {currencyFormat(company?.positiveBalance)}
+                </Td>
+                <Td fontSize="xs">
+                  {company?.lastTransactionDate
+                    ? new Date(company.lastTransactionDate).toLocaleDateString()
+                    : 'Sem transação'}
                 </Td>
               </Tr>
             ))}

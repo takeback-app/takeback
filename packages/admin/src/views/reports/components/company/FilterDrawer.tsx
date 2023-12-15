@@ -124,7 +124,8 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
                 { value: 'fantasyName', text: 'Nome da empresa' },
                 { value: 'takebackFeeAmount', text: 'Taxa' },
                 { value: 'cashbackAmount', text: 'Total de cashback' },
-                { value: 'positiveBalance', text: 'Total de saldo' }
+                { value: 'positiveBalance', text: 'Total de saldo' },
+                { value: 'lastTransactionDate', text: 'Ultima transação' }
               ]}
               label="Ordenar por"
               name="orderBy"
