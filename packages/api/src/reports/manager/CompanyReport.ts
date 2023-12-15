@@ -11,6 +11,7 @@ export enum OrderByColumn {
   TAKEBACK_FEE_VALUE = 'takebackFeeAmount',
   COMPANY_NAME = 'fantasyName',
   POSITIVE_BALANCE = 'positiveBalance',
+  LAST_TRANSACTION_DATE = 'lastTransactionDate',
 }
 
 export enum TransactionStatusTypes {
@@ -47,6 +48,7 @@ interface ReportResponse {
   cashbackAmount: number
   takebackFeeAmount: number
   positiveBalance: number
+  lastTransactionDate: Date
 }
 
 const HEADERS = [
@@ -60,6 +62,7 @@ const HEADERS = [
   'Total de Cashbacks',
   'Taxas',
   'Saldo Atual',
+  'Data da Última Transação',
 ]
 
 export class CompanyReport extends BaseReportWithTotalizer<
@@ -82,6 +85,9 @@ export class CompanyReport extends BaseReportWithTotalizer<
       cashbackAmount: parseNumberToExcelString(record.cashbackAmount),
       takebackFeeAmount: parseNumberToExcelString(record.takebackFeeAmount),
       positiveBalance: parseNumberToExcelString(record.positiveBalance),
+      lastTransactionDate: record.lastTransactionDate
+        ? DateTime.fromJSDate(record.lastTransactionDate).toFormat('dd/MM/yyyy')
+        : '-',
     }
   }
 
@@ -160,21 +166,28 @@ export class CompanyReport extends BaseReportWithTotalizer<
   protected getQuery(dto: Filter & BaseQueryDto) {
     const { orderByColumn = OrderByColumn.TOTAL_AMOUNT, order = 'desc' } =
       dto ?? {}
-    const query = this.baseQuery(dto)
-      .select(
-        'companies.id as id',
-        'companies.fantasyName as companyName',
-        'companies.registeredNumber',
-        'city.name as city',
-        'state.name as state',
-        'company_status.description as status',
-        'industries.description as industry',
-        db.raw('coalesce(sum("totalAmount"), 0) as "totalAmount"'),
-        db.raw('coalesce(sum("cashbackAmount"), 0) as "cashbackAmount"'),
-        db.raw('coalesce(sum("takebackFeeAmount"), 0) as "takebackFeeAmount"'),
-        'companies.positiveBalance',
-      )
-      .orderBy(orderByColumn, order)
+    const query = this.baseQuery(dto).select(
+      'companies.id as id',
+      'companies.fantasyName as companyName',
+      'companies.registeredNumber',
+      'city.name as city',
+      'state.name as state',
+      'company_status.description as status',
+      'industries.description as industry',
+      db.raw('coalesce(sum("totalAmount"), 0) as "totalAmount"'),
+      db.raw('coalesce(sum("cashbackAmount"), 0) as "cashbackAmount"'),
+      db.raw('coalesce(sum("takebackFeeAmount"), 0) as "takebackFeeAmount"'),
+      'companies.positiveBalance',
+      db.raw('max(transactions."createdAt") as "lastTransactionDate"'),
+    )
+
+    if (orderByColumn === OrderByColumn.LAST_TRANSACTION_DATE) {
+      query.orderByRaw(`max(transactions."createdAt") ${order} NULLS LAST`)
+
+      return query
+    }
+
+    query.orderBy(orderByColumn, order)
 
     return query
   }
