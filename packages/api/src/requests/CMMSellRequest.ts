@@ -46,13 +46,16 @@ export class CMMSellRequest {
     if (!form.success) {
       throw new InternalError('Existem erros nos dados enviados', 400)
     }
+    const companyUserCpf = form.data.CPF_oper_caixa
+      ? unMaskCpfAndCnpj(form.data.CPF_oper_caixa)
+      : unMaskCpfAndCnpj(form.data.CPF_vendedor)
 
     const hasBackAmount = form.data.Troco_Cash === 'Sim'
     return {
       cnpj: unMaskCpfAndCnpj(form.data.Cnpj),
       sellId: form.data.Num_Venda,
       consumerCpf: unMaskCpfAndCnpj(form.data.CPF),
-      companyUserCpf: unMaskCpfAndCnpj(form.data.CPF_oper_caixa),
+      companyUserCpf,
       createdAt: DateTime.fromFormat(
         form.data.Data_hora_compra,
         'dd-MM-yyyy HH:mm:ss',
