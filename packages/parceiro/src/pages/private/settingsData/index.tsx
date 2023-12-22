@@ -1,24 +1,25 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+/* eslint-disable prettier/prettier */
 import { FormHandles } from '@unform/core'
 import { Form } from '@unform/web'
-import * as Yup from 'yup'
+import moment from 'moment'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { IoCheckmarkSharp } from 'react-icons/io5'
 import { useTheme } from 'styled-components'
-import moment from 'moment'
+import * as Yup from 'yup'
 
 import { API } from '../../../services/API'
 import { CompanyDataTypes } from '../../../types/CompanyDataTypes'
 import { maskCNPJ } from '../../../utils/masks'
 
-import { Layout } from '../../../components/ui/layout'
 import { OutlinedButton } from '../../../components/buttons'
+import { TertiaryInput } from '../../../components/inputs/tertiaryInput'
+import { Layout } from '../../../components/ui/layout'
 import { currencyFormat } from '../../../utils/currencyFormat'
 import { percentFormat } from '../../../utils/percentFormat'
-import { TertiaryInput } from '../../../components/inputs/tertiaryInput'
 
-import * as Styles from './styles'
 import { useToast } from '@chakra-ui/react'
 import { chakraToastOptions } from '../../../components/ui/toast'
+import * as Styles from './styles'
 
 interface DataToUpdate {
   corporateName: string
@@ -54,8 +55,8 @@ export const Company: React.FC = () => {
           email: response.data.email,
           industry: response.data.industry.description,
           zipCode: response.data.zipCode,
-          longitude: response.data.address.longitude,
-          latitude: response.data.address.latitude,
+          longitude: response.data.address?.longitude,
+          latitude: response.data.address?.latitude,
           balance: response.data.balance,
           blockedBalance: response.data.blockedBalance,
           cashbackPercentDefault: response.data.cashbackPercentDefault,
@@ -66,9 +67,10 @@ export const Company: React.FC = () => {
         setUseCashbackAsBack(response.data.useCashbackAsBack)
       })
       .catch(error => {
+        console.log(error)
         toast({
           title: 'Ops :(',
-          description: error.response.data.message,
+          description: error?.response?.data?.message,
           status: 'error'
         })
       })
@@ -106,7 +108,7 @@ export const Company: React.FC = () => {
         .catch(error => {
           toast({
             title: 'Ops :(',
-            description: error.response.data.message,
+            description: error?.response?.data?.message,
             status: 'error'
           })
         })
@@ -146,10 +148,10 @@ export const Company: React.FC = () => {
           <Styles.SmallCard>
             <Styles.SmallCardTitle>Plano de marketing</Styles.SmallCardTitle>
             <Styles.SmallCardContent>
-              {companyOriginalData?.paymentPlan.description} -{' '}
+              {companyOriginalData?.paymentPlan?.description} -{' '}
               {currencyFormat(
                 parseFloat(
-                  JSON.stringify(companyOriginalData?.paymentPlan.value)
+                  JSON.stringify(companyOriginalData?.paymentPlan?.value)
                 )
               )}
             </Styles.SmallCardContent>
@@ -160,22 +162,22 @@ export const Company: React.FC = () => {
             <Styles.SmallCardContent>
               {companyOriginalData?.customIndustryFeeActive
                 ? percentFormat(
-                    parseFloat(
-                      JSON.stringify(companyOriginalData?.customIndustryFee)
-                    )
+                  parseFloat(
+                    JSON.stringify(companyOriginalData?.customIndustryFee)
                   )
+                )
                 : percentFormat(
-                    parseFloat(
-                      JSON.stringify(companyOriginalData?.industry.industryFee)
-                    )
-                  )}
+                  parseFloat(
+                    JSON.stringify(companyOriginalData?.industry.industryFee)
+                  )
+                )}
             </Styles.SmallCardContent>
           </Styles.SmallCard>
 
           <Styles.SmallCard>
             <Styles.SmallCardTitle>Status no sistema</Styles.SmallCardTitle>
             <Styles.SmallCardContent>
-              {companyOriginalData?.status.description}
+              {companyOriginalData?.status?.description}
             </Styles.SmallCardContent>
           </Styles.SmallCard>
         </Styles.Header>
