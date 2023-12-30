@@ -74,6 +74,9 @@ export const parseNumber = (value: string): number => {
   return Number(value.replace(/\D/g, '')) / divisor
 }
 
-export const unMaskCpfAndCnpj = (value: string): string => {
+export const unMaskCpfAndCnpj = (value: string | null): string => {
+  if (!value) {
+    return ''
+  }
   return value.replace(/\D/g, '')
 }

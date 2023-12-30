@@ -1,52 +1,53 @@
-import { getRepository } from "typeorm";
-import { InternalError } from "../../../config/GenerateErros";
-import { Companies } from "../../../database/models/Company";
-import { CompanyStatus } from "../../../database/models/CompanyStatus";
-import { Settings } from "../../../database/models/Settings";
+import { DateTime } from 'luxon'
+import { InternalError } from '../../../config/GenerateErros'
+import { CompanyStatusEnum } from '../../../enum/CompanyStatusEnum'
+import { prisma } from '../../../prisma'
 
 interface Props {
-  companyId: string;
+  companyId: string
 }
 
 class GenerateProvisionalAccessUseCase {
   async execute({ companyId }: Props) {
-    const settings = await getRepository(Settings).findOne(1);
-
     if (!companyId) {
-      throw new InternalError("Informe a empresa", 400);
+      throw new InternalError('Informe a empresa', 400)
     }
 
-    const company = await getRepository(Companies).findOne({
+    const settings = await prisma.setting.findUnique({ where: { id: 1 } })
+
+    const company = await prisma.company.findUnique({
       where: { id: companyId },
-      relations: ["users"],
-    });
+      include: { companyUsers: true },
+    })
 
-    if (company.users.length === 0) {
+    if (company.companyUsers.length === 0) {
       throw new InternalError(
-        "Não é permitido gerar liberação provisória para empresas que não possuem usuários",
-        400
-      );
+        'Não é permitido gerar liberação provisória para empresas que não possuem usuários',
+        400,
+      )
     }
 
-    const status = await getRepository(CompanyStatus).findOne({
-      where: { description: "Liberação provisória" },
-    });
+    const status = await prisma.companyStatus.findFirst({
+      where: { description: CompanyStatusEnum.PROVISIONAL_RELEASE },
+    })
 
-    const updated = await getRepository(Companies).update(companyId, {
-      status,
-      provisionalAccessAllowedAt: new Date(),
-    });
+    await prisma.company.update({
+      where: {
+        id: companyId,
+      },
+      data: {
+        statusId: status.id,
+        provisionalAccessAllowedAt: DateTime.now().toJSDate(),
+      },
+    })
 
-    if (updated.affected === 0) {
-      throw new InternalError("Erro ao gerar liberação provisória", 400);
-    }
+    const expireDate = DateTime.now()
+      .plus({ days: settings.provisionalAccessDays })
+      .toJSDate()
+      .toLocaleDateString()
 
-    const expiredDate = new Date(
-      new Date().setDate(new Date().getDate() + settings.provisionalAccessDays)
-    );
-
-    return `Liberação provisória gerada - Data do vencimento: ${expiredDate.toLocaleDateString()}`;
+    return `Liberação provisória gerada - Data do vencimento: ${expireDate}`
   }
 }
 
-export { GenerateProvisionalAccessUseCase };
+export { GenerateProvisionalAccessUseCase }
