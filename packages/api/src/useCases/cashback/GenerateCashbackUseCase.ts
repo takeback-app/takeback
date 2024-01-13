@@ -215,10 +215,10 @@ export class GenerateCashbackUseCase {
     return prisma.consumer.update({
       where: { id: consumer.id },
       data: {
-        blockedBalance: consumer.blockedBalance
-          .add(transaction.cashbackAmount)
-          .add(transaction.backAmount),
-        balance: consumer.balance.sub(transaction.amountPayWithTakebackBalance),
+        blockedBalance: {
+          increment: transaction.cashbackAmount.plus(transaction.backAmount),
+        },
+        balance: { decrement: transaction.amountPayWithTakebackBalance },
       },
     })
   }
@@ -227,13 +227,14 @@ export class GenerateCashbackUseCase {
     return prisma.company.update({
       where: { id: company.id },
       data: {
-        positiveBalance: company.positiveBalance.add(
-          transaction.amountPayWithTakebackBalance,
-        ),
-        negativeBalance: company.negativeBalance
-          .add(transaction.cashbackAmount)
-          .add(transaction.takebackFeeAmount)
-          .add(transaction.backAmount),
+        positiveBalance: {
+          increment: transaction.amountPayWithTakebackBalance,
+        },
+        negativeBalance: {
+          increment: transaction.cashbackAmount
+            .plus(transaction.takebackFeeAmount)
+            .plus(transaction.backAmount),
+        },
       },
     })
   }
