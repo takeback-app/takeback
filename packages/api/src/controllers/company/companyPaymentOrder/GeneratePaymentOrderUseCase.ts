@@ -348,6 +348,7 @@ export class GeneratePaymentOrderUseCase {
         positiveBalance: {
           decrement: totalTransactionsValues,
         },
+        negativeBalance: totalTransactionsValues,
       },
     })
 
