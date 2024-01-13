@@ -1,23 +1,23 @@
 /* eslint-disable no-unused-vars */
-import hbs from 'handlebars'
-import { Decimal } from '@prisma/client/runtime'
 import { TransactionStatus } from '@prisma/client'
-import path from 'path'
+import { Decimal } from '@prisma/client/runtime'
+import hbs from 'handlebars'
 import fs from 'fs'
+import path from 'path'
 import { MonthlyPaymentUseCase } from '../../../useCases/company/MonthlyPaymentUseCase'
 import { FindPendingCashbacksUseCase } from '../companyCashback/FindPendingCashbacksUseCase'
 import { FindCompanyDataUseCase } from '../companyData/FindCompanyDataUseCase'
 
 import { InternalError } from '../../../config/GenerateErros'
-import { applyCurrencyMask, currency } from '../../../utils/Masks'
 import transporter from '../../../config/SMTP'
-import { prisma } from '../../../prisma'
+import { PaymentOrderStatusEnum } from '../../../enum/PaymentOrderStatusEnum'
+import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
 import { Notify } from '../../../notifications'
 import { NewPaymentOrder } from '../../../notifications/NewPaymentOrder'
-import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
-import { PaymentOrderStatusEnum } from '../../../enum/PaymentOrderStatusEnum'
-import { UpdateCompanyStatusByTransactionsUseCase } from '../companyCashback/UpdateCompanyStatusByTransactionsUseCase'
+import { prisma } from '../../../prisma'
 import { ApproveTransactionUseCase } from '../../../useCases/cashback/ApproveTransactionUseCase'
+import { applyCurrencyMask, currency } from '../../../utils/Masks'
+import { UpdateCompanyStatusByTransactionsUseCase } from '../companyCashback/UpdateCompanyStatusByTransactionsUseCase'
 
 const TAKEBACK_METHOD = 1
 const ADMIN_TAKEBACK_USER = 2

@@ -1,9 +1,9 @@
-import { DateTime } from 'luxon'
 import { Prisma } from '@prisma/client'
+import { DateTime } from 'luxon'
+import { GeneratePaymentOrderUseCase } from '../../controllers/company/companyPaymentOrder/GeneratePaymentOrderUseCase'
+import { CompanyStatusEnum } from '../../enum/CompanyStatusEnum'
 import { TransactionStatusEnum } from '../../enum/TransactionStatusEnum'
 import { prisma } from '../../prisma'
-import { CompanyStatusEnum } from '../../enum/CompanyStatusEnum'
-import { GeneratePaymentOrderUseCase } from '../../controllers/company/companyPaymentOrder/GeneratePaymentOrderUseCase'
 
 export class ExpireTransactionsUseCase {
   protected generatePaymentOrderUseCase: GeneratePaymentOrderUseCase
@@ -86,7 +86,7 @@ export class ExpireTransactionsUseCase {
           companyId: company.id,
           paymentMethodId: 1,
           transactionIDs,
-        },
+        }
       )
     }
 
