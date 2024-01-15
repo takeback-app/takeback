@@ -1,5 +1,5 @@
-import React from 'react'
 import { Center, Spinner, Text, View } from 'native-base'
+import React from 'react'
 import { StatusBar } from 'react-native'
 
 import { FlashList, ListRenderItem } from '@shopify/flash-list'
@@ -13,14 +13,14 @@ import { useInfiniteSectionList } from '../../../hooks/useInfiniteSectionList'
 import { ExtractHeader } from './components/ExtractHeader'
 import { BalanceExpirationItem } from './components/ExtractItem/BalanceExpirationItem'
 import { BonusItem } from './components/ExtractItem/BonusItem'
+import { DepositItem } from './components/ExtractItem/DepositItem'
+import { QRCodeItem } from './components/ExtractItem/QRCodeItem'
 import { SolicitationItem } from './components/ExtractItem/SolicitationItem'
 import { StoreOrderItem } from './components/ExtractItem/StoreOrderItem'
 import { TransactionItem } from './components/ExtractItem/TransactionItem'
 import { TransferItem } from './components/ExtractItem/TransferItem'
 import { SectionHeader } from './components/SectionHeader'
 import { ExtractItem, ExtractType } from './types'
-import { QRCodeItem } from './components/ExtractItem/QRCodeItem'
-import { DepositItem } from './components/ExtractItem/DepositItem'
 
 const renderItem: ListRenderItem<ExtractItem | undefined | string> = ({
   item

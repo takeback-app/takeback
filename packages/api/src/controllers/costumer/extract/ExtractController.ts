@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
-import { GetExtractUseCase } from '../../../useCases/extract/GetExtractUseCase'
 import { prisma } from '../../../prisma'
+import { GetExtractUseCase } from '../../../useCases/extract/GetExtractUseCase'
 import { GetFirstExtractRegisterUseCase } from '../../../useCases/extract/GetFirstExtractRegisterUseCase'
 
 export class ExtractController {

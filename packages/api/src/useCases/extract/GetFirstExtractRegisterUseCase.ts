@@ -1,25 +1,25 @@
-import { DateTime } from "luxon";
-import { TransactionStatusEnum } from "../../enum/TransactionStatusEnum";
-import { prisma } from "../../prisma";
+import { DateTime } from 'luxon'
+import { TransactionStatusEnum } from '../../enum/TransactionStatusEnum'
+import { prisma } from '../../prisma'
 
 export class GetFirstExtractRegisterUseCase {
-  private month?: DateTime;
+  private month?: DateTime
 
   constructor(private consumerId: string, page: number = 0) {
-    if (!page) return;
+    if (!page) return
 
     this.month = DateTime.now()
       .minus({ months: page - 1 })
-      .endOf("month");
+      .endOf('month')
   }
 
   async execute() {
     const { firstExtractItemDate } = await prisma.consumer.findFirstOrThrow({
       where: { id: this.consumerId },
-    });
+    })
 
     if (firstExtractItemDate) {
-      return this.month.toISODate() > firstExtractItemDate.toISOString();
+      return this.month.toISODate() > firstExtractItemDate.toISOString()
     }
 
     const dates = await Promise.all([
@@ -28,22 +28,22 @@ export class GetFirstExtractRegisterUseCase {
       this.balanceExpirations(),
       this.bonuses(),
       this.solicitations(),
-    ]);
+    ])
 
-    const filteredDates = dates.filter((date) => date);
+    const filteredDates = dates.filter((date) => date)
 
-    if (!filteredDates.length) return false;
+    if (!filteredDates.length) return false
 
     const firstRegisterDate = filteredDates.sort(
       (a, b) => a.getTime() - b.getTime()
-    )[0];
+    )[0]
 
     await prisma.consumer.update({
       where: { id: this.consumerId },
       data: { firstExtractItemDate: firstRegisterDate },
-    });
+    })
 
-    return this.month.toISODate() > firstRegisterDate.toISOString();
+    return this.month.toISODate() > firstRegisterDate.toISOString()
   }
 
   async transactions() {
@@ -55,9 +55,9 @@ export class GetFirstExtractRegisterUseCase {
         },
       },
       _min: { createdAt: true },
-    });
+    })
 
-    return transactions._min.createdAt;
+    return transactions._min.createdAt
   }
 
   async transfers() {
@@ -69,38 +69,38 @@ export class GetFirstExtractRegisterUseCase {
         ],
       },
       _min: { createdAt: true },
-    });
+    })
 
-    return transfers._min.createdAt;
+    return transfers._min.createdAt
   }
 
   async balanceExpirations() {
     const balanceExpirations = await prisma.consumerExpireBalances.aggregate({
       where: { consumerId: this.consumerId },
       _min: { expireAt: true },
-    });
+    })
 
-    return balanceExpirations._min.expireAt;
+    return balanceExpirations._min.expireAt
   }
 
   async bonuses() {
     const bonuses = await prisma.bonus.aggregate({
       where: { consumerId: this.consumerId },
       _min: { createdAt: true },
-    });
+    })
 
-    return bonuses._min.createdAt;
+    return bonuses._min.createdAt
   }
 
   async solicitations() {
     const solicitations = await prisma.transactionSolicitation.aggregate({
       where: {
         consumerId: this.consumerId,
-        status: { not: "APPROVED" },
+        status: { not: 'APPROVED' },
       },
       _min: { createdAt: true },
-    });
+    })
 
-    return solicitations._min.createdAt;
+    return solicitations._min.createdAt
   }
 }

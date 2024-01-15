@@ -1,263 +1,155 @@
-import { getRepository } from "typeorm";
-import { InternalError } from "../../../../config/GenerateErros";
-import { Companies } from "../../../../database/models/Company";
-import { CompanyStatus } from "../../../../database/models/CompanyStatus";
-import { Consumers } from "../../../../database/models/Consumer";
-import { PaymentOrder } from "../../../../database/models/PaymentOrder";
-import { PaymentOrderStatus } from "../../../../database/models/PaymentOrderStatus";
-import { Transactions } from "../../../../database/models/Transaction";
-import { TransactionStatus } from "../../../../database/models/TransactionStatus";
-import { applyCurrencyMask } from "../../../../utils/Masks";
-import transporter from "../../../../config/SMTP";
-import path from "path";
-import fs from "fs";
-import hbs from "handlebars";
-import { logger } from "../../../../services/logger";
-import { ApproveTransactionUseCase } from "../../../../useCases/cashback/ApproveTransactionUseCase";
+import { Decimal } from 'decimal.js'
+import hbs from 'handlebars'
+import fs from 'fs'
+import path from 'path'
+import { InternalError } from '../../../../config/GenerateErros'
+import transporter from '../../../../config/SMTP'
+import { ApproveTransactionUseCase } from '../../../../useCases/cashback/ApproveTransactionUseCase'
+import { applyCurrencyMask } from '../../../../utils/Masks'
+import { prisma } from '../../../../prisma'
+import { TransactionStatusEnum } from '../../../../enum/TransactionStatusEnum'
+import { PaymentOrderStatusEnum } from '../../../../enum/PaymentOrderStatusEnum'
+import { TransactionPerConsumer } from '../../../company/companyPaymentOrder/GeneratePaymentOrderUseCase'
+import { UpdateCompanyStatusByTransactionsUseCase } from '../../../company/companyCashback/UpdateCompanyStatusByTransactionsUseCase'
 
 interface OrderProps {
-  paymentOrderId: number;
+  paymentOrderId: number
 }
 
 class ApproveOrderAndReleaseCashbacksUseCase {
   async execute({ paymentOrderId }: OrderProps) {
     if (!paymentOrderId) {
-      throw new InternalError("Ordem de pagamento não informada", 400);
+      throw new InternalError('Ordem de pagamento não informada', 400)
     }
 
-    // Verificando se a ordem de pagamento existe
-    const paymentOrder = await getRepository(PaymentOrder).findOne({
+    const paymentOrder = await prisma.paymentOrder.findUnique({
       where: { id: paymentOrderId },
-      relations: ["company"],
-    });
+      include: {
+        company: {
+          select: {
+            id: true,
+            email: true,
+            fantasyName: true,
+          },
+        },
+      },
+    })
 
     if (!paymentOrder) {
-      throw new InternalError("Ordem de pagamento não localizada", 404);
+      throw new InternalError('Ordem de pagamento não localizada', 404)
     }
 
-    // Encontrando transações pertencentes a ordem de pagamento
-    const transactions = await getRepository(Transactions)
-      .createQueryBuilder("transaction")
-      .select([
-        "transaction.id",
-        "transaction.transactionStatus",
-        "transaction.takebackFeeAmount",
-        "transaction.cashbackAmount",
-        "transaction.backAmount",
-        "transaction.totalAmount",
-      ])
-      .addSelect(["consumer.id"])
-      .leftJoin(
-        TransactionStatus,
-        "status",
-        "status.id = transaction.transactionStatus"
-      )
-      .leftJoin(Consumers, "consumer", "consumer.id = transaction.consumers")
-      .where("transaction.paymentOrder = :paymentOrderId", { paymentOrderId })
-      .getRawMany();
-
-    // Agrupando as transações por usuário
-    const transactionsReduced = transactions.reduce(
-      (previousValue, currentValue) => {
-        previousValue[currentValue.consumer_id] =
-          previousValue[currentValue.consumer_id] || [];
-        previousValue[currentValue.consumer_id].push(currentValue);
-        return previousValue;
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        paymentOrderId,
+        transactionStatus: {
+          description: {
+            in: [
+              TransactionStatusEnum.PENDING,
+              TransactionStatusEnum.ON_DELAY,
+              TransactionStatusEnum.PROCESSING,
+            ],
+          },
+        },
       },
-      Object.create(null)
-    );
+      select: {
+        id: true,
+        transactionStatus: true,
+        takebackFeeAmount: true,
+        cashbackAmount: true,
+        backAmount: true,
+        totalAmount: true,
+        consumersId: true,
+      },
+    })
 
-    // Alterando o formato do agrupamento para um formato compatível para mapeamento
-    const transactionGroupedPerConsumer = [];
-    for (const [key, values] of Object.entries(transactionsReduced)) {
-      transactionGroupedPerConsumer.push({
-        consumerId: key,
-        transactions: values,
-      });
-    }
+    const transactionsGrouped = transactions.reduce((acc, currentValue) => {
+      const { consumersId, ...rest } = currentValue
 
-    const consumerToChangeBalance = [];
-    // Somando os valores das transações e agrupando por usuário
-    transactionGroupedPerConsumer.map((item) => {
-      let value = 0;
-      item.transactions.map((transaction) => {
-        value =
-          value +
-          parseFloat(transaction.transaction_cashbackAmount) +
-          parseFloat(transaction.transaction_backAmount);
-      });
+      if (!acc[consumersId]) {
+        acc[consumersId] = { consumerId: consumersId, transactions: [] }
+      }
 
-      consumerToChangeBalance.push({
-        consumerId: item.consumerId,
-        value: value,
-      });
-    });
+      acc[consumersId].transactions.push({ consumersId, ...rest })
 
-    // ATUALIZANDO AS TRANSAÇÕES
-    // Buscando o status de transação aprovada
-    const approvedStatusTransaction = await getRepository(
-      TransactionStatus
-    ).findOne({
-      where: { description: "Aprovada" },
-    });
+      return acc
+    }, {})
 
-    // Variáveis para receber os valores da taxa takeback, cashback e do troco
-    let takebackFeeAmount = 0;
-    let cashbackAmount = 0;
-    let backAmount = 0;
+    const transactionGroupedPerConsumer = Object.values(
+      transactionsGrouped,
+    ) as TransactionPerConsumer[]
 
-    // Aprovando as transações da ordem de pagamento
-    let transactionsUpdatedError = false;
-    const useCase = new ApproveTransactionUseCase(paymentOrder.id);
+    const consumerToChangeBalance = transactionGroupedPerConsumer.map(
+      (item) => {
+        const value = item.transactions.reduce(
+          (total, transaction) =>
+            total.plus(transaction.cashbackAmount).plus(transaction.backAmount),
+          new Decimal(0),
+        )
 
-    for (const item of transactions) {
+        return {
+          consumerId: item.consumerId,
+          value: value,
+        }
+      },
+    )
+
+    let takebackFeeAmount = new Decimal(0)
+    let cashbackAmount = new Decimal(0)
+    let backAmount = new Decimal(0)
+
+    const useCase = new ApproveTransactionUseCase(paymentOrder.id)
+
+    for await (const item of transactions) {
       await useCase.execute({
         companyName: paymentOrder.company.fantasyName,
-        consumersId: item.consumer_id,
-        totalAmount: item.transaction_totalAmount,
-        transactionId: item.transaction_id,
-      });
-
-      // Inserindo valor da taxa takeback na transação
-      takebackFeeAmount =
-        takebackFeeAmount + parseFloat(item.transaction_takebackFeeAmount);
-
-      // Inserindo valor do cashback na transação
-      cashbackAmount =
-        cashbackAmount + parseFloat(item.transaction_cashbackAmount);
-
-      // Inserindo o valor do troco na transação
-      backAmount = backAmount + parseFloat(item.transaction_backAmount);
+        consumersId: item.consumersId,
+        totalAmount: Number(item.totalAmount),
+        transactionId: item.id,
+      })
+      takebackFeeAmount = takebackFeeAmount.plus(item.takebackFeeAmount)
+      cashbackAmount = cashbackAmount.plus(item.cashbackAmount)
+      backAmount = backAmount.plus(item.backAmount)
     }
 
-    // VERIFICANDO SE OUVE ALGUM ERRO E VOLTANDO AO STATUS ATUAL CASO TENHA OCORRIDO
-    if (transactionsUpdatedError) {
-      const processingTransactionStatus = await getRepository(
-        TransactionStatus
-      ).findOne({
-        where: { description: "Em processamento" },
-      });
-
-      transactions.map(async (item) => {
-        await getRepository(Transactions).update(item.transaction_id, {
-          transactionStatus: processingTransactionStatus,
-        });
-      });
-
-      throw new InternalError("Erro ao atualizar transação", 400);
+    for (const item of consumerToChangeBalance) {
+      await prisma.consumer.update({
+        where: { id: item.consumerId },
+        data: {
+          blockedBalance: { decrement: item.value },
+          balance: { increment: item.value },
+        },
+      })
     }
 
-    // ATUALIZABDO O SALDO DOS CLIENTES
-    // Autorizando cashback para os clientes
-    consumerToChangeBalance.map(async (item) => {
-      const consumerBalance = await getRepository(Consumers).findOne(
-        item.consumerId
-      );
-
-      const balanceUpdated = await getRepository(Consumers).update(
-        item.consumerId,
-        {
-          blockedBalance: consumerBalance.blockedBalance - item.value,
-          balance: consumerBalance.balance + item.value,
-        }
-      );
-
-      if (balanceUpdated.affected === 0) {
-        throw new InternalError(
-          "Houve um erro ao atualizar o saldo do consumidor",
-          400
-        );
-      }
-    });
-
-    // ATUALIZANDO O SALDO DA EMPRESA
-    // Buscando a empresa da ordem de pagamento
-    const company = await getRepository(Companies).findOne({
+    await prisma.company.update({
       where: { id: paymentOrder.company.id },
-    });
+      data: {
+        negativeBalance: {
+          decrement: paymentOrder.value,
+        },
+      },
+    })
 
-    // Atualizando o saldo da empresa
-    const updateBalance = await getRepository(Companies).update(
+    const approvedStatus = await prisma.paymentOrderStatus.findFirst({
+      where: { description: PaymentOrderStatusEnum.AUTHORIZED },
+    })
+
+    await prisma.paymentOrder.update({
+      where: { id: paymentOrderId },
+      data: { statusId: approvedStatus.id, approvedAt: new Date() },
+    })
+
+    await new UpdateCompanyStatusByTransactionsUseCase().execute(
       paymentOrder.company.id,
-      {
-        negativeBalance: company.negativeBalance - paymentOrder.value,
-      }
-    );
-
-    if (updateBalance.affected === 0) {
-      throw new InternalError(
-        "Houve um erro ao atualizar o saldo da empresa",
-        400
-      );
-    }
-
-    // ATUALIZANDO A ORDEM DE PAGAMENTO
-    // Buscando o status de ordem de pagamento autorizada
-    const approvedStatus = await getRepository(PaymentOrderStatus).findOne({
-      where: { description: "Autorizada" },
-    });
-
-    // Atualizando o status da ordem de pagamento
-    const paymentOrderUpdated = await getRepository(PaymentOrder).update(
-      paymentOrderId,
-      {
-        status: approvedStatus,
-        approvedAt: new Date(),
-      }
-    );
-
-    if (paymentOrderUpdated.affected === 0) {
-      throw new InternalError("Erro ao atualizar o status da transação", 400);
-    }
-
-    // VERIFICANDO SE HÁ TRANSAÇẼOS PENDENTES PARA ATUALIZAR O STATUS DA EMPRESA
-    // Buscando as transações
-    const verifyTransactions = await getRepository(Transactions)
-      .createQueryBuilder("transaction")
-      .select(["transaction.id", "transaction.createdAt"])
-      .addSelect(["status.description", "company.id"])
-      .leftJoin(Companies, "company", "company.id = transaction.companies")
-      .leftJoin(
-        TransactionStatus,
-        "status",
-        "status.id = transaction.transactionStatus"
-      )
-      .where("company.id = :companyId", { companyId: paymentOrder.company.id })
-      .andWhere("status.description = :status", { status: "Em atraso" })
-      .getRawMany();
-
-    // Buscando os status necessários
-    const overStatus = await getRepository(CompanyStatus).findOne({
-      where: { description: "Inadimplente por cashbacks" },
-    });
-
-    const activeStatus = await getRepository(CompanyStatus).findOne({
-      where: { description: "Ativo" },
-    });
-
-    // Verificando se há alguma transação em atraso
-    if (verifyTransactions.length > 0) {
-      // Bloqueando a empresa caso tenha pelo menos uma transação em atraso
-      await getRepository(Companies).update(paymentOrder.company.id, {
-        status: overStatus,
-      });
-
-      logger.info(
-        `Empresa (${paymentOrder.company.id}) atualizada para ${overStatus.description}`
-      );
-    } else {
-      // Desbloqueando a empresa caso não haja mais cashbacks pendentes
-      await getRepository(Companies).update(paymentOrder.company.id, {
-        status: activeStatus,
-      });
-    }
+    )
 
     const emailTemplate = fs.readFileSync(
-      path.resolve("src/utils/emailTemplates/template1.hbs"),
-      "utf-8"
-    );
+      path.resolve('src/utils/emailTemplates/template1.hbs'),
+      'utf-8',
+    )
 
-    const template = hbs.compile(emailTemplate);
+    const template = hbs.compile(emailTemplate)
 
     const html = template({
       title: `Cashbacks liberados 🤑`,
@@ -265,30 +157,30 @@ class ApproveOrderAndReleaseCashbacksUseCase {
       sectionTwo: `Ordem de pagamento N°${
         paymentOrder.id
       } | Valor liberado: ${applyCurrencyMask(
-        cashbackAmount
+        cashbackAmount.toNumber(),
       )} | Taxas operacionais: ${applyCurrencyMask(
-        takebackFeeAmount
-      )} | Total: ${applyCurrencyMask(paymentOrder.value)}`,
-      sectionThree: "Abraços! Equipe TakeBack :)",
-    });
+        cashbackAmount.toNumber(),
+      )} | Total: ${applyCurrencyMask(paymentOrder.value.toNumber())}`,
+      sectionThree: 'Abraços! Equipe TakeBack :)',
+    })
 
-    var mailOptions = {
+    const mailOptions = {
       from: process.env.MAIL_CONFIG_USER,
-      to: company.email,
-      subject: "TakeBack | Liberação de Cashbacks",
+      to: paymentOrder.company.email,
+      subject: 'TakeBack | Liberação de Cashbacks',
       html,
-    };
+    }
 
     transporter.sendMail(mailOptions, function (err, info) {
       if (err) {
-        return "Houve um erro ao enviar o email.";
+        return 'Houve um erro ao enviar o email.'
       } else {
-        return "Email enviado.";
+        return 'Email enviado.'
       }
-    });
+    })
 
-    return "Ordem de Pagamento aprovada!";
+    return 'Ordem de Pagamento aprovada!'
   }
 }
 
-export { ApproveOrderAndReleaseCashbacksUseCase };
+export { ApproveOrderAndReleaseCashbacksUseCase }
