@@ -297,7 +297,7 @@ export class GeneratePaymentOrderUseCase {
       .plus(cashbackAmount)
       .plus(backAmount)
 
-    if (company.positiveBalance.comparedTo(totalTransactionsValues) === -1) {
+    if (company.positiveBalance.lessThan(totalTransactionsValues)) {
       throw new InternalError('Saldo Takeback insuficiente', 400)
     }
 
