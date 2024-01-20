@@ -1,23 +1,23 @@
 /* eslint-disable no-unused-vars */
-import hbs from 'handlebars'
-import { Decimal } from '@prisma/client/runtime'
 import { TransactionStatus } from '@prisma/client'
-import path from 'path'
+import { Decimal } from '@prisma/client/runtime'
+import hbs from 'handlebars'
 import fs from 'fs'
+import path from 'path'
 import { MonthlyPaymentUseCase } from '../../../useCases/company/MonthlyPaymentUseCase'
 import { FindPendingCashbacksUseCase } from '../companyCashback/FindPendingCashbacksUseCase'
 import { FindCompanyDataUseCase } from '../companyData/FindCompanyDataUseCase'
 
 import { InternalError } from '../../../config/GenerateErros'
-import { applyCurrencyMask, currency } from '../../../utils/Masks'
 import transporter from '../../../config/SMTP'
-import { prisma } from '../../../prisma'
+import { PaymentOrderStatusEnum } from '../../../enum/PaymentOrderStatusEnum'
+import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
 import { Notify } from '../../../notifications'
 import { NewPaymentOrder } from '../../../notifications/NewPaymentOrder'
-import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
-import { PaymentOrderStatusEnum } from '../../../enum/PaymentOrderStatusEnum'
-import { UpdateCompanyStatusByTransactionsUseCase } from '../companyCashback/UpdateCompanyStatusByTransactionsUseCase'
+import { prisma } from '../../../prisma'
 import { ApproveTransactionUseCase } from '../../../useCases/cashback/ApproveTransactionUseCase'
+import { applyCurrencyMask, currency } from '../../../utils/Masks'
+import { UpdateCompanyStatusByTransactionsUseCase } from '../companyCashback/UpdateCompanyStatusByTransactionsUseCase'
 
 const TAKEBACK_METHOD = 1
 const ADMIN_TAKEBACK_USER = 2
@@ -54,7 +54,7 @@ interface ConsumerToChangeBalanceProps extends ITransactions {
   consumersId: string
 }
 
-interface TransactionPerConsumer {
+export interface TransactionPerConsumer {
   consumerId: string
   transactions: ITransactions[]
 }
@@ -66,9 +66,9 @@ interface ConsumerToChangeBalance {
 
 interface CalculateValues {
   preventedTransactions: number[]
-  takebackFeeAmount: number
-  cashbackAmount: number
-  backAmount: number
+  takebackFeeAmount: Decimal
+  cashbackAmount: Decimal
+  backAmount: Decimal
 }
 
 interface HtmlTemplate {
@@ -180,7 +180,7 @@ export class GeneratePaymentOrderUseCase {
 
     const paymentOrder = await prisma.paymentOrder.create({
       data: {
-        value: takebackFeeAmount + cashbackAmount + backAmount,
+        value: takebackFeeAmount.plus(cashbackAmount).plus(backAmount),
         company: {
           connect: { id: company.id },
         },
@@ -201,6 +201,15 @@ export class GeneratePaymentOrderUseCase {
       data: {
         transactionStatusId: processStatus.id,
         paymentOrderId: paymentOrder.id,
+      },
+    })
+
+    await prisma.company.update({
+      where: { id: company.id },
+      data: {
+        negativeBalance: {
+          increment: paymentOrder.value,
+        },
       },
     })
 
@@ -284,16 +293,17 @@ export class GeneratePaymentOrderUseCase {
       where: { id: TAKEBACK_METHOD },
     })
 
-    if (
-      Number(company.positiveBalance) <
-      takebackFeeAmount + cashbackAmount + backAmount
-    ) {
+    const totalTransactionsValues = takebackFeeAmount
+      .plus(cashbackAmount)
+      .plus(backAmount)
+
+    if (company.positiveBalance.lessThan(totalTransactionsValues)) {
       throw new InternalError('Saldo Takeback insuficiente', 400)
     }
 
     const paymentOrder = await prisma.paymentOrder.create({
       data: {
-        value: takebackFeeAmount + cashbackAmount + backAmount,
+        value: totalTransactionsValues,
         company: {
           connect: { id: company.id },
         },
@@ -336,9 +346,9 @@ export class GeneratePaymentOrderUseCase {
       where: { id: companyId },
       data: {
         positiveBalance: {
-          decrement: takebackFeeAmount + cashbackAmount + backAmount,
+          decrement: totalTransactionsValues,
         },
-        negativeBalance: takebackFeeAmount + cashbackAmount + backAmount,
+        negativeBalance: totalTransactionsValues,
       },
     })
 
@@ -350,9 +360,9 @@ export class GeneratePaymentOrderUseCase {
       sectionTwo: `Ordem de pagamento N°${
         paymentOrder.id
       } | Valor liberado: ${applyCurrencyMask(
-        cashbackAmount,
+        cashbackAmount.toNumber(),
       )} | Taxas operacionais: ${applyCurrencyMask(
-        takebackFeeAmount,
+        takebackFeeAmount.toNumber(),
       )} | Total: ${applyCurrencyMask(Number(paymentOrder.value))}`,
       sectionThree: 'Abraços! Equipe TakeBack :)',
     }
@@ -372,6 +382,15 @@ export class GeneratePaymentOrderUseCase {
     const transaction = await prisma.transaction.findMany({
       where: {
         id: { in: transactionIDs },
+        transactionStatus: {
+          description: {
+            in: [
+              TransactionStatusEnum.PENDING,
+              TransactionStatusEnum.ON_DELAY,
+              TransactionStatusEnum.PROCESSING,
+            ],
+          },
+        },
       },
       select: {
         id: true,
@@ -430,18 +449,18 @@ export class GeneratePaymentOrderUseCase {
     preventedTransactionStatusId: number,
   ): Promise<CalculateValues> {
     const preventedTransactions = []
-    let takebackFeeAmount = 0
-    let cashbackAmount = 0
-    let backAmount = 0
+    let takebackFeeAmount = new Decimal(0)
+    let cashbackAmount = new Decimal(0)
+    let backAmount = new Decimal(0)
 
     for (const item of transactions) {
       if (item.transactionStatus.id === preventedTransactionStatusId) {
         preventedTransactions.push(item.id)
       }
 
-      takebackFeeAmount += Number(item.takebackFeeAmount)
-      cashbackAmount += Number(item.cashbackAmount)
-      backAmount += Number(item.backAmount)
+      takebackFeeAmount = takebackFeeAmount.plus(item.takebackFeeAmount)
+      cashbackAmount = cashbackAmount.plus(item.cashbackAmount)
+      backAmount = backAmount.plus(item.backAmount)
     }
 
     return {
