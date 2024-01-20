@@ -1,4 +1,4 @@
-import { Decimal } from 'decimal.js'
+import { Decimal } from '@prisma/client/runtime'
 import hbs from 'handlebars'
 import fs from 'fs'
 import path from 'path'
