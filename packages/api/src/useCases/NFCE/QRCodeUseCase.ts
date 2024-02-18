@@ -45,6 +45,7 @@ export class QRCodeUseCase {
       const cnpj = $('table.text-center > tbody > tr:first-child > td')
         .text()
         .split(' ')[1]
+        .replace(/\D/g, '')
 
       const issuedAtString = $(
         'table.table-hover:nth-child(8) > tbody > tr:first-child > td:last-child',
