@@ -3,7 +3,8 @@ import React, {
   useRef,
   useEffect,
   useContext,
-  useCallback
+  useCallback,
+  useMemo
 } from 'react'
 import { FormHandles } from '@unform/core'
 import { Form } from '@unform/web'
@@ -28,8 +29,17 @@ import { maskCPF } from '../../../utils/masks'
 
 import * as S from './styles'
 import { AuthContext } from '../../../contexts/AuthContext'
-import { useToast } from '@chakra-ui/react'
+import { Button, useDisclosure, useToast } from '@chakra-ui/react'
 import { chakraToastOptions } from '../../../components/ui/toast'
+import { FiFilter } from 'react-icons/fi'
+import { FilterDrawer } from './components/FilterDrawer'
+import { useUserCompanyActivated } from './components/state'
+import {
+  Option,
+  Select,
+  Container,
+  Label
+} from '../../../components/inputs/selectInput/styles'
 
 interface UpdatePasswordFormProps {
   userName: string
@@ -44,14 +54,15 @@ const statusOptions = [
 
 export const Users: React.FC = () => {
   const formRefRegisterUser = useRef<FormHandles>(null)
-  const formRefUpdateUser = useRef<FormHandles>(null)
   const formRefUpdateUserPassword = useRef<FormHandles>(null)
   const theme = useTheme()
   const toast = useToast(chakraToastOptions)
 
   const authUser = useContext(AuthContext)
 
-  const [companyUsers, setCompanyUsers] = useState<[CompanyUsersTypes]>()
+  const [allCompanyUsers, setAllCompanyUsers] = useState<CompanyUsersTypes[]>(
+    []
+  )
   const [companyUsersOffice, setCompanyUsersOffice] =
     useState<[CompanyUserTypesTypes]>()
   const [editVisible, setEditVisible] = useState(false)
@@ -60,15 +71,25 @@ export const Users: React.FC = () => {
   const [disabled, setDisabled] = useState(false)
   const [loading, setLoading] = useState(false)
   const [userId, setUserId] = useState('')
+  const [editCompanyUser, setEditCompanyUser] = useState({
+    name: '',
+    office: '',
+    email: '',
+    status: 0,
+    cpf: ''
+  })
   const [userName, setUserName] = useState('')
   const [isManagerUser, setIsManagerUser] = useState(true)
   const [modalPasswordVisible, setModalPasswordVisible] = useState(false)
   const [cpf, setCpf] = useState('')
+  const { type: typeFilter, setForm: setFilterForm } = useUserCompanyActivated()
+
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   const findCompanyUsers = useCallback(() => {
     API.get('/company/user/find')
       .then(response => {
-        setCompanyUsers(response.data.users)
+        setAllCompanyUsers(response.data.users)
         setCompanyUsersOffice(response.data.userTypes)
       })
       .catch(error => {
@@ -82,14 +103,13 @@ export const Users: React.FC = () => {
 
   const openEdit = (item: CompanyUsersTypes) => {
     setEditVisible(true)
-    formRefUpdateUser.current?.setData({
+    setEditCompanyUser({
+      cpf: maskCPF(item.cpf || ''),
+      email: item.email,
       name: item.name,
       office: item.companyUserType.id,
-      email: item.email,
-      status: item.isActive ? 0 : 1,
-      cpf: maskCPF(item.cpf || '')
+      status: item.isActive ? 0 : 1
     })
-
     if (item.isRootUser) {
       setDisabled(true)
     } else {
@@ -132,23 +152,17 @@ export const Users: React.FC = () => {
     formRefUpdateUserPassword.current?.reset()
   }
 
-  async function validateDataToUpdate(data: {
-    name: string
-    email: string
-    office: string
-    status: string
-    cpf: string
-  }) {
+  async function validateDataToUpdate() {
     try {
       const schema = Yup.object().shape({
         name: Yup.string().min(4).required('Informe o nome')
       })
 
-      await schema.validate(data, {
+      await schema.validate(editCompanyUser, {
         abortEarly: false
       })
 
-      if (isManagerUser && !data.email) {
+      if (isManagerUser && !editCompanyUser.email) {
         return toast({
           title: 'Atenção!',
           description: 'Informe o email',
@@ -156,7 +170,7 @@ export const Users: React.FC = () => {
         })
       }
 
-      if (isManagerUser && !data.cpf) {
+      if (isManagerUser && !cpf) {
         return toast({
           title: 'Atenção!',
           description: 'Informe o cpf',
@@ -166,17 +180,24 @@ export const Users: React.FC = () => {
 
       setLoading(true)
       API.put(`/company/user/update/${userId}`, {
-        userTypeId: data.office,
-        name: data.name.replace(/\s+$/, ''),
-        email: data.email?.replace(/\s/g, ''),
-        isActive: data.status === '0',
-        cpf: data.cpf.replace(/[^\d]/g, '')
+        userTypeId: editCompanyUser.office,
+        name: editCompanyUser.name.replace(/\s+$/, ''),
+        email: editCompanyUser.email?.replace(/\s/g, ''),
+        isActive: editCompanyUser.status === 0,
+        cpf: cpf.replace(/[^\d]/g, '')
       })
         .then(response => {
           toast({
             title: 'Sucesso!',
             description: response.data,
             status: 'success'
+          })
+          setEditCompanyUser({
+            cpf: '',
+            email: '',
+            name: '',
+            office: '',
+            status: 0
           })
           findCompanyUsers()
         })
@@ -191,18 +212,13 @@ export const Users: React.FC = () => {
           setLoading(false)
           onCancel()
         })
-
-      formRefUpdateUser.current?.setErrors({})
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
-        // eslint-disable-next-line
-        const validationErrors: any = {}
-
-        error.inner.forEach(err => {
-          validationErrors[err.path] = err.message
+        toast({
+          title: 'Ops :(',
+          description: error.message,
+          status: 'error'
         })
-
-        formRefUpdateUser.current?.setErrors(validationErrors)
       }
     }
   }
@@ -376,10 +392,24 @@ export const Users: React.FC = () => {
     findCompanyUsers()
   }, [findCompanyUsers])
 
+  useEffect(() => {
+    setFilterForm({ type: 'ACTIVATED' })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const companyUsers = useMemo(() => {
+    if (typeFilter === 'ALL') return allCompanyUsers
+
+    return allCompanyUsers.filter(t => t.isActive)
+  }, [allCompanyUsers, typeFilter])
+
   return (
     <Layout title="Usuários">
       <S.Container>
         <S.SubHeader>
+          <Button leftIcon={<FiFilter />} onClick={onOpen} colorScheme="teal">
+            Filtro
+          </Button>
           <OutlinedButton
             color={theme.colors['blue-600']}
             onClick={toggleRegisterVisible}
@@ -437,19 +467,59 @@ export const Users: React.FC = () => {
       </S.Container>
 
       <DefaultModal title="Editar" visible={editVisible} onClose={onCancel}>
-        <Form ref={formRefUpdateUser} onSubmit={validateDataToUpdate}>
+        <Form onSubmit={validateDataToUpdate}>
           <S.ModalContent>
             <S.InputsWrapper>
-              <PrimaryInput name="name" label="Nome" />
-              <SelectInput
-                label="Função"
-                name="office"
-                disabled={!authUser.isManager}
-                options={companyUsersOffice}
-                onChange={e => verifyUserType(e.currentTarget.value)}
+              <PrimaryInput
+                name="name"
+                label="Nome"
+                value={editCompanyUser.name}
+                onChange={e => {
+                  setEditCompanyUser({
+                    ...editCompanyUser,
+                    name: e.currentTarget.value
+                  })
+                }}
               />
-
-              {isManagerUser && <PrimaryInput name="email" label="Email" />}
+              <Container>
+                <Label>Função</Label>
+                <Select
+                  name="office"
+                  disabled={!authUser.isManager}
+                  onChange={e => {
+                    verifyUserType(e.currentTarget.value)
+                    setEditCompanyUser({
+                      ...editCompanyUser,
+                      office: e.currentTarget.value
+                    })
+                  }}
+                >
+                  {companyUsersOffice?.map(option => {
+                    return (
+                      <Option
+                        key={option.id}
+                        value={option.id}
+                        selected={option.id === editCompanyUser.office}
+                      >
+                        {option.description}
+                      </Option>
+                    )
+                  })}
+                </Select>
+              </Container>
+              {isManagerUser && (
+                <PrimaryInput
+                  name="email"
+                  label="Email"
+                  value={editCompanyUser.email}
+                  onChange={e => {
+                    setEditCompanyUser({
+                      ...editCompanyUser,
+                      email: e.currentTarget.value
+                    })
+                  }}
+                />
+              )}
               <PrimaryInput
                 name="cpf"
                 label="CPF"
@@ -457,12 +527,31 @@ export const Users: React.FC = () => {
                 value={cpf}
                 onChange={e => setCpf(maskCPF(e.currentTarget.value))}
               />
-              <SelectInput
-                label="Status"
-                name="status"
-                disabled={disabled}
-                options={statusOptions}
-              />
+              <Container>
+                <Label>Status</Label>
+                <Select
+                  name="status"
+                  disabled={disabled}
+                  onChange={e =>
+                    setEditCompanyUser({
+                      ...editCompanyUser,
+                      status: +e.currentTarget.value
+                    })
+                  }
+                >
+                  {statusOptions?.map(option => {
+                    return (
+                      <Option
+                        key={option.id}
+                        value={option.id}
+                        selected={+option.id === editCompanyUser.status}
+                      >
+                        {option.description}
+                      </Option>
+                    )
+                  })}
+                </Select>
+              </Container>
             </S.InputsWrapper>
 
             <S.Footer>
@@ -576,6 +665,7 @@ export const Users: React.FC = () => {
           </S.ModalContent>
         </Form>
       </DefaultModal>
+      <FilterDrawer isOpen={isOpen} onClose={onClose} />
     </Layout>
   )
 }
