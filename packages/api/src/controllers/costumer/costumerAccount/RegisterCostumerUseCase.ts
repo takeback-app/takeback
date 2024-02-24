@@ -1,4 +1,4 @@
-import { ConsumerAddress, MaritalStatus, Schooling, Sex } from '@prisma/client'
+import { MaritalStatus, Schooling, Sex } from '@prisma/client'
 import axios from 'axios'
 import bcrypt from 'bcrypt'
 import { DateTime } from 'luxon'
@@ -58,10 +58,10 @@ class RegisterCostumerUseCase {
       throw new InternalError('CPF já cadastrado', 302)
     }
 
-    let newAddress: ConsumerAddress
-    if (client?.consumerAddress) {
-      newAddress = await this.updateAddress(client.consumerAddress.id, zipCode)
-    }
+    const newAddress = await this.updateAddress(
+      client?.consumerAddress?.id,
+      zipCode,
+    )
 
     const passwordEncrypted = bcrypt.hashSync(password, 10)
 
