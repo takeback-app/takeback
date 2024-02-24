@@ -46,6 +46,7 @@ export class RaffleTicketCalculator {
       where: {
         company: { transactions: { some: { id: this.transactionId } } },
         cpf: consumer.cpf,
+        isActive: true,
       },
     })
 
