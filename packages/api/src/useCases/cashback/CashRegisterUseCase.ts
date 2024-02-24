@@ -1,8 +1,8 @@
 import { TransactionSource } from '@prisma/client'
+import { GenerateCashbackUseCase } from './GenerateCashbackUseCase'
 import { ValidateUserPasswordUseCase } from '../../controllers/company/companyCashback/ValidateUserPasswordUseCase'
 import { prisma } from '../../prisma'
 import { PlaceholderConsumer } from '../consumer/CreatePlaceholderConsumer'
-import { GenerateCashbackUseCase } from './GenerateCashbackUseCase'
 
 interface MethodData {
   id: number
