@@ -95,7 +95,7 @@ export function ExtractItem(props: ExtractItemProps) {
     }
 
     if (props.amountPayWithTakebackBalance > 0) {
-      return 'ios-cart-outline'
+      return 'cart-outline'
     }
 
     if (props.cashbackAmount > 0) {

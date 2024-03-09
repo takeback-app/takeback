@@ -90,7 +90,7 @@ export const HeaderComponent: React.FC<HeaderComponentProps> = props => {
               {getFirstAndSecondName(props.userName)}{' '}
               <Icon
                 as={Ionicons}
-                name="ios-chevron-forward"
+                name="chevron-forward"
                 size="md"
                 color="gray.800"
               />

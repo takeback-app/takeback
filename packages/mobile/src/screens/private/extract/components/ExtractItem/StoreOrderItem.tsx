@@ -17,7 +17,7 @@ export function StoreOrderItem(props: SolicitationItemProps) {
     <Flex>
       <HStack p="4" space="4" bgColor="white">
         <Circle w="12" h="12" rounded="full" bgColor="gray.300">
-          <Ionicons name="ios-cart-outline" size={24} color="black" />
+          <Ionicons name="cart-outline" size={24} color="black" />
         </Circle>
 
         <VStack flex="1">

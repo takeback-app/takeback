@@ -133,7 +133,7 @@ export const BalanceComponent: React.FC<BalanceComponentProps> = props => {
             </Text>
             <Icon
               as={Ionicons}
-              name="ios-chevron-forward"
+              name="chevron-forward"
               size="sm"
               color="blue.400"
             />
