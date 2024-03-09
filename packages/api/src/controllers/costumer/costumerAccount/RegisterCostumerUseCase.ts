@@ -1,4 +1,4 @@
-import { MaritalStatus, Schooling, Sex } from '@prisma/client'
+import { ConsumerAddress, MaritalStatus, Schooling, Sex } from '@prisma/client'
 import axios from 'axios'
 import bcrypt from 'bcrypt'
 import { DateTime } from 'luxon'
@@ -166,11 +166,21 @@ class RegisterCostumerUseCase {
       zipCode: newZipCode.zipCode,
     }
 
-    const address = await prisma.consumerAddress.upsert({
-      where: { id: consumerAddressId },
-      update: addressData,
-      create: addressData,
-    })
+    let address: ConsumerAddress
+
+    if (consumerAddressId) {
+      address = await prisma.consumerAddress.upsert({
+        where: { id: consumerAddressId },
+        update: addressData,
+        create: addressData,
+      })
+    }
+
+    if (!consumerAddressId) {
+      address = await prisma.consumerAddress.create({
+        data: addressData,
+      })
+    }
 
     return address
   }
