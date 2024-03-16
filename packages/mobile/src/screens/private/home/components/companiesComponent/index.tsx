@@ -111,7 +111,7 @@ export function CompaniesComponent(props: CompaniesComponentProps) {
               Empresas parceiras
             </Text>
             <Pressable onPress={props.onOpenFilters}>
-              <Icon as={Ionicons} name="md-filter" size="lg" color="blue.600" />
+              <Icon as={Ionicons} name="filter-outline" size="lg" color="blue.600" />
             </Pressable>
           </HStack>
           {props.data.map(item => (
