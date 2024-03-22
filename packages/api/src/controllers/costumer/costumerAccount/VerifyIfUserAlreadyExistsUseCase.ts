@@ -1,14 +1,14 @@
-import { InternalError } from "../../../config/GenerateErros";
-import { prisma } from "../../../prisma";
+import { InternalError } from '../../../config/GenerateErros'
+import { prisma } from '../../../prisma'
 
 interface Props {
-  cpf: string;
+  cpf: string
 }
 
 class VerifyIfUserAlreadyExistsUseCase {
   async execute({ cpf }: Props) {
     if (!cpf) {
-      throw new InternalError("Dados não informados", 400);
+      throw new InternalError('Dados não informados', 400)
     }
 
     const costumer = await prisma.consumer.findFirst({
@@ -16,14 +16,14 @@ class VerifyIfUserAlreadyExistsUseCase {
         cpf,
         isPlaceholderConsumer: false,
       },
-    });
+    })
 
     if (costumer) {
-      throw new InternalError("CPF já cadastrado", 400);
+      throw new InternalError('CPF já cadastrado', 400)
     }
 
-    return true;
+    return true
   }
 }
 
-export { VerifyIfUserAlreadyExistsUseCase };
+export { VerifyIfUserAlreadyExistsUseCase }

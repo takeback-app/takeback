@@ -28,7 +28,7 @@ export function TransferItem(props: TransactionItemProps) {
         <Circle w="12" h="12" rounded="full" bgColor="gray.300">
           <Ionicons
             name={
-              isReceived ? 'md-arrow-redo-outline' : 'md-arrow-undo-outline'
+              isReceived ? 'arrow-redo-outline' : 'arrow-undo-outline'
             }
             size={24}
             color="black"

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { BarCodeEvent, BarCodeScanner } from 'expo-barcode-scanner'
+import { CameraView, Camera } from "expo-camera/next";
 
 import { Card, Center, Heading, Stack, Text } from 'native-base'
 import { Linking } from 'react-native'
@@ -18,25 +18,18 @@ export function QRCode({ navigation }) {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null)
 
   useEffect(() => {
-    const getBarCodeScannerPermissions = async () => {
-      const { granted } = await BarCodeScanner.getPermissionsAsync()
-
-      if (granted) {
-        return setHasPermission(true)
-      }
-
-      const { status } = await BarCodeScanner.requestPermissionsAsync()
-      setHasPermission(status === 'granted')
+    const getCameraPermissions = async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === "granted");
     }
 
-    getBarCodeScannerPermissions()
+    getCameraPermissions()
   }, [])
 
-  async function handleBarCodeScanned({ data }: BarCodeEvent) {
+  const handleBarCodeScanned = async ({ data }) => {
     setQRCodeLink(data)
-
     navigation.navigate('qrCodeSelectCompanyUser')
-  }
+  };
 
   return (
     <Layout withoutKeyboardDismiss>
@@ -44,9 +37,11 @@ export function QRCode({ navigation }) {
 
       {hasPermission ? (
         <>
-          <BarCodeScanner
-            barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
-            onBarCodeScanned={handleBarCodeScanned}
+          <CameraView
+            onBarcodeScanned={handleBarCodeScanned}
+            barcodeScannerSettings={{
+              barcodeTypes: ["qr", "pdf417"],
+            }}
             style={{ flex: 1 }}
           />
           <Card>
