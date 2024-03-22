@@ -69,7 +69,7 @@ export function FilterCompanySection({
             {text}
           </Text>
           <TouchableOpacity onPress={onPress}>
-            <Icon as={Ionicons} name="filter-outline" size="lg" color="blue.600" />
+            <Icon as={Ionicons} name="filter" size="lg" color="blue.600" />
           </TouchableOpacity>
         </Flex>
 
