@@ -16,7 +16,6 @@ export function QRCode({ navigation }) {
   const { setQRCodeLink } = usePaymentStore()
 
   const [hasPermission, setHasPermission] = useState<boolean | null>(null)
-  const [scanned, setScanned] = useState(false);
 
   useEffect(() => {
     const getCameraPermissions = async () => {
@@ -29,7 +28,6 @@ export function QRCode({ navigation }) {
 
   const handleBarCodeScanned = async ({ data }) => {
     setQRCodeLink(data)
-    setScanned(true);
     navigation.navigate('qrCodeSelectCompanyUser')
   };
 
@@ -40,7 +38,7 @@ export function QRCode({ navigation }) {
       {hasPermission ? (
         <>
           <CameraView
-            onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+            onBarcodeScanned={handleBarCodeScanned}
             barcodeScannerSettings={{
               barcodeTypes: ["qr", "pdf417"],
             }}
