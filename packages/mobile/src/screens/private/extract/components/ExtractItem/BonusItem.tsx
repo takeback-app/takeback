@@ -30,7 +30,7 @@ export function BonusItem(props: BonusItemProps) {
     <Flex>
       <HStack p="4" space="4" bgColor="white">
         <Circle w="12" h="12" rounded="full" bgColor="gray.300">
-          <Ionicons name="md-gift-outline" size={24} color="black" />
+          <Ionicons name="gift-outline" size={24} color="black" />
         </Circle>
 
         <VStack flex="1">

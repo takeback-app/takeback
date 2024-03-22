@@ -43,7 +43,7 @@ export function TransactionItem(props: TransactionItemProps) {
           <Ionicons
             name={
               amountPayWithTakebackBalance > 0
-                ? 'ios-cart-outline'
+                ? 'cart-outline'
                 : 'wallet-outline'
             }
             size={24}

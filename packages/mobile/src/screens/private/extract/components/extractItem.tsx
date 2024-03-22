@@ -88,14 +88,14 @@ export function ExtractItem(props: ExtractItemProps) {
   function handleIconName() {
     if (props.isTransfer) {
       if (props.isReceived) {
-        return 'md-arrow-redo-outline'
+        return 'arrow-redo-outline'
       }
 
-      return 'md-arrow-undo-outline'
+      return 'arrow-undo-outline'
     }
 
     if (props.amountPayWithTakebackBalance > 0) {
-      return 'ios-cart-outline'
+      return 'cart-outline'
     }
 
     if (props.cashbackAmount > 0) {

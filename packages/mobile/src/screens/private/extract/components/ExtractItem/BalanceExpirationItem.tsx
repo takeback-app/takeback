@@ -15,7 +15,7 @@ export function BalanceExpirationItem(props: TransactionItemProps) {
     <Flex>
       <HStack p="4" space="4" bgColor="white">
         <Circle w="12" h="12" rounded="full" bgColor="gray.300">
-          <Ionicons name="md-calendar-sharp" size={24} color="black" />
+          <Ionicons name="calendar-sharp" size={24} color="black" />
         </Circle>
 
         <VStack flex="1">

@@ -101,7 +101,7 @@ export function ProfileEmail() {
                   name={
                     userData.emailConfirmated
                       ? 'checkmark-circle-outline'
-                      : 'ios-alert-circle-outline'
+                      : 'alert-circle-outline'
                   }
                   size="sm"
                   color={userData.emailConfirmated ? 'green.500' : 'red.500'}

@@ -34,7 +34,7 @@ export function Header({
         {variant === 'arrow' ? (
           <Icon
             as={Ionicons}
-            name="ios-chevron-back"
+            name="chevron-back"
             size="2xl"
             color="gray.800"
           />

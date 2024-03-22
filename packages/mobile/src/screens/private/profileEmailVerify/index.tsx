@@ -117,7 +117,7 @@ export function ProfileEmailVerify() {
                 as={Ionicons}
                 name={
                   resendCode
-                    ? 'ios-alert-circle-outline'
+                    ? 'alert-circle-outline'
                     : 'checkmark-circle-outline'
                 }
                 size="sm"
