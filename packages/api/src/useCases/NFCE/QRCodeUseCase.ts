@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { load } from 'cheerio'
+import { CheerioAPI, load } from 'cheerio'
 import { DateTime } from 'luxon'
 import { NFCePaymentMethod, QRCode, TransactionSource } from '@prisma/client'
 import { Decimal } from '@prisma/client/runtime/library'
@@ -73,27 +73,7 @@ export class QRCodeUseCase {
         return false
       }
 
-      const nfcePayments = $('div.row > div > strong')
-        .map((i, el) => $(el).text())
-        .splice(4) // Remove os 4 primeiros textos sem valor
-        .filter((_, i) => i % 2 === 1) // Remove as labels deixando somente os valores
-        // Transforma o Array em Objeto. Ex: ["3.00", "01 - Dinheiro", "2.20", "17 - Pix"] => [{ value: 3, tPag: 1}, { value: 2.2, tPag: 17 }]
-        .reduce((acc, val, i, arr) => {
-          if (i % 2 === 0) {
-            const nextString = arr[i + 1] as string
-
-            const tPag = nextString ? Number(nextString.split(' - ')[0]) : 17 // Se vier vazio coloca como "17 - Pix"
-            const vPag = Number(val)
-
-            acc.push({
-              value: vPag,
-              method: getNFCePaymentMethod(tPag),
-              tPag,
-            })
-          }
-
-          return acc
-        }, [])
+      const nfcePayments = await this.getNfcePayments($)
 
       const company = await prisma.company.findFirst({
         select: { id: true },
@@ -198,28 +178,54 @@ export class QRCodeUseCase {
       })
     }
 
-    // const nfce = await prisma.nFCe.create({
-    //   data: {
-    //     path,
-    //     companyId,
-    //     issuedAt,
-    //     nfcePayments: { createMany: { data: nfcePayments } },
-    //   },
-    // })
-
-    // await prisma.transaction.update({
-    //   where: { id: transaction.id },
-    //   data: {
-    //     nfceId: nfce.id,
-    //     nfceValidationStatus: NFCeValidationStatus.VALIDATED,
-    //   },
-    // })
-
     await prisma.qRCode.update({
       where: { id: this.qrCode.id },
       data: { type: 'VALIDATED' },
     })
 
     return transaction
+  }
+
+  private async getNfcePayments($: CheerioAPI) {
+    const elementsArray = $('div.row > div > strong')
+      .map((_, el) => $(el).text())
+      .splice(0)
+      .filter((_, i) => i % 2 === 1) // Remove as labels deixando somente os valores
+
+    const nfcePayments = []
+    // Os dois primeiro itens são quantidade e total
+    const quantityAndTotal = elementsArray.slice(0, 2)
+    // O restante dos itens é o método de pagamento e o valor pago com o médodo
+    const paymentMethods = elementsArray.slice(2)
+
+    const totalValue = paymentMethods.reduce(
+      (acc, curr, index) => (index % 2 === 0 ? acc + parseFloat(curr) : acc),
+      0,
+    )
+
+    const diffValue = totalValue - Number(quantityAndTotal[1])
+    const isMatchTotalValue = !diffValue
+
+    // Transforma o Array em Objeto. Ex: ["3.00", "01 - Dinheiro", "2.20", "17 - Pix"] => [{ value: 3, tPag: 1}, { value: 2.2, tPag: 17 }]
+    for (let i = 0; i < paymentMethods.length; i += 2) {
+      const value = paymentMethods[i]
+      const paymentMethod = paymentMethods[i + 1]
+      // Se vier vazio coloca como "17 - Pix"
+      const tPag = paymentMethod ? Number(paymentMethod.split(' - ')[0]) : 17
+      const method = getNFCePaymentMethod(tPag)
+      let vPag = Number(value)
+
+      if (!isMatchTotalValue && method === NFCePaymentMethod.CASH) {
+        vPag -= diffValue
+      }
+
+      nfcePayments.push({
+        value: vPag,
+        method,
+        tPag,
+      })
+    }
+
+    return nfcePayments
   }
 }
