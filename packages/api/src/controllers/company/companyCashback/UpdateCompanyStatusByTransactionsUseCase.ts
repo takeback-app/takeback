@@ -4,6 +4,15 @@ import { CompanyStatusEnum } from '../../../enum/CompanyStatusEnum'
 
 export class UpdateCompanyStatusByTransactionsUseCase {
   async execute(companyId: string) {
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: {
+        companyStatus: { select: { description: true } },
+      },
+    })
+
+    if (company.companyStatus.description === CompanyStatusEnum.BLOCKED) return
+
     const overdueTransactionCounter = await prisma.transaction.count({
       where: {
         companiesId: companyId,
