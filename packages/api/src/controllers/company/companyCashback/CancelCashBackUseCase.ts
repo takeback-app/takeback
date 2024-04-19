@@ -1,8 +1,8 @@
+import { UpdateCompanyStatusByTransactionsUseCase } from './UpdateCompanyStatusByTransactionsUseCase'
 import { InternalError } from '../../../config/GenerateErros'
 import { TransactionStatusEnum } from '../../../enum/TransactionStatusEnum'
 import { prisma } from '../../../prisma'
 import { CancelTransactionUseCase } from '../../../useCases/cashback/CancelTransactionUseCase'
-import { UpdateCompanyStatusByTransactionsUseCase } from './UpdateCompanyStatusByTransactionsUseCase'
 
 interface CancelProps {
   transactionIDs: number[]

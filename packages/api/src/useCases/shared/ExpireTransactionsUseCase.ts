@@ -86,7 +86,7 @@ export class ExpireTransactionsUseCase {
           companyId: company.id,
           paymentMethodId: 1,
           transactionIDs,
-        }
+        },
       )
     }
 
