@@ -22,12 +22,16 @@ export class GeneratePixFromConsumerUseCase {
       bankTax: +bankPixFeePercentage,
     })
 
+    console.log('pixCreateImmediateCharge', { isOK, response })
+
     if (!isOK) {
       return null
     }
 
     const { isOK: isQRCodeOk, response: qrCodeResponse } =
       await efiPay.pixGenerateQRCode(response.loc.id)
+
+    console.log('pixGenerateQRCode', { isQRCodeOk, qrCodeResponse })
 
     if (!isQRCodeOk) {
       return null
