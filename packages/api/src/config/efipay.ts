@@ -8,7 +8,7 @@ export default {
   client_secret: process.env.EFI_CLIENT_SECRET,
   pix_cert: path.resolve(
     process.env.PWD || __dirname,
-    `../../${process.env.EFI_CERT_PATH}`,
+    `../config/${process.env.EFI_CERT_PATH}`,
   ),
   validateMtls: false,
 }
