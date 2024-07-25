@@ -1,5 +1,7 @@
 import EfipaySdk from 'sdk-typescript-apis-efi'
 import { Decimal } from '@prisma/client/runtime/library'
+import fs from 'fs'
+import path from 'path'
 import config from '../config/efipay'
 import {
   ErrorReturn,
@@ -21,10 +23,21 @@ export class Efipay {
   protected pixKey: string
 
   constructor() {
-    this.efipaySdk = new EfipaySdk(config)
-    this.pixKey = process.env.EFI_PIX_KEY || ''
+    const p12FileName = process.env.EFI_CERT_FILE_NAME
+    const p12FilePath = path.resolve(__dirname, p12FileName)
 
-    console.log({ config, pixKey: this.pixKey })
+    if (!fs.existsSync(p12FilePath)) {
+      const base64Data = process.env.EFI_CERT_BASE64 || ''
+      if (base64Data) {
+        const buffer = Buffer.from(base64Data, 'base64')
+        fs.writeFileSync(p12FilePath, buffer)
+      } else {
+        throw new Error('Certificado não encontrado')
+      }
+    }
+
+    this.efipaySdk = new EfipaySdk({ ...config, pix_cert: p12FilePath })
+    this.pixKey = process.env.EFI_PIX_KEY || ''
   }
 
   public static make() {
