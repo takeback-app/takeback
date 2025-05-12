@@ -2,21 +2,21 @@
   "expo": {
     "name": "TakeBack",
     "slug": "takeback",
-    "version": "2.7.1",
+    "version": "2.7.2",
     "orientation": "portrait",
     "privacy": "unlisted",
     "userInterfaceStyle": "light",
     "icon": "./assets/icon.png",
     "ios": {
       "jsEngine": "jsc",
-      "buildNumber": "2.7.1",
+      "buildNumber": "2.7.2",
       "userInterfaceStyle": "automatic",
       "supportsTablet": false,
       "bundleIdentifier": "com.takeback"
     },
     "android": {
       "jsEngine": "hermes",
-      "versionCode": 35,
+      "versionCode": 36,
       "userInterfaceStyle": "light",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -43,9 +43,7 @@
     "updates": {
       "url": "https://u.expo.dev/112b4e0a-5f65-4f54-ad44-5ca9b3f573fa"
     },
-    "plugins": [
-      "expo-font"
-    ]
+    "plugins": ["expo-font"]
   },
   "plugins": [
     [
