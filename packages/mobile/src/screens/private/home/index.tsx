@@ -100,11 +100,13 @@ export function Home({ navigation }) {
           <FilterCompanySection text={title} onPress={onOpen} />
         )}
         renderItem={({ item }) => (
-          <CompanyItem
-            company={item}
-            onPress={navigateToCompanyDetails}
-            isLoading={item.isLoading}
-          />
+          <View paddingX={4}>
+            <CompanyItem
+              company={item}
+              onPress={navigateToCompanyDetails}
+              isLoading={item.isLoading}
+            />
+          </View>
         )}
         renderSectionFooter={({ section }) =>
           !section.data.length ? <CompaniesEmptyComponent /> : null
