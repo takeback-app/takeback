@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 
 import { NewTag } from '../../../../../components/NewTag'
+import { DescriptionTag } from '../../../../../components/DescriptionTag'
 
 interface CardsComponentProps {
   isLoading?: boolean
@@ -15,14 +16,17 @@ const cardsItems = [
     title: 'Pagar',
     icon: 'card-outline',
     to: 'takebackPayment',
-    bold: true
+    bold: true,
+    bgColor: 'white',
+    color: 'green.400',
+    description: 'Utilizar Saldo'
   },
   {
     id: 1,
     title: 'Adicionar Saldo',
     icon: 'cash-outline',
     comingSoon: false,
-    isNew: true,
+    isNew: false,
     to: 'deposit'
   },
   {
@@ -107,7 +111,7 @@ export function CardsComponent(props: CardsComponentProps) {
               alignItems="center"
               p="2"
               mr="2"
-              bgColor="white"
+              bgColor={item.bgColor || 'white'}
               rounded="xl"
               borderWidth="1"
               borderColor="#eaeaea"
@@ -121,20 +125,28 @@ export function CardsComponent(props: CardsComponentProps) {
                 as={Ionicons}
                 name={item.icon}
                 size="lg"
-                color={item.comingSoon ? 'gray.400' : 'blue.400'}
+                color={item.comingSoon ? 'gray.400' : item.color || 'blue.400'}
               />
               <Text
                 fontWeight={item.bold ? 'bold' : 'semibold'}
                 fontSize={item.bold ? 'sm' : 'xs'}
                 maxW={16}
                 textAlign="center"
-                color={item.comingSoon ? 'gray.400' : 'blue.400'}
+                color={item.comingSoon ? 'gray.400' : item.color || 'blue.400'}
                 mt="1"
               >
                 {item.title}
               </Text>
               {item.isNew && (
                 <NewTag position="absolute" bottom="-4px" right="-4px" />
+              )}
+              {item.description && (
+                <DescriptionTag
+                  description={item.description}
+                  position="absolute"
+                  bottom="-4px"
+                  right="-4px"
+                />
               )}
             </Pressable>
           )
