@@ -6,7 +6,7 @@ import { notificationCountKey } from "../../services/cacheKeys";
 export class NotificationController {
   async index(request: Request, response: Response) {
     const { id: consumerId } = request["tokenPayload"];
-    const { page = 1, limit = 10 } = request.query;
+    const { page = 1, limit = 15 } = request.query;
 
     const pageIndex = Number(page) - 1;
     const take = Number(limit);
@@ -21,10 +21,6 @@ export class NotificationController {
     const unreadNotificationsId = notifications
       .filter((n) => !n.readAt)
       .map((n) => n.id);
-
-    await prisma.notification.deleteMany({
-      where: { id: { notIn: notifications.map((n) => n.id) } },
-    });
 
     if (!unreadNotificationsId.length) {
       return response.json(notifications);
