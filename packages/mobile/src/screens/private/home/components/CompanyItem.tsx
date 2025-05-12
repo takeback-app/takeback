@@ -36,6 +36,10 @@ export function CompanyItem({ company, isLoading, onPress }: CompanyItemProps) {
       px="4"
       py="2"
       bg="white"
+      borderWidth={1}
+      borderColor="gray.200"
+      shadow={2}
+      rounded="2xl"
       onPress={() => onPress(company.id)}
     >
       {isLoading ? (

@@ -24,7 +24,7 @@ export function Notifications({ navigation }) {
     nextPage,
     onRefresh,
     refreshing
-  } = useInfiniteList<Notification>('costumer/notifications')
+  } = useInfiniteList<Notification>('costumer/notifications', 10)
 
   if (isLoading || !data) {
     return (
