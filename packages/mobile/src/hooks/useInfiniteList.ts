@@ -2,10 +2,10 @@ import { useCallback, useMemo, useState } from 'react'
 
 import useSWRInfinite from 'swr/infinite'
 
-export function useInfiniteList<T>(url: string) {
+export function useInfiniteList<T>(url: string, limit = 15) {
   const getKey = (pageIndex: number, previousPageData: T[]) => {
     if (previousPageData && !previousPageData.length) return null // reached the end
-    return `${url}?page=${pageIndex + 1}&limit=15` // SWR key
+    return `${url}?page=${pageIndex + 1}&limit=${limit}` // SWR key
   }
 
   const [refreshing, setRefreshing] = useState(false)
