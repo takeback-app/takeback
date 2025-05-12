@@ -1,34 +1,34 @@
-import { Request, Response } from 'express'
-import { DateTime } from 'luxon'
-import { prisma } from '../../prisma'
-import { maskCEP, maskCPF, maskPhone } from '../../utils/Masks'
+import { Request, Response } from "express";
+import { DateTime } from "luxon";
+import { prisma } from "../../prisma";
+import { maskCEP, maskCPF, maskPhone } from "../../utils/Masks";
 
 export class ProfileController {
   async deactivate(request: Request, response: Response) {
-    const consumerId = request['tokenPayload'].id
+    const consumerId = request["tokenPayload"].id;
 
     await prisma.consumer.update({
       where: { id: consumerId },
       data: { deactivatedAccount: true },
-    })
+    });
 
-    return response.json({ message: 'ok' })
+    return response.json({ message: "ok" });
   }
 
   async notificationToken(request: Request, response: Response) {
-    const { id: consumerId } = request['tokenPayload']
-    const { token } = request.body
+    const { id: consumerId } = request["tokenPayload"];
+    const { token } = request.body;
 
     await prisma.consumer.update({
       where: { id: consumerId },
       data: { expoNotificationToken: token },
-    })
+    });
 
-    return response.status(204).json()
+    return response.status(204).json();
   }
 
   async me(request: Request, response: Response) {
-    const { id } = request['tokenPayload']
+    const { id } = request["tokenPayload"];
 
     const consumer = await prisma.consumer.findUnique({
       where: { id },
@@ -53,20 +53,20 @@ export class ProfileController {
           },
         },
       },
-    })
+    });
 
     return response.json({
       name: consumer.fullName,
       cpf: maskCPF(consumer.cpf),
       sex: consumer.sex,
       birthday: consumer.birthDate
-        ? DateTime.fromJSDate(consumer.birthDate).toFormat('dd/MM/yyyy')
-        : '',
-      hasChildren: consumer.hasChildren ? 'sim' : 'não',
+        ? DateTime.fromJSDate(consumer.birthDate).toFormat("dd/MM/yyyy")
+        : "",
+      hasChildren: consumer.hasChildren ? "sim" : "não",
       maritalStatus: consumer.maritalStatus,
       monthlyIncomeId: String(consumer.monthlyIncomeId),
       schooling: consumer.schooling,
-      phone: maskPhone(consumer.phone),
+      phone: consumer.phone ? maskPhone(consumer.phone) : consumer.phone,
       address: {
         street: consumer.consumerAddress.street,
         district: consumer.consumerAddress.district,
@@ -75,6 +75,6 @@ export class ProfileController {
         zipCode: maskCEP(consumer.consumerAddress.zipCode),
         complement: consumer.consumerAddress.complement,
       },
-    })
+    });
   }
 }
