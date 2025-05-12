@@ -65,10 +65,6 @@ export function FieldsPage({ navigation, route }) {
       return setError('birthday', { message: 'Data inválida' })
     }
 
-    if (data.birthday && data.birthday.length !== 10) {
-      return setError('birthday', { message: 'Formato de data inválida' })
-    }
-
     if (data.phone) {
       data.phone = unMask(data.phone)
     }
