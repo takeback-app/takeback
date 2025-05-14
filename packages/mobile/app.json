@@ -24,7 +24,8 @@
       },
       "googleServicesFile": "./google-services.json",
       "package": "com.takeback",
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "edgeToEdgeEnabled": true
     },
     "splash": {
       "image": "./assets/splashScreen.png",
@@ -43,30 +44,32 @@
     "updates": {
       "url": "https://u.expo.dev/112b4e0a-5f65-4f54-ad44-5ca9b3f573fa"
     },
-    "plugins": ["expo-font"]
-  },
-  "plugins": [
-    [
-      "expo-barcode-scanner",
-      {
-        "cameraPermission": "Permitir $(PRODUCT_NAME) ter acesso à câmera."
-      }
-    ]
-  ],
-  "packagerOpts": {
-    "config": "metro.config.js",
-    "sourceExts": [
-      "expo.ts",
-      "expo.tsx",
-      "expo.js",
-      "expo.jsx",
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "wasm",
-      "svg"
-    ]
+    "plugins": [
+      "expo-font",
+      [
+        "expo-barcode-scanner",
+        {
+          "cameraPermission": "Permitir $(PRODUCT_NAME) ter acesso à câmera."
+        }
+      ],
+      ["expo-notifications"],
+      "expo-asset"
+    ],
+    "packagerOpts": {
+      "config": "metro.config.js",
+      "sourceExts": [
+        "expo.ts",
+        "expo.tsx",
+        "expo.js",
+        "expo.jsx",
+        "ts",
+        "tsx",
+        "js",
+        "jsx",
+        "json",
+        "wasm",
+        "svg"
+      ]
+    }
   }
 }

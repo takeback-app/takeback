@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { CameraView, Camera } from "expo-camera/next";
+import { CameraView, Camera } from 'expo-camera'
 
 import { Card, Center, Heading, Stack, Text } from 'native-base'
 import { Linking } from 'react-native'
@@ -19,8 +19,8 @@ export function QRCode({ navigation }) {
 
   useEffect(() => {
     const getCameraPermissions = async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
+      const { status } = await Camera.requestCameraPermissionsAsync()
+      setHasPermission(status === 'granted')
     }
 
     getCameraPermissions()
@@ -29,7 +29,7 @@ export function QRCode({ navigation }) {
   const handleBarCodeScanned = async ({ data }) => {
     setQRCodeLink(data)
     navigation.navigate('qrCodeSelectCompanyUser')
-  };
+  }
 
   return (
     <Layout withoutKeyboardDismiss>
@@ -40,7 +40,7 @@ export function QRCode({ navigation }) {
           <CameraView
             onBarcodeScanned={handleBarCodeScanned}
             barcodeScannerSettings={{
-              barcodeTypes: ["qr", "pdf417"],
+              barcodeTypes: ['qr', 'pdf417']
             }}
             style={{ flex: 1 }}
           />

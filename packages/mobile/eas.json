@@ -1,7 +1,5 @@
 {
-  "cli": {
-    "version": ">= 0.48.0"
-  },
+  "cli": { "appVersionSource": "remote", "version": ">= 0.48.0" },
   "build": {
     "development": {
       "distribution": "internal",
