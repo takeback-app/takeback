@@ -53,7 +53,6 @@ import { FinancialReport } from '../views/reports/financial'
 import { Transfers } from '../views/consumer/transfers/transfers'
 import { ConsumerProfile } from '../views/reports/consumerProfile'
 import { PaymentOrders } from '../views/cashbacks/cashbacksPaymentOrders/paymentOrders/PaymentOrders'
-import DeleteAccountInfo from '../views/support/delete-info'
 
 interface Props {
   children: JSX.Element
@@ -73,7 +72,7 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
       <Route path="/" element={<SignIn />} />
       <Route path="/resetar-senha" element={<ResetPassword />} />
       <Route path="/recuperar-senha" element={<ForgotPassword />} />
-      <Route path="/delete-account-info" element={<DeleteAccountInfo />} />
+
       <Route
         path="/dashboard"
         element={
