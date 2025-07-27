@@ -61,17 +61,23 @@ export class GenerateTicketsUseCase {
         },
       },
       where: {
-        status: { description: RaffleStatusEnum.APPROVED },
-        ticketValue: { lte: purchaseAmount },
-        drawDate: { gte: DateTime.now().startOf('day').toJSDate() },
-        OR: [
-          { companyId: company.id },
+        AND: [
           {
-            openToCompanyRaffles: {
-              some: {
-                companyId: company.id,
+            status: { description: RaffleStatusEnum.APPROVED },
+            ticketValue: { lte: purchaseAmount },
+            drawDate: { gte: DateTime.now().startOf('day').toJSDate() },
+          },
+          {
+            OR: [
+              { companyId: company.id },
+              {
+                openToCompanyRaffles: {
+                  some: {
+                    companyId: company.id,
+                  },
+                },
               },
-            },
+            ],
           },
         ],
       },
