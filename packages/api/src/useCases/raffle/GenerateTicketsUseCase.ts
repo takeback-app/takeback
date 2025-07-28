@@ -1,4 +1,8 @@
-import { Company as PrismaCompany, RaffleTicketStatus } from '@prisma/client'
+import {
+  Company as PrismaCompany,
+  RaffleTicketStatus,
+  Transaction,
+} from '@prisma/client'
 
 import { DateTime } from 'luxon'
 import { RaffleTicketCalculator } from './RaffleTicketCalculator'
@@ -9,7 +13,7 @@ interface Props {
   companyId: string
   consumerId: string
   purchaseAmount: number
-  transactionId: number
+  transaction: Transaction
   status: RaffleTicketStatus
 }
 
@@ -24,7 +28,7 @@ export class GenerateTicketsUseCase {
     companyId,
     consumerId,
     purchaseAmount,
-    transactionId,
+    transaction,
     status,
   }: Props) {
     const company = await prisma.company.findUnique({
@@ -34,12 +38,12 @@ export class GenerateTicketsUseCase {
       },
     })
 
-    const raffles = await this.getRaffles(company, purchaseAmount)
+    const raffles = await this.getRaffles(company, purchaseAmount, transaction)
 
     const ticketsCalculator = RaffleTicketCalculator.make({
       consumerId,
       purchaseAmount,
-      transactionId,
+      transactionId: transaction.id,
     })
 
     for (const raffle of raffles) {
@@ -51,7 +55,11 @@ export class GenerateTicketsUseCase {
     return raffles
   }
 
-  private getRaffles(company: Company, purchaseAmount: number) {
+  private getRaffles(
+    company: Company,
+    purchaseAmount: number,
+    transaction: Transaction,
+  ) {
     return prisma.raffle.findMany({
       include: {
         tickets: {
@@ -61,17 +69,28 @@ export class GenerateTicketsUseCase {
         },
       },
       where: {
-        status: { description: RaffleStatusEnum.APPROVED },
-        ticketValue: { lte: purchaseAmount },
-        drawDate: { gte: DateTime.now().startOf('day').toJSDate() },
-        OR: [
-          { companyId: company.id },
+        AND: [
           {
-            openToCompanyRaffles: {
-              some: {
-                companyId: company.id,
-              },
+            createdAt: {
+              lte: DateTime.fromJSDate(transaction.createdAt)
+                .startOf('day')
+                .toJSDate(),
             },
+            status: { description: RaffleStatusEnum.APPROVED },
+            ticketValue: { lte: purchaseAmount },
+            drawDate: { gte: DateTime.now().startOf('day').toJSDate() },
+          },
+          {
+            OR: [
+              { companyId: company.id },
+              {
+                openToCompanyRaffles: {
+                  some: {
+                    companyId: company.id,
+                  },
+                },
+              },
+            ],
           },
         ],
       },

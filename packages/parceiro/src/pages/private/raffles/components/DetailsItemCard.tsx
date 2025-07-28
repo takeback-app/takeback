@@ -24,6 +24,13 @@ export interface Item {
       cpf: string
       phone: string
     }
+    transaction: {
+      company: {
+        fantasyName: string
+      }
+      createdAt: string
+      totalAmount: string
+    }
   }
   raffleItemDelivery?: {
     deliveredAt?: string
@@ -78,6 +85,19 @@ function RaffleItem({
                 }`
               : '-'}
           </Text>
+          {winnerTicket?.transaction && (
+            <Text fontSize="sm" fontWeight="medium">
+              Local da compra:{' '}
+              {winnerTicket?.transaction.company
+                ? `${winnerTicket?.transaction.company.fantasyName} - ${moment(
+                    winnerTicket?.transaction.createdAt
+                  ).format('DD/MM/YYYY')} - ${Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                  }).format(Number(winnerTicket.transaction.totalAmount || 0))}`
+                : '-'}
+            </Text>
+          )}
           <Text fontSize="sm" fontWeight="medium">
             Entregue em:{' '}
             {raffleItemDelivery?.deliveredAt

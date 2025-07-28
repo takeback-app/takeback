@@ -91,6 +91,13 @@ interface Raffle {
         cpf: string
         phone: string
       }
+      transaction: {
+        company: {
+          fantasyName: string
+        }
+        createdAt: string
+        totalAmount: string
+      }
     }
   }[]
   consumers: {
