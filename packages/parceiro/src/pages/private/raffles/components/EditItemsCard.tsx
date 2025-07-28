@@ -17,7 +17,6 @@ import {
 import { IoAdd, IoTrash } from 'react-icons/io5'
 import { AddItemModal, RaffleCreateItemData } from './AddItemModal'
 import { maskCPF, maskPhone } from '../../../../utils/masks'
-import moment from 'moment'
 
 export interface Item {
   image?: File
@@ -27,13 +26,6 @@ export interface Item {
       fullName: string
       cpf: string
       phone: string
-    }
-    transaction: {
-      company: {
-        fantasyName: string
-      }
-      createdAt: string
-      totalAmount: string
     }
   }
   description: string
@@ -113,28 +105,6 @@ export function EditItemsCard({ items, setItems }: ItemsCardProps) {
                             }`
                           : '-'}
                       </Text>
-                      {winnerTicket?.transaction && (
-                        <Text fontSize="sm" fontWeight="medium">
-                          Local da compra:{' '}
-                          {winnerTicket?.transaction.company
-                            ? `${
-                                winnerTicket?.transaction.company.fantasyName
-                              } - ${moment(
-                                winnerTicket?.transaction.createdAt
-                              ).format('DD/MM/YYYY')} - ${Intl.NumberFormat(
-                                'pt-BR',
-                                {
-                                  style: 'currency',
-                                  currency: 'BRL'
-                                }
-                              ).format(
-                                Number(
-                                  winnerTicket.transaction.totalAmount || 0
-                                )
-                              )}`
-                            : '-'}
-                        </Text>
-                      )}
                     </Flex>
                   </Flex>
                 ) : null}
