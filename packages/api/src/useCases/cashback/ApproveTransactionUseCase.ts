@@ -51,8 +51,20 @@ export class ApproveTransactionUseCase {
     });
 
     const tickets = await prisma.raffleTicket.updateMany({
-      where: { transactionId: transactionId },
+      where: {
+        transactionId: transactionId,
+        raffle: { drawDate: { gte: new Date() } },
+      },
       data: { status: "ACTIVE" },
+    });
+
+    await prisma.raffleTicket.updateMany({
+      where: {
+        transactionId: transactionId,
+        raffle: { drawDate: { lt: new Date() } },
+        status: 'PENDING',
+      },
+      data: { status: "CANCELED" },
     });
 
     Notify.send(
