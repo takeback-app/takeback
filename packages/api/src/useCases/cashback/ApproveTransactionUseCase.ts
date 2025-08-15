@@ -1,3 +1,4 @@
+import { RaffleTicketStatus } from "@prisma/client";
 import { TransactionStatusEnum } from "../../enum/TransactionStatusEnum";
 import { CashbackApproved, Notify } from "../../notifications";
 import { prisma } from "../../prisma";
@@ -52,19 +53,28 @@ export class ApproveTransactionUseCase {
 
     const tickets = await prisma.raffleTicket.updateMany({
       where: {
-        transactionId: transactionId,
-        raffle: { drawDate: { gte: new Date() } },
+        transactionId,
+        raffle: { statusId: 2 },
       },
-      data: { status: "ACTIVE" },
+      data: { status: RaffleTicketStatus.ACTIVE },
     });
 
     await prisma.raffleTicket.updateMany({
       where: {
-        transactionId: transactionId,
-        raffle: { drawDate: { lt: new Date() } },
-        status: 'PENDING',
+        transactionId,
+        raffle: { statusId: { in: [5, 6, 7] } },
+        status: RaffleTicketStatus.PENDING,
       },
-      data: { status: "CANCELED" },
+      data: { status: RaffleTicketStatus.FINISHED },
+    });
+
+    await prisma.raffleTicket.updateMany({
+      where: {
+        transactionId,
+        raffle: { statusId: { in: [4, 8] } },
+        status: RaffleTicketStatus.PENDING,
+      },
+      data: { status: RaffleTicketStatus.CANCELED },
     });
 
     Notify.send(
