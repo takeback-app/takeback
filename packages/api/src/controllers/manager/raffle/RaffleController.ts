@@ -58,16 +58,7 @@ export class RaffleController {
               include: { companyUser: { select: { name: true } } },
             },
             winnerTicket: {
-              select: {
-                consumer: { select: { fullName: true, cpf: true } },
-                transaction: {
-                  select: {
-                    company: { select: { fantasyName: true } },
-                    createdAt: true,
-                    totalAmount: true,
-                  },
-                },
-              },
+              select: { consumer: { select: { fullName: true, cpf: true } } },
             },
           },
         },

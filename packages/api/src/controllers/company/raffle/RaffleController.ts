@@ -51,13 +51,6 @@ export class RaffleController {
                 consumer: {
                   select: { fullName: true, cpf: true, phone: true },
                 },
-                transaction: {
-                  select: {
-                    company: { select: { fantasyName: true } },
-                    createdAt: true,
-                    totalAmount: true,
-                  },
-                },
               },
             },
           },
