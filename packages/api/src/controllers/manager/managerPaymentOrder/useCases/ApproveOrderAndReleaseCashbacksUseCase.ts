@@ -63,106 +63,167 @@ class ApproveOrderAndReleaseCashbacksUseCase {
       },
     })
 
-    const transactionsGrouped = transactions.reduce((acc, currentValue) => {
-      const { consumersId, ...rest } = currentValue
+    const transactionIDs = transactions.map((transaction) => transaction.id)
 
-      if (!acc[consumersId]) {
-        acc[consumersId] = { consumerId: consumersId, transactions: [] }
-      }
+    const transactionsForPaymentOrder = await prisma.transaction.count({
+      where: {
+        paymentOrderId,
+      },
+    })
+    if (transactionsForPaymentOrder !== transactionIDs.length) {
+      throw new InternalError(
+        'Já existem pagamentos sendo processados. Aguarde alguns minutos recarregue a página e tente novamente.',
+        404,
+      )
+    }
 
-      acc[consumersId].transactions.push({ consumersId, ...rest })
+    const approvedStatusTransaction = await prisma.transactionStatus.findFirst({
+      where: { description: TransactionStatusEnum.APPROVED },
+    })
 
-      return acc
-    }, {})
+    await prisma.transaction.updateMany({
+      where: {
+        id: { in: transactionIDs },
+        approvedAt: null,
+        paymentOrderId: null,
+        transactionStatus: {
+          description: {
+            in: [
+              TransactionStatusEnum.PENDING,
+              TransactionStatusEnum.ON_DELAY,
+              TransactionStatusEnum.PROCESSING,
+            ],
+          },
+        },
+      },
+      data: { transactionStatusId: approvedStatusTransaction.id },
+    })
+    let html
 
-    const transactionGroupedPerConsumer = Object.values(
-      transactionsGrouped,
-    ) as TransactionPerConsumer[]
+    try {
+      const transactionsGrouped = transactions.reduce((acc, currentValue) => {
+        const { consumersId, ...rest } = currentValue
 
-    const consumerToChangeBalance = transactionGroupedPerConsumer.map(
-      (item) => {
-        const value = item.transactions.reduce(
-          (total, transaction) =>
-            total.plus(transaction.cashbackAmount).plus(transaction.backAmount),
-          new Decimal(0),
-        )
-
-        return {
-          consumerId: item.consumerId,
-          value: value,
+        if (!acc[consumersId]) {
+          acc[consumersId] = { consumerId: consumersId, transactions: [] }
         }
-      },
-    )
 
-    let takebackFeeAmount = new Decimal(0)
-    let cashbackAmount = new Decimal(0)
-    let backAmount = new Decimal(0)
+        acc[consumersId].transactions.push({ consumersId, ...rest })
 
-    const useCase = new ApproveTransactionUseCase(paymentOrder.id)
+        return acc
+      }, {})
 
-    for await (const item of transactions) {
-      await useCase.execute({
-        companyName: paymentOrder.company.fantasyName,
-        consumersId: item.consumersId,
-        totalAmount: Number(item.totalAmount),
-        transactionId: item.id,
-      })
-      takebackFeeAmount = takebackFeeAmount.plus(item.takebackFeeAmount)
-      cashbackAmount = cashbackAmount.plus(item.cashbackAmount)
-      backAmount = backAmount.plus(item.backAmount)
-    }
+      const transactionGroupedPerConsumer = Object.values(
+        transactionsGrouped,
+      ) as TransactionPerConsumer[]
 
-    for (const item of consumerToChangeBalance) {
-      await prisma.consumer.update({
-        where: { id: item.consumerId },
-        data: {
-          blockedBalance: { decrement: item.value },
-          balance: { increment: item.value },
+      const consumerToChangeBalance = transactionGroupedPerConsumer.map(
+        (item) => {
+          const value = item.transactions.reduce(
+            (total, transaction) =>
+              total
+                .plus(transaction.cashbackAmount)
+                .plus(transaction.backAmount),
+            new Decimal(0),
+          )
+
+          return {
+            consumerId: item.consumerId,
+            value: value,
+          }
         },
+      )
+
+      let takebackFeeAmount = new Decimal(0)
+      let cashbackAmount = new Decimal(0)
+      let backAmount = new Decimal(0)
+
+      await prisma.$transaction(async (tx) => {
+        const useCase = new ApproveTransactionUseCase(paymentOrder.id, tx)
+
+        for await (const item of transactions) {
+          await useCase.execute({
+            companyName: paymentOrder.company.fantasyName,
+            consumersId: item.consumersId,
+            totalAmount: Number(item.totalAmount),
+            transactionId: item.id,
+          })
+          takebackFeeAmount = takebackFeeAmount.plus(item.takebackFeeAmount)
+          cashbackAmount = cashbackAmount.plus(item.cashbackAmount)
+          backAmount = backAmount.plus(item.backAmount)
+        }
+
+        for (const item of consumerToChangeBalance) {
+          await tx.consumer.update({
+            where: { id: item.consumerId },
+            data: {
+              blockedBalance: { decrement: item.value },
+              balance: { increment: item.value },
+            },
+          })
+        }
+
+        await tx.company.update({
+          where: { id: paymentOrder.company.id },
+          data: {
+            negativeBalance: {
+              decrement: paymentOrder.value,
+            },
+          },
+        })
+
+        const approvedStatus = await tx.paymentOrderStatus.findFirst({
+          where: { description: PaymentOrderStatusEnum.AUTHORIZED },
+        })
+
+        await tx.paymentOrder.update({
+          where: { id: paymentOrderId },
+          data: { statusId: approvedStatus.id, approvedAt: new Date() },
+        })
       })
-    }
 
-    await prisma.company.update({
-      where: { id: paymentOrder.company.id },
-      data: {
-        negativeBalance: {
-          decrement: paymentOrder.value,
+      await new UpdateCompanyStatusByTransactionsUseCase().execute(
+        paymentOrder.company.id,
+      )
+
+      const emailTemplate = fs.readFileSync(
+        path.resolve('src/utils/emailTemplates/template1.hbs'),
+        'utf-8',
+      )
+
+      const template = hbs.compile(emailTemplate)
+
+      html = template({
+        title: `Cashbacks liberados 🤑`,
+        sectionOne: `Você acabou de alegrar o dia de ${consumerToChangeBalance.length} dos seus clientes disponibilizando o saldo deles.`,
+        sectionTwo: `Ordem de pagamento N°${
+          paymentOrder.id
+        } | Valor liberado: ${applyCurrencyMask(
+          cashbackAmount.toNumber(),
+        )} | Taxas operacionais: ${applyCurrencyMask(
+          cashbackAmount.toNumber(),
+        )} | Total: ${applyCurrencyMask(paymentOrder.value.toNumber())}`,
+        sectionThree: 'Abraços! Equipe TakeBack :)',
+      })
+    } catch (error) {
+      const processingStatusTransaction =
+        await prisma.transactionStatus.findFirst({
+          where: { description: TransactionStatusEnum.PROCESSING },
+        })
+
+      await prisma.transaction.updateMany({
+        where: {
+          id: { in: transactionIDs },
+          transactionStatus: {
+            description: {
+              in: [TransactionStatusEnum.APPROVED],
+            },
+          },
         },
-      },
-    })
-
-    const approvedStatus = await prisma.paymentOrderStatus.findFirst({
-      where: { description: PaymentOrderStatusEnum.AUTHORIZED },
-    })
-
-    await prisma.paymentOrder.update({
-      where: { id: paymentOrderId },
-      data: { statusId: approvedStatus.id, approvedAt: new Date() },
-    })
-
-    await new UpdateCompanyStatusByTransactionsUseCase().execute(
-      paymentOrder.company.id,
-    )
-
-    const emailTemplate = fs.readFileSync(
-      path.resolve('src/utils/emailTemplates/template1.hbs'),
-      'utf-8',
-    )
-
-    const template = hbs.compile(emailTemplate)
-
-    const html = template({
-      title: `Cashbacks liberados 🤑`,
-      sectionOne: `Você acabou de alegrar o dia de ${consumerToChangeBalance.length} dos seus clientes disponibilizando o saldo deles.`,
-      sectionTwo: `Ordem de pagamento N°${
-        paymentOrder.id
-      } | Valor liberado: ${applyCurrencyMask(
-        cashbackAmount.toNumber(),
-      )} | Taxas operacionais: ${applyCurrencyMask(
-        cashbackAmount.toNumber(),
-      )} | Total: ${applyCurrencyMask(paymentOrder.value.toNumber())}`,
-      sectionThree: 'Abraços! Equipe TakeBack :)',
-    })
+        data: { transactionStatusId: processingStatusTransaction.id },
+      })
+      throw new InternalError('Erro ao liberar cashbacks', 400)
+    }
 
     const mailOptions = {
       from: process.env.MAIL_CONFIG_USER,
