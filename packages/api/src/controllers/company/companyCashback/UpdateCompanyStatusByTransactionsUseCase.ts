@@ -13,10 +13,14 @@ export class UpdateCompanyStatusByTransactionsUseCase {
 
     if (company.companyStatus.description === CompanyStatusEnum.BLOCKED) return
 
+    const onDelayStatus = await prisma.transactionStatus.findFirst({
+      where: { description: TransactionStatusEnum.ON_DELAY },
+    })
+
     const overdueTransactionCounter = await prisma.transaction.count({
       where: {
         companiesId: companyId,
-        transactionStatus: { description: TransactionStatusEnum.ON_DELAY },
+        transactionStatusId: onDelayStatus.id,
       },
     })
 
