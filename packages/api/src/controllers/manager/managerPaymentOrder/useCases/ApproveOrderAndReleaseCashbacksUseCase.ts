@@ -1,6 +1,5 @@
 import { Decimal } from '@prisma/client/runtime'
 import hbs from 'handlebars'
-import pLimit from 'p-limit'
 import fs from 'fs'
 import path from 'path'
 import { InternalError } from '../../../../config/GenerateErros'
@@ -141,37 +140,17 @@ class ApproveOrderAndReleaseCashbacksUseCase {
 
       const useCase = new ApproveTransactionUseCase(paymentOrder.id)
 
-      const limit = pLimit(4)
-
-      await Promise.all(
-        transactions.map((item) =>
-          limit(async () => {
-            await useCase.execute({
-              companyName: paymentOrder.company.fantasyName,
-              consumersId: item.consumersId,
-              totalAmount: Number(item.totalAmount),
-              transactionId: item.id,
-            })
-
-            // acumula localmente (mantido)
-            takebackFeeAmount = takebackFeeAmount.plus(item.takebackFeeAmount)
-            cashbackAmount = cashbackAmount.plus(item.cashbackAmount)
-            backAmount = backAmount.plus(item.backAmount)
-          }),
-        ),
-      )
-
-      // for await (const item of transactions) {
-      //   await useCase.execute({
-      //     companyName: paymentOrder.company.fantasyName,
-      //     consumersId: item.consumersId,
-      //     totalAmount: Number(item.totalAmount),
-      //     transactionId: item.id,
-      //   })
-      //   takebackFeeAmount = takebackFeeAmount.plus(item.takebackFeeAmount)
-      //   cashbackAmount = cashbackAmount.plus(item.cashbackAmount)
-      //   backAmount = backAmount.plus(item.backAmount)
-      // }
+      for await (const item of transactions) {
+        await useCase.execute({
+          companyName: paymentOrder.company.fantasyName,
+          consumersId: item.consumersId,
+          totalAmount: Number(item.totalAmount),
+          transactionId: item.id,
+        })
+        takebackFeeAmount = takebackFeeAmount.plus(item.takebackFeeAmount)
+        cashbackAmount = cashbackAmount.plus(item.cashbackAmount)
+        backAmount = backAmount.plus(item.backAmount)
+      }
 
       for (const item of consumerToChangeBalance) {
         await prisma.consumer.update({
