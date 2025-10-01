@@ -2,6 +2,7 @@
 import { TransactionStatus } from '@prisma/client'
 import { Decimal } from '@prisma/client/runtime'
 import hbs from 'handlebars'
+import pLimit from 'p-limit'
 import fs from 'fs'
 import path from 'path'
 import { MonthlyPaymentUseCase } from '../../../useCases/company/MonthlyPaymentUseCase'
@@ -318,100 +319,113 @@ export class GeneratePaymentOrderUseCase {
     let htmlTemplate
 
     try {
-      await prisma.$transaction(async (tx) => {
-        const consumerToChangeBalance =
-          this.generateConsumerToChangeBalance(transactions)
+      const consumerToChangeBalance =
+        this.generateConsumerToChangeBalance(transactions)
 
-        // calculate values
-        let takebackFeeAmount = new Decimal(0)
-        let cashbackAmount = new Decimal(0)
-        let backAmount = new Decimal(0)
+      // calculate values
+      let takebackFeeAmount = new Decimal(0)
+      let cashbackAmount = new Decimal(0)
+      let backAmount = new Decimal(0)
 
-        for (const item of transactions) {
-          takebackFeeAmount = takebackFeeAmount.plus(item.takebackFeeAmount)
-          cashbackAmount = cashbackAmount.plus(item.cashbackAmount)
-          backAmount = backAmount.plus(item.backAmount)
-        }
-        const approvedStatus = await tx.paymentOrderStatus.findFirst({
-          where: { description: PaymentOrderStatusEnum.AUTHORIZED },
-        })
-
-        const paymentMethod = await tx.paymentOrderMethod.findUnique({
-          where: { id: TAKEBACK_METHOD },
-        })
-
-        const totalTransactionsValues = takebackFeeAmount
-          .plus(cashbackAmount)
-          .plus(backAmount)
-
-        if (company.positiveBalance.lessThan(totalTransactionsValues)) {
-          throw new InternalError('Saldo Takeback insuficiente', 400)
-        }
-        const paymentOrder = await tx.paymentOrder.create({
-          data: {
-            value: totalTransactionsValues,
-            company: {
-              connect: { id: company.id },
-            },
-            paymentOrderStatus: {
-              connect: { id: approvedStatus.id },
-            },
-            paymentOrderMethod: {
-              connect: { id: paymentMethod.id },
-            },
-          },
-          include: {
-            company: {
-              select: { fantasyName: true },
-            },
-          },
-        })
-        await new Promise<void>((resolve) => setTimeout(resolve, 61000))
-
-        const useCase = new ApproveTransactionUseCase(paymentOrder.id, tx)
-        for (const item of transactions) {
-          await useCase.execute({
-            companyName: paymentOrder.company.fantasyName,
-            consumersId: item.consumersId,
-            totalAmount: Number(item.totalAmount),
-            transactionId: item.id,
-          })
-        }
-        for (const item of consumerToChangeBalance) {
-          await tx.consumer.update({
-            where: { id: item.consumerId },
-            data: {
-              blockedBalance: { decrement: item.value },
-              balance: { increment: item.value },
-            },
-          })
-        }
-
-        await tx.company.update({
-          where: { id: companyId },
-          data: {
-            positiveBalance: {
-              decrement: totalTransactionsValues,
-            },
-            negativeBalance: totalTransactionsValues,
-          },
-        })
-
-        await new UpdateCompanyStatusByTransactionsUseCase().execute(companyId)
-
-        htmlTemplate = {
-          title: `Cashbacks liberados 🤑`,
-          sectionOne: `Você acabou de alegrar o dia de ${consumerToChangeBalance.length} dos seus clientes disponibilizando o saldo deles.`,
-          sectionTwo: `Ordem de pagamento N°${
-            paymentOrder.id
-          } | Valor liberado: ${applyCurrencyMask(
-            cashbackAmount.toNumber(),
-          )} | Taxas operacionais: ${applyCurrencyMask(
-            takebackFeeAmount.toNumber(),
-          )} | Total: ${applyCurrencyMask(Number(paymentOrder.value))}`,
-          sectionThree: 'Abraços! Equipe TakeBack :)',
-        }
+      for (const item of transactions) {
+        takebackFeeAmount = takebackFeeAmount.plus(item.takebackFeeAmount)
+        cashbackAmount = cashbackAmount.plus(item.cashbackAmount)
+        backAmount = backAmount.plus(item.backAmount)
+      }
+      const approvedStatus = await prisma.paymentOrderStatus.findFirst({
+        where: { description: PaymentOrderStatusEnum.AUTHORIZED },
       })
+
+      const paymentMethod = await prisma.paymentOrderMethod.findUnique({
+        where: { id: TAKEBACK_METHOD },
+      })
+
+      const totalTransactionsValues = takebackFeeAmount
+        .plus(cashbackAmount)
+        .plus(backAmount)
+
+      if (company.positiveBalance.lessThan(totalTransactionsValues)) {
+        throw new InternalError('Saldo Takeback insuficiente', 400)
+      }
+      const paymentOrder = await prisma.paymentOrder.create({
+        data: {
+          value: totalTransactionsValues,
+          company: {
+            connect: { id: company.id },
+          },
+          paymentOrderStatus: {
+            connect: { id: approvedStatus.id },
+          },
+          paymentOrderMethod: {
+            connect: { id: paymentMethod.id },
+          },
+        },
+        include: {
+          company: {
+            select: { fantasyName: true },
+          },
+        },
+      })
+      const limit = pLimit(4)
+
+      const useCase = new ApproveTransactionUseCase(paymentOrder.id)
+
+      await Promise.all(
+        transactions.map((item) =>
+          limit(() =>
+            useCase.execute({
+              companyName: paymentOrder.company.fantasyName,
+              consumersId: item.consumersId,
+              totalAmount: Number(item.totalAmount),
+              transactionId: item.id,
+            }),
+          ),
+        ),
+      )
+
+      // for (const item of transactions) {
+      //   await useCase.execute({
+      //     companyName: paymentOrder.company.fantasyName,
+      //     consumersId: item.consumersId,
+      //     totalAmount: Number(item.totalAmount),
+      //     transactionId: item.id,
+      //   })
+      // }
+
+      for (const item of consumerToChangeBalance) {
+        await prisma.consumer.update({
+          where: { id: item.consumerId },
+          data: {
+            blockedBalance: { decrement: item.value },
+            balance: { increment: item.value },
+          },
+        })
+      }
+
+      await prisma.company.update({
+        where: { id: companyId },
+        data: {
+          positiveBalance: {
+            decrement: totalTransactionsValues,
+          },
+          negativeBalance: totalTransactionsValues,
+        },
+      })
+
+      await new UpdateCompanyStatusByTransactionsUseCase().execute(companyId)
+
+      htmlTemplate = {
+        title: `Cashbacks liberados 🤑`,
+        sectionOne: `Você acabou de alegrar o dia de ${consumerToChangeBalance.length} dos seus clientes disponibilizando o saldo deles.`,
+        sectionTwo: `Ordem de pagamento N°${
+          paymentOrder.id
+        } | Valor liberado: ${applyCurrencyMask(
+          cashbackAmount.toNumber(),
+        )} | Taxas operacionais: ${applyCurrencyMask(
+          takebackFeeAmount.toNumber(),
+        )} | Total: ${applyCurrencyMask(Number(paymentOrder.value))}`,
+        sectionThree: 'Abraços! Equipe TakeBack :)',
+      }
     } catch (error) {
       const pendingStatusTransaction = await prisma.transactionStatus.findFirst(
         {
