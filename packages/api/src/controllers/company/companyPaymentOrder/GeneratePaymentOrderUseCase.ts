@@ -2,7 +2,6 @@
 import { TransactionStatus } from '@prisma/client'
 import { Decimal } from '@prisma/client/runtime'
 import hbs from 'handlebars'
-import pLimit from 'p-limit'
 import fs from 'fs'
 import path from 'path'
 import { MonthlyPaymentUseCase } from '../../../useCases/company/MonthlyPaymentUseCase'
@@ -366,31 +365,17 @@ export class GeneratePaymentOrderUseCase {
           },
         },
       })
-      const limit = pLimit(4)
 
       const useCase = new ApproveTransactionUseCase(paymentOrder.id)
 
-      await Promise.all(
-        transactions.map((item) =>
-          limit(() =>
-            useCase.execute({
-              companyName: paymentOrder.company.fantasyName,
-              consumersId: item.consumersId,
-              totalAmount: Number(item.totalAmount),
-              transactionId: item.id,
-            }),
-          ),
-        ),
-      )
-
-      // for (const item of transactions) {
-      //   await useCase.execute({
-      //     companyName: paymentOrder.company.fantasyName,
-      //     consumersId: item.consumersId,
-      //     totalAmount: Number(item.totalAmount),
-      //     transactionId: item.id,
-      //   })
-      // }
+      for (const item of transactions) {
+        await useCase.execute({
+          companyName: paymentOrder.company.fantasyName,
+          consumersId: item.consumersId,
+          totalAmount: Number(item.totalAmount),
+          transactionId: item.id,
+        })
+      }
 
       for (const item of consumerToChangeBalance) {
         await prisma.consumer.update({
