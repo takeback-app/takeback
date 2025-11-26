@@ -8,7 +8,7 @@ import { ApproveSolicitationUseCase } from '../useCases/cashback/ApproveSolicita
 const STATUS_WAITING = 'WAITING'
 
 async function main() {
-  const refDate = DateTime.now().minus({ day: 1 }).toJSDate()
+  const refDate = DateTime.now().minus({ days: 2 }).toJSDate()
 
   try {
     const solicitations = await prisma.transactionSolicitation.findMany({
