@@ -41,6 +41,24 @@ export async function storeImage(file: File): Promise<ReturnApi> {
   }
 }
 
+export async function updateProduct(id: string, data: any): Promise<ReturnApi> {
+  try {
+    const { data: response } = await API.put(
+      `manager/store/products/${id}`,
+      data
+    )
+
+    return [true, response]
+  } catch (err) {
+    const error = err as AxiosError
+
+    return [
+      false,
+      { message: error.response?.data.message || 'Contate um administrador' }
+    ]
+  }
+}
+
 export async function deleteProduct(id: string): Promise<ReturnApi> {
   try {
     const { data } = await API.delete(`manager/store/products/${id}`)

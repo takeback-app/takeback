@@ -378,6 +378,7 @@ routes.get('/store/companies', storeProductController.listCompanies)
 routes.get('/store/products', storeProductController.index)
 routes.get('/store/products/:id', storeProductController.show)
 routes.post('/store/products', storeProductController.store)
+routes.put('/store/products/:id', storeProductController.update)
 routes.delete('/store/products/:id', storeProductController.delete)
 
 routes.put('/cashback/cancel/:id', managerCashback.cancelOneCashback)
