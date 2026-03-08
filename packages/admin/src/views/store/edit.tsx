@@ -126,6 +126,7 @@ export function EditStoreProduct() {
   async function handleUpdate(data: EditStoreProductForm) {
     if (!id) return
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     let imageUrl = product!.imageUrl
 
     if (data.file && data.file.length > 0) {
@@ -142,6 +143,7 @@ export function EditStoreProduct() {
       imageUrl = imageData.url
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const payload: any = {
       name: data.name,
       imageUrl,

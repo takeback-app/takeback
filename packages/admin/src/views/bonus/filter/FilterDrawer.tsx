@@ -23,7 +23,7 @@ interface FilterDrawerProps {
 }
 
 export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
-  const { setForm, dateStart, dateEnd, bonusType, reset } = useExtract()
+  const { setForm, dateStart, dateEnd, reset } = useExtract()
 
   const [localDateStart, setDateStart] = useState(dateStart)
   const [localDateEnd, setDateEnd] = useState(dateEnd)

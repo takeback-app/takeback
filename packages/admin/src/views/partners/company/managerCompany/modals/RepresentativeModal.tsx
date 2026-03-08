@@ -15,7 +15,6 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { useForm } from 'react-hook-form'
-import { axiosFetcher } from '../../../../../services/API'
 import { chakraToastConfig } from '../../../../../styles/chakraToastConfig'
 import { ChakraSelect } from '../../../../../components/chakra/ChakraSelect'
 import ReportButton from '../../../../../components/buttons/ReportButton/ReportButton'
