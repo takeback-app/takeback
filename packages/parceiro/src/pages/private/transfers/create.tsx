@@ -35,7 +35,6 @@ import * as S from './styles'
 import { Layout } from '../../../components/ui/layout'
 import { currencyFormat } from '../../../utils/currencyFormat'
 import { DefaultModalChakra } from './components/DefaultModalChakra'
-import QuartenaryButton from './components/QuartenaryButton'
 
 const schema = z.object({
   companyReceivedId: z.string(),
@@ -62,10 +61,6 @@ interface ICompanies {
 interface ITransferData {
   companyReceivedId: string
   value: number
-}
-
-interface IPasswordData {
-  password: string
 }
 
 type CreateStoreProductForm = z.infer<typeof schema>

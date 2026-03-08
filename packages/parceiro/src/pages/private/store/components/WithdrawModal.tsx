@@ -62,7 +62,6 @@ export function WithdrawModal({
   const {
     register,
     handleSubmit,
-    setError,
     reset,
     formState: { errors, isSubmitting }
   } = useForm<ConfirmationModalData>({ resolver: zodResolver(schema) })
