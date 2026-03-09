@@ -4,6 +4,7 @@ import { API } from './API'
 
 type ReturnApi = [boolean, { message?: string }]
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function updateCompany(id: string, data: any): Promise<ReturnApi> {
   try {
     await API.put(`representative/companies/${id}`, data)
@@ -19,6 +20,7 @@ export async function updateCompany(id: string, data: any): Promise<ReturnApi> {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function storeCompany(data: any): Promise<ReturnApi> {
   try {
     await API.post(`representative/companies`, data)

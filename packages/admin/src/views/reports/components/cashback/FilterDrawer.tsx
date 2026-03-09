@@ -30,7 +30,7 @@ interface FilterDrawerProps {
 }
 
 export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
-  const { setForm, dateStart, dateEnd, order, orderBy, reset, cityId } =
+  const { setForm, dateStart, dateEnd, order, orderBy, reset } =
     useCashbackReport()
 
   const [localDateStart, setDateStart] = useState(dateStart)

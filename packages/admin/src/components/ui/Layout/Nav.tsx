@@ -15,7 +15,7 @@ import {
   MenuItem,
   MenuList
 } from '@chakra-ui/react'
-import { FiMenu, FiBell, FiChevronDown, FiUser, FiLogOut } from 'react-icons/fi'
+import { FiMenu, FiChevronDown, FiUser, FiLogOut } from 'react-icons/fi'
 import { useNavigate } from 'react-router'
 
 import { AuthContext } from '../../../contexts/AuthContext'

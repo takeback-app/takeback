@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { createStandaloneToast } from '@chakra-ui/react'
 
 const { toast } = createStandaloneToast()

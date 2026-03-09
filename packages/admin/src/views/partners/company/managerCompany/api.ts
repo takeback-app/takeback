@@ -1,10 +1,12 @@
 import { AxiosError } from 'axios'
 import { API } from '../../../../services/API'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ReturnApi = [boolean, { message?: string; [key: string]: any }]
 
 export async function updateCompanyRepresentative(
   id: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any
 ): Promise<ReturnApi> {
   try {

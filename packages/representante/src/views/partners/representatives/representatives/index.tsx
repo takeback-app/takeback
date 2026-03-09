@@ -206,6 +206,7 @@ export default function Representatives(): JSX.Element {
 
   useEffect(() => {
     findRepresentatives()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

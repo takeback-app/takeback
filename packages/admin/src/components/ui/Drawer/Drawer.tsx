@@ -12,7 +12,7 @@ import * as S from './styles'
 
 const Drawer: React.FC<React.PropsWithChildren<unknown>> = () => {
   const history = useNavigate()
-  const { isOpen, setIsOpen } = useContext(DrawerContext)
+  const { isOpen } = useContext(DrawerContext)
   const { userType } = useContext(AuthContext)
 
   const [renderingAux, setRenderingAux] = useState(false)
