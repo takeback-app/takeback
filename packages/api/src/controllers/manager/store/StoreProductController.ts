@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { DateTime } from 'luxon'
 import { prisma } from '../../../prisma'
 import { CreateProductRequest } from '../../../requests/CreateProductRequest'
+import { UpdateProductRequest } from '../../../requests/UpdateProductRequest'
 import { InternalError } from '../../../config/GenerateErros'
 import { CompanyStatusEnum } from '../../../enum/CompanyStatusEnum'
 import { NotifyNewStoreProductUseCase } from '../../../useCases/raffle/NotifyNewStoreProductUseCase'
@@ -71,6 +72,58 @@ export class StoreProductController {
     return response
       .status(201)
       .json({ message: 'Produto cadastrado com sucesso' })
+  }
+
+  async update(request: Request, response: Response) {
+    const { id } = request.params
+
+    const product = await prisma.storeProduct.findUnique({ where: { id } })
+
+    if (!product) {
+      throw new InternalError('Produto não encontrado', 404)
+    }
+
+    const form = UpdateProductRequest.safeParse(request.body)
+
+    if (!form.success) {
+      return response.status(422).json({ message: 'Erro no formulário' })
+    }
+
+    const orderCount = await prisma.storeOrder.count({
+      where: { storeProductId: id },
+    })
+
+    const hasOrders = orderCount > 0
+
+    const updateData: any = {
+      name: form.data.name,
+      unit: form.data.unit,
+      imageUrl: form.data.imageUrl,
+      maxBuyPerConsumer: form.data.maxBuyPerConsumer,
+      defaultPrice: form.data.defaultPrice,
+      dateLimit: DateTime.fromISO(form.data.dateLimit)
+        .endOf('day')
+        .plus({ hours: 3 })
+        .toISO(),
+      dateLimitWithdrawal: DateTime.fromISO(form.data.dateLimitWithdrawal)
+        .endOf('day')
+        .plus({ hours: 3 })
+        .toISO(),
+    }
+
+    if (form.data.stock !== undefined) {
+      updateData.stock = form.data.stock
+    }
+
+    if (!hasOrders) {
+      updateData.sellPrice = form.data.sellPrice
+      updateData.buyPrice = form.data.buyPrice
+      updateData.companyId = form.data.companyId
+    }
+
+    await prisma.storeProduct.update({ where: { id }, data: updateData })
+
+    return response.json({ message: 'Oferta atualizada com sucesso' })
   }
 
   async delete(request: Request, response: Response) {

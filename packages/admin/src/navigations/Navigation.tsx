@@ -44,6 +44,7 @@ import { LogoChangeRequest } from '../views/partners/logoChangeRequest'
 import { Notifications } from '../views/notifications'
 import { StoreProductsList } from '../views/store'
 import { CreateStoreProduct } from '../views/store/create'
+import { EditStoreProduct } from '../views/store/edit'
 import { StoreProductDetail } from '../views/store/show'
 import { ClientReport } from '../views/reports/client'
 import { SellerReport } from '../views/reports/seller'
@@ -307,6 +308,14 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <CreateStoreProduct />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/ofertas/:id/editar"
+        element={
+          <PrivateRoute>
+            <EditStoreProduct />
           </PrivateRoute>
         }
       />

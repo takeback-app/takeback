@@ -1,8 +1,10 @@
 import { AxiosError } from 'axios'
 import { API } from '../../../services/API'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ReturnApi = [boolean, { message?: string; [key: string]: any }]
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function storeProduct(data: any): Promise<ReturnApi> {
   try {
     const { data: response } = await API.post(`manager/store/products`, data)
@@ -31,6 +33,25 @@ export async function storeImage(file: File): Promise<ReturnApi> {
     })
 
     return [true, data]
+  } catch (err) {
+    const error = err as AxiosError
+
+    return [
+      false,
+      { message: error.response?.data.message || 'Contate um administrador' }
+    ]
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function updateProduct(id: string, data: any): Promise<ReturnApi> {
+  try {
+    const { data: response } = await API.put(
+      `manager/store/products/${id}`,
+      data
+    )
+
+    return [true, response]
   } catch (err) {
     const error = err as AxiosError
 

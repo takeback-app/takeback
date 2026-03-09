@@ -25,7 +25,7 @@ import { Pagination } from '../../components/tables/Pagination'
 import { DeleteButton } from '../../components/DeleteButton'
 import { chakraToastConfig } from '../../styles/chakraToastConfig'
 import { deleteProduct } from './services/api'
-import { IoEye } from 'react-icons/io5'
+import { IoEye, IoPencil } from 'react-icons/io5'
 
 interface Product {
   id: string
@@ -132,9 +132,19 @@ export function StoreProductsList() {
                     <Tooltip label="Detalhes">
                       <IconButton
                         size="sm"
-                        aria-label="cancel"
+                        aria-label="detalhes"
                         icon={<IoEye />}
                         onClick={() => navigateTo(`/ofertas/${product.id}`)}
+                      />
+                    </Tooltip>
+                    <Tooltip label="Editar">
+                      <IconButton
+                        size="sm"
+                        aria-label="editar"
+                        icon={<IoPencil />}
+                        onClick={() =>
+                          navigateTo(`/ofertas/${product.id}/editar`)
+                        }
                       />
                     </Tooltip>
                     <Tooltip label="Deletar">

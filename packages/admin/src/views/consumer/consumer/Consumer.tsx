@@ -19,7 +19,7 @@ import Toastify, { notifyError } from '../../../components/ui/Toastify'
 
 import PALLET from '../../../styles/ColorPallet'
 import * as S from './styles'
-import { ButtonGroup, Flex } from '@chakra-ui/react'
+import { ButtonGroup } from '@chakra-ui/react'
 import { ChangeReferralPercentageButton } from './ChangeReferralPercentageButton'
 
 const statusOptions = [

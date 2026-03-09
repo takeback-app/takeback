@@ -8,8 +8,7 @@ import {
   IoReaderOutline,
   IoRepeatOutline,
   IoSparklesOutline,
-  IoTrashOutline,
-  IoWalletOutline
+  IoTrashOutline
 } from 'react-icons/io5'
 import { IoLogoUsd, IoMdWallet } from 'react-icons/io'
 import { BsUpcScan } from 'react-icons/bs'
@@ -22,7 +21,6 @@ import { currencyFormat } from '../../../utils/currencyFormat'
 import { Layout } from '../../../components/ui/layout'
 import { DefaultModal } from '../../../components/modals/defaultModal'
 import { PrimaryCard } from '../../../components/cards/primaryCard'
-import { SmallCardButton } from '../../../components/cards/smallCardButton'
 import { OutlinedButton } from '../../../components/buttons'
 
 import * as S from './styles'
@@ -132,7 +130,7 @@ export const Cashback: React.FC = () => {
   const [pageLoading, setPageLoading] = useState(true)
   const [buttonLoading, setButtonLoading] = useState(false)
 
-  const [isShowButtonFill, setIsShowButtonFill] = useState(false)
+  const [, setIsShowButtonFill] = useState(false)
 
   const transactions = useMemo(() => {
     if (typeFilter === 'ALL') return allTransactions
