@@ -8,7 +8,7 @@ const API = axios.create({
   }
 })
 
-const axiosFetcher = (url: string | [string, Record<string, unknown>]) => {
+const axiosFetcher = (url: string | [string, Record<string, any>]) => {
   if (Array.isArray(url)) {
     return API.get(url[0], { params: url[1] }).then(res => res.data)
   }

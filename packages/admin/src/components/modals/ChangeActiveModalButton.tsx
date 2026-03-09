@@ -12,7 +12,7 @@ import {
   useDisclosure,
   useToast
 } from '@chakra-ui/react'
-import { IoBan, IoCheckmarkCircle } from 'react-icons/io5'
+import { IoBan, IoCheckmarkCircle, IoKey } from 'react-icons/io5'
 import { chakraToastConfig } from '../../styles/chakraToastConfig'
 import {
   activateRepresentative,

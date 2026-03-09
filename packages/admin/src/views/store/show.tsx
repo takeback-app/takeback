@@ -17,6 +17,7 @@ import {
   Stack,
   Tbody,
   Td,
+  Text,
   Th,
   Thead,
   Tr,

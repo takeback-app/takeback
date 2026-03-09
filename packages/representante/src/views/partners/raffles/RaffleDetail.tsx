@@ -26,6 +26,7 @@ import Layout from '../../../components/ui/Layout'
 import PageLoader from '../../../components/loaders/primaryLoader'
 import { ChakraInput } from '../../../components/chakra/ChakraInput'
 import { currencyFormat } from '../../../utils/currencytFormat'
+import { updateRaffle } from './services/api'
 import { chakraToastConfig } from '../../../styles/chakraToastConfig'
 import moment from 'moment'
 
@@ -78,6 +79,12 @@ interface RaffleDetails {
   }[]
 }
 
+enum RaffleStatusId {
+  APPROVED = 2,
+  REPROVED = 3,
+  CANCELED_FOR_NON_COMPLIANCE = 8
+}
+
 export function RaffleDetail() {
   const { id } = useParams()
 
@@ -90,6 +97,28 @@ export function RaffleDetail() {
   const { data: raffle, isLoading } = useSWR<RaffleDetails>(
     `representative/raffles/${id}`
   )
+
+  async function handleUpdateRaffle(data: { statusId: RaffleStatusId }) {
+    if (!id) return
+
+    const [isOk, response] = await updateRaffle(id, data)
+
+    if (!isOk) {
+      return toast({
+        title: 'Atenção',
+        description: response.message,
+        status: 'error'
+      })
+    }
+
+    toast({
+      title: 'Sucesso',
+      description: response.message,
+      status: 'success'
+    })
+
+    navigateTo(-1)
+  }
 
   if (isLoading || !raffle) {
     return (
