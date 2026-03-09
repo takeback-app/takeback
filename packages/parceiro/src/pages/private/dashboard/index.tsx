@@ -12,6 +12,8 @@ import { AuthContext } from '../../../contexts/AuthContext'
 import { Layout } from '../../../components/ui/layout'
 import { SmallCard } from '../../../components/cards/smallCard'
 import { LargeCard } from '../../../components/cards/largeCard'
+import { LineChart } from '../../../components/charts/lineChart'
+import { DoughnutChart } from '../../../components/charts/doughnutChart'
 
 import * as S from './styles'
 import { BarChart } from '../../../components/charts/barChart'

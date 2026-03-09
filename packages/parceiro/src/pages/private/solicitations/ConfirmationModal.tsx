@@ -23,6 +23,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { IoEye, IoEyeOff } from 'react-icons/io5'
 import { z } from 'zod'
+import { ChakraInput } from '../../../components/inputs/ChakraInput'
 import { chakraToastOptions } from '../../../components/ui/toast'
 import {
   approveSolicitation,
