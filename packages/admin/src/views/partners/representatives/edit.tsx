@@ -14,6 +14,7 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { useNavigate, useParams } from 'react-router'
+import useSWR from 'swr'
 
 import PageLoader from '../../../components/loaders/primaryLoader'
 

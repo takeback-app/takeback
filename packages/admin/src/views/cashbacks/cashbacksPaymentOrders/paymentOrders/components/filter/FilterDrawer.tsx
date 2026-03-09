@@ -88,7 +88,6 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
     }
 
     findFilters()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
