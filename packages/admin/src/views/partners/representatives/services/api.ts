@@ -3,7 +3,6 @@ import { API } from '../../../../services/API'
 
 type ReturnApi = [boolean, { message?: string }]
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function storeRepresentative(data: any): Promise<ReturnApi> {
   try {
     const { data: response } = await API.post(`manager/representatives`, data)
@@ -55,7 +54,6 @@ export async function deactivateRepresentative(id: string): Promise<ReturnApi> {
 
 export async function updateRepresentative(
   id: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any
 ): Promise<ReturnApi> {
   try {

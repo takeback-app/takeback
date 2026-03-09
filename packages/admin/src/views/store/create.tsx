@@ -25,6 +25,7 @@ import { ChakraInput } from '../../components/chakra/ChakraInput'
 import { storeImage, storeProduct } from './services/api'
 import { ImagePreview } from '../../components/ImagePreview'
 import { ChakraSelect } from '../../components/chakra/ChakraSelect'
+import { TCompany } from '../../types/TCompany'
 import useSWR from 'swr'
 
 const schema = z.object({

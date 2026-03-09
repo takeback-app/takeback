@@ -1,5 +1,6 @@
 import React, { useState, useContext, useRef } from 'react'
 import { useNavigate } from 'react-router'
+import Lottie from 'react-lottie'
 import { Form } from '@unform/web'
 import { FormHandles } from '@unform/core'
 import * as Yup from 'yup'
