@@ -17,7 +17,7 @@ async function main() {
         createdAt: { lte: refDate },
       },
     })
-
+    console.log('')
     const bar = new SingleBar({}, Presets.shades_classic)
     bar.start(solicitations.length, 0)
 
