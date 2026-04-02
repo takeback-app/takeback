@@ -8,6 +8,7 @@ export async function connectTypeorm() {
     username: process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
     logging: false,
     entities: [process.env.ENTITIES],
     migrations: [process.env.MIGRATIONS],
