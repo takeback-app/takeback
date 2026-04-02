@@ -13,7 +13,8 @@ class S3Storage implements IStorage {
 
   constructor() {
     this.s3Client = new S3Client({
-      region: process.env.AWS_S3_DEFAULT_REGION,
+      region: process.env.AWS_S3_DEFAULT_REGION ?? "auto",
+      endpoint: process.env.AWS_S3_ENDPOINT,
       credentials: {
         accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
