@@ -72,9 +72,7 @@ export class GenerateTicketsUseCase {
         AND: [
           {
             createdAt: {
-              lte: DateTime.fromJSDate(transaction.createdAt)
-                .startOf('day')
-                .toJSDate(),
+              lte: transaction.createdAt,
             },
             status: { description: RaffleStatusEnum.APPROVED },
             ticketValue: { lte: purchaseAmount },
