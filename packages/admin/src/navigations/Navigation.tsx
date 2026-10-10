@@ -26,6 +26,7 @@ import Industries from '../views/settings/industries'
 import Users from '../views/settings/users/users'
 import PaymentMethods from '../views/settings/paymentMethods'
 import Plans from '../views/settings/plans'
+import { AuctionSettingsView } from '../views/settings/auction/AuctionSettings'
 import NotFound from '../views/notFound'
 import ResetPassword from '../views/auth/ResetPassword'
 import ForgotPassword from '../views/auth/ForgotPassword'
@@ -290,6 +291,14 @@ const Navigation: React.FC<React.PropsWithChildren<unknown>> = () => {
         element={
           <PrivateRoute>
             <Plans />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/configuracoes/desapega"
+        element={
+          <PrivateRoute>
+            <AuctionSettingsView />
           </PrivateRoute>
         }
       />

@@ -34,6 +34,7 @@ import { QRCodeController } from '../controllers/costumer/qrcode/QRCodeControlle
 import { IntegrationController } from '../controllers/costumer/IntegrationController'
 import { PixController } from '../controllers/costumer/pix/PixController'
 import { TransferConfigController } from '../controllers/manager/TransferConfigController'
+import { AuctionController } from '../controllers/costumer/auction/AuctionController'
 
 const costumerAuth = new ConstumerAuthenticationController()
 const costumerAccount = new CostumerAccountController()
@@ -59,6 +60,7 @@ const qrCodeController = new QRCodeController()
 const integrationController = new IntegrationController()
 
 const transferConfig = new TransferConfigController()
+const auctionController = new AuctionController()
 
 const routes = Router()
 
@@ -171,6 +173,9 @@ routes.post('/store/orders', storeOrderController.store)
 routes.post('/pix', pixController.store)
 
 routes.get('/transfer-config', transferConfig.index)
+
+routes.get('/auction-settings', auctionController.settings)
+routes.get('/auctions', auctionController.index)
 
 routes.post('/nfce/qrcode', qrCodeController.store)
 routes.get(

@@ -5,7 +5,8 @@ import {
   IoCardOutline,
   IoBusinessOutline,
   IoBasketOutline,
-  IoConstructOutline
+  IoConstructOutline,
+  IoHammerOutline
 } from 'react-icons/io5'
 
 import Layout from '../../../components/ui/Layout'
@@ -42,6 +43,12 @@ const settingsOptions = [
     icon: IoConstructOutline,
     navTo: '/configuracoes/suporte',
     color: '#13383a'
+  },
+  {
+    title: 'Desapega',
+    icon: IoHammerOutline,
+    navTo: '/configuracoes/desapega',
+    color: '#cc6633'
   }
 ]
 
