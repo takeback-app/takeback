@@ -1,8 +1,10 @@
 import { Request, Response } from 'express'
 import { InternalError } from '../../../config/GenerateErros'
+import { isUuid } from '../../../utils'
 import { ListAuctionsRequest } from '../../../requests/ListAuctionsRequest'
 import { GetAuctionSettingsUseCase } from '../../../useCases/auction/GetAuctionSettingsUseCase'
 import { ListActiveAuctionsUseCase } from '../../../useCases/auction/ListActiveAuctionsUseCase'
+import { GetAuctionDetailUseCase } from '../../../useCases/auction/GetAuctionDetailUseCase'
 
 export class AuctionController {
   async index(request: Request, response: Response) {
@@ -17,6 +19,18 @@ export class AuctionController {
     )
 
     return response.json(auctions)
+  }
+
+  async show(request: Request, response: Response) {
+    const { id } = request.params
+
+    if (!isUuid(id)) {
+      throw new InternalError('Anúncio não encontrado', 404)
+    }
+
+    const auction = await new GetAuctionDetailUseCase().execute({ id })
+
+    return response.json(auction)
   }
 
   async settings(_request: Request, response: Response) {

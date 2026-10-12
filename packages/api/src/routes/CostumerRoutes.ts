@@ -35,6 +35,8 @@ import { IntegrationController } from '../controllers/costumer/IntegrationContro
 import { PixController } from '../controllers/costumer/pix/PixController'
 import { TransferConfigController } from '../controllers/manager/TransferConfigController'
 import { AuctionController } from '../controllers/costumer/auction/AuctionController'
+import { MyAuctionController } from '../controllers/costumer/auction/MyAuctionController'
+import { AuctionImageUploadMiddleware } from '../middlewares/AuctionImageUploadMiddleware'
 
 const costumerAuth = new ConstumerAuthenticationController()
 const costumerAccount = new CostumerAccountController()
@@ -61,6 +63,7 @@ const integrationController = new IntegrationController()
 
 const transferConfig = new TransferConfigController()
 const auctionController = new AuctionController()
+const myAuctionController = new MyAuctionController()
 
 const routes = Router()
 
@@ -176,6 +179,18 @@ routes.get('/transfer-config', transferConfig.index)
 
 routes.get('/auction-settings', auctionController.settings)
 routes.get('/auctions', auctionController.index)
+routes.get('/auctions/:id', auctionController.show)
+
+routes.post(
+  '/auction-images',
+  AuctionImageUploadMiddleware,
+  myAuctionController.uploadImage,
+)
+routes.get('/my-auctions', myAuctionController.index)
+routes.post('/my-auctions', myAuctionController.store)
+routes.get('/my-auctions/:id', myAuctionController.show)
+routes.put('/my-auctions/:id', myAuctionController.update)
+routes.delete('/my-auctions/:id', myAuctionController.destroy)
 
 routes.post('/nfce/qrcode', qrCodeController.store)
 routes.get(

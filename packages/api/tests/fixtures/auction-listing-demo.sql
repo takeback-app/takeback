@@ -35,4 +35,14 @@ SELECT inserted.id, demo.image, 0
 FROM inserted
 JOIN demo ON demo.title = inserted.title;
 
+UPDATE auctions SET "attentionPoints" = 'Pequeno arranhão no quadro e pneu traseiro precisa ser calibrado.'
+WHERE title = '[DEMO] Bicicleta aro 29';
+
+INSERT INTO auction_images ("auctionId", url, "order")
+SELECT auctions.id, extra.url, extra.ord
+FROM auctions,
+  (VALUES ('https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=600', 1),
+          ('https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?w=600', 2)) AS extra (url, ord)
+WHERE auctions.title = '[DEMO] Bicicleta aro 29';
+
 COMMIT;

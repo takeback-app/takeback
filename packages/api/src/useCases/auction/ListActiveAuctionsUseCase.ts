@@ -1,7 +1,6 @@
 import { AuctionStatus } from '@prisma/client'
-import { findOrCreateAuctionSettings } from './GetAuctionSettingsUseCase'
+import { ensureAuctionsEnabled } from './GetAuctionSettingsUseCase'
 import { prisma } from '../../prisma'
-import { InternalError } from '../../config/GenerateErros'
 
 interface ListActiveAuctionsInput {
   page: number
@@ -28,11 +27,7 @@ export class ListActiveAuctionsUseCase {
     search,
     now = new Date(),
   }: ListActiveAuctionsInput): Promise<AuctionListItem[]> {
-    const settings = await findOrCreateAuctionSettings()
-
-    if (!settings.isEnabled) {
-      throw new InternalError('O Desapega não está disponível no momento', 403)
-    }
+    await ensureAuctionsEnabled()
 
     const auctions = await prisma.auction.findMany({
       where: {

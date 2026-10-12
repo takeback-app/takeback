@@ -1,5 +1,6 @@
 import { AuctionSetting } from '@prisma/client'
 import { prisma } from '../../prisma'
+import { InternalError } from '../../config/GenerateErros'
 
 export interface AuctionSettingsResponse {
   isEnabled: boolean
@@ -27,6 +28,16 @@ export async function findOrCreateAuctionSettings() {
   })
 
   return settings ?? prisma.auctionSetting.create({ data: {} })
+}
+
+export async function ensureAuctionsEnabled() {
+  const settings = await findOrCreateAuctionSettings()
+
+  if (!settings.isEnabled) {
+    throw new InternalError('O Desapega não está disponível no momento', 403)
+  }
+
+  return settings
 }
 
 export class GetAuctionSettingsUseCase {
