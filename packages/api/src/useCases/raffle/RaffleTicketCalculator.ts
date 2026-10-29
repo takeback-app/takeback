@@ -60,9 +60,11 @@ export class RaffleTicketCalculator {
 
     if (!canGetTickets) return []
 
-    const newTicketsQtd = Math.floor(
-      this.purchaseAmount / raffle.ticketValue.toNumber(),
-    )
+    const ticketValue = raffle.ticketValue.toNumber()
+
+    if (ticketValue <= 0) return []
+
+    const newTicketsQtd = Math.floor(this.purchaseAmount / ticketValue)
 
     const lastNumber = raffle.tickets[0]?.number || 0
 

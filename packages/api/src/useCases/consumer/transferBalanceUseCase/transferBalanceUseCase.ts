@@ -2,6 +2,8 @@ import bcrypt from 'bcrypt'
 import { DateTime } from 'luxon'
 import { InternalError } from '../../../config/GenerateErros'
 import { prisma } from '../../../prisma'
+import { Notify } from '../../../notifications'
+import { TransferReceivedNotification } from '../../../notifications/TransferReceivedNotification'
 
 interface TransferBalanceProps {
   consumerId: string
@@ -28,6 +30,7 @@ export class TransferBalanceUseCase {
       },
       select: {
         id: true,
+        fullName: true,
         balance: true,
         password: true,
       },
@@ -128,5 +131,10 @@ export class TransferBalanceUseCase {
     } catch (err) {
       throw new InternalError('erro ao efetuar transferência', 400)
     }
+
+    Notify.send(
+      consumerReceived.id,
+      new TransferReceivedNotification(props.value, consumer.fullName),
+    )
   }
 }

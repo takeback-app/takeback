@@ -8,6 +8,7 @@ import {
   ListIcon,
   OrderedList,
   Image,
+  Link,
   SimpleGrid,
   Divider,
   Stack
@@ -105,6 +106,36 @@ const DeleteAccountInfo = () => {
             Dados de perfil e preferências
           </ListItem>
         </List>
+      </Box>
+
+      <Divider mb={6} />
+
+      {/* Exclusão sem acesso ao app */}
+      <Box mb={8}>
+        <Heading as="h2" size="lg" mb={4}>
+          Solicitar exclusão sem acesso ao app
+        </Heading>
+        <Text mb={3}>
+          Se você não tem mais acesso ao aplicativo, pode solicitar a exclusão
+          da sua conta e dos seus dados diretamente com o nosso suporte:
+        </Text>
+        <List spacing={2}>
+          <ListItem>
+            <ListIcon as={CheckCircleIcon} color="green.500" />
+            WhatsApp:{' '}
+            <Link
+              href="https://wa.me/5538998330021?text=Ol%C3%A1%2C%20gostaria%20de%20solicitar%20a%20exclus%C3%A3o%20da%20minha%20conta%20TakeBack."
+              color="blue.300"
+              isExternal
+            >
+              (38) 99833-0021
+            </Link>
+          </ListItem>
+        </List>
+        <Text mt={3}>
+          Informe o CPF cadastrado para localizarmos sua conta. A exclusão será
+          concluída em até 7 dias úteis.
+        </Text>
       </Box>
 
       <Divider mb={6} />

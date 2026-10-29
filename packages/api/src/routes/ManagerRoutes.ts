@@ -41,6 +41,7 @@ import { TransactionStatusController } from '../controllers/manager/TransactionS
 import { CompanyReportController } from '../controllers/manager/reports/CompanyReportController'
 import { FinancialReportController } from '../controllers/manager/reports/FinancialReportController'
 import { TransferConfigController } from '../controllers/manager/TransferConfigController'
+import { AuctionSettingsController } from '../controllers/manager/AuctionSettingsController'
 import { CosumersProfileReportsController } from '../controllers/manager/consumersReports/CosumersReportsController'
 
 const paymentMethod = new PaymentMethodController()
@@ -84,6 +85,7 @@ const notificationController = new NotificationController()
 
 const storeProductController = new StoreProductController()
 const transferConfig = new TransferConfigController()
+const auctionSettings = new AuctionSettingsController()
 
 const fileController = new FileController()
 
@@ -373,6 +375,9 @@ routes.put('/referral-percentage', referralBonusController.update)
 
 routes.get('/transfer-config', transferConfig.index)
 routes.put('/transfer-config', transferConfig.update)
+
+routes.get('/auction-settings', auctionSettings.index)
+routes.put('/auction-settings', auctionSettings.update)
 
 routes.get('/store/companies', storeProductController.listCompanies)
 routes.get('/store/products', storeProductController.index)

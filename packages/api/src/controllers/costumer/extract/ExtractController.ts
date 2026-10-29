@@ -1,7 +1,10 @@
 import { Request, Response } from 'express'
+import { DateTime } from 'luxon'
 import { prisma } from '../../../prisma'
-import { GetExtractUseCase } from '../../../useCases/extract/GetExtractUseCase'
-import { GetFirstExtractRegisterUseCase } from '../../../useCases/extract/GetFirstExtractRegisterUseCase'
+import {
+  GetExtractUseCase,
+  formatMonthTitle,
+} from '../../../useCases/extract/GetExtractUseCase'
 
 export class ExtractController {
   async index(request: Request, response: Response) {
@@ -21,23 +24,35 @@ export class ExtractController {
 
     const pageNumber = Number(page) || 1
 
-    const getFirstExtractRegisterUseCase = new GetFirstExtractRegisterUseCase(
-      consumerId,
-      pageNumber,
-    )
+    const useCase = new GetExtractUseCase(consumerId)
+    const items = await useCase.execute()
 
-    const shouldLoadMore = await getFirstExtractRegisterUseCase.execute()
+    const monthKeys: string[] = []
+    const itemsByMonth = new Map<string, typeof items>()
 
-    if (!shouldLoadMore) return response.json({ title: undefined, data: [] })
+    for (const item of items) {
+      const monthKey = DateTime.fromJSDate(item.referenceDate).toFormat(
+        'yyyy-MM',
+      )
+      const bucket = itemsByMonth.get(monthKey)
 
-    const useCase = new GetExtractUseCase(consumerId, pageNumber)
+      if (bucket) {
+        bucket.push(item)
+      } else {
+        itemsByMonth.set(monthKey, [item])
+        monthKeys.push(monthKey)
+      }
+    }
 
-    const data = await useCase.execute()
-    const monthName = useCase.getMonthName()
+    monthKeys.sort((a, b) => b.localeCompare(a))
+
+    const monthKey = monthKeys[pageNumber - 1]
+
+    if (!monthKey) return response.json({ title: undefined, data: [] })
 
     return response.json({
-      title: monthName,
-      data,
+      title: formatMonthTitle(DateTime.fromFormat(monthKey, 'yyyy-MM')),
+      data: itemsByMonth.get(monthKey),
     })
   }
 

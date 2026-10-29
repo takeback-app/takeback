@@ -80,6 +80,18 @@ type ExtractItem = ExtractItemType & {
   referenceDate: Date
 }
 
+export function formatMonthTitle(month: DateTime): string {
+  const localized = month.setLocale('pt-br')
+
+  const isSameYear = localized.hasSame(DateTime.now(), 'year')
+
+  const monthName = isSameYear
+    ? localized.toFormat('MMMM')
+    : localized.toFormat('MMMM - yyyy')
+
+  return monthName[0].toUpperCase() + monthName.slice(1)
+}
+
 export class GetExtractUseCase {
   private startPageDate?: Date
   private month?: DateTime
@@ -105,13 +117,7 @@ export class GetExtractUseCase {
   getMonthName() {
     if (!this.month) return
 
-    const isSameYear = this.month.hasSame(DateTime.now(), 'year')
-
-    const monthName = isSameYear
-      ? this.month.toFormat('MMMM')
-      : this.month.toFormat('MMMM - yyyy')
-
-    return monthName[0].toUpperCase() + monthName.slice(1)
+    return formatMonthTitle(this.month)
   }
 
   async execute(): Promise<ExtractItem[]> {

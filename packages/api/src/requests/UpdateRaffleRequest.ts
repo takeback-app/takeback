@@ -6,7 +6,7 @@ export const UpdateRaffleRequest = z
     title: z.string().optional(),
     imageUrl: z.string().url().optional(),
     pickUpLocation: z.string().optional(),
-    ticketValue: z.number().min(0).optional(),
+    ticketValue: z.number().positive().optional(),
     drawDate: z.string().datetime().optional(),
     isOpenToOtherCompanies: z.boolean(),
     openToOtherCompanies: z.string().array().optional(),

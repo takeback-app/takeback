@@ -12,7 +12,7 @@ export const CreateRaffleRequest = z
   .object({
     title: z.string(),
     imageUrl: z.string().url().optional(),
-    ticketValue: z.number().min(0),
+    ticketValue: z.number().positive(),
     drawDate: z.string().datetime(),
     pickUpLocation: z.string(),
     isOpenToOtherCompanies: z.boolean(),

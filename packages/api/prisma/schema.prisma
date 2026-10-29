@@ -242,6 +242,7 @@ model Consumer {
   storeOrders                   StoreOrder[]
   qrCodes                       QRCode[]
   deposits                      Deposit[]
+  auctions                      Auction[]
 
   @@map("consumers")
 }
@@ -1180,4 +1181,65 @@ model CompanyTransfer {
   companyUser       CompanyUser? @relation(fields: [companySentUserId], references: [id])
 
   @@map("company_transfers")
+}
+
+model AuctionSetting {
+  id                      Int      @id @default(autoincrement())
+  isEnabled               Boolean  @default(false)
+  defaultDurationHours    Int      @default(48)
+  listingFee              Decimal  @default(0) @db.Decimal(10, 2)
+  minimumStartingBid      Decimal  @default(1) @db.Decimal(10, 2)
+  defaultMinimumIncrement Decimal  @default(1) @db.Decimal(10, 2)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @default(now()) @updatedAt
+
+  @@map("auction_settings")
+}
+
+enum AuctionStatus {
+  DRAFT
+  ACTIVE
+  FINISHED_WITH_WINNER
+  FINISHED_WITHOUT_BIDS
+  NEGOTIATING
+  DELIVERED
+  CANCELED
+  SUSPENDED
+}
+
+model Auction {
+  id               String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  sellerId         String        @db.Uuid
+  title            String        @db.VarChar(120)
+  description      String
+  attentionPoints  String?
+  startingBid      Decimal       @db.Decimal(10, 2)
+  minimumIncrement Decimal       @db.Decimal(10, 2)
+  highestBid       Decimal?      @db.Decimal(10, 2)
+  bidsCount        Int           @default(0)
+  status           AuctionStatus @default(DRAFT)
+  publishedAt      DateTime?
+  endsAt           DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @default(now()) @updatedAt
+
+  seller Consumer       @relation(fields: [sellerId], references: [id])
+  images AuctionImage[]
+
+  @@index([status, endsAt])
+  @@index([sellerId])
+  @@map("auctions")
+}
+
+model AuctionImage {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  auctionId String   @db.Uuid
+  url       String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  auction Auction @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+
+  @@index([auctionId, order])
+  @@map("auction_images")
 }
